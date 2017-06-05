@@ -1,0 +1,21 @@
+tabla book
+--------
+id_book **
+ruta **
+page_num_a **
+page_num_b **
+
+al hacer la foto
+images
+----
+para la cámara A
+
+id_book
+ruta
+page_num_a
+
+para la B
+
+id_book
+ruta
+page_num_b
