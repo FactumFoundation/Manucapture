@@ -1,0 +1,73 @@
+<project>
+
+        <metadata>
+            <name>My project name</name>
+        </metadata>
+
+        <items>
+            <item>
+                    <image_left>images/_41_7_1_20170327090738.cr2</image_left>
+                    <image_right>images/_41_19_0_20170327091845.cr2</image_right>
+                    <page_num>1</page_num>
+                    <comment>Aquí un comentario añadido...</comment>
+                    <type>Item</type>
+            </item>
+            <item>
+                    <image_left>images/_41_15_1_20170327091119.cr2</image_left>
+                    <image_right>images/_41_2_0_20170327085207.cr2</image_right>
+                    <page_num>2</page_num>
+                    <comment>Aquí un comentario añadido...</comment>
+                    <type>Item</type>
+            </item>
+            <item>
+                    <image_left>images/_41_7_1_20170327085722.cr2</image_left>
+                    <image_right>images/_41_4_0_20170327085450.cr2</image_right>
+                    <page_num>3</page_num>
+                    <comment>Aquí un comentario añadido...</comment>
+                    <type>Item</type>
+            </item>
+            <item>
+                    <image_left>images/_41_3_1_20170327085207.cr2</image_left>
+                    <image_right>images/_41_8_0_20170327090839.cr2</image_right>
+                    <page_num>4</page_num>
+                    <comment>Aquí un comentario añadido...</comment>
+                    <type>Item</type>
+            </item>
+            <item>
+                    <image_left>images/_41_20_1_20170327091845.cr2</image_left>
+                    <image_right>images/_41_6_0_20170327085722.cr2</image_right>
+                    <page_num>5</page_num>
+                    <comment>Aquí un comentario añadido...</comment>
+                    <type>Item</type>
+            </item>
+            <item>
+                    <image_left>images/_41_9_1_20170327090839.cr2</image_left>
+                    <image_right>images/_41_10_0_20170327093227.cr2</image_right>
+                    <page_num>6</page_num>
+                    <comment>Aquí un comentario añadido...</comment>
+                    <type>Item</type>
+            </item>
+            <item>
+                    <image_left>images/_41_3_1_20170327085345.cr2</image_left>
+                    <image_right>images/_41_10_0_20170327091033.cr2</image_right>
+                    <page_num>7</page_num>
+                    <comment>Aquí un comentario añadido...</comment>
+                    <type>Item</type>
+            </item>
+            <item>
+                    <image_left>images/_41_5_1_20170327085450.cr2</image_left>
+                    <image_right>images/_41_2_0_20170327085345.cr2</image_right>
+                    <page_num>8</page_num>
+                    <comment>Aquí un comentario añadido...</comment>
+                    <type>Item</type>
+            </item>
+            <item>
+                    <image_left>images/_41_11_1_20170327092644.cr2</image_left>
+                    <image_right>images/_41_14_0_20170327091119.cr2</image_right>
+                    <page_num>9</page_num>
+                    <comment>Aquí un comentario añadido...</comment>
+                    <type>Item</type>
+            </item>
+        </items>
+
+</project>
