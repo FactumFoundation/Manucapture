@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Session>
-  <Project>/home/factum/test_book/project.xml</Project>
-  <Current_Item>0</Current_Item>
+  <Project>/home/veronica1/Documents/book_scanner_v2/tests/Test_Book/project.xml</Project>
+  <Current_Item>-1</Current_Item>
   <Camera_A_Active>0</Camera_A_Active>
   <Camera_B_Active>0</Camera_B_Active>
 </Session>
