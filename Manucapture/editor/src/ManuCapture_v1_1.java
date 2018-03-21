@@ -31,7 +31,7 @@ public class ManuCapture_v1_1 extends PApplet {
 	 * see http://www.factumfoundation.org/pag/235/Digitisation-of-oriental-
 	 * manuscripts-in-Daghestan
 	 * 
-	 * Copyright (c) 2016-2017 Jorge Cano and Enrique Esteban in Factum
+	 * Copyright (c) 2016-2018 Jorge Cano and Enrique Esteban in Factum
 	 * Foundation
 	 * 
 	 * This program is free software; you can redistribute it and/or modify it
@@ -187,6 +187,9 @@ public class ManuCapture_v1_1 extends PApplet {
 	String serialCameraB;
 	String newImagePathA = "";
 	String newImagePathB = "";
+	
+	PImage previewImgLeft=null;
+	PImage previewImgRight=null;
 
 	
 	public void _println(String message) {
@@ -203,7 +206,6 @@ public class ManuCapture_v1_1 extends PApplet {
 		logOutput.println("[" + date + "] " + message);
 		logOutput.flush(); // Writes the remaining data to the file
 	}
-	
 	
 	
 	public void setup() {
@@ -240,7 +242,6 @@ public class ManuCapture_v1_1 extends PApplet {
 
 	}
 
-	
 	int lastDrawedItems = -1;
 	int ADDING_ITEM_TRANSITION = 1;
 	int REMOVING_ITEM_TRANSITION = 2;
@@ -401,10 +402,10 @@ public class ManuCapture_v1_1 extends PApplet {
 						
 						if((i!=selectedItemIndex) || (itemsViewTransition != ADDING_ITEM_TRANSITION)){
 							if (item.imgThumbRight != null) {
-								itemsViewPort.image(item.imgThumbRight, marginX, viewPortRelativeHeight);
+								itemsViewPort.image(item.imgThumbRight, marginX + item.imgThumbLeft.width, viewPortRelativeHeight);
 							}
 							if (item.imgThumbLeft != null) {
-								itemsViewPort.image(item.imgThumbLeft, marginX + item.imgThumbLeft.width,
+								itemsViewPort.image(item.imgThumbLeft, marginX,
 										viewPortRelativeHeight);
 							}
 							itemsViewPort.noFill();
@@ -447,10 +448,37 @@ public class ManuCapture_v1_1 extends PApplet {
 			}
 
 		}
-
 		itemsViewPort.endDraw();
 		image(itemsViewPort, itemListViewPortX, itemListViewPortY);
-
+		
+		if(previewImgLeft !=  null){
+			pushMatrix();
+			translate(580 + previewImgLeft.height/2,20 + previewImgLeft.width/2);
+			rotate(PI/2);
+			imageMode(CENTER);
+			image(previewImgLeft,0,0);
+			imageMode(CORNER);
+			popMatrix();
+		} else {
+			stroke(255);
+			fill(50);
+			rect(580,20,667,1000);
+		}
+				
+		if(previewImgRight !=  null){
+			pushMatrix();
+			translate(1250 + previewImgRight.height/2,20 + previewImgRight.width/2);
+			rotate(3*PI/2);
+			imageMode(CENTER);
+			image(previewImgRight,0,0);
+			imageMode(CORNER);
+			popMatrix();
+		} else {
+			stroke(255);
+			fill(50);
+			rect(1250,20,667,1000);
+		}
+		
 	}
 
 	public void mouseMoved() {
@@ -568,9 +596,7 @@ public class ManuCapture_v1_1 extends PApplet {
 	
 	public void newPhotoEvent(G2P5 gphoto, String absoluteFilePath) {
 
-		println("New photo!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!11", absoluteFilePath);
-
-		
+		println("New photo!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!", absoluteFilePath);
 		if (gphoto == gphotoA) {
 			newImagePathA = absoluteFilePath;
 
@@ -582,7 +608,7 @@ public class ManuCapture_v1_1 extends PApplet {
 				|| (gphotoA.isConnected() && !gphotoB.isConnected() && !newImagePathA.equals("")) 
 				|| (!gphotoA.isConnected() && gphotoB.isConnected() && !newImagePathB.equals(""))
 				) {
-			delay(3000);
+			//delay(3000);
 			if (shutterMode == NORMAL_SHUTTER) {
 
 				float newPageNum;
@@ -1136,19 +1162,30 @@ public class ManuCapture_v1_1 extends PApplet {
 		if (index >= 0 && index < items.size()) {
 			selectedItem = items.get(index);
 			OscMessage myMessage = new OscMessage("/load/item");
+			String leftImagePath = "";
+			String rightImagePath = "";
 			if (selectedItem.imagePathRight != null && selectedItem.imagePathRight.length()!=0) {
-				myMessage.add(projectDirectory + "/" + selectedItem.imagePathRight);
+				rightImagePath = projectDirectory + "/" + selectedItem.imagePathRight;
+				myMessage.add(rightImagePath);
 			} else {
 				myMessage.add("");
 			}
-			if (selectedItem.imagePathLeft != null && (selectedItem.imagePathLeft.length()!=0))
-				myMessage.add(projectDirectory + "/" + selectedItem.imagePathLeft);
-			else
+			if (selectedItem.imagePathLeft != null && (selectedItem.imagePathLeft.length()!=0)) {
+				leftImagePath  = projectDirectory + "/" + selectedItem.imagePathLeft;
+				myMessage.add(leftImagePath);
+			}
+			else {
 				myMessage.add("");
-
+			}
 		
 			println("send the message to viewer");
+			
+			// View message for viewer
 			oscP5.send(myMessage, viewerLocation);
+			// Now we do the preview on app
+			loadPreviews(leftImagePath,rightImagePath);
+			
+			
 			page_comments_text.setText(selectedItem.comment);
 			page_num_text.setText(String.valueOf(selectedItem.pagNum));
 			gphotoA.setTargetFile(projectDirectory + "/raw", projectCode);
@@ -1493,6 +1530,99 @@ public class ManuCapture_v1_1 extends PApplet {
 			e.printStackTrace();
 		}
 	}
+	
+	
+	// Image preview
+	
+	String lastLeftImagePath = "";
+	String lastRightImagePath = "";
+	
+	void loadPreviews(String leftImagePath, String rightImagePath) {
+		
+		long startMillis = millis();
+		
+		 		
+		if(!leftImagePath.equals("")){
+			
+			String previewFolder = sketchPath() + "/data/preview_left/";
+		
+			deleteFile(previewFolder + "*.jpg");
+			
+			File itemImgLeft = new File(leftImagePath);
+			String fileName = FilenameUtils.removeExtension(itemImgLeft.getName());
+			String resizedImage = "left_preview.jpg";
+			String previewName = fileName + "-preview3.jpg";
+			String previewFullPath = previewFolder + previewName;
+			String resizedImageFullPath = previewFolder + resizedImage;
+			String command = "exiv2 -ep3 -l " + previewFolder +  " " + leftImagePath;	
+			lastLeftImagePath = previewFullPath;
+			try {
+			 Process process = Runtime.getRuntime().exec(command);
+			 process.waitFor();
+			} catch(Exception e) {
+			 e.printStackTrace();
+			}
+			
+			command = "convert " + previewFullPath + " -resize 1000x667 " + resizedImageFullPath;
+			try {
+				Process process = Runtime.getRuntime().exec(command);
+				process.waitFor();
+				previewImgLeft = loadImage(resizedImageFullPath);
+			} catch(Exception e) {
+				e.printStackTrace();
+			}
+			
+			
+		}
+		
+		
+		if(!rightImagePath.equals("")){
+			
+			String previewFolder = sketchPath() + "/data/preview_right/";
+		
+			// Clear preview folder 
+			deleteFile(previewFolder + "*.jpg");
+			
+			File itemImgRight = new File(rightImagePath);
+			String fileName = FilenameUtils.removeExtension(itemImgRight.getName());
+			String resizedImage = "right_preview.jpg";
+			String previewName = fileName + "-preview3.jpg";
+			String previewFullPath = previewFolder + previewName;
+			String resizedImageFullPath = previewFolder + resizedImage;
+		    lastRightImagePath = previewFullPath;
+			String command = "exiv2 -ep3 -l " + previewFolder +  " " + rightImagePath;		  
+			try {
+			 Process process = Runtime.getRuntime().exec(command);
+			 process.waitFor();
+			} catch(Exception e) {
+			 e.printStackTrace();
+			}
+			
+			command = "convert " + previewFullPath + " -resize 1000x667 " + resizedImageFullPath;
+			try {
+				Process process = Runtime.getRuntime().exec(command);
+			 	InputStream error = process.getErrorStream();
+
+				process.waitFor();
+			    String err = "Error:";
+			    for (int i = 0; i < error.available(); i++) {
+			        err += (char) error.read();
+			    }
+			    if(!err.equals("Error:")){
+				    println(err);
+			    }
+
+				previewImgRight = loadImage(resizedImageFullPath);
+			} catch(Exception e) {
+				e.printStackTrace();
+			}
+				
+		}		  
+		  		  
+		long endMillis = millis();
+	
+	}
+	
 
 	/*
 	 * MetaData_Utils : Extra functions for Metadata generation: md5, timestamp
@@ -1801,7 +1931,7 @@ public class ManuCapture_v1_1 extends PApplet {
 		println("textfield2 - GTextField >> GEvent." + event + " @ " + millis());
 	} // _CODE_:page_search_text:741750:
 
-	public void export_button_click(GButton source, GEvent event) { // _CODE_:export_button:581416:
+	public void liveView_button_click(GButton source, GEvent event) { // _CODE_:export_button:581416:
 		println("export_button - GButton >> GEvent." + event + " @ " + millis());
 	} // _CODE_:export_button:581416:
 
@@ -1971,10 +2101,10 @@ public class ManuCapture_v1_1 extends PApplet {
 		page_search_label.setTextBold();
 		page_search_label.setLocalColorScheme(GCScheme.CYAN_SCHEME);
 		page_search_label.setOpaque(true);
-		export_button = new GButton(this, 501, 11, 80, 24);
-		export_button.setText("EXPORT");
-		export_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
-		export_button.addEventHandler(this, "export_button_click");
+		liveView_button = new GButton(this, 490, 11, 80, 24);
+		liveView_button.setText("LIVEVIEW");
+		liveView_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
+		liveView_button.addEventHandler(this, "liveView_button_click");
 	}
 
 	// Variable declarations
@@ -2015,10 +2145,11 @@ public class ManuCapture_v1_1 extends PApplet {
 	GButton new_button;
 	GTextField page_search_text;
 	GLabel page_search_label;
-	GButton export_button;
+	GButton liveView_button;
 
 	public void settings() {
-		size(595, 1030);
+		//size(595, 1030);
+		size(1920, 1030);
 	}
 
 	static public void main(String[] passedArgs) {
