@@ -342,7 +342,7 @@ public class Project {
 			for (int index = 0; index < unusedImgs.length; index++) {
 				String targetFilePath = unusedImgs[index];
 				deleteFile(targetFilePath);
-				String thumbnailPath = context.thumbnail.getThumbnailPath(context.projectDirectory,
+				String thumbnailPath = context.thumbnail.getThumbnailPath(projectDirectory,
 						new File(targetFilePath));
 				deleteFile(thumbnailPath);
 			}

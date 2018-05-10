@@ -4,8 +4,6 @@ import processing.core.PApplet;
 
 public class ManuCaptureContext {
 
-	String projectDirectory;
-
 	PApplet parent;
 
 	RawFile thumbnail;
@@ -18,4 +16,6 @@ public class ManuCaptureContext {
 	GUI gui;
 
 	NetAddress viewerLocation;
+	
+	Project project;
 }

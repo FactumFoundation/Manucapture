@@ -209,8 +209,12 @@ public class ManuCapture_v1_1 extends PApplet {
 		context.parent = this;
 		context.gui = new GUI();
 		
+		
+		
 		project = new Project();
 		project.context = context;
+		
+		context.project = project;
 		
 		if (surface != null) {
 			surface.setLocation(0, 0);
@@ -274,6 +278,54 @@ public class ManuCapture_v1_1 extends PApplet {
 			context.gui.camera_B_connected_button.setLocalColorScheme(GCScheme.RED_SCHEME);
 		}
 
+
+		drawItemsViewPort();
+		
+		image(itemsViewPort, itemListViewPortX, itemListViewPortY);
+	drawLeft();
+
+		drawRight();
+		
+		
+		text(frameRate,10,10);
+
+	}
+
+	private void drawRight() {
+		if (project.previewImgRight != null) {
+			pushMatrix();
+			translate(1250 + project.previewImgRight.height / 2, 20 + project.previewImgRight.width / 2);
+			rotate(3 * PI / 2);
+			imageMode(CENTER);
+			image(project.previewImgRight, 0, 0);
+			imageMode(CORNER);
+			popMatrix();
+		} else {
+			stroke(255);
+			fill(50);
+			rect(1250, 20, 667, 1000);
+		}
+	}
+
+	private void drawLeft() {
+		if (project.previewImgLeft != null) {
+			pushMatrix();
+			translate(580 + project.previewImgLeft.height / 2, 20 + project.previewImgLeft.width / 2);
+			rotate(PI / 2);
+			imageMode(CENTER);
+			image(project.previewImgLeft, 0, 0);
+			imageMode(CORNER);
+			popMatrix();
+		} else {
+			stroke(255);
+			fill(50);
+			rect(580, 20, 667, 1000);
+		}
+	}
+
+	private void drawItemsViewPort() {
+		
+		
 		// ITEM LIST VIEW PORT SECTION
 		// /////////////////////////////////////////////////
 		// Items view port
@@ -311,7 +363,7 @@ public class ManuCapture_v1_1 extends PApplet {
 			scrollHandleHeight = map(itemsViewPort.height, 0, fullListHeight, 0, itemsViewPort.height);
 
 		}
-
+		
 		itemsViewPort.beginDraw();
 		itemsViewPort.background(0);
 		itemsViewPort.noStroke();
@@ -447,36 +499,6 @@ public class ManuCapture_v1_1 extends PApplet {
 
 		}
 		itemsViewPort.endDraw();
-		image(itemsViewPort, itemListViewPortX, itemListViewPortY);
-
-		if (project.previewImgLeft != null) {
-			pushMatrix();
-			translate(580 + project.previewImgLeft.height / 2, 20 + project.previewImgLeft.width / 2);
-			rotate(PI / 2);
-			imageMode(CENTER);
-			image(project.previewImgLeft, 0, 0);
-			imageMode(CORNER);
-			popMatrix();
-		} else {
-			stroke(255);
-			fill(50);
-			rect(580, 20, 667, 1000);
-		}
-
-		if (project.previewImgRight != null) {
-			pushMatrix();
-			translate(1250 + project.previewImgRight.height / 2, 20 + project.previewImgRight.width / 2);
-			rotate(3 * PI / 2);
-			imageMode(CENTER);
-			image(project.previewImgRight, 0, 0);
-			imageMode(CORNER);
-			popMatrix();
-		} else {
-			stroke(255);
-			fill(50);
-			rect(1250, 20, 667, 1000);
-		}
-
 	}
 
 	public void mouseMoved() {
@@ -662,7 +684,7 @@ public class ManuCapture_v1_1 extends PApplet {
 					relNewImagePathB = newImagePathB.substring(project.projectDirectory.length() + 1, newImagePathB.length());
 
 				Item newItem = new Item(context, relNewImagePathA, relNewImagePathB, newPageNum, "", "Item");
-				newItem.loadThumbnails(context, newImagePathA, newImagePathB);
+				newItem.loadThumbnails(project, newImagePathA, newImagePathB);
 
 				addItem(project.selectedItemIndex + 1, newItem);
 				newImagePathA = "";
@@ -690,7 +712,7 @@ public class ManuCapture_v1_1 extends PApplet {
 								newImagePathB.length());
 
 					Item newItem = new Item(context, relNewImagePathA, relNewImagePathB, newPageNum, "", "SubItem");
-					newItem.loadThumbnails(context, newImagePathA, newImagePathB);
+					newItem.loadThumbnails(project, newImagePathA, newImagePathB);
 					addSubItem(project.selectedItemIndex + 1, newItem);
 					newImagePathA = "";
 					newImagePathB = "";
@@ -716,7 +738,7 @@ public class ManuCapture_v1_1 extends PApplet {
 
 					Item newItem = new Item(context, relNewImagePathA, relNewImagePathB, newPageNum, "",
 							project.selectedItem.type);
-					newItem.loadThumbnails();
+					newItem.loadThumbnails(project);
 					replaceItem(project.selectedItemIndex, newItem);
 					newImagePathA = "";
 					newImagePathB = "";
@@ -952,11 +974,11 @@ public class ManuCapture_v1_1 extends PApplet {
 		if (index >= 0 && index < items.size()) {
 			if (newItem.imagePathLeft.equals("")) {
 				newItem.imagePathLeft = items.get(index).imagePathLeft;
-				newItem.loadThumbnails();
+				newItem.loadThumbnails(project);
 			}
 			if (newItem.imagePathRight.equals("")) {
 				newItem.imagePathRight = items.get(index).imagePathRight;
-				newItem.loadThumbnails();
+				newItem.loadThumbnails(project);
 			}
 			items.remove(index);
 			items.add(index, newItem);

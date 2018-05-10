@@ -43,16 +43,16 @@ public class Item {
 		imgThumbRight = null;
 	}
 
-	void loadThumbnails() {
-		loadThumbnails(context,imagePathLeft,imagePathRight);
+	void loadThumbnails(Project project ) {
+		loadThumbnails(project,imagePathLeft,imagePathRight);
 	}
 
-	void loadThumbnails(ManuCaptureContext context, String newImagePathA, String newImagePathB) {
+	void loadThumbnails(Project project, String newImagePathA, String newImagePathB) {
 		if (imagePathLeft != null && !imagePathLeft.equals("")) {
-			File itemImgLeft = new File(context.projectDirectory + "/" + imagePathLeft);
+			File itemImgLeft = new File(project.projectDirectory + "/" + imagePathLeft);
 
 			if (itemImgLeft.exists()) {
-				String thumbnailPath = context.thumbnail.getThumbnailPath(context.projectDirectory, itemImgLeft);
+				String thumbnailPath = context.thumbnail.getThumbnailPath(project.projectDirectory, itemImgLeft);
 				context.parent.println("Left " + thumbnailPath);
 				File thumbFile = new File(thumbnailPath);
 				if (!thumbFile.exists()) {
@@ -68,9 +68,9 @@ public class Item {
 			}
 		}
 		if (imagePathRight != null && !imagePathRight.equals("")) {
-			File itemImgRight = new File(context.projectDirectory + "/" + imagePathRight);
+			File itemImgRight = new File(project.projectDirectory + "/" + imagePathRight);
 			if (itemImgRight.exists()) {
-				String thumbnailPath = context.thumbnail.getThumbnailPath(context.projectDirectory, itemImgRight);
+				String thumbnailPath = context.thumbnail.getThumbnailPath(project.projectDirectory, itemImgRight);
 				File thumbFile = new File(thumbnailPath);
 				if (!thumbFile.exists()) {
 					imgThumbRight = context.thumbnail.generateThumbnail(context, itemImgRight, true);

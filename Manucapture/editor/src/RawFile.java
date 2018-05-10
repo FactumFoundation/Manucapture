@@ -17,7 +17,9 @@ public class RawFile {
 	
 	public PImage generateThumbnail(ManuCaptureContext context,File rawImgFile, boolean rightImg) {
 
-		String thumbnailPath = getThumbnailPath(context.projectDirectory,rawImgFile);
+		parent = context.parent;
+		
+		String thumbnailPath = getThumbnailPath(context.project.projectDirectory,rawImgFile);
 		String commandGenerate = "exiftool -b -ThumbnailImage " + rawImgFile.getPath() + " > " + thumbnailPath;
 		parent.println(commandGenerate);
 		try {
