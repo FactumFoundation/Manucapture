@@ -437,6 +437,7 @@ public class Project {
 				Process process = Runtime.getRuntime().exec(command);
 				process.waitFor();
 				previewImgLeft = context.parent.loadImage(resizedImageFullPath);
+				context.renderLeft = true;
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -480,6 +481,7 @@ public class Project {
 				}
 
 				previewImgRight = context.parent.loadImage(resizedImageFullPath);
+				context.renderRight = true;
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

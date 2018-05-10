@@ -70,8 +70,6 @@ public class ManuCapture_v1_1 extends PApplet {
 
 	// Need install G4P, OSC, Apache.Commons.io library
 
-	
-
 	PrintWriter logOutput;
 
 	int receivePort = 3334;
@@ -128,7 +126,7 @@ public class ManuCapture_v1_1 extends PApplet {
 	int itemListViewPortHeight = 900;
 
 	Project project = null;
-	
+
 	int overedItemIndex;
 	int overedCancelButtonIndex = -1;
 	int selectItemColor = 0xffB7691F;
@@ -146,7 +144,6 @@ public class ManuCapture_v1_1 extends PApplet {
 	int SCROLL_HANDLE_OVER = 1;
 	int SCROLL_HANDLE_PRESSED = 2;
 
-	
 	boolean initSelectedItem = false;
 
 	PImage removeItemIcon;
@@ -173,12 +170,11 @@ public class ManuCapture_v1_1 extends PApplet {
 	String serialCameraA;
 	String serialCameraB;
 
-
 	String newImagePathA = "";
 	String newImagePathB = "";
 
 	ManuCaptureContext context = new ManuCaptureContext();
-	
+
 	int lastDrawedItems = -1;
 	int ADDING_ITEM_TRANSITION = 1;
 	int REMOVING_ITEM_TRANSITION = 2;
@@ -208,14 +204,12 @@ public class ManuCapture_v1_1 extends PApplet {
 		context.thumbnail = new RawFile();
 		context.parent = this;
 		context.gui = new GUI();
-		
-		
-		
+
 		project = new Project();
 		project.context = context;
-		
+
 		context.project = project;
-		
+
 		if (surface != null) {
 			surface.setLocation(0, 0);
 		}
@@ -241,23 +235,32 @@ public class ManuCapture_v1_1 extends PApplet {
 		context.oscP5 = new OscP5(this, receivePort);
 		context.viewerLocation = new NetAddress("127.0.0.1", sendPort);
 
-		loadLastSessionData();
+		
 		bookIcon = loadImage("bookIcon.png");
 		bookIcon.resize(bookIcon.width / 6, bookIcon.height / 6);
+		
+		background(backgroundColor);
+		
+		frameRate(25);
 
-		
-		
 	}
-
-
+	
+	boolean loadData = true;
 
 	public void draw() {
+		
+		if(loadData){
+			loadLastSessionData();
+			loadData = false;
+		}
 
 		if (surface != null) {
 			surface.setLocation(0, 0);
 		}
 
-		background(backgroundColor);
+//+		background(backgroundColor);
+		fill(backgroundColor);
+		rect(0,0,200,200);
 
 		// CAMERA STATE SECTION
 		// ///////////////////////////////////////////////////////
@@ -278,16 +281,23 @@ public class ManuCapture_v1_1 extends PApplet {
 			context.gui.camera_B_connected_button.setLocalColorScheme(GCScheme.RED_SCHEME);
 		}
 
-
 		drawItemsViewPort();
-		
-		image(itemsViewPort, itemListViewPortX, itemListViewPortY);
-	drawLeft();
 
-		drawRight();
+		image(itemsViewPort, itemListViewPortX, itemListViewPortY);
+		if(context.renderLeft){
+			drawLeft();
+			context.renderLeft = false;
+		}
 		
+		if(context.renderRight){
+			drawRight();
+			context.renderRight = false;
+		}
 		
-		text(frameRate,10,10);
+
+		
+		fill(255);
+		text(frameRate, 10, 10);
 
 	}
 
@@ -324,8 +334,7 @@ public class ManuCapture_v1_1 extends PApplet {
 	}
 
 	private void drawItemsViewPort() {
-		
-		
+
 		// ITEM LIST VIEW PORT SECTION
 		// /////////////////////////////////////////////////
 		// Items view port
@@ -363,7 +372,7 @@ public class ManuCapture_v1_1 extends PApplet {
 			scrollHandleHeight = map(itemsViewPort.height, 0, fullListHeight, 0, itemsViewPort.height);
 
 		}
-		
+
 		itemsViewPort.beginDraw();
 		itemsViewPort.background(0);
 		itemsViewPort.noStroke();
@@ -545,7 +554,7 @@ public class ManuCapture_v1_1 extends PApplet {
 		}
 		scrollHandleState = SCROLL_HANDLE_IDLE;
 	}
-	
+
 	public void forceSelectedItem(int index, boolean transition) {
 		project.selectedItemIndex = min(index, project.items.size() - 1);
 		if (transition) {
@@ -565,7 +574,8 @@ public class ManuCapture_v1_1 extends PApplet {
 				if (project.items.size() == 1)
 					scrollHandleY = 0;
 				else
-					scrollHandleY = map(index, 0, project.items.size() - 1, 0, itemsViewPort.height - scrollHandleHeight);
+					scrollHandleY = map(index, 0, project.items.size() - 1, 0,
+							itemsViewPort.height - scrollHandleHeight);
 			} catch (Exception e) {
 				scrollHandleY = 0;
 			}
@@ -656,7 +666,8 @@ public class ManuCapture_v1_1 extends PApplet {
 			newImagePathB = absoluteFilePath;
 		}
 
-		if ((context.gphotoA.isConnected() && context.gphotoB.isConnected() && (!newImagePathA.equals("") && !newImagePathB.equals("")))
+		if ((context.gphotoA.isConnected() && context.gphotoB.isConnected()
+				&& (!newImagePathA.equals("") && !newImagePathB.equals("")))
 				|| (context.gphotoA.isConnected() && !context.gphotoB.isConnected() && !newImagePathA.equals(""))
 				|| (!context.gphotoA.isConnected() && context.gphotoB.isConnected() && !newImagePathB.equals(""))) {
 			// delay(3000);
@@ -678,10 +689,12 @@ public class ManuCapture_v1_1 extends PApplet {
 				}
 
 				if (!newImagePathA.equals(""))
-					relNewImagePathA = newImagePathA.substring(project.projectDirectory.length() + 1, newImagePathA.length());
+					relNewImagePathA = newImagePathA.substring(project.projectDirectory.length() + 1,
+							newImagePathA.length());
 				String relNewImagePathB = "";
 				if (!newImagePathB.equals(""))
-					relNewImagePathB = newImagePathB.substring(project.projectDirectory.length() + 1, newImagePathB.length());
+					relNewImagePathB = newImagePathB.substring(project.projectDirectory.length() + 1,
+							newImagePathB.length());
 
 				Item newItem = new Item(context, relNewImagePathA, relNewImagePathB, newPageNum, "", "Item");
 				newItem.loadThumbnails(project, newImagePathA, newImagePathB);
@@ -791,10 +804,6 @@ public class ManuCapture_v1_1 extends PApplet {
 		}
 	}
 
-	
-	
-	
-
 	public boolean createDirectory(String folderName) {
 
 		File file = new File(baseDirectory + folderName);
@@ -813,9 +822,6 @@ public class ManuCapture_v1_1 extends PApplet {
 			return false;
 		}
 	}
-
-	
-	
 
 	public void saveLastSessionData() {
 
@@ -870,7 +876,7 @@ public class ManuCapture_v1_1 extends PApplet {
 		float pageNum = itemToRemove.pagNum;
 
 		ArrayList<Item> items = project.items;
-		
+
 		items.remove(index);
 
 		if (itemToRemove.type.equals("Item")) {
@@ -951,7 +957,6 @@ public class ManuCapture_v1_1 extends PApplet {
 				items.get(i).pagNum++;
 			}
 
-			
 			project.saveProjectXML();
 			println("item added");
 		}
@@ -995,7 +1000,6 @@ public class ManuCapture_v1_1 extends PApplet {
 		}
 	}
 
-		
 	/*
 	 * Project management
 	 * 
@@ -1045,9 +1049,6 @@ public class ManuCapture_v1_1 extends PApplet {
 		saveLastSessionData();
 
 	}
-
-	
-
 
 	public synchronized void loadProject(String projectPath) {
 		project.loadProjectMethod(projectPath);
@@ -1549,8 +1550,6 @@ public class ManuCapture_v1_1 extends PApplet {
 		gui.liveView_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
 		gui.liveView_button.addEventHandler(this, "liveView_button_click");
 	}
-
-	
 
 	public void settings() {
 		// size(595, 1030);

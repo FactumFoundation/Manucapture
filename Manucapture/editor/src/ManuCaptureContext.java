@@ -18,4 +18,8 @@ public class ManuCaptureContext {
 	NetAddress viewerLocation;
 	
 	Project project;
+	
+	boolean renderLeft = true;
+	boolean renderRight = true;
+	
 }
