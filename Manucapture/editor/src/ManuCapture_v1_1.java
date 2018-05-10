@@ -213,7 +213,6 @@ public class ManuCapture_v1_1 extends PApplet {
 		if (surface != null) {
 			surface.setLocation(0, 0);
 		}
-
 		XML serialXML = loadXML("cameraSerials.xml");
 		serialCameraA = serialXML.getChild("Camera_A").getContent();
 		serialCameraB = serialXML.getChild("Camera_B").getContent();
