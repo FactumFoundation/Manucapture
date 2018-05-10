@@ -1,5 +1,4 @@
 
-
 import processing.core.*;
 import processing.data.*;
 import processing.event.*;
@@ -53,23 +52,20 @@ public class ManuCapture_v1_1 extends PApplet {
 	 * 
 	 * Todo:
 	 * 
-	 * Viewer:
-	 * Left image correspons to the left -> should be on the right Switch images
-	 * Left is upside down and right is mirrored
-	 * Botón para extraer snapshots
+	 * Viewer: Left image correspons to the left -> should be on the right
+	 * Switch images Left is upside down and right is mirrored Botón para
+	 * extraer snapshots
 	 * 
 	 * 
-	 * Editor:
-	 * Procesar lista de thumbnails pendientes en un thread aparte y metadatos en un thread aparte
-     * Calibration: Definir con Pereira
-	 * Al iniciar no se situa en el útimo elemento 
-	 * Cajas de texto adaptables al tamaño, no funcionansaltos de linea
-	 * Activar/Desactiva camaras
-	 * Feedback visual de que se está capturando foto (cambiar background a anaranjado)
+	 * Editor: Procesar lista de thumbnails pendientes en un thread aparte y
+	 * metadatos en un thread aparte Calibration: Definir con Pereira Al iniciar
+	 * no se situa en el útimo elemento Cajas de texto adaptables al tamaño, no
+	 * funcionansaltos de linea Activar/Desactiva camaras Feedback visual de que
+	 * se está capturando foto (cambiar background a anaranjado)
 	 * 
-	 * Al añadir subpágina no se suman todas las páginas sub siguientes
-	 * AL eliminar subpágina que no se renombren las siguientes
-	 *  
+	 * Al añadir subpágina no se suman todas las páginas sub siguientes AL
+	 * eliminar subpágina que no se renombren las siguientes
+	 * 
 	 */
 
 	// Need install G4P, OSC, Apache.Commons.io library
@@ -159,7 +155,7 @@ public class ManuCapture_v1_1 extends PApplet {
 
 	boolean thumbnailsLoaded = false;
 	boolean initSelectedItem = false;
-	int thumbMargin = 6;
+
 	PImage removeItemIcon;
 	int marginX = 2;
 	int marginSubpgX = 8;
@@ -185,13 +181,15 @@ public class ManuCapture_v1_1 extends PApplet {
 
 	String serialCameraA;
 	String serialCameraB;
+
+	PImage previewImgLeft = null;
+	PImage previewImgRight = null;
+
 	String newImagePathA = "";
 	String newImagePathB = "";
-	
-	PImage previewImgLeft=null;
-	PImage previewImgRight=null;
 
-	
+	ManuCaptureContext context = new ManuCaptureContext();
+
 	public void _println(String message) {
 		int s = second(); // Values from 0 - 59
 		int min = minute(); // Values from 0 - 59
@@ -206,10 +204,12 @@ public class ManuCapture_v1_1 extends PApplet {
 		logOutput.println("[" + date + "] " + message);
 		logOutput.flush(); // Writes the remaining data to the file
 	}
-	
-	
+
 	public void setup() {
 
+		context.parent = this;
+		context.thumbnail = new Thumbnail();
+		
 		if (surface != null) {
 			surface.setLocation(0, 0);
 		}
@@ -239,6 +239,7 @@ public class ManuCapture_v1_1 extends PApplet {
 		bookIcon = loadImage("bookIcon.png");
 		bookIcon.resize(bookIcon.width / 6, bookIcon.height / 6);
 
+		
 	}
 
 	int lastDrawedItems = -1;
@@ -248,7 +249,7 @@ public class ManuCapture_v1_1 extends PApplet {
 	int itemsViewTransition = NO_TRANSITION;
 	float transitionPhase = 0.0f;
 	float itemBaseY = 0;
-	
+
 	public void draw() {
 
 		if (surface != null) {
@@ -284,36 +285,36 @@ public class ManuCapture_v1_1 extends PApplet {
 		// update item list related values
 		float targetItemBaseY;
 		int fullListHeight = itemHeight * items.size();
-		
-		if(items.size()==0){
+
+		if (items.size() == 0) {
 			targetItemBaseY = 0.0f;
 		} else {
 			targetItemBaseY = map(scrollHandleY, 0, itemsViewPort.height, 0, fullListHeight);
 		}
-		
-		if(scrollTransitionState==NO_SCROLL_TRANSITION)
+
+		if (scrollTransitionState == NO_SCROLL_TRANSITION)
 			itemBaseY = targetItemBaseY;
 		else {
-			if(abs(targetItemBaseY-itemBaseY)<20 || items.size()<=1){
+			if (abs(targetItemBaseY - itemBaseY) < 20 || items.size() <= 1) {
 				scrollTransitionState = NO_SCROLL_TRANSITION;
 				itemBaseY = targetItemBaseY;
 			} else {
-				if(targetItemBaseY>itemBaseY)
+				if (targetItemBaseY > itemBaseY)
 					itemBaseY += 10f;
 				else {
 					itemBaseY -= 10f;
 				}
 			}
-			
+
 		}
-		
-		if(fullListHeight == 0){
+
+		if (fullListHeight == 0) {
 			scrollHandleHeight = itemsViewPort.height;
 		} else {
 			scrollHandleHeight = map(itemsViewPort.height, 0, fullListHeight, 0, itemsViewPort.height);
 
 		}
-		
+
 		itemsViewPort.beginDraw();
 		itemsViewPort.background(0);
 		itemsViewPort.noStroke();
@@ -338,36 +339,38 @@ public class ManuCapture_v1_1 extends PApplet {
 		} else {
 			// items
 			if (thumbnailsLoaded) {
-				
+
 				// TODO: Add transition when adding
-				if(lastDrawedItems != items.size() && lastDrawedItems != -1 && (selectedItemIndex != items.size()-1)){
-					if(lastDrawedItems<items.size()){
+				if (lastDrawedItems != items.size() && lastDrawedItems != -1
+						&& (selectedItemIndex != items.size() - 1)) {
+					if (lastDrawedItems < items.size()) {
 						itemsViewTransition = ADDING_ITEM_TRANSITION;
 						transitionPhase = 0.0f;
 					} else {
 						itemsViewTransition = REMOVING_ITEM_TRANSITION;
 						transitionPhase = 1.0f;
 					}
-					
+
 				}
-				
-				if(itemsViewTransition == ADDING_ITEM_TRANSITION){
+
+				if (itemsViewTransition == ADDING_ITEM_TRANSITION) {
 					transitionPhase += 0.1f;
-					if(transitionPhase >= 1.0f){
+					if (transitionPhase >= 1.0f) {
 						itemsViewTransition = NO_TRANSITION;
 					}
-				} else if(itemsViewTransition == REMOVING_ITEM_TRANSITION){
+				} else if (itemsViewTransition == REMOVING_ITEM_TRANSITION) {
 					transitionPhase -= 0.1f;
-					if(transitionPhase <= 0.0f){
+					if (transitionPhase <= 0.0f) {
 						itemsViewTransition = NO_TRANSITION;
 					}
 				}
-				
+
 				int heightInc = itemThumbHeight + marginY;
 				for (int i = 0, itemY = 0; itemY < fullListHeight; i++, itemY += heightInc) {
 					int viewPortRelativeHeight = (int) (itemY - itemBaseY);
 					heightInc = itemThumbHeight + marginY;
-					if (i < items.size() && viewPortRelativeHeight > -itemHeight && viewPortRelativeHeight < itemsViewPort.height) {
+					if (i < items.size() && viewPortRelativeHeight > -itemHeight
+							&& viewPortRelativeHeight < itemsViewPort.height) {
 						Item item = items.get(i);
 						if (i == overedItemIndex && i != selectedItemIndex) {
 							itemsViewPort.stroke(scrollBarColor);
@@ -375,37 +378,37 @@ public class ManuCapture_v1_1 extends PApplet {
 							itemsViewPort.rect(0, viewPortRelativeHeight - marginY / 2,
 									itemsViewPort.width - scrollBarWidth - 1, itemHeight);
 						} else if (i == selectedItemIndex) {
-							if(itemsViewTransition == NO_TRANSITION){
+							if (itemsViewTransition == NO_TRANSITION) {
 								itemsViewPort.stroke(selectItemColorStroke);
 								itemsViewPort.fill(selectItemColor);
 								itemsViewPort.rect(0, viewPortRelativeHeight - marginY / 2,
 										itemsViewPort.width - scrollBarWidth - 1, itemHeight);
-							} else if(itemsViewTransition == ADDING_ITEM_TRANSITION) {
-								int emptyHeight = (int)(transitionPhase * (itemThumbHeight + marginY));
+							} else if (itemsViewTransition == ADDING_ITEM_TRANSITION) {
+								int emptyHeight = (int) (transitionPhase * (itemThumbHeight + marginY));
 								heightInc = emptyHeight;
 								itemsViewPort.stroke(selectItemColorStroke);
 								itemsViewPort.fill(selectItemColor);
 								itemsViewPort.rect(0, viewPortRelativeHeight - marginY / 2,
 										itemsViewPort.width - scrollBarWidth - 1, heightInc);
-								
-							} else if(itemsViewTransition == REMOVING_ITEM_TRANSITION){
-								int emptyHeight = (int)(transitionPhase * (itemThumbHeight + marginY));
+
+							} else if (itemsViewTransition == REMOVING_ITEM_TRANSITION) {
+								int emptyHeight = (int) (transitionPhase * (itemThumbHeight + marginY));
 								heightInc = emptyHeight + itemThumbHeight + marginY;
 								itemsViewPort.stroke(selectItemColorStroke);
 								itemsViewPort.fill(selectItemColor);
 								itemsViewPort.rect(0, viewPortRelativeHeight - marginY / 2,
-										itemsViewPort.width - scrollBarWidth - 1, heightInc);	
+										itemsViewPort.width - scrollBarWidth - 1, heightInc);
 								viewPortRelativeHeight += emptyHeight;
 							}
 						}
-						
-						if((i!=selectedItemIndex) || (itemsViewTransition != ADDING_ITEM_TRANSITION)){
+
+						if ((i != selectedItemIndex) || (itemsViewTransition != ADDING_ITEM_TRANSITION)) {
 							if (item.imgThumbRight != null) {
-								itemsViewPort.image(item.imgThumbRight, marginX + item.imgThumbLeft.width, viewPortRelativeHeight);
+								itemsViewPort.image(item.imgThumbRight, marginX + item.imgThumbLeft.width,
+										viewPortRelativeHeight);
 							}
 							if (item.imgThumbLeft != null) {
-								itemsViewPort.image(item.imgThumbLeft, marginX,
-										viewPortRelativeHeight);
+								itemsViewPort.image(item.imgThumbLeft, marginX, viewPortRelativeHeight);
 							}
 							itemsViewPort.noFill();
 							itemsViewPort.stroke(255);
@@ -414,12 +417,11 @@ public class ManuCapture_v1_1 extends PApplet {
 							} else {
 								itemsViewPort.tint(200, 0, 0);
 							}
-	
+
 							itemsViewPort.image(removeItemIcon,
 									itemsViewPort.width - scrollBarWidth - marginInfo - removeIconSize,
 									viewPortRelativeHeight + marginY);
-							
-							
+
 							itemsViewPort.noTint();
 							String page = String.valueOf(item.pagNum);
 							page = page.replace(".0", "");
@@ -439,7 +441,7 @@ public class ManuCapture_v1_1 extends PApplet {
 							itemsViewPort.line(spacerMargin, spacerHeight,
 									itemsViewPort.width - scrollBarWidth - 2 * spacerMargin, spacerHeight);
 						}
-					} else{
+					} else {
 						heightInc = itemThumbHeight + marginY;
 					}
 				}
@@ -449,35 +451,35 @@ public class ManuCapture_v1_1 extends PApplet {
 		}
 		itemsViewPort.endDraw();
 		image(itemsViewPort, itemListViewPortX, itemListViewPortY);
-		
-		if(previewImgLeft !=  null){
+
+		if (previewImgLeft != null) {
 			pushMatrix();
-			translate(580 + previewImgLeft.height/2,20 + previewImgLeft.width/2);
-			rotate(PI/2);
+			translate(580 + previewImgLeft.height / 2, 20 + previewImgLeft.width / 2);
+			rotate(PI / 2);
 			imageMode(CENTER);
-			image(previewImgLeft,0,0);
+			image(previewImgLeft, 0, 0);
 			imageMode(CORNER);
 			popMatrix();
 		} else {
 			stroke(255);
 			fill(50);
-			rect(580,20,667,1000);
+			rect(580, 20, 667, 1000);
 		}
-				
-		if(previewImgRight !=  null){
+
+		if (previewImgRight != null) {
 			pushMatrix();
-			translate(1250 + previewImgRight.height/2,20 + previewImgRight.width/2);
-			rotate(3*PI/2);
+			translate(1250 + previewImgRight.height / 2, 20 + previewImgRight.width / 2);
+			rotate(3 * PI / 2);
 			imageMode(CENTER);
-			image(previewImgRight,0,0);
+			image(previewImgRight, 0, 0);
 			imageMode(CORNER);
 			popMatrix();
 		} else {
 			stroke(255);
 			fill(50);
-			rect(1250,20,667,1000);
+			rect(1250, 20, 667, 1000);
 		}
-		
+
 	}
 
 	public void mouseMoved() {
@@ -526,7 +528,7 @@ public class ManuCapture_v1_1 extends PApplet {
 	}
 
 	public void mousePressed() {
-		
+
 		int scrollHandleX = itemsViewPort.width - scrollBarWidth;
 		if ((mouseX > (itemListViewPortX + scrollHandleX))
 				&& (mouseX < (itemListViewPortX + scrollHandleX + scrollBarWidth))) {
@@ -554,9 +556,9 @@ public class ManuCapture_v1_1 extends PApplet {
 							float cancelButtonY = viewPortRelativeHeight + marginY + itemListViewPortY;
 							if ((mouseX > cancelButtonX) && (mouseX < (cancelButtonX + removeIconSize))) {
 								if ((mouseY > cancelButtonY) && (mouseY < (cancelButtonY + removeIconSize))) {
-									if(shutterMode!=REPEAT_SHUTTER){
+									if (shutterMode != REPEAT_SHUTTER) {
 										removeItem(i);
-									} else{
+									} else {
 										clearItem(i);
 									}
 									break;
@@ -573,26 +575,23 @@ public class ManuCapture_v1_1 extends PApplet {
 
 	public void mouseDragged() {
 		if (scrollHandleState == SCROLL_HANDLE_PRESSED) {
-			if(scrollHandleHeight < itemsViewPort.height){
+			if (scrollHandleHeight < itemsViewPort.height) {
 				scrollHandleY += mouseY - pmouseY;
 				if (scrollHandleY < 0) {
 					scrollHandleY = 0;
-				}
-				else if ((scrollHandleY + scrollHandleHeight) > itemsViewPort.height) {
+				} else if ((scrollHandleY + scrollHandleHeight) > itemsViewPort.height) {
 					scrollHandleY = itemsViewPort.height - scrollHandleHeight;
 				}
-			}
-			else 
+			} else
 				scrollHandleY = 0;
 		}
 	}
 
 	public void mouseReleased() {
 		scrollHandleState = SCROLL_HANDLE_IDLE;
-		
+
 	}
 
-	
 	public void newPhotoEvent(G2P5 gphoto, String absoluteFilePath) {
 
 		println("New photo!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!", absoluteFilePath);
@@ -603,38 +602,37 @@ public class ManuCapture_v1_1 extends PApplet {
 			newImagePathB = absoluteFilePath;
 		}
 
-		if ( (gphotoA.isConnected() && gphotoB.isConnected() && (!newImagePathA.equals("") && !newImagePathB.equals("")))
-				|| (gphotoA.isConnected() && !gphotoB.isConnected() && !newImagePathA.equals("")) 
-				|| (!gphotoA.isConnected() && gphotoB.isConnected() && !newImagePathB.equals(""))
-				) {
-			//delay(3000);
+		if ((gphotoA.isConnected() && gphotoB.isConnected() && (!newImagePathA.equals("") && !newImagePathB.equals("")))
+				|| (gphotoA.isConnected() && !gphotoB.isConnected() && !newImagePathA.equals(""))
+				|| (!gphotoA.isConnected() && gphotoB.isConnected() && !newImagePathB.equals(""))) {
+			// delay(3000);
 			if (shutterMode == NORMAL_SHUTTER) {
 
 				float newPageNum;
 				if (selectedItemIndex < 0) {
 					newPageNum = 1;
 				} else {
-					newPageNum = (int)items.get(selectedItemIndex).pagNum + 1;
+					newPageNum = (int) items.get(selectedItemIndex).pagNum + 1;
 				}
 				// TODO add new item: PRoblem when only one image arrives
-				
+
 				String relNewImagePathA = "";
-				
-				if(projectDirectory.equals("")){
+
+				if (projectDirectory.equals("")) {
 					newImagePathA = "";
 					newImagePathB = "";
 				}
-				
-				if(!newImagePathA.equals(""))
-					relNewImagePathA = newImagePathA.substring(projectDirectory.length()+1, newImagePathA.length());
+
+				if (!newImagePathA.equals(""))
+					relNewImagePathA = newImagePathA.substring(projectDirectory.length() + 1, newImagePathA.length());
 				String relNewImagePathB = "";
-				if(!newImagePathB.equals(""))
-					relNewImagePathB = newImagePathB.substring(projectDirectory.length()+1, newImagePathB.length());
-			
-				Item newItem = new Item(relNewImagePathA, relNewImagePathB, newPageNum, "", "Item");
-				newItem.loadThumbnails();
-				
-				addItem(selectedItemIndex+1, newItem);
+				if (!newImagePathB.equals(""))
+					relNewImagePathB = newImagePathB.substring(projectDirectory.length() + 1, newImagePathB.length());
+
+				Item newItem = new Item(context, relNewImagePathA, relNewImagePathB, newPageNum, "", "Item");
+				newItem.loadThumbnails(context, newImagePathA, newImagePathB);
+
+				addItem(selectedItemIndex + 1, newItem);
 				newImagePathA = "";
 				newImagePathB = "";
 
@@ -644,22 +642,23 @@ public class ManuCapture_v1_1 extends PApplet {
 					float currentPN = selectedItem.pagNum;
 					float newPageNum = round((currentPN + 0.1f) * 10) / 10.0f;
 					// TODO add new item
-					
-					if(projectDirectory.equals("")){
+
+					if (projectDirectory.equals("")) {
 						newImagePathA = "";
 						newImagePathB = "";
 					}
-					
-					
+
 					String relNewImagePathA = "";
-					if(newImagePathA != null && (newImagePathA.length()>projectDirectory.length()+1))
-						relNewImagePathA = newImagePathA.substring(projectDirectory.length()+1, newImagePathA.length());
+					if (newImagePathA != null && (newImagePathA.length() > projectDirectory.length() + 1))
+						relNewImagePathA = newImagePathA.substring(projectDirectory.length() + 1,
+								newImagePathA.length());
 					String relNewImagePathB = "";
-					if(newImagePathB != null && (newImagePathB.length()>projectDirectory.length()+1))
-						relNewImagePathB = newImagePathB.substring(projectDirectory.length()+1, newImagePathB.length());
-					
-					Item newItem = new Item(relNewImagePathA, relNewImagePathB, newPageNum, "", "SubItem");					
-					newItem.loadThumbnails();
+					if (newImagePathB != null && (newImagePathB.length() > projectDirectory.length() + 1))
+						relNewImagePathB = newImagePathB.substring(projectDirectory.length() + 1,
+								newImagePathB.length());
+
+					Item newItem = new Item(context, relNewImagePathA, relNewImagePathB, newPageNum, "", "SubItem");
+					newItem.loadThumbnails(context, newImagePathA, newImagePathB);
 					addSubItem(selectedItemIndex + 1, newItem);
 					newImagePathA = "";
 					newImagePathB = "";
@@ -668,20 +667,23 @@ public class ManuCapture_v1_1 extends PApplet {
 			} else if (shutterMode == REPEAT_SHUTTER) {
 				if (items.size() > 0) {
 					float newPageNum = selectedItem.pagNum;
-					
-					if(projectDirectory.equals("")){
+
+					if (projectDirectory.equals("")) {
 						newImagePathA = "";
 						newImagePathB = "";
 					}
-					
+
 					String relNewImagePathA = "";
-					if(!newImagePathA.equals(""))
-						relNewImagePathA = newImagePathA.substring(projectDirectory.length()+1, newImagePathA.length());
+					if (!newImagePathA.equals(""))
+						relNewImagePathA = newImagePathA.substring(projectDirectory.length() + 1,
+								newImagePathA.length());
 					String relNewImagePathB = "";
-					if(!newImagePathB.equals(""))
-						relNewImagePathB = newImagePathB.substring(projectDirectory.length()+1, newImagePathB.length());
-					
-					Item newItem = new Item(relNewImagePathA, relNewImagePathB, newPageNum, "", selectedItem.type);					
+					if (!newImagePathB.equals(""))
+						relNewImagePathB = newImagePathB.substring(projectDirectory.length() + 1,
+								newImagePathB.length());
+
+					Item newItem = new Item(context, relNewImagePathA, relNewImagePathB, newPageNum, "",
+							selectedItem.type);
 					newItem.loadThumbnails();
 					replaceItem(selectedItemIndex, newItem);
 					newImagePathA = "";
@@ -694,8 +696,7 @@ public class ManuCapture_v1_1 extends PApplet {
 		}
 
 	}
-	
-	
+
 	public void loadLastSessionData() {
 
 		String value;
@@ -723,7 +724,7 @@ public class ManuCapture_v1_1 extends PApplet {
 					cameraActiveB = true;
 				else
 					cameraActiveB = false;
-				
+
 				forceSelectedItem(selectedItemIndex, false);
 
 			}
@@ -769,12 +770,12 @@ public class ManuCapture_v1_1 extends PApplet {
 
 		saveXML(lastSessionData, "data/lastSession.xml");
 	}
-	
+
 	/*
-	 *  Project management
+	 * Project management
 	 * 
 	 */
-	
+
 	public synchronized void createProject(String projectFolderPath) {
 		if (!projectFilePath.equals("")) {
 			closeProject();
@@ -822,13 +823,13 @@ public class ManuCapture_v1_1 extends PApplet {
 
 	public synchronized void loadProject(String projectPath) {
 
-		
 		if (!projectFilePath.equals("")) {
 			closeProject();
 		}
-		
-		if(projectPath.equals("")){
-			G4P.showMessage(this, "ERROR: Problem opening last session project. Please load the folder manually.", "Save project", G4P.ERROR);
+
+		if (projectPath.equals("")) {
+			G4P.showMessage(this, "ERROR: Problem opening last session project. Please load the folder manually.",
+					"Save project", G4P.ERROR);
 			return;
 		}
 
@@ -846,7 +847,7 @@ public class ManuCapture_v1_1 extends PApplet {
 				float pageNum = Float.parseFloat(pageNumStr);
 				String comment = itemXML.getChild("comment").getContent();
 				String type = itemXML.getChild("type").getContent();
-				Item newItem = new Item(imagePathLeft, imagePathRight, pageNum, comment, type);
+				Item newItem = new Item(context, imagePathLeft, imagePathRight, pageNum, comment, type);
 				items.add(newItem);
 			} catch (Exception e) {
 				println("ERROR loading item", i);
@@ -880,10 +881,16 @@ public class ManuCapture_v1_1 extends PApplet {
 					println("Left " + thumbnailPath);
 					File thumbFile = new File(thumbnailPath);
 					if (!thumbFile.exists()) {
-						item.imgThumbLeft = generateThumbnail(itemImgLeft,false);
+						item.imgThumbLeft = context.thumbnail.generateThumbnail(context, itemImgLeft, false);
 					} else {
 						PImage thumbImg = loadImage(thumbnailPath);
-						thumbImg = thumbImg.get(thumbMargin, 0, thumbImg.width - thumbMargin, thumbImg.height);
+						if (thumbImg == null) {
+							println("ni pudimos cargar la imagen " + thumbnailPath);
+						} else {
+
+						}
+						thumbImg = thumbImg.get(context.thumbnail.thumbMargin, 0,
+								thumbImg.width - context.thumbnail.thumbMargin, thumbImg.height);
 						item.imgThumbLeft = thumbImg;
 					}
 				} else {
@@ -902,10 +909,10 @@ public class ManuCapture_v1_1 extends PApplet {
 					println("Right " + thumbnailPath);
 					File thumbFile = new File(thumbnailPath);
 					if (!thumbFile.exists()) {
-						item.imgThumbRight = generateThumbnail(itemImgRight, true);
+						item.imgThumbRight = context.thumbnail.generateThumbnail(context, itemImgRight, true);
 					} else {
 						PImage thumbImg = loadImage(thumbnailPath);
-						thumbImg = thumbImg.get(0, 0, thumbImg.width - thumbMargin, thumbImg.height);
+						thumbImg = thumbImg.get(0, 0, thumbImg.width - context.thumbnail.thumbMargin, thumbImg.height);
 						item.imgThumbRight = thumbImg;
 					}
 				} else {
@@ -917,7 +924,7 @@ public class ManuCapture_v1_1 extends PApplet {
 			}
 		}
 		try {
-		    G2P5.setImageCount(new Integer(projectDataXML.getChild("image_counter").getContent()));
+			G2P5.setImageCount(new Integer(projectDataXML.getChild("image_counter").getContent()));
 		} catch (Exception e) {
 			println("ERROR loading image counter, seting to list size");
 			G2P5.setImageCount(items.size());
@@ -945,7 +952,6 @@ public class ManuCapture_v1_1 extends PApplet {
 		G2P5.setImageCount(new Integer(projectDataXML.getChild("image_counter").getContent()));
 
 	}
-
 
 	public boolean createDirectory(String folderName) {
 
@@ -990,7 +996,7 @@ public class ManuCapture_v1_1 extends PApplet {
 			XML itemsXML = new XML("items");
 			for (int i = 0; i < items.size(); i++) {
 				Item item = items.get(i);
-				if(!(item.imagePathLeft.equals("")&&item.imagePathRight.equals(""))){
+				if (!(item.imagePathLeft.equals("") && item.imagePathRight.equals(""))) {
 					XML itemXML = new XML("item");
 					XML imageLeftXML = new XML("image_left");
 					if (item.imagePathLeft != null) {
@@ -1026,8 +1032,8 @@ public class ManuCapture_v1_1 extends PApplet {
 			projectXML.addChild(imageCounterXML);
 
 			File fileProject = new File(projectFilePath);
-			if(fileProject.exists()){
-				String commandGenerate = "mv " + projectFilePath + " " + projectDirectory+"/project_backup.xml";
+			if (fileProject.exists()) {
+				String commandGenerate = "mv " + projectFilePath + " " + projectDirectory + "/project_backup.xml";
 				println(commandGenerate);
 				try {
 					String[] commands = new String[] { "/bin/sh", "-c", commandGenerate };
@@ -1044,12 +1050,13 @@ public class ManuCapture_v1_1 extends PApplet {
 					e.printStackTrace();
 				}
 			}
-			
+
 			saveXML(projectXML, projectFilePath);
 			println("Saved project to ", projectFilePath);
 		} else {
 			println("ERROR: No project info, no data is saved. Please write the project name and code");
-			G4P.showMessage(this, "ERROR: No project info, no data is saved.\nPlease write the project name and code. ", "Save project", G4P.ERROR);
+			G4P.showMessage(this, "ERROR: No project info, no data is saved.\nPlease write the project name and code. ",
+					"Save project", G4P.ERROR);
 
 		}
 	}
@@ -1065,86 +1072,16 @@ public class ManuCapture_v1_1 extends PApplet {
 		projectCode = "";
 		projectComment = "";
 		projectDirectory = "";
-		
-		
+
 		// TODO: Check everything to close in the project. Reset viewer
 
 	}
-	
+
 	/*
-	 *  Items
+	 * Items
 	 */
 
 	Item selectedItem = null;
-
-	class Item {
-
-		String imagePathLeft;
-		String imagePathRight;
-		String thumbPathLeft;
-		String thumbPathRight;
-		float pagNum;
-		String comment;
-		String type;
-		PImage imgThumbLeft;
-		PImage imgThumbRight;
-
-		Item(String imagePathLeft, String imagePathRight, float pagNum, String comment, String type) {
-			this.imagePathLeft = imagePathLeft;
-			this.imagePathRight = imagePathRight;
-			this.pagNum = pagNum;
-			this.comment = comment;
-			this.type = type;
-		}
-		
-		void clear(){
-			imagePathLeft = "";
-			imagePathRight = "";
-			thumbPathLeft = "";
-			thumbPathRight = "";
-			comment ="";
-			imgThumbLeft = null;
-			imgThumbRight = null;
-		}
-
-		void loadThumbnails() {
-			if (imagePathLeft != null && !imagePathLeft.equals("")) {
-				File itemImgLeft = new File(projectDirectory + "/" + imagePathLeft);
-
-				if (itemImgLeft.exists()) {
-					String thumbnailPath = getThumbnailPath(itemImgLeft);
-					println("Left " + thumbnailPath);
-					File thumbFile = new File(thumbnailPath);
-					if (!thumbFile.exists()) {
-						imgThumbLeft = generateThumbnail(itemImgLeft,false);
-					} else {
-						PImage thumbImg = loadImage(thumbnailPath);
-						thumbImg = thumbImg.get(thumbMargin, 0, thumbImg.width - thumbMargin, thumbImg.height);
-						imgThumbLeft = thumbImg;
-					}
-				} else {
-					println("Left ERROR", itemImgLeft.getPath(), "image not found");
-				}
-			}
-			if (imagePathRight != null && !imagePathRight.equals("")) {
-				File itemImgRight = new File(projectDirectory + "/" + imagePathRight);
-				if (itemImgRight.exists()) {
-					String thumbnailPath = getThumbnailPath(itemImgRight);
-					File thumbFile = new File(thumbnailPath);
-					if (!thumbFile.exists()) {
-						imgThumbRight = generateThumbnail(itemImgRight,true);
-					} else {
-						PImage thumbImg = loadImage(thumbnailPath);
-						thumbImg = thumbImg.get(0, 0, thumbImg.width - thumbMargin, thumbImg.height);
-						imgThumbRight = thumbImg;
-					}
-				} else {
-					println("Right ERROR", itemImgRight.getPath(), "image not found");
-				}
-			}
-		}
-
-	}
 
 	public int findItemIndexByPagNum(float pgNum) {
 		int index = -1;
@@ -1163,28 +1100,26 @@ public class ManuCapture_v1_1 extends PApplet {
 			OscMessage myMessage = new OscMessage("/load/item");
 			String leftImagePath = "";
 			String rightImagePath = "";
-			if (selectedItem.imagePathRight != null && selectedItem.imagePathRight.length()!=0) {
+			if (selectedItem.imagePathRight != null && selectedItem.imagePathRight.length() != 0) {
 				rightImagePath = projectDirectory + "/" + selectedItem.imagePathRight;
 				myMessage.add(rightImagePath);
 			} else {
 				myMessage.add("");
 			}
-			if (selectedItem.imagePathLeft != null && (selectedItem.imagePathLeft.length()!=0)) {
-				leftImagePath  = projectDirectory + "/" + selectedItem.imagePathLeft;
+			if (selectedItem.imagePathLeft != null && (selectedItem.imagePathLeft.length() != 0)) {
+				leftImagePath = projectDirectory + "/" + selectedItem.imagePathLeft;
 				myMessage.add(leftImagePath);
-			}
-			else {
+			} else {
 				myMessage.add("");
 			}
-		
+
 			println("send the message to viewer");
-			
+
 			// View message for viewer
 			oscP5.send(myMessage, viewerLocation);
 			// Now we do the preview on app
-			loadPreviews(leftImagePath,rightImagePath);
-			
-			
+			loadPreviews(leftImagePath, rightImagePath);
+
 			page_comments_text.setText(selectedItem.comment);
 			page_num_text.setText(String.valueOf(selectedItem.pagNum));
 			gphotoA.setTargetFile(projectDirectory + "/raw", projectCode);
@@ -1192,14 +1127,14 @@ public class ManuCapture_v1_1 extends PApplet {
 
 		}
 	}
-	
+
 	int NO_SCROLL_TRANSITION = 0;
 	int SCROLL_TRANSITION = 1;
 	int scrollTransitionState = NO_SCROLL_TRANSITION;
-	
+
 	public void forceSelectedItem(int index, boolean transition) {
 		selectedItemIndex = min(index, items.size() - 1);
-		if(transition){
+		if (transition) {
 			scrollTransitionState = SCROLL_TRANSITION;
 		}
 		if (selectedItemIndex >= 0 && items.size() > 0) {
@@ -1207,17 +1142,17 @@ public class ManuCapture_v1_1 extends PApplet {
 			int itemHeight = itemThumbHeight + marginY;
 			int fullListHeight = itemHeight * items.size();
 			scrollHandleHeight = map(itemsViewPort.height, 0, fullListHeight, 0, itemsViewPort.height);
-			if(scrollHandleHeight > itemsViewPort.height){
+			if (scrollHandleHeight > itemsViewPort.height) {
 				scrollHandleHeight = itemsViewPort.height;
 			}
-			if(scrollHandleHeight < 0)
+			if (scrollHandleHeight < 0)
 				scrollHandleHeight = 0;
-			try{
-				if(items.size() == 1)
+			try {
+				if (items.size() == 1)
 					scrollHandleY = 0;
-				else 
-					scrollHandleY =  map(index, 0, items.size() - 1, 0, itemsViewPort.height - scrollHandleHeight);
-			} catch(Exception e){
+				else
+					scrollHandleY = map(index, 0, items.size() - 1, 0, itemsViewPort.height - scrollHandleHeight);
+			} catch (Exception e) {
 				scrollHandleY = 0;
 			}
 			// Update selected item
@@ -1227,11 +1162,11 @@ public class ManuCapture_v1_1 extends PApplet {
 			if ((scrollHandleY + scrollHandleHeight) > itemsViewPort.height) {
 				scrollHandleY = itemsViewPort.height - scrollHandleHeight;
 			}
-			
-			selectItem(selectedItemIndex);		
+
+			selectItem(selectedItemIndex);
 		}
 	}
-	
+
 	public void clearItem(int index) {
 		Item itemToClear = items.get(index);
 		itemToClear.clear();
@@ -1239,13 +1174,12 @@ public class ManuCapture_v1_1 extends PApplet {
 		if (selectedItemIndex >= 0 && items.size() > 0) {
 			selectItem(selectedItemIndex);
 		}
-		forceSelectedItem(selectedItemIndex,true);
+		forceSelectedItem(selectedItemIndex, true);
 		saveProjectXML();
 		removeUnusedImages();
 
 	}
 
-	
 	public void removeItem(int index) {
 		Item itemToRemove = items.get(index);
 		String type = itemToRemove.type;
@@ -1276,7 +1210,7 @@ public class ManuCapture_v1_1 extends PApplet {
 		if (selectedItemIndex >= 0 && items.size() > 0) {
 			selectItem(selectedItemIndex);
 		}
-		forceSelectedItem(selectedItemIndex,true);
+		forceSelectedItem(selectedItemIndex, true);
 		saveProjectXML();
 		removeUnusedImages();
 
@@ -1284,57 +1218,53 @@ public class ManuCapture_v1_1 extends PApplet {
 
 	public synchronized void addItem(int index, Item newItem) {
 
-	if (index >= 0) {
-			if (index < items.size()){
-				if(index > 0){
-					Item targetItem = items.get(index-1);
-					if(targetItem.imagePathLeft.equals("")&&targetItem.imagePathRight.equals("")){
+		if (index >= 0) {
+			if (index < items.size()) {
+				if (index > 0) {
+					Item targetItem = items.get(index - 1);
+					if (targetItem.imagePathLeft.equals("") && targetItem.imagePathRight.equals("")) {
 						newItem.pagNum = targetItem.pagNum;
-						items.set(index-1, newItem);
+						items.set(index - 1, newItem);
 						selectedItemIndex = min(index, items.size());
-						if((selectedItemIndex != items.size()) || (items.get(selectedItemIndex).pagNum != newItem.pagNum + 1) ){
-							Item emptyItem = new Item("","",(int)(newItem.pagNum)+1,"","Item");
-							items.add(selectedItemIndex, emptyItem);	
-							forceSelectedItem(index,true);
-						} else if(selectedItemIndex != items.size()){
-							forceSelectedItem(selectedItemIndex,true);
+						if ((selectedItemIndex != items.size())
+								|| (items.get(selectedItemIndex).pagNum != newItem.pagNum + 1)) {
+							Item emptyItem = new Item(context, "", "", (int) (newItem.pagNum) + 1, "", "Item");
+							items.add(selectedItemIndex, emptyItem);
+							forceSelectedItem(index, true);
+						} else if (selectedItemIndex != items.size()) {
+							forceSelectedItem(selectedItemIndex, true);
 						}
-					}
-					else {
+					} else {
 						items.add(index, newItem);
-						forceSelectedItem(index,true);
+						forceSelectedItem(index, true);
 					}
-				}
-				else {
-					items.add(index, newItem);
-					forceSelectedItem(index,true);
-				}
-			}
-			else{
-				if(items.size()==0){
-					items.add(newItem);
-					forceSelectedItem(index,true);
 				} else {
-					Item targetItem = items.get(index-1);
-					if(targetItem.imagePathLeft.equals("")&&targetItem.imagePathRight.equals("")){
+					items.add(index, newItem);
+					forceSelectedItem(index, true);
+				}
+			} else {
+				if (items.size() == 0) {
+					items.add(newItem);
+					forceSelectedItem(index, true);
+				} else {
+					Item targetItem = items.get(index - 1);
+					if (targetItem.imagePathLeft.equals("") && targetItem.imagePathRight.equals("")) {
 						newItem.pagNum = targetItem.pagNum;
-						items.set(index-1, newItem);
+						items.set(index - 1, newItem);
 						selectedItemIndex = min(index, items.size());
-						forceSelectedItem(selectedItemIndex,true);
-					}
-					else {
+						forceSelectedItem(selectedItemIndex, true);
+					} else {
 						items.add(newItem);
-						forceSelectedItem(index,true);
+						forceSelectedItem(index, true);
 					}
 
 				}
 			}
 
-			for (int i = index+1; i < items.size(); i++) {
+			for (int i = index + 1; i < items.size(); i++) {
 				items.get(i).pagNum++;
 			}
-			
-		    
+
 			saveProjectXML();
 			println("item added");
 		}
@@ -1345,7 +1275,7 @@ public class ManuCapture_v1_1 extends PApplet {
 			items.add(index, newItem);
 			selectedItemIndex = min(index, items.size());
 			if (selectedItemIndex >= 0 && items.size() > 0) {
-				forceSelectedItem(selectedItemIndex,true);
+				forceSelectedItem(selectedItemIndex, true);
 			}
 			saveProjectXML();
 		}
@@ -1354,158 +1284,84 @@ public class ManuCapture_v1_1 extends PApplet {
 	public synchronized void replaceItem(int index, Item newItem) {
 
 		if (index >= 0 && index < items.size()) {
-			if(newItem.imagePathLeft.equals("")){
+			if (newItem.imagePathLeft.equals("")) {
 				newItem.imagePathLeft = items.get(index).imagePathLeft;
 				newItem.loadThumbnails();
 			}
-			if(newItem.imagePathRight.equals("")){
+			if (newItem.imagePathRight.equals("")) {
 				newItem.imagePathRight = items.get(index).imagePathRight;
 				newItem.loadThumbnails();
 			}
 			items.remove(index);
 			items.add(index, newItem);
-			selectedItemIndex = min(index+1, items.size());
-			if(!newItem.type.equals("SubItem")){
-				if((selectedItemIndex == items.size()) || (items.get(selectedItemIndex).pagNum != newItem.pagNum + 1) ){
-					Item emptyItem = new Item("","",newItem.pagNum+1,"","Item");
-					items.add(selectedItemIndex, emptyItem);	
+			selectedItemIndex = min(index + 1, items.size());
+			if (!newItem.type.equals("SubItem")) {
+				if ((selectedItemIndex == items.size())
+						|| (items.get(selectedItemIndex).pagNum != newItem.pagNum + 1)) {
+					Item emptyItem = new Item(context, "", "", newItem.pagNum + 1, "", "Item");
+					items.add(selectedItemIndex, emptyItem);
 				}
 			}
-			forceSelectedItem(selectedItemIndex,true);
+			forceSelectedItem(selectedItemIndex, true);
 			saveProjectXML();
 		}
 	}
-	
-
-	
-	/*
-	 *  Thumbnail processing
-	 * 
-	 */
-	
-	
-	public String getThumbnailPath(File imageFile){
-		String rawImgName = FilenameUtils.removeExtension(imageFile.getName());
-		return projectDirectory + "/thumbnails/" + rawImgName + "_thumb.jpg";
-	}
-	
-	public PImage generateThumbnail(File rawImgFile, boolean rightImg) {
-
-		String thumbnailPath = getThumbnailPath(rawImgFile);
-		String commandGenerate = "exiftool -b -ThumbnailImage " + rawImgFile.getPath() + " > " + thumbnailPath;
-		println(commandGenerate);
-		try {
-			String[] commands = new String[] { "/bin/sh", "-c", commandGenerate };
-			Process process = new ProcessBuilder(commands).start();
-			InputStream inputStream = process.getInputStream();
-			BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream), 1);
-			String line;
-			while ((line = bufferedReader.readLine()) != null) {
-				// println("InputStreamReader : " + line);
-			}
-			inputStream.close();
-			bufferedReader.close();
-		} catch (Exception e) {
-			e.printStackTrace();
-			print("ERROR generating thumbnail!");
-			return null;
-		}
-
-		int angle = 270;
-		boolean mirrorThumbnail = false;
-		if (rightImg)
-			angle = 270;
-		else
-			angle = 90;
-
-		String commandRotate;
-		if (mirrorThumbnail) {
-			commandRotate = "convert -rotate " + angle + " -flop " + thumbnailPath + " " + thumbnailPath;
-		} else {
-			commandRotate = "convert -rotate " + angle + " " + thumbnailPath + " " + thumbnailPath;
-		}
-		println(commandRotate);
-		try {
-			String[] commands = new String[] { "/bin/sh", "-c", commandRotate };
-			Process process = new ProcessBuilder(commands).start();
-			InputStream inputStream = process.getInputStream();
-			BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream), 1);
-			String line;
-			while ((line = bufferedReader.readLine()) != null) {
-				// println("InputStreamReader : " + line);
-			}
-			inputStream.close();
-			bufferedReader.close();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		delay(100);
-		PImage thumbImg = loadImage(thumbnailPath);
-		if (rightImg) {
-			thumbImg = thumbImg.get(0, 0, thumbImg.width - thumbMargin, thumbImg.height);
-		} else {
-			thumbImg = thumbImg.get(thumbMargin, 0, thumbImg.width - thumbMargin, thumbImg.height);
-		}
-
-		println("Thumbnail Generated : " + thumbnailPath);
-		return thumbImg;
-	}
 
 	/*
-	 *  Garbage Image Collector
+	 * Garbage Image Collector
 	 */
 
-	
-	public synchronized String[] getUnusedImage(){
+	public synchronized String[] getUnusedImage() {
 		ArrayList<String> usedImgs = new ArrayList<String>();
-		for(int index=0; index<items.size();index++){
+		for (int index = 0; index < items.size(); index++) {
 			Item item = items.get(index);
-			if(!item.imagePathLeft.equals(""))
-				usedImgs.add(projectDirectory + "/"+ item.imagePathLeft);
-			if(!item.imagePathRight.equals(""))
-				usedImgs.add(projectDirectory + "/"+ item.imagePathRight);
-						
+			if (!item.imagePathLeft.equals(""))
+				usedImgs.add(projectDirectory + "/" + item.imagePathLeft);
+			if (!item.imagePathRight.equals(""))
+				usedImgs.add(projectDirectory + "/" + item.imagePathRight);
+
 		}
 
 		File folder = new File(projectDirectory + "/raw");
 		String[] files = folder.list();
-		if(files != null){
+		if (files != null) {
 			ArrayList<String> unusedFiles = new ArrayList<String>();
-			for(int index =0; index < files.length; index++){
+			for (int index = 0; index < files.length; index++) {
 				boolean found = false;
-				for(int index2 = 0; index2< usedImgs.size(); index2++){
+				for (int index2 = 0; index2 < usedImgs.size(); index2++) {
 					File usedImg = new File(usedImgs.get(index2));
-					//println(usedImg.getName(),files[index]);
-					if(usedImg.getName().equals(files[index])){
-						found = true;	
+					// println(usedImg.getName(),files[index]);
+					if (usedImg.getName().equals(files[index])) {
+						found = true;
 						break;
 					}
 				}
-				if(!found){
+				if (!found) {
 					String targetPath = folder.getPath() + "/" + files[index];
 					unusedFiles.add(targetPath);
 				}
 			}
 			unusedFiles.removeAll(usedImgs);
 			String[] unusedArr = new String[unusedFiles.size()];
-			for(int index = 0; index < unusedArr.length; index++){
+			for (int index = 0; index < unusedArr.length; index++) {
 				unusedArr[index] = unusedFiles.get(index);
 			}
 			return unusedArr;
 		} else {
 			return null;
 		}
-	
+
 	}
-	
-	public synchronized void removeUnusedImages(){
+
+	public synchronized void removeUnusedImages() {
 		// Garbage collection
 		String[] unusedImgs = getUnusedImage();
-		if(unusedImgs!=null && unusedImgs.length>0 && unusedImgs.length < items.size()*2){
-			for(int index=0; index < unusedImgs.length; index++){
+		if (unusedImgs != null && unusedImgs.length > 0 && unusedImgs.length < items.size() * 2) {
+			for (int index = 0; index < unusedImgs.length; index++) {
 				String targetFilePath = unusedImgs[index];
-				deleteFile(targetFilePath);	
-				String thumbnailPath = getThumbnailPath(new File(targetFilePath));
+				deleteFile(targetFilePath);
+				String thumbnailPath = context.thumbnail.getThumbnailPath(context.projectDirectory,
+						new File(targetFilePath));
 				deleteFile(thumbnailPath);
 			}
 		}
@@ -1529,99 +1385,94 @@ public class ManuCapture_v1_1 extends PApplet {
 			e.printStackTrace();
 		}
 	}
-	
-	
+
 	// Image preview
-	
+
 	String lastLeftImagePath = "";
 	String lastRightImagePath = "";
-	
+
 	void loadPreviews(String leftImagePath, String rightImagePath) {
-		
+
 		long startMillis = millis();
-		
-		 		
-		if(!leftImagePath.equals("")){
-			
+
+		if (!leftImagePath.equals("")) {
+
 			String previewFolder = sketchPath() + "/data/preview_left/";
-		
+
 			deleteFile(previewFolder + "*.jpg");
-			
+
 			File itemImgLeft = new File(leftImagePath);
 			String fileName = FilenameUtils.removeExtension(itemImgLeft.getName());
 			String resizedImage = "left_preview.jpg";
 			String previewName = fileName + "-preview3.jpg";
 			String previewFullPath = previewFolder + previewName;
 			String resizedImageFullPath = previewFolder + resizedImage;
-			String command = "exiv2 -ep3 -l " + previewFolder +  " " + leftImagePath;	
+			String command = "exiv2 -ep3 -l " + previewFolder + " " + leftImagePath;
 			lastLeftImagePath = previewFullPath;
 			try {
-			 Process process = Runtime.getRuntime().exec(command);
-			 process.waitFor();
-			} catch(Exception e) {
-			 e.printStackTrace();
+				Process process = Runtime.getRuntime().exec(command);
+				process.waitFor();
+			} catch (Exception e) {
+				e.printStackTrace();
 			}
-			
+
 			command = "convert " + previewFullPath + " -resize 1000x667 " + resizedImageFullPath;
 			try {
 				Process process = Runtime.getRuntime().exec(command);
 				process.waitFor();
 				previewImgLeft = loadImage(resizedImageFullPath);
-			} catch(Exception e) {
+			} catch (Exception e) {
 				e.printStackTrace();
 			}
-			
-			
+
 		}
-		
-		
-		if(!rightImagePath.equals("")){
-			
+
+		if (!rightImagePath.equals("")) {
+
 			String previewFolder = sketchPath() + "/data/preview_right/";
-		
-			// Clear preview folder 
+
+			// Clear preview folder
 			deleteFile(previewFolder + "*.jpg");
-			
+
 			File itemImgRight = new File(rightImagePath);
 			String fileName = FilenameUtils.removeExtension(itemImgRight.getName());
 			String resizedImage = "right_preview.jpg";
 			String previewName = fileName + "-preview3.jpg";
 			String previewFullPath = previewFolder + previewName;
 			String resizedImageFullPath = previewFolder + resizedImage;
-		    lastRightImagePath = previewFullPath;
-			String command = "exiv2 -ep3 -l " + previewFolder +  " " + rightImagePath;		  
+			lastRightImagePath = previewFullPath;
+			String command = "exiv2 -ep3 -l " + previewFolder + " " + rightImagePath;
 			try {
-			 Process process = Runtime.getRuntime().exec(command);
-			 process.waitFor();
-			} catch(Exception e) {
-			 e.printStackTrace();
+				Process process = Runtime.getRuntime().exec(command);
+				process.waitFor();
+			} catch (Exception e) {
+				e.printStackTrace();
 			}
-			
+
 			command = "convert " + previewFullPath + " -resize 1000x667 " + resizedImageFullPath;
 			try {
 				Process process = Runtime.getRuntime().exec(command);
-			 	InputStream error = process.getErrorStream();
+				InputStream error = process.getErrorStream();
 
 				process.waitFor();
-			    String err = "Error:";
-			    for (int i = 0; i < error.available(); i++) {
-			        err += (char) error.read();
-			    }
-			    if(!err.equals("Error:")){
-				    println(err);
-			    }
+				String err = "Error:";
+				for (int i = 0; i < error.available(); i++) {
+					err += (char) error.read();
+				}
+				if (!err.equals("Error:")) {
+					println(err);
+				}
 
 				previewImgRight = loadImage(resizedImageFullPath);
-			} catch(Exception e) {
+			} catch (Exception e) {
 				e.printStackTrace();
 			}
-				
-		}		  
-		  		  
+
+		}
+
 		long endMillis = millis();
-	
+
 	}
-	
 
 	/*
 	 * MetaData_Utils : Extra functions for Metadata generation: md5, timestamp
@@ -1705,7 +1556,6 @@ public class ManuCapture_v1_1 extends PApplet {
 		return false;
 	}
 
-	
 	// Use this method to add additional statements
 	// to customise the GUI controls
 	public void customGUI() {
@@ -1732,7 +1582,7 @@ public class ManuCapture_v1_1 extends PApplet {
 		camera_B_active_button.setLocalColorScheme(GCScheme.ORANGE_SCHEME);
 
 	}
-	
+
 	/*
 	 * ========================================================= ==== WARNING
 	 * === ========================================================= The code in
@@ -1801,7 +1651,7 @@ public class ManuCapture_v1_1 extends PApplet {
 				float pageNumber = Float.parseFloat(source.getText());
 				int itemIndex = findItemIndexByPagNum(pageNumber);
 				if (itemIndex != -1) {
-					forceSelectedItem(itemIndex,true);
+					forceSelectedItem(itemIndex, true);
 				}
 				saveProjectXML();
 			} catch (NumberFormatException ex) {
@@ -2147,7 +1997,7 @@ public class ManuCapture_v1_1 extends PApplet {
 	GButton liveView_button;
 
 	public void settings() {
-		//size(595, 1030);
+		// size(595, 1030);
 		size(1920, 1030);
 	}
 
