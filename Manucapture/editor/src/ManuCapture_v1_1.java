@@ -70,10 +70,10 @@ public class ManuCapture_v1_1 extends PApplet {
 
 	// Need install G4P, OSC, Apache.Commons.io library
 
+	
+
 	PrintWriter logOutput;
 
-	OscP5 oscP5;
-	NetAddress viewerLocation;
 	int receivePort = 3334;
 	int sendPort = 3333;
 
@@ -127,15 +127,8 @@ public class ManuCapture_v1_1 extends PApplet {
 	int itemListViewPortWidth = 285;
 	int itemListViewPortHeight = 900;
 
-	String projectFilePath = "";
-	String projectDirectory = "";
-	String projectName = "";
-	String projectComment = "";
-	String projectCode = "";
-	String projectAuthor = "";
-	ArrayList<Item> items = new ArrayList<Item>();
-
-	int selectedItemIndex = -1;
+	Project project = null;
+	
 	int overedItemIndex;
 	int overedCancelButtonIndex = -1;
 	int selectItemColor = 0xffB7691F;
@@ -153,7 +146,7 @@ public class ManuCapture_v1_1 extends PApplet {
 	int SCROLL_HANDLE_OVER = 1;
 	int SCROLL_HANDLE_PRESSED = 2;
 
-	boolean thumbnailsLoaded = false;
+	
 	boolean initSelectedItem = false;
 
 	PImage removeItemIcon;
@@ -174,21 +167,25 @@ public class ManuCapture_v1_1 extends PApplet {
 	int backgroundColor = 0xff000C12;
 	PImage bookIcon;
 
-	G2P5 gphotoA;
-	G2P5 gphotoB;
 	boolean cameraActiveA = false;
 	boolean cameraActiveB = false;
 
 	String serialCameraA;
 	String serialCameraB;
 
-	PImage previewImgLeft = null;
-	PImage previewImgRight = null;
 
 	String newImagePathA = "";
 	String newImagePathB = "";
 
 	ManuCaptureContext context = new ManuCaptureContext();
+	
+	int lastDrawedItems = -1;
+	int ADDING_ITEM_TRANSITION = 1;
+	int REMOVING_ITEM_TRANSITION = 2;
+	int NO_TRANSITION = 0;
+	int itemsViewTransition = NO_TRANSITION;
+	float transitionPhase = 0.0f;
+	float itemBaseY = 0;
 
 	public void _println(String message) {
 		int s = second(); // Values from 0 - 59
@@ -208,7 +205,12 @@ public class ManuCapture_v1_1 extends PApplet {
 	public void setup() {
 
 		context.parent = this;
-		context.thumbnail = new Thumbnail();
+		context.thumbnail = new RawFile();
+		context.parent = this;
+		context.gui = new GUI();
+		
+		project = new Project();
+		project.context = context;
 		
 		if (surface != null) {
 			surface.setLocation(0, 0);
@@ -218,10 +220,10 @@ public class ManuCapture_v1_1 extends PApplet {
 		serialCameraB = serialXML.getChild("Camera_B").getContent();
 
 		G2P5.init(0);
-		gphotoA = G2P5.create(this, serialCameraA, "A");
-		gphotoA.setTargetFile(sketchPath(), "test");
-		gphotoB = G2P5.create(this, serialCameraB, "B");
-		gphotoB.setTargetFile(sketchPath(), "test");
+		context.gphotoA = G2P5.create(this, serialCameraA, "A");
+		context.gphotoA.setTargetFile(sketchPath(), "test");
+		context.gphotoB = G2P5.create(this, serialCameraB, "B");
+		context.gphotoB.setTargetFile(sketchPath(), "test");
 
 		createGUI();
 		customGUI();
@@ -232,23 +234,18 @@ public class ManuCapture_v1_1 extends PApplet {
 
 		removeItemIcon = loadImage("cross_inv_20x20.jpeg");
 
-		oscP5 = new OscP5(this, receivePort);
-		viewerLocation = new NetAddress("127.0.0.1", sendPort);
+		context.oscP5 = new OscP5(this, receivePort);
+		context.viewerLocation = new NetAddress("127.0.0.1", sendPort);
 
 		loadLastSessionData();
 		bookIcon = loadImage("bookIcon.png");
 		bookIcon.resize(bookIcon.width / 6, bookIcon.height / 6);
 
 		
+		
 	}
 
-	int lastDrawedItems = -1;
-	int ADDING_ITEM_TRANSITION = 1;
-	int REMOVING_ITEM_TRANSITION = 2;
-	int NO_TRANSITION = 0;
-	int itemsViewTransition = NO_TRANSITION;
-	float transitionPhase = 0.0f;
-	float itemBaseY = 0;
+
 
 	public void draw() {
 
@@ -261,20 +258,20 @@ public class ManuCapture_v1_1 extends PApplet {
 		// CAMERA STATE SECTION
 		// ///////////////////////////////////////////////////////
 
-		if (gphotoA.isConnected()) {
-			camera_A_connected_button.setText("CONNECTED");
-			camera_A_connected_button.setLocalColorScheme(GCScheme.GREEN_SCHEME);
+		if (context.gphotoA.isConnected()) {
+			context.gui.camera_A_connected_button.setText("CONNECTED");
+			context.gui.camera_A_connected_button.setLocalColorScheme(GCScheme.GREEN_SCHEME);
 		} else {
-			camera_A_connected_button.setText("DISCONNECTED");
-			camera_A_connected_button.setLocalColorScheme(GCScheme.RED_SCHEME);
+			context.gui.camera_A_connected_button.setText("DISCONNECTED");
+			context.gui.camera_A_connected_button.setLocalColorScheme(GCScheme.RED_SCHEME);
 		}
 
-		if (gphotoB.isConnected()) {
-			camera_B_connected_button.setText("CONNECTED");
-			camera_B_connected_button.setLocalColorScheme(GCScheme.GREEN_SCHEME);
+		if (context.gphotoB.isConnected()) {
+			context.gui.camera_B_connected_button.setText("CONNECTED");
+			context.gui.camera_B_connected_button.setLocalColorScheme(GCScheme.GREEN_SCHEME);
 		} else {
-			camera_B_connected_button.setText("DISCONNECTED");
-			camera_B_connected_button.setLocalColorScheme(GCScheme.RED_SCHEME);
+			context.gui.camera_B_connected_button.setText("DISCONNECTED");
+			context.gui.camera_B_connected_button.setLocalColorScheme(GCScheme.RED_SCHEME);
 		}
 
 		// ITEM LIST VIEW PORT SECTION
@@ -284,19 +281,19 @@ public class ManuCapture_v1_1 extends PApplet {
 
 		// update item list related values
 		float targetItemBaseY;
-		int fullListHeight = itemHeight * items.size();
+		int fullListHeight = itemHeight * project.items.size();
 
-		if (items.size() == 0) {
+		if (project.items.size() == 0) {
 			targetItemBaseY = 0.0f;
 		} else {
 			targetItemBaseY = map(scrollHandleY, 0, itemsViewPort.height, 0, fullListHeight);
 		}
 
-		if (scrollTransitionState == NO_SCROLL_TRANSITION)
+		if (project.scrollTransitionState == project.NO_SCROLL_TRANSITION)
 			itemBaseY = targetItemBaseY;
 		else {
-			if (abs(targetItemBaseY - itemBaseY) < 20 || items.size() <= 1) {
-				scrollTransitionState = NO_SCROLL_TRANSITION;
+			if (abs(targetItemBaseY - itemBaseY) < 20 || project.items.size() <= 1) {
+				project.scrollTransitionState = project.NO_SCROLL_TRANSITION;
 				itemBaseY = targetItemBaseY;
 			} else {
 				if (targetItemBaseY > itemBaseY)
@@ -330,7 +327,7 @@ public class ManuCapture_v1_1 extends PApplet {
 		}
 		itemsViewPort.rect(itemsViewPort.width - scrollBarWidth, scrollHandleY, scrollBarWidth, scrollHandleHeight);
 
-		if (items.size() == 0 && !projectDirectory.equals("")) {
+		if (project.items.size() == 0 && !project.projectDirectory.equals("")) {
 			itemsViewPort.stroke(selectItemColorStroke);
 			itemsViewPort.fill(selectItemColor);
 			int iconWidht = itemsViewPort.width - scrollBarWidth - 1;
@@ -338,12 +335,12 @@ public class ManuCapture_v1_1 extends PApplet {
 			itemsViewPort.image(bookIcon, (iconWidht - bookIcon.width) / 2, (itemHeight - bookIcon.height) / 2);
 		} else {
 			// items
-			if (thumbnailsLoaded) {
+			if (project.thumbnailsLoaded) {
 
 				// TODO: Add transition when adding
-				if (lastDrawedItems != items.size() && lastDrawedItems != -1
-						&& (selectedItemIndex != items.size() - 1)) {
-					if (lastDrawedItems < items.size()) {
+				if (lastDrawedItems != project.items.size() && lastDrawedItems != -1
+						&& (project.selectedItemIndex != project.items.size() - 1)) {
+					if (lastDrawedItems < project.items.size()) {
 						itemsViewTransition = ADDING_ITEM_TRANSITION;
 						transitionPhase = 0.0f;
 					} else {
@@ -369,15 +366,15 @@ public class ManuCapture_v1_1 extends PApplet {
 				for (int i = 0, itemY = 0; itemY < fullListHeight; i++, itemY += heightInc) {
 					int viewPortRelativeHeight = (int) (itemY - itemBaseY);
 					heightInc = itemThumbHeight + marginY;
-					if (i < items.size() && viewPortRelativeHeight > -itemHeight
+					if (i < project.items.size() && viewPortRelativeHeight > -itemHeight
 							&& viewPortRelativeHeight < itemsViewPort.height) {
-						Item item = items.get(i);
-						if (i == overedItemIndex && i != selectedItemIndex) {
+						Item item = project.items.get(i);
+						if (i == overedItemIndex && i != project.selectedItemIndex) {
 							itemsViewPort.stroke(scrollBarColor);
 							itemsViewPort.fill(overItemColor);
 							itemsViewPort.rect(0, viewPortRelativeHeight - marginY / 2,
 									itemsViewPort.width - scrollBarWidth - 1, itemHeight);
-						} else if (i == selectedItemIndex) {
+						} else if (i == project.selectedItemIndex) {
 							if (itemsViewTransition == NO_TRANSITION) {
 								itemsViewPort.stroke(selectItemColorStroke);
 								itemsViewPort.fill(selectItemColor);
@@ -402,7 +399,7 @@ public class ManuCapture_v1_1 extends PApplet {
 							}
 						}
 
-						if ((i != selectedItemIndex) || (itemsViewTransition != ADDING_ITEM_TRANSITION)) {
+						if ((i != project.selectedItemIndex) || (itemsViewTransition != ADDING_ITEM_TRANSITION)) {
 							if (item.imgThumbRight != null) {
 								itemsViewPort.image(item.imgThumbRight, marginX + item.imgThumbLeft.width,
 										viewPortRelativeHeight);
@@ -445,19 +442,19 @@ public class ManuCapture_v1_1 extends PApplet {
 						heightInc = itemThumbHeight + marginY;
 					}
 				}
-				lastDrawedItems = items.size();
+				lastDrawedItems = project.items.size();
 			}
 
 		}
 		itemsViewPort.endDraw();
 		image(itemsViewPort, itemListViewPortX, itemListViewPortY);
 
-		if (previewImgLeft != null) {
+		if (project.previewImgLeft != null) {
 			pushMatrix();
-			translate(580 + previewImgLeft.height / 2, 20 + previewImgLeft.width / 2);
+			translate(580 + project.previewImgLeft.height / 2, 20 + project.previewImgLeft.width / 2);
 			rotate(PI / 2);
 			imageMode(CENTER);
-			image(previewImgLeft, 0, 0);
+			image(project.previewImgLeft, 0, 0);
 			imageMode(CORNER);
 			popMatrix();
 		} else {
@@ -466,12 +463,12 @@ public class ManuCapture_v1_1 extends PApplet {
 			rect(580, 20, 667, 1000);
 		}
 
-		if (previewImgRight != null) {
+		if (project.previewImgRight != null) {
 			pushMatrix();
-			translate(1250 + previewImgRight.height / 2, 20 + previewImgRight.width / 2);
+			translate(1250 + project.previewImgRight.height / 2, 20 + project.previewImgRight.width / 2);
 			rotate(3 * PI / 2);
 			imageMode(CENTER);
-			image(previewImgRight, 0, 0);
+			image(project.previewImgRight, 0, 0);
 			imageMode(CORNER);
 			popMatrix();
 		} else {
@@ -500,7 +497,7 @@ public class ManuCapture_v1_1 extends PApplet {
 		if ((mouseX > itemListViewPortX) && (mouseX < (itemsViewPort.width + itemListViewPortX))) {
 			if ((mouseY > itemListViewPortY) && (mouseY < (itemListViewPortY + itemsViewPort.height))) {
 				int itemHeight = itemThumbHeight + marginY;
-				int fullListHeight = itemHeight * items.size();
+				int fullListHeight = itemHeight * project.items.size();
 				float itemBaseY = map(scrollHandleY, 0, itemsViewPort.height, 0, fullListHeight);
 				for (int i = 0, itemY = 0; itemY < fullListHeight; i++, itemY += itemHeight) {
 					int viewPortRelativeHeight = (int) (itemY - itemBaseY);
@@ -526,6 +523,41 @@ public class ManuCapture_v1_1 extends PApplet {
 		}
 		scrollHandleState = SCROLL_HANDLE_IDLE;
 	}
+	
+	public void forceSelectedItem(int index, boolean transition) {
+		project.selectedItemIndex = min(index, project.items.size() - 1);
+		if (transition) {
+			project.scrollTransitionState = project.SCROLL_TRANSITION;
+		}
+		if (project.selectedItemIndex >= 0 && project.items.size() > 0) {
+			// Update gui list
+			int itemHeight = itemThumbHeight + marginY;
+			int fullListHeight = itemHeight * project.items.size();
+			scrollHandleHeight = map(itemsViewPort.height, 0, fullListHeight, 0, itemsViewPort.height);
+			if (scrollHandleHeight > itemsViewPort.height) {
+				scrollHandleHeight = itemsViewPort.height;
+			}
+			if (scrollHandleHeight < 0)
+				scrollHandleHeight = 0;
+			try {
+				if (project.items.size() == 1)
+					scrollHandleY = 0;
+				else
+					scrollHandleY = map(index, 0, project.items.size() - 1, 0, itemsViewPort.height - scrollHandleHeight);
+			} catch (Exception e) {
+				scrollHandleY = 0;
+			}
+			// Update selected item
+			if (scrollHandleY < 0) {
+				scrollHandleY = 0;
+			}
+			if ((scrollHandleY + scrollHandleHeight) > itemsViewPort.height) {
+				scrollHandleY = itemsViewPort.height - scrollHandleHeight;
+			}
+
+			project.selectItem(project.selectedItemIndex);
+		}
+	}
 
 	public void mousePressed() {
 
@@ -541,7 +573,7 @@ public class ManuCapture_v1_1 extends PApplet {
 		if ((mouseX > itemListViewPortX) && (mouseX < (itemsViewPort.width + itemListViewPortX))) {
 			if ((mouseY > itemListViewPortY) && (mouseY < (itemListViewPortY + itemsViewPort.height))) {
 				int itemHeight = itemThumbHeight + marginY;
-				int fullListHeight = itemHeight * items.size();
+				int fullListHeight = itemHeight * project.items.size();
 				float itemBaseY = map(scrollHandleY, 0, itemsViewPort.height, 0, fullListHeight);
 				for (int i = 0, itemY = 0; itemY < fullListHeight; i++, itemY += itemHeight) {
 					int viewPortRelativeHeight = (int) (itemY - itemBaseY);
@@ -549,7 +581,7 @@ public class ManuCapture_v1_1 extends PApplet {
 						// check item overed
 						if ((mouseY > (viewPortRelativeHeight + itemListViewPortY))
 								&& (mouseY < (viewPortRelativeHeight + itemHeight + itemListViewPortY))) {
-							selectedItemIndex = i;
+							project.selectedItemIndex = i;
 							// check over remove button
 							float cancelButtonX = itemsViewPort.width - scrollBarWidth - marginInfo - removeIconSize
 									+ itemListViewPortX;
@@ -564,7 +596,7 @@ public class ManuCapture_v1_1 extends PApplet {
 									break;
 								}
 							}
-							selectItem(selectedItemIndex);
+							project.selectItem(project.selectedItemIndex);
 						}
 					}
 				}
@@ -595,97 +627,97 @@ public class ManuCapture_v1_1 extends PApplet {
 	public void newPhotoEvent(G2P5 gphoto, String absoluteFilePath) {
 
 		println("New photo!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!", absoluteFilePath);
-		if (gphoto == gphotoA) {
+		if (gphoto == context.gphotoA) {
 			newImagePathA = absoluteFilePath;
 
-		} else if (gphoto == gphotoB) {
+		} else if (gphoto == context.gphotoB) {
 			newImagePathB = absoluteFilePath;
 		}
 
-		if ((gphotoA.isConnected() && gphotoB.isConnected() && (!newImagePathA.equals("") && !newImagePathB.equals("")))
-				|| (gphotoA.isConnected() && !gphotoB.isConnected() && !newImagePathA.equals(""))
-				|| (!gphotoA.isConnected() && gphotoB.isConnected() && !newImagePathB.equals(""))) {
+		if ((context.gphotoA.isConnected() && context.gphotoB.isConnected() && (!newImagePathA.equals("") && !newImagePathB.equals("")))
+				|| (context.gphotoA.isConnected() && !context.gphotoB.isConnected() && !newImagePathA.equals(""))
+				|| (!context.gphotoA.isConnected() && context.gphotoB.isConnected() && !newImagePathB.equals(""))) {
 			// delay(3000);
 			if (shutterMode == NORMAL_SHUTTER) {
 
 				float newPageNum;
-				if (selectedItemIndex < 0) {
+				if (project.selectedItemIndex < 0) {
 					newPageNum = 1;
 				} else {
-					newPageNum = (int) items.get(selectedItemIndex).pagNum + 1;
+					newPageNum = (int) project.items.get(project.selectedItemIndex).pagNum + 1;
 				}
 				// TODO add new item: PRoblem when only one image arrives
 
 				String relNewImagePathA = "";
 
-				if (projectDirectory.equals("")) {
+				if (project.projectDirectory.equals("")) {
 					newImagePathA = "";
 					newImagePathB = "";
 				}
 
 				if (!newImagePathA.equals(""))
-					relNewImagePathA = newImagePathA.substring(projectDirectory.length() + 1, newImagePathA.length());
+					relNewImagePathA = newImagePathA.substring(project.projectDirectory.length() + 1, newImagePathA.length());
 				String relNewImagePathB = "";
 				if (!newImagePathB.equals(""))
-					relNewImagePathB = newImagePathB.substring(projectDirectory.length() + 1, newImagePathB.length());
+					relNewImagePathB = newImagePathB.substring(project.projectDirectory.length() + 1, newImagePathB.length());
 
 				Item newItem = new Item(context, relNewImagePathA, relNewImagePathB, newPageNum, "", "Item");
 				newItem.loadThumbnails(context, newImagePathA, newImagePathB);
 
-				addItem(selectedItemIndex + 1, newItem);
+				addItem(project.selectedItemIndex + 1, newItem);
 				newImagePathA = "";
 				newImagePathB = "";
 
 			} else if (shutterMode == SUBPAGE_SHUTTER) {
 
-				if (items.size() > 0) {
-					float currentPN = selectedItem.pagNum;
+				if (project.items.size() > 0) {
+					float currentPN = project.selectedItem.pagNum;
 					float newPageNum = round((currentPN + 0.1f) * 10) / 10.0f;
 					// TODO add new item
 
-					if (projectDirectory.equals("")) {
+					if (project.projectDirectory.equals("")) {
 						newImagePathA = "";
 						newImagePathB = "";
 					}
 
 					String relNewImagePathA = "";
-					if (newImagePathA != null && (newImagePathA.length() > projectDirectory.length() + 1))
-						relNewImagePathA = newImagePathA.substring(projectDirectory.length() + 1,
+					if (newImagePathA != null && (newImagePathA.length() > project.projectDirectory.length() + 1))
+						relNewImagePathA = newImagePathA.substring(project.projectDirectory.length() + 1,
 								newImagePathA.length());
 					String relNewImagePathB = "";
-					if (newImagePathB != null && (newImagePathB.length() > projectDirectory.length() + 1))
-						relNewImagePathB = newImagePathB.substring(projectDirectory.length() + 1,
+					if (newImagePathB != null && (newImagePathB.length() > project.projectDirectory.length() + 1))
+						relNewImagePathB = newImagePathB.substring(project.projectDirectory.length() + 1,
 								newImagePathB.length());
 
 					Item newItem = new Item(context, relNewImagePathA, relNewImagePathB, newPageNum, "", "SubItem");
 					newItem.loadThumbnails(context, newImagePathA, newImagePathB);
-					addSubItem(selectedItemIndex + 1, newItem);
+					addSubItem(project.selectedItemIndex + 1, newItem);
 					newImagePathA = "";
 					newImagePathB = "";
 				}
 
 			} else if (shutterMode == REPEAT_SHUTTER) {
-				if (items.size() > 0) {
-					float newPageNum = selectedItem.pagNum;
+				if (project.items.size() > 0) {
+					float newPageNum = project.selectedItem.pagNum;
 
-					if (projectDirectory.equals("")) {
+					if (project.projectDirectory.equals("")) {
 						newImagePathA = "";
 						newImagePathB = "";
 					}
 
 					String relNewImagePathA = "";
 					if (!newImagePathA.equals(""))
-						relNewImagePathA = newImagePathA.substring(projectDirectory.length() + 1,
+						relNewImagePathA = newImagePathA.substring(project.projectDirectory.length() + 1,
 								newImagePathA.length());
 					String relNewImagePathB = "";
 					if (!newImagePathB.equals(""))
-						relNewImagePathB = newImagePathB.substring(projectDirectory.length() + 1,
+						relNewImagePathB = newImagePathB.substring(project.projectDirectory.length() + 1,
 								newImagePathB.length());
 
 					Item newItem = new Item(context, relNewImagePathA, relNewImagePathB, newPageNum, "",
-							selectedItem.type);
+							project.selectedItem.type);
 					newItem.loadThumbnails();
-					replaceItem(selectedItemIndex, newItem);
+					replaceItem(project.selectedItemIndex, newItem);
 					newImagePathA = "";
 					newImagePathB = "";
 				}
@@ -711,7 +743,7 @@ public class ManuCapture_v1_1 extends PApplet {
 				else
 					println("Error loading the project: Project file doesn't exist");
 
-				selectedItemIndex = new Integer(lastSessionData.getChild("Current_Item").getContent());
+				project.selectedItemIndex = new Integer(lastSessionData.getChild("Current_Item").getContent());
 
 				value = lastSessionData.getChild("Camera_A_Active").getContent();
 				if (value.equals("1"))
@@ -725,7 +757,7 @@ public class ManuCapture_v1_1 extends PApplet {
 				else
 					cameraActiveB = false;
 
-				forceSelectedItem(selectedItemIndex, false);
+				forceSelectedItem(project.selectedItemIndex, false);
 
 			}
 
@@ -737,6 +769,32 @@ public class ManuCapture_v1_1 extends PApplet {
 		}
 	}
 
+	
+	
+	
+
+	public boolean createDirectory(String folderName) {
+
+		File file = new File(baseDirectory + folderName);
+		if (!file.exists()) {
+			if (file.mkdir()) {
+				try {
+					Runtime.getRuntime().exec("chmod -R ugo+rw " + baseDirectory + folderName);
+				} catch (Exception e) {
+					_println("Couldn't create directory permisions");
+				}
+			} else {
+				_println("Failed to create directory!");
+			}
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	
+	
+
 	public void saveLastSessionData() {
 
 		String value;
@@ -744,11 +802,11 @@ public class ManuCapture_v1_1 extends PApplet {
 		XML lastSessionData = new XML("Session");
 
 		XML lastdocumentFileName = new XML("Project");
-		lastdocumentFileName.setContent(projectFilePath);
+		lastdocumentFileName.setContent(project.projectFilePath);
 		lastSessionData.addChild(lastdocumentFileName);
 
 		XML lastCurrentItem = new XML("Current_Item");
-		lastCurrentItem.setContent(String.valueOf(selectedItemIndex));
+		lastCurrentItem.setContent(String.valueOf(project.selectedItemIndex));
 		lastSessionData.addChild(lastCurrentItem);
 
 		XML lastCameraActiveA = new XML("Camera_A_Active");
@@ -771,20 +829,165 @@ public class ManuCapture_v1_1 extends PApplet {
 		saveXML(lastSessionData, "data/lastSession.xml");
 	}
 
+	public void clearItem(int index) {
+		Item itemToClear = project.items.get(index);
+		itemToClear.clear();
+		project.selectedItemIndex = min(index, project.items.size());
+		if (project.selectedItemIndex >= 0 && project.items.size() > 0) {
+			project.selectItem(project.selectedItemIndex);
+		}
+		forceSelectedItem(project.selectedItemIndex, true);
+		project.saveProjectXML();
+		project.removeUnusedImages();
+
+	}
+
+	public void removeItem(int index) {
+		Item itemToRemove = project.items.get(index);
+		String type = itemToRemove.type;
+		float pageNum = itemToRemove.pagNum;
+
+		ArrayList<Item> items = project.items;
+		
+		items.remove(index);
+
+		if (itemToRemove.type.equals("Item")) {
+			if (index < items.size()) {
+				for (int i = index; i < items.size(); i++) {
+					items.get(i).pagNum--;
+				}
+			}
+		} else {
+			if (index < items.size() - 1) {
+				for (int i = index; i < items.size() - 1; i++) {
+					if ((int) items.get(i).pagNum == (int) pageNum) {
+						if (items.get(i).pagNum - (int) items.get(i).pagNum > pageNum - (int) pageNum) {
+							float newPageNum = round((items.get(i).pagNum - 0.1f) * 10) / 10.0f;
+							items.get(i).pagNum = newPageNum;
+						}
+					}
+
+				}
+			}
+		}
+		project.selectedItemIndex = min(index, items.size() - 1);
+		if (project.selectedItemIndex >= 0 && items.size() > 0) {
+			project.selectItem(project.selectedItemIndex);
+		}
+		forceSelectedItem(project.selectedItemIndex, true);
+		project.saveProjectXML();
+		project.removeUnusedImages();
+
+	}
+
+	public synchronized void addItem(int index, Item newItem) {
+		ArrayList<Item> items = project.items;
+		if (index >= 0) {
+			if (index < items.size()) {
+				if (index > 0) {
+					Item targetItem = items.get(index - 1);
+					if (targetItem.imagePathLeft.equals("") && targetItem.imagePathRight.equals("")) {
+						newItem.pagNum = targetItem.pagNum;
+						items.set(index - 1, newItem);
+						project.selectedItemIndex = min(index, items.size());
+						if ((project.selectedItemIndex != items.size())
+								|| (items.get(project.selectedItemIndex).pagNum != newItem.pagNum + 1)) {
+							Item emptyItem = new Item(context, "", "", (int) (newItem.pagNum) + 1, "", "Item");
+							items.add(project.selectedItemIndex, emptyItem);
+							forceSelectedItem(index, true);
+						} else if (project.selectedItemIndex != items.size()) {
+							forceSelectedItem(project.selectedItemIndex, true);
+						}
+					} else {
+						items.add(index, newItem);
+						forceSelectedItem(index, true);
+					}
+				} else {
+					items.add(index, newItem);
+					forceSelectedItem(index, true);
+				}
+			} else {
+				if (items.size() == 0) {
+					items.add(newItem);
+					forceSelectedItem(index, true);
+				} else {
+					Item targetItem = items.get(index - 1);
+					if (targetItem.imagePathLeft.equals("") && targetItem.imagePathRight.equals("")) {
+						newItem.pagNum = targetItem.pagNum;
+						items.set(index - 1, newItem);
+						project.selectedItemIndex = min(index, items.size());
+						forceSelectedItem(project.selectedItemIndex, true);
+					} else {
+						items.add(newItem);
+						forceSelectedItem(index, true);
+					}
+
+				}
+			}
+
+			for (int i = index + 1; i < items.size(); i++) {
+				items.get(i).pagNum++;
+			}
+
+			
+			project.saveProjectXML();
+			println("item added");
+		}
+	}
+
+	public synchronized void addSubItem(int index, Item newItem) {
+		ArrayList<Item> items = project.items;
+		if (index >= 0 && index <= items.size()) {
+			items.add(index, newItem);
+			project.selectedItemIndex = min(index, items.size());
+			if (project.selectedItemIndex >= 0 && items.size() > 0) {
+				forceSelectedItem(project.selectedItemIndex, true);
+			}
+			project.saveProjectXML();
+		}
+	}
+
+	public synchronized void replaceItem(int index, Item newItem) {
+		ArrayList<Item> items = project.items;
+		if (index >= 0 && index < items.size()) {
+			if (newItem.imagePathLeft.equals("")) {
+				newItem.imagePathLeft = items.get(index).imagePathLeft;
+				newItem.loadThumbnails();
+			}
+			if (newItem.imagePathRight.equals("")) {
+				newItem.imagePathRight = items.get(index).imagePathRight;
+				newItem.loadThumbnails();
+			}
+			items.remove(index);
+			items.add(index, newItem);
+			project.selectedItemIndex = min(index + 1, items.size());
+			if (!newItem.type.equals("SubItem")) {
+				if ((project.selectedItemIndex == items.size())
+						|| (items.get(project.selectedItemIndex).pagNum != newItem.pagNum + 1)) {
+					Item emptyItem = new Item(context, "", "", newItem.pagNum + 1, "", "Item");
+					items.add(project.selectedItemIndex, emptyItem);
+				}
+			}
+			forceSelectedItem(project.selectedItemIndex, true);
+			project.saveProjectXML();
+		}
+	}
+
+		
 	/*
 	 * Project management
 	 * 
 	 */
 
 	public synchronized void createProject(String projectFolderPath) {
-		if (!projectFilePath.equals("")) {
-			closeProject();
-			page_comments_text.setText("");
-			page_num_text.setText("0");
+		if (!project.projectFilePath.equals("")) {
+			project.closeProject();
+			context.gui.page_comments_text.setText("");
+			context.gui.page_num_text.setText("0");
 
 		}
 		XML projectDataXML = loadXML("project_template.xml");
-		loadProjectMetadata(projectDataXML);
+		project.loadProjectMetadata(projectDataXML);
 		saveXML(projectDataXML, projectFolderPath + "/project.xml");
 		File thumbnailsFolder = new File(projectFolderPath + "/thumbnails");
 		if (!thumbnailsFolder.exists()) {
@@ -810,670 +1013,29 @@ public class ManuCapture_v1_1 extends PApplet {
 				_println("Failed to create thumbnail directory!");
 			}
 		}
-		projectDirectory = projectFolderPath;
-		projectFilePath = projectFolderPath + "/project.xml";
-		selectedItemIndex = -1;
-		thumbnailsLoaded = true;
-		gphotoA.setTargetFile(projectDirectory + "/raw", projectCode);
-		gphotoB.setTargetFile(projectDirectory + "/raw", projectCode);
+		project.projectDirectory = projectFolderPath;
+		project.projectFilePath = projectFolderPath + "/project.xml";
+		project.selectedItemIndex = -1;
+		project.thumbnailsLoaded = true;
+		context.gphotoA.setTargetFile(project.projectDirectory + "/raw", project.projectCode);
+		context.gphotoB.setTargetFile(project.projectDirectory + "/raw", project.projectCode);
 
 		saveLastSessionData();
 
 	}
+
+	
+
 
 	public synchronized void loadProject(String projectPath) {
-
-		if (!projectFilePath.equals("")) {
-			closeProject();
-		}
-
-		if (projectPath.equals("")) {
-			G4P.showMessage(this, "ERROR: Problem opening last session project. Please load the folder manually.",
-					"Save project", G4P.ERROR);
-			return;
-		}
-
-		projectFilePath = projectPath;
-		XML projectDataXML = loadXML(projectPath);
-		loadProjectMetadata(projectDataXML);
-		XML[] itemsXML = projectDataXML.getChild("items").getChildren("item");
-		for (int i = 0; i < itemsXML.length; i++) {
-			try {
-				XML itemXML = itemsXML[i];
-				String imagePathLeft = itemXML.getChild("image_left").getContent();
-				String imagePathRight = itemXML.getChild("image_right").getContent();
-				String pageNumStr = itemXML.getChild("page_num").getContent();
-
-				float pageNum = Float.parseFloat(pageNumStr);
-				String comment = itemXML.getChild("comment").getContent();
-				String type = itemXML.getChild("type").getContent();
-				Item newItem = new Item(context, imagePathLeft, imagePathRight, pageNum, comment, type);
-				items.add(newItem);
-			} catch (Exception e) {
-				println("ERROR loading item", i);
-			}
-		}
-		File projectFile = new File(projectPath);
-		projectDirectory = projectFile.getParent();
-
-		File thumbnailsFolder = new File(projectDirectory + "/thumbnails");
-		if (!thumbnailsFolder.exists()) {
-			if (thumbnailsFolder.mkdir()) {
-				try {
-					Runtime.getRuntime().exec("chmod -R ugo+rw " + thumbnailsFolder.getPath());
-				} catch (Exception e) {
-					_println("Couldn't create thumbnail directory permisions");
-				}
-			} else {
-				_println("Failed to create thumbnail directory!");
-			}
-		}
-
-		File projectDirectoryFile = new File(projectDirectory);
-		for (int i = 0; i < items.size(); i++) {
-			Item item = items.get(i);
-			if (!item.imagePathLeft.equals("")) {
-				File itemImgLeft = new File(projectDirectory + "/" + item.imagePathLeft);
-				if (itemImgLeft.exists()) {
-					String fileName = itemImgLeft.getName();
-					String thumbnailPath = projectDirectoryFile.getPath() + "/thumbnails/"
-							+ FilenameUtils.removeExtension(fileName) + "_thumb.jpg";
-					println("Left " + thumbnailPath);
-					File thumbFile = new File(thumbnailPath);
-					if (!thumbFile.exists()) {
-						item.imgThumbLeft = context.thumbnail.generateThumbnail(context, itemImgLeft, false);
-					} else {
-						PImage thumbImg = loadImage(thumbnailPath);
-						if (thumbImg == null) {
-							println("ni pudimos cargar la imagen " + thumbnailPath);
-						} else {
-
-						}
-						thumbImg = thumbImg.get(context.thumbnail.thumbMargin, 0,
-								thumbImg.width - context.thumbnail.thumbMargin, thumbImg.height);
-						item.imgThumbLeft = thumbImg;
-					}
-				} else {
-					item.imgThumbLeft = null;
-					println("Left ERROR", itemImgLeft.getPath(), "image not found");
-				}
-			} else {
-				item.imgThumbLeft = null;
-			}
-			if (!item.imagePathRight.equals("")) {
-				File itemImgRight = new File(projectDirectory + "/" + item.imagePathRight);
-				if (itemImgRight.exists()) {
-					String fileName = itemImgRight.getName();
-					String thumbnailPath = projectDirectoryFile.getPath() + "/thumbnails/"
-							+ FilenameUtils.removeExtension(fileName) + "_thumb.jpg";
-					println("Right " + thumbnailPath);
-					File thumbFile = new File(thumbnailPath);
-					if (!thumbFile.exists()) {
-						item.imgThumbRight = context.thumbnail.generateThumbnail(context, itemImgRight, true);
-					} else {
-						PImage thumbImg = loadImage(thumbnailPath);
-						thumbImg = thumbImg.get(0, 0, thumbImg.width - context.thumbnail.thumbMargin, thumbImg.height);
-						item.imgThumbRight = thumbImg;
-					}
-				} else {
-					item.imgThumbRight = null;
-					println("Right ERROR", itemImgRight.getPath(), "image not found");
-				}
-			} else {
-				item.imgThumbRight = null;
-			}
-		}
-		try {
-			G2P5.setImageCount(new Integer(projectDataXML.getChild("image_counter").getContent()));
-		} catch (Exception e) {
-			println("ERROR loading image counter, seting to list size");
-			G2P5.setImageCount(items.size());
-		}
-		thumbnailsLoaded = true;
+		project.loadProjectMethod(projectPath);
 		initSelectedItem = true;
-		gphotoA.setTargetFile(projectDirectory + "/raw", projectCode);
-		gphotoB.setTargetFile(projectDirectory + "/raw", projectCode);
-		forceSelectedItem(items.size(), false);
+		context.gphotoA.setTargetFile(project.projectDirectory + "/raw", project.projectCode);
+		context.gphotoB.setTargetFile(project.projectDirectory + "/raw", project.projectCode);
+		forceSelectedItem(project.items.size(), false);
 		saveLastSessionData();
-		removeUnusedImages();
+		project.removeUnusedImages();
 	}
-
-	public void loadProjectMetadata(XML projectDataXML) {
-
-		projectName = projectDataXML.getChild("metadata").getChild("name").getContent();
-		name_text.setText(projectName);
-		projectComment = projectDataXML.getChild("metadata").getChild("comment").getContent();
-		project_comments_text.setText(projectComment);
-		projectCode = projectDataXML.getChild("metadata").getChild("code").getContent();
-		code_text.setText(projectCode);
-		projectAuthor = projectDataXML.getChild("metadata").getChild("author").getContent();
-		author_text.setText(projectAuthor);
-		println(projectDataXML.getChild("image_counter"));
-		G2P5.setImageCount(new Integer(projectDataXML.getChild("image_counter").getContent()));
-
-	}
-
-	public boolean createDirectory(String folderName) {
-
-		File file = new File(baseDirectory + folderName);
-		if (!file.exists()) {
-			if (file.mkdir()) {
-				try {
-					Runtime.getRuntime().exec("chmod -R ugo+rw " + baseDirectory + folderName);
-				} catch (Exception e) {
-					_println("Couldn't create directory permisions");
-				}
-			} else {
-				_println("Failed to create directory!");
-			}
-			return true;
-		} else {
-			return false;
-		}
-	}
-
-	public void saveProjectXML() {
-		println(projectName, projectCode, projectAuthor, projectComment);
-		if (!(projectName.equals("") && projectCode.equals("") && projectAuthor.equals("")
-				&& projectComment.equals(""))) {
-			XML projectXML = new XML("project");
-
-			XML metadataXML = new XML("metadata");
-			XML nameXML = new XML("name");
-			nameXML.setContent(projectName);
-			metadataXML.addChild(nameXML);
-			XML codeXML = new XML("code");
-			codeXML.setContent(projectCode);
-			metadataXML.addChild(codeXML);
-			XML projectCommentXML = new XML("comment");
-			projectCommentXML.setContent(projectComment);
-			metadataXML.addChild(projectCommentXML);
-			XML authorXML = new XML("author");
-			authorXML.setContent(projectAuthor);
-			metadataXML.addChild(authorXML);
-			projectXML.addChild(metadataXML);
-
-			XML itemsXML = new XML("items");
-			for (int i = 0; i < items.size(); i++) {
-				Item item = items.get(i);
-				if (!(item.imagePathLeft.equals("") && item.imagePathRight.equals(""))) {
-					XML itemXML = new XML("item");
-					XML imageLeftXML = new XML("image_left");
-					if (item.imagePathLeft != null) {
-						imageLeftXML.setContent(item.imagePathLeft);
-					} else {
-						imageLeftXML.setContent("");
-					}
-					itemXML.addChild(imageLeftXML);
-					XML imageRightXML = new XML("image_right");
-					if (item.imagePathRight != null) {
-						imageRightXML.setContent(item.imagePathRight);
-					} else {
-						imageRightXML.setContent("");
-					}
-					imageRightXML.setContent(item.imagePathRight);
-					itemXML.addChild(imageRightXML);
-					XML pageNumXML = new XML("page_num");
-					pageNumXML.setContent(String.valueOf(item.pagNum));
-					itemXML.addChild(pageNumXML);
-					XML pageCommentXML = new XML("comment");
-					pageCommentXML.setContent(item.comment);
-					itemXML.addChild(pageCommentXML);
-					XML typeXML = new XML("type");
-					typeXML.setContent(item.type);
-					itemXML.addChild(typeXML);
-					itemsXML.addChild(itemXML);
-				}
-			}
-			projectXML.addChild(itemsXML);
-
-			XML imageCounterXML = new XML("image_counter");
-			imageCounterXML.setContent(String.valueOf(G2P5.getImageCount()));
-			projectXML.addChild(imageCounterXML);
-
-			File fileProject = new File(projectFilePath);
-			if (fileProject.exists()) {
-				String commandGenerate = "mv " + projectFilePath + " " + projectDirectory + "/project_backup.xml";
-				println(commandGenerate);
-				try {
-					String[] commands = new String[] { "/bin/sh", "-c", commandGenerate };
-					Process process = new ProcessBuilder(commands).start();
-					InputStream inputStream = process.getInputStream();
-					BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream), 1);
-					String line;
-					while ((line = bufferedReader.readLine()) != null) {
-						// println("InputStreamReader : " + line);
-					}
-					inputStream.close();
-					bufferedReader.close();
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-
-			saveXML(projectXML, projectFilePath);
-			println("Saved project to ", projectFilePath);
-		} else {
-			println("ERROR: No project info, no data is saved. Please write the project name and code");
-			G4P.showMessage(this, "ERROR: No project info, no data is saved.\nPlease write the project name and code. ",
-					"Save project", G4P.ERROR);
-
-		}
-	}
-
-	public void closeProject() {
-
-		removeUnusedImages();
-		saveProjectXML();
-		items = new ArrayList<Item>();
-		thumbnailsLoaded = false;
-		projectFilePath = "";
-		projectAuthor = "";
-		projectCode = "";
-		projectComment = "";
-		projectDirectory = "";
-
-		// TODO: Check everything to close in the project. Reset viewer
-
-	}
-
-	/*
-	 * Items
-	 */
-
-	Item selectedItem = null;
-
-	public int findItemIndexByPagNum(float pgNum) {
-		int index = -1;
-		for (int i = 0; i < items.size(); i++) {
-			if (items.get(i).pagNum == pgNum) {
-				index = i;
-				break;
-			}
-		}
-		return index;
-	}
-
-	public void selectItem(int index) {
-		if (index >= 0 && index < items.size()) {
-			selectedItem = items.get(index);
-			OscMessage myMessage = new OscMessage("/load/item");
-			String leftImagePath = "";
-			String rightImagePath = "";
-			if (selectedItem.imagePathRight != null && selectedItem.imagePathRight.length() != 0) {
-				rightImagePath = projectDirectory + "/" + selectedItem.imagePathRight;
-				myMessage.add(rightImagePath);
-			} else {
-				myMessage.add("");
-			}
-			if (selectedItem.imagePathLeft != null && (selectedItem.imagePathLeft.length() != 0)) {
-				leftImagePath = projectDirectory + "/" + selectedItem.imagePathLeft;
-				myMessage.add(leftImagePath);
-			} else {
-				myMessage.add("");
-			}
-
-			println("send the message to viewer");
-
-			// View message for viewer
-			oscP5.send(myMessage, viewerLocation);
-			// Now we do the preview on app
-			loadPreviews(leftImagePath, rightImagePath);
-
-			page_comments_text.setText(selectedItem.comment);
-			page_num_text.setText(String.valueOf(selectedItem.pagNum));
-			gphotoA.setTargetFile(projectDirectory + "/raw", projectCode);
-			gphotoB.setTargetFile(projectDirectory + "/raw", projectCode);
-
-		}
-	}
-
-	int NO_SCROLL_TRANSITION = 0;
-	int SCROLL_TRANSITION = 1;
-	int scrollTransitionState = NO_SCROLL_TRANSITION;
-
-	public void forceSelectedItem(int index, boolean transition) {
-		selectedItemIndex = min(index, items.size() - 1);
-		if (transition) {
-			scrollTransitionState = SCROLL_TRANSITION;
-		}
-		if (selectedItemIndex >= 0 && items.size() > 0) {
-			// Update gui list
-			int itemHeight = itemThumbHeight + marginY;
-			int fullListHeight = itemHeight * items.size();
-			scrollHandleHeight = map(itemsViewPort.height, 0, fullListHeight, 0, itemsViewPort.height);
-			if (scrollHandleHeight > itemsViewPort.height) {
-				scrollHandleHeight = itemsViewPort.height;
-			}
-			if (scrollHandleHeight < 0)
-				scrollHandleHeight = 0;
-			try {
-				if (items.size() == 1)
-					scrollHandleY = 0;
-				else
-					scrollHandleY = map(index, 0, items.size() - 1, 0, itemsViewPort.height - scrollHandleHeight);
-			} catch (Exception e) {
-				scrollHandleY = 0;
-			}
-			// Update selected item
-			if (scrollHandleY < 0) {
-				scrollHandleY = 0;
-			}
-			if ((scrollHandleY + scrollHandleHeight) > itemsViewPort.height) {
-				scrollHandleY = itemsViewPort.height - scrollHandleHeight;
-			}
-
-			selectItem(selectedItemIndex);
-		}
-	}
-
-	public void clearItem(int index) {
-		Item itemToClear = items.get(index);
-		itemToClear.clear();
-		selectedItemIndex = min(index, items.size());
-		if (selectedItemIndex >= 0 && items.size() > 0) {
-			selectItem(selectedItemIndex);
-		}
-		forceSelectedItem(selectedItemIndex, true);
-		saveProjectXML();
-		removeUnusedImages();
-
-	}
-
-	public void removeItem(int index) {
-		Item itemToRemove = items.get(index);
-		String type = itemToRemove.type;
-		float pageNum = itemToRemove.pagNum;
-
-		items.remove(index);
-
-		if (itemToRemove.type.equals("Item")) {
-			if (index < items.size()) {
-				for (int i = index; i < items.size(); i++) {
-					items.get(i).pagNum--;
-				}
-			}
-		} else {
-			if (index < items.size() - 1) {
-				for (int i = index; i < items.size() - 1; i++) {
-					if ((int) items.get(i).pagNum == (int) pageNum) {
-						if (items.get(i).pagNum - (int) items.get(i).pagNum > pageNum - (int) pageNum) {
-							float newPageNum = round((items.get(i).pagNum - 0.1f) * 10) / 10.0f;
-							items.get(i).pagNum = newPageNum;
-						}
-					}
-
-				}
-			}
-		}
-		selectedItemIndex = min(index, items.size() - 1);
-		if (selectedItemIndex >= 0 && items.size() > 0) {
-			selectItem(selectedItemIndex);
-		}
-		forceSelectedItem(selectedItemIndex, true);
-		saveProjectXML();
-		removeUnusedImages();
-
-	}
-
-	public synchronized void addItem(int index, Item newItem) {
-
-		if (index >= 0) {
-			if (index < items.size()) {
-				if (index > 0) {
-					Item targetItem = items.get(index - 1);
-					if (targetItem.imagePathLeft.equals("") && targetItem.imagePathRight.equals("")) {
-						newItem.pagNum = targetItem.pagNum;
-						items.set(index - 1, newItem);
-						selectedItemIndex = min(index, items.size());
-						if ((selectedItemIndex != items.size())
-								|| (items.get(selectedItemIndex).pagNum != newItem.pagNum + 1)) {
-							Item emptyItem = new Item(context, "", "", (int) (newItem.pagNum) + 1, "", "Item");
-							items.add(selectedItemIndex, emptyItem);
-							forceSelectedItem(index, true);
-						} else if (selectedItemIndex != items.size()) {
-							forceSelectedItem(selectedItemIndex, true);
-						}
-					} else {
-						items.add(index, newItem);
-						forceSelectedItem(index, true);
-					}
-				} else {
-					items.add(index, newItem);
-					forceSelectedItem(index, true);
-				}
-			} else {
-				if (items.size() == 0) {
-					items.add(newItem);
-					forceSelectedItem(index, true);
-				} else {
-					Item targetItem = items.get(index - 1);
-					if (targetItem.imagePathLeft.equals("") && targetItem.imagePathRight.equals("")) {
-						newItem.pagNum = targetItem.pagNum;
-						items.set(index - 1, newItem);
-						selectedItemIndex = min(index, items.size());
-						forceSelectedItem(selectedItemIndex, true);
-					} else {
-						items.add(newItem);
-						forceSelectedItem(index, true);
-					}
-
-				}
-			}
-
-			for (int i = index + 1; i < items.size(); i++) {
-				items.get(i).pagNum++;
-			}
-
-			saveProjectXML();
-			println("item added");
-		}
-	}
-
-	public synchronized void addSubItem(int index, Item newItem) {
-		if (index >= 0 && index <= items.size()) {
-			items.add(index, newItem);
-			selectedItemIndex = min(index, items.size());
-			if (selectedItemIndex >= 0 && items.size() > 0) {
-				forceSelectedItem(selectedItemIndex, true);
-			}
-			saveProjectXML();
-		}
-	}
-
-	public synchronized void replaceItem(int index, Item newItem) {
-
-		if (index >= 0 && index < items.size()) {
-			if (newItem.imagePathLeft.equals("")) {
-				newItem.imagePathLeft = items.get(index).imagePathLeft;
-				newItem.loadThumbnails();
-			}
-			if (newItem.imagePathRight.equals("")) {
-				newItem.imagePathRight = items.get(index).imagePathRight;
-				newItem.loadThumbnails();
-			}
-			items.remove(index);
-			items.add(index, newItem);
-			selectedItemIndex = min(index + 1, items.size());
-			if (!newItem.type.equals("SubItem")) {
-				if ((selectedItemIndex == items.size())
-						|| (items.get(selectedItemIndex).pagNum != newItem.pagNum + 1)) {
-					Item emptyItem = new Item(context, "", "", newItem.pagNum + 1, "", "Item");
-					items.add(selectedItemIndex, emptyItem);
-				}
-			}
-			forceSelectedItem(selectedItemIndex, true);
-			saveProjectXML();
-		}
-	}
-
-	/*
-	 * Garbage Image Collector
-	 */
-
-	public synchronized String[] getUnusedImage() {
-		ArrayList<String> usedImgs = new ArrayList<String>();
-		for (int index = 0; index < items.size(); index++) {
-			Item item = items.get(index);
-			if (!item.imagePathLeft.equals(""))
-				usedImgs.add(projectDirectory + "/" + item.imagePathLeft);
-			if (!item.imagePathRight.equals(""))
-				usedImgs.add(projectDirectory + "/" + item.imagePathRight);
-
-		}
-
-		File folder = new File(projectDirectory + "/raw");
-		String[] files = folder.list();
-		if (files != null) {
-			ArrayList<String> unusedFiles = new ArrayList<String>();
-			for (int index = 0; index < files.length; index++) {
-				boolean found = false;
-				for (int index2 = 0; index2 < usedImgs.size(); index2++) {
-					File usedImg = new File(usedImgs.get(index2));
-					// println(usedImg.getName(),files[index]);
-					if (usedImg.getName().equals(files[index])) {
-						found = true;
-						break;
-					}
-				}
-				if (!found) {
-					String targetPath = folder.getPath() + "/" + files[index];
-					unusedFiles.add(targetPath);
-				}
-			}
-			unusedFiles.removeAll(usedImgs);
-			String[] unusedArr = new String[unusedFiles.size()];
-			for (int index = 0; index < unusedArr.length; index++) {
-				unusedArr[index] = unusedFiles.get(index);
-			}
-			return unusedArr;
-		} else {
-			return null;
-		}
-
-	}
-
-	public synchronized void removeUnusedImages() {
-		// Garbage collection
-		String[] unusedImgs = getUnusedImage();
-		if (unusedImgs != null && unusedImgs.length > 0 && unusedImgs.length < items.size() * 2) {
-			for (int index = 0; index < unusedImgs.length; index++) {
-				String targetFilePath = unusedImgs[index];
-				deleteFile(targetFilePath);
-				String thumbnailPath = context.thumbnail.getThumbnailPath(context.projectDirectory,
-						new File(targetFilePath));
-				deleteFile(thumbnailPath);
-			}
-		}
-	}
-
-	private void deleteFile(String targetFilePath) {
-		String commandGenerate = "rm " + targetFilePath;
-		println(commandGenerate);
-		try {
-			String[] commands = new String[] { "/bin/sh", "-c", commandGenerate };
-			Process process = new ProcessBuilder(commands).start();
-			InputStream inputStream = process.getInputStream();
-			BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream), 1);
-			String line;
-			while ((line = bufferedReader.readLine()) != null) {
-				// println("InputStreamReader : " + line);
-			}
-			inputStream.close();
-			bufferedReader.close();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-
-	// Image preview
-
-	String lastLeftImagePath = "";
-	String lastRightImagePath = "";
-
-	void loadPreviews(String leftImagePath, String rightImagePath) {
-
-		long startMillis = millis();
-
-		if (!leftImagePath.equals("")) {
-
-			String previewFolder = sketchPath() + "/data/preview_left/";
-
-			deleteFile(previewFolder + "*.jpg");
-
-			File itemImgLeft = new File(leftImagePath);
-			String fileName = FilenameUtils.removeExtension(itemImgLeft.getName());
-			String resizedImage = "left_preview.jpg";
-			String previewName = fileName + "-preview3.jpg";
-			String previewFullPath = previewFolder + previewName;
-			String resizedImageFullPath = previewFolder + resizedImage;
-			String command = "exiv2 -ep3 -l " + previewFolder + " " + leftImagePath;
-			lastLeftImagePath = previewFullPath;
-			try {
-				Process process = Runtime.getRuntime().exec(command);
-				process.waitFor();
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-
-			command = "convert " + previewFullPath + " -resize 1000x667 " + resizedImageFullPath;
-			try {
-				Process process = Runtime.getRuntime().exec(command);
-				process.waitFor();
-				previewImgLeft = loadImage(resizedImageFullPath);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-
-		}
-
-		if (!rightImagePath.equals("")) {
-
-			String previewFolder = sketchPath() + "/data/preview_right/";
-
-			// Clear preview folder
-			deleteFile(previewFolder + "*.jpg");
-
-			File itemImgRight = new File(rightImagePath);
-			String fileName = FilenameUtils.removeExtension(itemImgRight.getName());
-			String resizedImage = "right_preview.jpg";
-			String previewName = fileName + "-preview3.jpg";
-			String previewFullPath = previewFolder + previewName;
-			String resizedImageFullPath = previewFolder + resizedImage;
-			lastRightImagePath = previewFullPath;
-			String command = "exiv2 -ep3 -l " + previewFolder + " " + rightImagePath;
-			try {
-				Process process = Runtime.getRuntime().exec(command);
-				process.waitFor();
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-
-			command = "convert " + previewFullPath + " -resize 1000x667 " + resizedImageFullPath;
-			try {
-				Process process = Runtime.getRuntime().exec(command);
-				InputStream error = process.getErrorStream();
-
-				process.waitFor();
-				String err = "Error:";
-				for (int i = 0; i < error.available(); i++) {
-					err += (char) error.read();
-				}
-				if (!err.equals("Error:")) {
-					println(err);
-				}
-
-				previewImgRight = loadImage(resizedImageFullPath);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-
-		}
-
-		long endMillis = millis();
-
-	}
-
 	/*
 	 * MetaData_Utils : Extra functions for Metadata generation: md5, timestamp
 	 * 
@@ -1485,7 +1047,7 @@ public class ManuCapture_v1_1 extends PApplet {
 		InputStream in = null;
 		String md5 = "";
 		try {
-			pr = Runtime.getRuntime().exec("md5sum " + projectDirectory + id + "_" + side + ".cr2");
+			pr = Runtime.getRuntime().exec("md5sum " + project.projectDirectory + id + "_" + side + ".cr2");
 			in = pr.getInputStream();
 			int data = in.read();
 			while (data != -1) {
@@ -1506,7 +1068,7 @@ public class ManuCapture_v1_1 extends PApplet {
 		}
 
 		try {
-			PrintWriter writer = new PrintWriter(projectDirectory + id + "_" + side + ".md5", "UTF-8");
+			PrintWriter writer = new PrintWriter(project.projectDirectory + id + "_" + side + ".md5", "UTF-8");
 			writer.println(md5);
 			writer.close();
 		} catch (Exception e) {
@@ -1518,7 +1080,7 @@ public class ManuCapture_v1_1 extends PApplet {
 
 	public String generateTimeStamp(String id, String side) {
 		String timeStamp = "";
-		File file = new File(projectDirectory + id + "_" + side + ".cr2");
+		File file = new File(project.projectDirectory + id + "_" + side + ".cr2");
 		SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
 		timeStamp = sdf.format(file.lastModified());
 		return timeStamp;
@@ -1561,25 +1123,26 @@ public class ManuCapture_v1_1 extends PApplet {
 	public void customGUI() {
 
 		Font font = new Font("Verdana", Font.BOLD, 10);
-		name.setFont(font);
-		code_label.setFont(font);
-		author_label.setFont(font);
-		project_comments_label.setFont(font);
-		page_comments_label.setFont(font);
-		number_label.setFont(font);
-		camera_A_label.setFont(font);
-		camera_B_label.setFont(font);
-		page_search_label.setFont(font);
+		GUI gui = context.gui;
+		gui.name.setFont(font);
+		gui.code_label.setFont(font);
+		gui.author_label.setFont(font);
+		gui.project_comments_label.setFont(font);
+		gui.page_comments_label.setFont(font);
+		gui.number_label.setFont(font);
+		gui.camera_A_label.setFont(font);
+		gui.camera_B_label.setFont(font);
+		gui.page_search_label.setFont(font);
 
 		Font sectionFont = new Font("Verdana", Font.BOLD, 12);
-		project_info.setFont(sectionFont);
-		page_info_label.setFont(sectionFont);
-		shutter_control_label.setFont(sectionFont);
-		camera_config_label.setFont(sectionFont);
+		gui.project_info.setFont(sectionFont);
+		gui.page_info_label.setFont(sectionFont);
+		gui.shutter_control_label.setFont(sectionFont);
+		gui.camera_config_label.setFont(sectionFont);
 
-		normal_shutter_button.setLocalColorScheme(GCScheme.ORANGE_SCHEME);
-		camera_A_active_button.setLocalColorScheme(GCScheme.ORANGE_SCHEME);
-		camera_B_active_button.setLocalColorScheme(GCScheme.ORANGE_SCHEME);
+		gui.normal_shutter_button.setLocalColorScheme(GCScheme.ORANGE_SCHEME);
+		gui.camera_A_active_button.setLocalColorScheme(GCScheme.ORANGE_SCHEME);
+		gui.camera_B_active_button.setLocalColorScheme(GCScheme.ORANGE_SCHEME);
 
 	}
 
@@ -1607,53 +1170,53 @@ public class ManuCapture_v1_1 extends PApplet {
 	} // _CODE_:last_page_button:647539:
 
 	public void name_text_change(GTextField source, GEvent event) { // _CODE_:name_text:702135:
-		projectName = source.getText();
-		if (event.toString() == "ENTERED" && !projectDirectory.equals("")) {
-			saveProjectXML();
+		project.projectName = source.getText();
+		if (event.toString() == "ENTERED" && !project.projectDirectory.equals("")) {
+			project.saveProjectXML();
 		}
 	} // _CODE_:name_text:702135:
 
 	public void code_text_change(GTextField source, GEvent event) { // _CODE_:code_text:779005:
-		projectCode = source.getText();
-		if (event.toString() == "ENTERED" && !projectDirectory.equals("")) {
-			saveProjectXML();
+		project.projectCode = source.getText();
+		if (event.toString() == "ENTERED" && !project.projectDirectory.equals("")) {
+			project.saveProjectXML();
 		}
 	} // _CODE_:code_text:779005:
 
 	public void author_text_change(GTextField source, GEvent event) { // _CODE_:author_text:873016:
-		projectAuthor = source.getText();
-		if (event.toString() == "ENTERED" && !projectDirectory.equals("")) {
-			saveProjectXML();
+		project.projectAuthor = source.getText();
+		if (event.toString() == "ENTERED" && !project.projectDirectory.equals("")) {
+			project.saveProjectXML();
 		}
 	} // _CODE_:author_text:873016:
 
 	public void project_comments_change(GTextField source, GEvent event) { // _CODE_:project_comments_text:337734:
-		projectComment = source.getText();
+		project.projectComment = source.getText();
 		println();
-		if (event.toString() == "ENTERED" && !projectDirectory.equals("")) {
-			saveProjectXML();
+		if (event.toString() == "ENTERED" && !project.projectDirectory.equals("")) {
+			project.saveProjectXML();
 		}
 
 	} // _CODE_:project_comments_text:337734:
 
 	public void page_comments_text_change(GTextField source, GEvent event) { // _CODE_:page_comments_text:397499:
-		if (selectedItem != null) {
-			selectedItem.comment = source.getText();
+		if (project.selectedItem != null) {
+			project.selectedItem.comment = source.getText();
 		}
-		if (event.toString() == "ENTERED" && !projectDirectory.equals("")) {
-			saveProjectXML();
+		if (event.toString() == "ENTERED" && !project.projectDirectory.equals("")) {
+			project.saveProjectXML();
 		}
 	} // _CODE_:page_comments_text:397499:
 
 	public void page_num_text_change(GTextField source, GEvent event) { // _CODE_:textfield1:363899:
-		if (event.toString() == "ENTERED" && !projectDirectory.equals("")) {
+		if (event.toString() == "ENTERED" && !project.projectDirectory.equals("")) {
 			try {
 				float pageNumber = Float.parseFloat(source.getText());
-				int itemIndex = findItemIndexByPagNum(pageNumber);
+				int itemIndex = project.findItemIndexByPagNum(pageNumber);
 				if (itemIndex != -1) {
 					forceSelectedItem(itemIndex, true);
 				}
-				saveProjectXML();
+				project.saveProjectXML();
 			} catch (NumberFormatException ex) {
 				println("wrong page number");
 			}
@@ -1664,95 +1227,103 @@ public class ManuCapture_v1_1 extends PApplet {
 	public void normal_shutter_click1(GButton source, GEvent event) { // _CODE_:normal_shutter_button:563899:
 		println("SHUTTER CONTROL SET NORMAL MODE!!!!!");
 		shutterMode = NORMAL_SHUTTER;
-		normal_shutter_button.setLocalColorScheme(GCScheme.ORANGE_SCHEME);
-		repeat_shutter_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
-		subpage_shutter_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
-		calibration_shutter_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
+		GUI gui = context.gui;
+		gui.normal_shutter_button.setLocalColorScheme(GCScheme.ORANGE_SCHEME);
+		gui.repeat_shutter_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
+		gui.subpage_shutter_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
+		gui.calibration_shutter_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
 	} // _CODE_:normal_shutter_button:563899:
 
 	public void repeat_shutter_click(GButton source, GEvent event) { // _CODE_:repeat_shutter_button:591981:
 		println("SHUTTER CONTROL SET REPEAT MODE");
 		shutterMode = REPEAT_SHUTTER;
-		normal_shutter_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
-		repeat_shutter_button.setLocalColorScheme(GCScheme.ORANGE_SCHEME);
-		subpage_shutter_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
-		calibration_shutter_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
+		GUI gui = context.gui;
+		gui.normal_shutter_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
+		gui.repeat_shutter_button.setLocalColorScheme(GCScheme.ORANGE_SCHEME);
+		gui.subpage_shutter_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
+		gui.calibration_shutter_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
 	} // _CODE_:repeat_shutter_button:591981:
 
 	public void subpage_shutter_click(GButton source, GEvent event) { // _CODE_:subpage_shutter_button:295319:
 		println("SHUTTER CONTROL SET SUBPAGE MODE");
 		shutterMode = SUBPAGE_SHUTTER;
-		normal_shutter_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
-		repeat_shutter_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
-		subpage_shutter_button.setLocalColorScheme(GCScheme.ORANGE_SCHEME);
-		calibration_shutter_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
+		GUI gui = context.gui;
+		gui.normal_shutter_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
+		gui.repeat_shutter_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
+		gui.subpage_shutter_button.setLocalColorScheme(GCScheme.ORANGE_SCHEME);
+		gui.calibration_shutter_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
 	} // _CODE_:subpage_shutter_button:295319:
 
 	public void calibration_shutter_click(GButton source, GEvent event) { // _CODE_:calibration_shutter_button:835827:
 		println("SHUTTER CONTROL SET CALIBRATION MODE");
 		shutterMode = CALIB_SHUTTER;
-		normal_shutter_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
-		repeat_shutter_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
-		subpage_shutter_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
-		calibration_shutter_button.setLocalColorScheme(GCScheme.ORANGE_SCHEME);
+		GUI gui = context.gui;
+		gui.normal_shutter_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
+		gui.repeat_shutter_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
+		gui.subpage_shutter_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
+		gui.calibration_shutter_button.setLocalColorScheme(GCScheme.ORANGE_SCHEME);
 	} // _CODE_:calibration_shutter_button:835827:
 
 	public void trigger_button_click(GButton source, GEvent event) { // _CODE_:trigger_button:381491:
 		println("SHUTTER TRIGGERED");
-		gphotoA.capture();
-		gphotoB.capture();
+		context.gphotoA.capture();
+		context.gphotoB.capture();
 		newImagePathA = "";
 		newImagePathB = "";
 	} // _CODE_:trigger_button:381491:
 
 	public void camera_A_connected_click(GButton source, GEvent event) { // _CODE_:camera_A_connected_button:265149:
 		println("button1 - GButton >> GEvent." + event + " @ " + millis());
-		if (!gphotoA.isConnected()) {
-			gphotoA = G2P5.create(this, serialCameraA, "A");
-			gphotoA.setTargetFile(sketchPath(), "test");
+		if (!context.gphotoA.isConnected()) {
+			context.gphotoA = G2P5.create(this, serialCameraA, "A");
+			context.gphotoA.setTargetFile(sketchPath(), "test");
 		}
 	} // _CODE_:camera_A_connected_button:265149:
 
 	public void camera_A_active_button_click(GButton source, GEvent event) { // _CODE_:camera_A_active_button:906773:
 		println("camera_A_active_button - GButton >> GEvent." + event + " @ " + millis());
-		camera_A_active_button.setLocalColorScheme(GCScheme.ORANGE_SCHEME);
-		camera_A_inactive_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
+		GUI gui = context.gui;
+		gui.camera_A_active_button.setLocalColorScheme(GCScheme.ORANGE_SCHEME);
+		gui.camera_A_inactive_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
 		cameraActiveA = true;
-		gphotoA.setActive(true);
+		context.gphotoA.setActive(true);
 	} // _CODE_:camera_A_active_button:906773:
 
 	public void camera_A_inactive_button_click(GButton source, GEvent event) { // _CODE_:camera_A_inactive_button:493860:
 		println("inactive_camera_A_button - GButton >> GEvent." + event + " @ " + millis());
-		camera_A_active_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
-		camera_A_inactive_button.setLocalColorScheme(GCScheme.ORANGE_SCHEME);
+		GUI gui = context.gui;
+		gui.camera_A_active_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
+		gui.camera_A_inactive_button.setLocalColorScheme(GCScheme.ORANGE_SCHEME);
 		cameraActiveA = false;
-		gphotoA.setActive(false);
+		context.gphotoA.setActive(false);
 
 	} // _CODE_:camera_A_inactive_button:493860:
 
 	public void camera_B_connected_click(GButton source, GEvent event) { // _CODE_:camera_B_connected_button:564189:
 		println("camera_B_connected_button - GButton >> GEvent." + event + " @ " + millis());
-		if (!gphotoB.isConnected()) {
-			gphotoB = G2P5.create(this, serialCameraB, "B");
-			gphotoB.setTargetFile(sketchPath(), "test");
+		if (!context.gphotoB.isConnected()) {
+			context.gphotoB = G2P5.create(this, serialCameraB, "B");
+			context.gphotoB.setTargetFile(sketchPath(), "test");
 		}
 	} // _CODE_:camera_B_connected_button:564189:
 
 	public void camera_B_active_click(GButton source, GEvent event) { // _CODE_:camera_B_active_button:640605:
 		println("camera_B_active_button - GButton >> GEvent." + event + " @ " + millis());
-		camera_B_active_button.setLocalColorScheme(GCScheme.ORANGE_SCHEME);
-		camera_B_inactive_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
+		GUI gui = context.gui;
+		gui.camera_B_active_button.setLocalColorScheme(GCScheme.ORANGE_SCHEME);
+		gui.camera_B_inactive_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
 		cameraActiveB = true;
-		gphotoB.setActive(true);
+		context.gphotoB.setActive(true);
 
 	} // _CODE_:camera_B_active_button:640605:
 
 	public void camera_B_inactive_click(GButton source, GEvent event) { // _CODE_:camera_B_inactive_button:780199:
 		println("camera_B_inactive_button - GButton >> GEvent." + event + " @ " + millis());
-		camera_B_active_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
-		camera_B_inactive_button.setLocalColorScheme(GCScheme.ORANGE_SCHEME);
+		GUI gui = context.gui;
+		gui.camera_B_active_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
+		gui.camera_B_inactive_button.setLocalColorScheme(GCScheme.ORANGE_SCHEME);
 		cameraActiveB = false;
-		gphotoB.setActive(false);
+		context.gphotoB.setActive(false);
 
 	} // _CODE_:camera_B_inactive_button:780199:
 
@@ -1771,7 +1342,7 @@ public class ManuCapture_v1_1 extends PApplet {
 	public void new_button_click(GButton source, GEvent event) { // _CODE_:new_button:324180:
 		String projectFolderPath = G4P.selectFolder("Select the project folder");
 		if (projectFolderPath != null) {
-			thumbnailsLoaded = false;
+			project.thumbnailsLoaded = false;
 			createProject(projectFolderPath);
 		}
 	} // _CODE_:new_button:324180:
@@ -1791,210 +1362,173 @@ public class ManuCapture_v1_1 extends PApplet {
 		G4P.setGlobalColorScheme(GCScheme.YELLOW_SCHEME);
 		G4P.setCursor(ARROW);
 		surface.setTitle("ManuCapture v1");
-		first_page_button = new GButton(this, 11, 90, 122, 24);
-		first_page_button.setText("FIRST PAGE");
-		first_page_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
-		first_page_button.addEventHandler(this, "first_page_button_click");
-		last_page_button = new GButton(this, 141, 90, 122, 24);
-		last_page_button.setText("LAST PAGE");
-		last_page_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
-		last_page_button.addEventHandler(this, "last_page_button_click");
-		name_text = new GTextField(this, 380, 106, 200, 20, G4P.SCROLLBARS_NONE);
-		name_text.setLocalColorScheme(GCScheme.CYAN_SCHEME);
-		name_text.setOpaque(true);
-		name_text.addEventHandler(this, "name_text_change");
-		project_info = new GLabel(this, 300, 56, 132, 24);
-		project_info.setText("PROJECT INFO");
-		project_info.setTextBold();
-		project_info.setLocalColorScheme(GCScheme.CYAN_SCHEME);
-		project_info.setOpaque(true);
-		name = new GLabel(this, 302, 106, 80, 20);
-		name.setText("Name:");
-		name.setTextBold();
-		name.setLocalColorScheme(GCScheme.CYAN_SCHEME);
-		name.setOpaque(true);
-		code_label = new GLabel(this, 302, 130, 80, 20);
-		code_label.setText("Code:");
-		code_label.setTextBold();
-		code_label.setLocalColorScheme(GCScheme.CYAN_SCHEME);
-		code_label.setOpaque(true);
-		code_text = new GTextField(this, 380, 130, 200, 20, G4P.SCROLLBARS_NONE);
-		code_text.setLocalColorScheme(GCScheme.CYAN_SCHEME);
-		code_text.setOpaque(true);
-		code_text.addEventHandler(this, "code_text_change");
-		author_label = new GLabel(this, 302, 154, 80, 20);
-		author_label.setText("Author:");
-		author_label.setTextBold();
-		author_label.setLocalColorScheme(GCScheme.CYAN_SCHEME);
-		author_label.setOpaque(true);
-		project_comments_label = new GLabel(this, 302, 178, 80, 20);
-		project_comments_label.setText("Comments:");
-		project_comments_label.setTextBold();
-		project_comments_label.setLocalColorScheme(GCScheme.CYAN_SCHEME);
-		project_comments_label.setOpaque(true);
-		page_info_label = new GLabel(this, 300, 276, 80, 20);
-		page_info_label.setText("PAGE INFO");
-		page_info_label.setTextBold();
-		page_info_label.setLocalColorScheme(GCScheme.CYAN_SCHEME);
-		page_info_label.setOpaque(true);
-		page_comments_label = new GLabel(this, 302, 326, 80, 20);
-		page_comments_label.setText("Comments:");
-		page_comments_label.setTextBold();
-		page_comments_label.setLocalColorScheme(GCScheme.CYAN_SCHEME);
-		page_comments_label.setOpaque(true);
-		number_label = new GLabel(this, 302, 410, 80, 20);
-		number_label.setText("Number:");
-		number_label.setTextBold();
-		number_label.setLocalColorScheme(GCScheme.CYAN_SCHEME);
-		number_label.setOpaque(true);
-		shutter_control_label = new GLabel(this, 300, 450, 200, 24);
-		shutter_control_label.setText("SHUTTER CONTROL:");
-		shutter_control_label.setTextBold();
-		shutter_control_label.setLocalColorScheme(GCScheme.CYAN_SCHEME);
-		shutter_control_label.setOpaque(true);
-		camera_config_label = new GLabel(this, 300, 684, 200, 20);
-		camera_config_label.setText("CAMERA CONFIGURATION:");
-		camera_config_label.setTextBold();
-		camera_config_label.setLocalColorScheme(GCScheme.CYAN_SCHEME);
-		camera_config_label.setOpaque(true);
-		camera_A_label = new GLabel(this, 407, 719, 80, 20);
-		camera_A_label.setTextAlign(GAlign.CENTER, GAlign.MIDDLE);
-		camera_A_label.setText("CAMERA A");
-		camera_A_label.setTextBold();
-		camera_A_label.setLocalColorScheme(GCScheme.CYAN_SCHEME);
-		camera_A_label.setOpaque(true);
-		author_text = new GTextField(this, 380, 154, 200, 20, G4P.SCROLLBARS_NONE);
-		author_text.setLocalColorScheme(GCScheme.CYAN_SCHEME);
-		author_text.setOpaque(true);
-		author_text.addEventHandler(this, "author_text_change");
-		project_comments_text = new GTextField(this, 380, 178, 200, 80, G4P.SCROLLBARS_NONE);
-		project_comments_text.setLocalColorScheme(GCScheme.CYAN_SCHEME);
-		project_comments_text.setOpaque(true);
-		project_comments_text.addEventHandler(this, "project_comments_change");
-		camera_B_label = new GLabel(this, 407, 852, 80, 20);
-		camera_B_label.setTextAlign(GAlign.CENTER, GAlign.MIDDLE);
-		camera_B_label.setText("CAMERA B");
-		camera_B_label.setTextBold();
-		camera_B_label.setLocalColorScheme(GCScheme.CYAN_SCHEME);
-		camera_B_label.setOpaque(true);
-		page_comments_text = new GTextField(this, 380, 326, 200, 80, G4P.SCROLLBARS_NONE);
-		page_comments_text.setLocalColorScheme(GCScheme.CYAN_SCHEME);
-		page_comments_text.setOpaque(true);
-		page_comments_text.addEventHandler(this, "page_comments_text_change");
-		page_num_text = new GTextField(this, 380, 410, 200, 20, G4P.SCROLLBARS_NONE);
-		page_num_text.setLocalColorScheme(GCScheme.CYAN_SCHEME);
-		page_num_text.setOpaque(true);
-		page_num_text.addEventHandler(this, "page_num_text_change");
-		normal_shutter_button = new GButton(this, 386, 488, 122, 24);
-		normal_shutter_button.setText("NORMAL");
-		normal_shutter_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
-		normal_shutter_button.addEventHandler(this, "normal_shutter_click1");
-		repeat_shutter_button = new GButton(this, 386, 517, 122, 24);
-		repeat_shutter_button.setText("REPEAT");
-		repeat_shutter_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
-		repeat_shutter_button.addEventHandler(this, "repeat_shutter_click");
-		subpage_shutter_button = new GButton(this, 386, 547, 122, 24);
-		subpage_shutter_button.setText("SUBPAGE");
-		subpage_shutter_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
-		subpage_shutter_button.addEventHandler(this, "subpage_shutter_click");
-		calibration_shutter_button = new GButton(this, 386, 577, 122, 24);
-		calibration_shutter_button.setText("CALIBRATION");
-		calibration_shutter_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
-		calibration_shutter_button.addEventHandler(this, "calibration_shutter_click");
-		trigger_button = new GButton(this, 386, 619, 122, 48);
-		trigger_button.setText("TRIGGER");
-		trigger_button.setLocalColorScheme(GCScheme.PURPLE_SCHEME);
-		trigger_button.addEventHandler(this, "trigger_button_click");
-		camera_A_connected_button = new GButton(this, 386, 746, 122, 24);
-		camera_A_connected_button.setText("DISCONNECTED");
-		camera_A_connected_button.setLocalColorScheme(GCScheme.RED_SCHEME);
-		camera_A_connected_button.addEventHandler(this, "camera_A_connected_click");
-		camera_A_active_button = new GButton(this, 385, 779, 122, 24);
-		camera_A_active_button.setText("ACTIVE");
-		camera_A_active_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
-		camera_A_active_button.addEventHandler(this, "camera_A_active_button_click");
-		camera_A_inactive_button = new GButton(this, 386, 809, 122, 24);
-		camera_A_inactive_button.setText("INACTIVE");
-		camera_A_inactive_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
-		camera_A_inactive_button.addEventHandler(this, "camera_A_inactive_button_click");
-		camera_B_connected_button = new GButton(this, 386, 879, 122, 24);
-		camera_B_connected_button.setText("DISCONNECTED");
-		camera_B_connected_button.setLocalColorScheme(GCScheme.RED_SCHEME);
-		camera_B_connected_button.addEventHandler(this, "camera_B_connected_click");
-		camera_B_active_button = new GButton(this, 386, 915, 122, 24);
-		camera_B_active_button.setText("ACTIVE");
-		camera_B_active_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
-		camera_B_active_button.addEventHandler(this, "camera_B_active_click");
-		camera_B_inactive_button = new GButton(this, 386, 945, 122, 24);
-		camera_B_inactive_button.setText("INACTIVE");
-		camera_B_inactive_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
-		camera_B_inactive_button.addEventHandler(this, "camera_B_inactive_click");
-		parameters_button = new GButton(this, 386, 994, 122, 24);
-		parameters_button.setText("PARAMETERS");
-		parameters_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
-		parameters_button.addEventHandler(this, "parameters_click");
-		load_button = new GButton(this, 11, 11, 80, 24);
-		load_button.setText("LOAD");
-		load_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
-		load_button.addEventHandler(this, "load_click");
-		new_button = new GButton(this, 99, 11, 122, 24);
-		new_button.setText("NEW PROJECT");
-		new_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
-		new_button.addEventHandler(this, "new_button_click");
-		page_search_text = new GTextField(this, 90, 57, 175, 20, G4P.SCROLLBARS_NONE);
-		page_search_text.setLocalColorScheme(GCScheme.CYAN_SCHEME);
-		page_search_text.setOpaque(true);
-		page_search_text.addEventHandler(this, "page_search_text_change");
-		page_search_label = new GLabel(this, 10, 57, 80, 20);
-		page_search_label.setText("Page search:");
-		page_search_label.setTextBold();
-		page_search_label.setLocalColorScheme(GCScheme.CYAN_SCHEME);
-		page_search_label.setOpaque(true);
-		liveView_button = new GButton(this, 490, 11, 80, 24);
-		liveView_button.setText("LIVEVIEW");
-		liveView_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
-		liveView_button.addEventHandler(this, "liveView_button_click");
+		GUI gui = context.gui;
+		gui.first_page_button = new GButton(this, 11, 90, 122, 24);
+		gui.first_page_button.setText("FIRST PAGE");
+		gui.first_page_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
+		gui.first_page_button.addEventHandler(this, "first_page_button_click");
+		gui.last_page_button = new GButton(this, 141, 90, 122, 24);
+		gui.last_page_button.setText("LAST PAGE");
+		gui.last_page_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
+		gui.last_page_button.addEventHandler(this, "last_page_button_click");
+		gui.name_text = new GTextField(this, 380, 106, 200, 20, G4P.SCROLLBARS_NONE);
+		gui.name_text.setLocalColorScheme(GCScheme.CYAN_SCHEME);
+		gui.name_text.setOpaque(true);
+		gui.name_text.addEventHandler(this, "name_text_change");
+		gui.project_info = new GLabel(this, 300, 56, 132, 24);
+		gui.project_info.setText("PROJECT INFO");
+		gui.project_info.setTextBold();
+		gui.project_info.setLocalColorScheme(GCScheme.CYAN_SCHEME);
+		gui.project_info.setOpaque(true);
+		gui.name = new GLabel(this, 302, 106, 80, 20);
+		gui.name.setText("Name:");
+		gui.name.setTextBold();
+		gui.name.setLocalColorScheme(GCScheme.CYAN_SCHEME);
+		gui.name.setOpaque(true);
+		gui.code_label = new GLabel(this, 302, 130, 80, 20);
+		gui.code_label.setText("Code:");
+		gui.code_label.setTextBold();
+		gui.code_label.setLocalColorScheme(GCScheme.CYAN_SCHEME);
+		gui.code_label.setOpaque(true);
+		gui.code_text = new GTextField(this, 380, 130, 200, 20, G4P.SCROLLBARS_NONE);
+		gui.code_text.setLocalColorScheme(GCScheme.CYAN_SCHEME);
+		gui.code_text.setOpaque(true);
+		gui.code_text.addEventHandler(this, "code_text_change");
+		gui.author_label = new GLabel(this, 302, 154, 80, 20);
+		gui.author_label.setText("Author:");
+		gui.author_label.setTextBold();
+		gui.author_label.setLocalColorScheme(GCScheme.CYAN_SCHEME);
+		gui.author_label.setOpaque(true);
+		gui.project_comments_label = new GLabel(this, 302, 178, 80, 20);
+		gui.project_comments_label.setText("Comments:");
+		gui.project_comments_label.setTextBold();
+		gui.project_comments_label.setLocalColorScheme(GCScheme.CYAN_SCHEME);
+		gui.project_comments_label.setOpaque(true);
+		gui.page_info_label = new GLabel(this, 300, 276, 80, 20);
+		gui.page_info_label.setText("PAGE INFO");
+		gui.page_info_label.setTextBold();
+		gui.page_info_label.setLocalColorScheme(GCScheme.CYAN_SCHEME);
+		gui.page_info_label.setOpaque(true);
+		gui.page_comments_label = new GLabel(this, 302, 326, 80, 20);
+		gui.page_comments_label.setText("Comments:");
+		gui.page_comments_label.setTextBold();
+		gui.page_comments_label.setLocalColorScheme(GCScheme.CYAN_SCHEME);
+		gui.page_comments_label.setOpaque(true);
+		gui.number_label = new GLabel(this, 302, 410, 80, 20);
+		gui.number_label.setText("Number:");
+		gui.number_label.setTextBold();
+		gui.number_label.setLocalColorScheme(GCScheme.CYAN_SCHEME);
+		gui.number_label.setOpaque(true);
+		gui.shutter_control_label = new GLabel(this, 300, 450, 200, 24);
+		gui.shutter_control_label.setText("SHUTTER CONTROL:");
+		gui.shutter_control_label.setTextBold();
+		gui.shutter_control_label.setLocalColorScheme(GCScheme.CYAN_SCHEME);
+		gui.shutter_control_label.setOpaque(true);
+		gui.camera_config_label = new GLabel(this, 300, 684, 200, 20);
+		gui.camera_config_label.setText("CAMERA CONFIGURATION:");
+		gui.camera_config_label.setTextBold();
+		gui.camera_config_label.setLocalColorScheme(GCScheme.CYAN_SCHEME);
+		gui.camera_config_label.setOpaque(true);
+		gui.camera_A_label = new GLabel(this, 407, 719, 80, 20);
+		gui.camera_A_label.setTextAlign(GAlign.CENTER, GAlign.MIDDLE);
+		gui.camera_A_label.setText("CAMERA A");
+		gui.camera_A_label.setTextBold();
+		gui.camera_A_label.setLocalColorScheme(GCScheme.CYAN_SCHEME);
+		gui.camera_A_label.setOpaque(true);
+		gui.author_text = new GTextField(this, 380, 154, 200, 20, G4P.SCROLLBARS_NONE);
+		gui.author_text.setLocalColorScheme(GCScheme.CYAN_SCHEME);
+		gui.author_text.setOpaque(true);
+		gui.author_text.addEventHandler(this, "author_text_change");
+		gui.project_comments_text = new GTextField(this, 380, 178, 200, 80, G4P.SCROLLBARS_NONE);
+		gui.project_comments_text.setLocalColorScheme(GCScheme.CYAN_SCHEME);
+		gui.project_comments_text.setOpaque(true);
+		gui.project_comments_text.addEventHandler(this, "project_comments_change");
+		gui.camera_B_label = new GLabel(this, 407, 852, 80, 20);
+		gui.camera_B_label.setTextAlign(GAlign.CENTER, GAlign.MIDDLE);
+		gui.camera_B_label.setText("CAMERA B");
+		gui.camera_B_label.setTextBold();
+		gui.camera_B_label.setLocalColorScheme(GCScheme.CYAN_SCHEME);
+		gui.camera_B_label.setOpaque(true);
+		gui.page_comments_text = new GTextField(this, 380, 326, 200, 80, G4P.SCROLLBARS_NONE);
+		gui.page_comments_text.setLocalColorScheme(GCScheme.CYAN_SCHEME);
+		gui.page_comments_text.setOpaque(true);
+		gui.page_comments_text.addEventHandler(this, "page_comments_text_change");
+		gui.page_num_text = new GTextField(this, 380, 410, 200, 20, G4P.SCROLLBARS_NONE);
+		gui.page_num_text.setLocalColorScheme(GCScheme.CYAN_SCHEME);
+		gui.page_num_text.setOpaque(true);
+		gui.page_num_text.addEventHandler(this, "page_num_text_change");
+		gui.normal_shutter_button = new GButton(this, 386, 488, 122, 24);
+		gui.normal_shutter_button.setText("NORMAL");
+		gui.normal_shutter_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
+		gui.normal_shutter_button.addEventHandler(this, "normal_shutter_click1");
+		gui.repeat_shutter_button = new GButton(this, 386, 517, 122, 24);
+		gui.repeat_shutter_button.setText("REPEAT");
+		gui.repeat_shutter_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
+		gui.repeat_shutter_button.addEventHandler(this, "repeat_shutter_click");
+		gui.subpage_shutter_button = new GButton(this, 386, 547, 122, 24);
+		gui.subpage_shutter_button.setText("SUBPAGE");
+		gui.subpage_shutter_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
+		gui.subpage_shutter_button.addEventHandler(this, "subpage_shutter_click");
+		gui.calibration_shutter_button = new GButton(this, 386, 577, 122, 24);
+		gui.calibration_shutter_button.setText("CALIBRATION");
+		gui.calibration_shutter_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
+		gui.calibration_shutter_button.addEventHandler(this, "calibration_shutter_click");
+		gui.trigger_button = new GButton(this, 386, 619, 122, 48);
+		gui.trigger_button.setText("TRIGGER");
+		gui.trigger_button.setLocalColorScheme(GCScheme.PURPLE_SCHEME);
+		gui.trigger_button.addEventHandler(this, "trigger_button_click");
+		gui.camera_A_connected_button = new GButton(this, 386, 746, 122, 24);
+		gui.camera_A_connected_button.setText("DISCONNECTED");
+		gui.camera_A_connected_button.setLocalColorScheme(GCScheme.RED_SCHEME);
+		gui.camera_A_connected_button.addEventHandler(this, "camera_A_connected_click");
+		gui.camera_A_active_button = new GButton(this, 385, 779, 122, 24);
+		gui.camera_A_active_button.setText("ACTIVE");
+		gui.camera_A_active_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
+		gui.camera_A_active_button.addEventHandler(this, "camera_A_active_button_click");
+		gui.camera_A_inactive_button = new GButton(this, 386, 809, 122, 24);
+		gui.camera_A_inactive_button.setText("INACTIVE");
+		gui.camera_A_inactive_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
+		gui.camera_A_inactive_button.addEventHandler(this, "camera_A_inactive_button_click");
+		gui.camera_B_connected_button = new GButton(this, 386, 879, 122, 24);
+		gui.camera_B_connected_button.setText("DISCONNECTED");
+		gui.camera_B_connected_button.setLocalColorScheme(GCScheme.RED_SCHEME);
+		gui.camera_B_connected_button.addEventHandler(this, "camera_B_connected_click");
+		gui.camera_B_active_button = new GButton(this, 386, 915, 122, 24);
+		gui.camera_B_active_button.setText("ACTIVE");
+		gui.camera_B_active_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
+		gui.camera_B_active_button.addEventHandler(this, "camera_B_active_click");
+		gui.camera_B_inactive_button = new GButton(this, 386, 945, 122, 24);
+		gui.camera_B_inactive_button.setText("INACTIVE");
+		gui.camera_B_inactive_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
+		gui.camera_B_inactive_button.addEventHandler(this, "camera_B_inactive_click");
+		gui.parameters_button = new GButton(this, 386, 994, 122, 24);
+		gui.parameters_button.setText("PARAMETERS");
+		gui.parameters_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
+		gui.parameters_button.addEventHandler(this, "parameters_click");
+		gui.load_button = new GButton(this, 11, 11, 80, 24);
+		gui.load_button.setText("LOAD");
+		gui.load_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
+		gui.load_button.addEventHandler(this, "load_click");
+		gui.new_button = new GButton(this, 99, 11, 122, 24);
+		gui.new_button.setText("NEW PROJECT");
+		gui.new_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
+		gui.new_button.addEventHandler(this, "new_button_click");
+		gui.page_search_text = new GTextField(this, 90, 57, 175, 20, G4P.SCROLLBARS_NONE);
+		gui.page_search_text.setLocalColorScheme(GCScheme.CYAN_SCHEME);
+		gui.page_search_text.setOpaque(true);
+		gui.page_search_text.addEventHandler(this, "page_search_text_change");
+		gui.page_search_label = new GLabel(this, 10, 57, 80, 20);
+		gui.page_search_label.setText("Page search:");
+		gui.page_search_label.setTextBold();
+		gui.page_search_label.setLocalColorScheme(GCScheme.CYAN_SCHEME);
+		gui.page_search_label.setOpaque(true);
+		gui.liveView_button = new GButton(this, 490, 11, 80, 24);
+		gui.liveView_button.setText("LIVEVIEW");
+		gui.liveView_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
+		gui.liveView_button.addEventHandler(this, "liveView_button_click");
 	}
 
-	// Variable declarations
-	// autogenerated do not edit
-	GButton first_page_button;
-	GButton last_page_button;
-	GTextField name_text;
-	GLabel project_info;
-	GLabel name;
-	GLabel code_label;
-	GTextField code_text;
-	GLabel author_label;
-	GLabel project_comments_label;
-	GLabel page_info_label;
-	GLabel page_comments_label;
-	GLabel number_label;
-	GLabel shutter_control_label;
-	GLabel camera_config_label;
-	GLabel camera_A_label;
-	GTextField author_text;
-	GTextField project_comments_text;
-	GLabel camera_B_label;
-	GTextField page_comments_text;
-	GTextField page_num_text;
-	GButton normal_shutter_button;
-	GButton repeat_shutter_button;
-	GButton subpage_shutter_button;
-	GButton calibration_shutter_button;
-	GButton trigger_button;
-	GButton camera_A_connected_button;
-	GButton camera_A_active_button;
-	GButton camera_A_inactive_button;
-	GButton camera_B_connected_button;
-	GButton camera_B_active_button;
-	GButton camera_B_inactive_button;
-	GButton parameters_button;
-	GButton load_button;
-	GButton new_button;
-	GTextField page_search_text;
-	GLabel page_search_label;
-	GButton liveView_button;
+	
 
 	public void settings() {
 		// size(595, 1030);

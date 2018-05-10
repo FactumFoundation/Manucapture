@@ -1,11 +1,21 @@
+import netP5.NetAddress;
+import oscP5.OscP5;
 import processing.core.PApplet;
 
 public class ManuCaptureContext {
 
-	
 	String projectDirectory;
-	
+
 	PApplet parent;
-	
-	Thumbnail thumbnail;
+
+	RawFile thumbnail;
+
+	G2P5 gphotoA;
+	G2P5 gphotoB;
+
+	OscP5 oscP5;
+
+	GUI gui;
+
+	NetAddress viewerLocation;
 }

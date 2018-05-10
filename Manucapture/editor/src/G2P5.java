@@ -12,6 +12,12 @@ import processing.event.*;
 import processing.opengl.*;
 
 
+/**
+ * Camera Interface
+ * @author veronica1
+ *
+ */
+
 public class G2P5 {
 	
     private PApplet parent = null;

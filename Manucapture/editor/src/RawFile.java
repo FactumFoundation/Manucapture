@@ -8,12 +8,10 @@ import org.apache.commons.io.FilenameUtils;
 import processing.core.PApplet;
 import processing.core.PImage;
 
-public class Thumbnail {
+public class RawFile {
 
 	
 	PApplet parent;
-
-
 	
 	int thumbMargin = 6;
 	
