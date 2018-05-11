@@ -199,6 +199,8 @@ public class ManuCapture_v1_1 extends PApplet {
 	}
 
 	public void setup() {
+		
+		System.setOut(new TracingPrintStream(System.out));
 
 		context.parent = this;
 		context.thumbnail = new RawFile();
@@ -213,6 +215,7 @@ public class ManuCapture_v1_1 extends PApplet {
 		if (surface != null) {
 			surface.setLocation(0, 0);
 		}
+		
 		XML serialXML = loadXML("cameraSerials.xml");
 		serialCameraA = serialXML.getChild("Camera_A").getContent();
 		serialCameraB = serialXML.getChild("Camera_B").getContent();
@@ -249,7 +252,8 @@ public class ManuCapture_v1_1 extends PApplet {
 	public void draw() {
 
 		if (loadData) {
-			loadLastSessionData();
+			thread("loadLastSessionData");
+			//loadLastSessionData();
 			loadData = false;
 		}
 
@@ -285,28 +289,32 @@ public class ManuCapture_v1_1 extends PApplet {
 		image(itemsViewPort, itemListViewPortX, itemListViewPortY);
 		if (context.renderLeft) {
 			drawLeft();
-			context.renderLeft = true;
+			context.renderLeft = false;
 		}
 
 		if (context.renderRight) {
 			drawRight();
-			context.renderRight = true;
+			context.renderRight = false;
 		}
 
 		fill(255);
 		text(frameRate, 10, 10);
-
 	}
 
 	private void drawRight() {
 		if (project.previewImgRight != null) {
+			pushStyle();
 			pushMatrix();
-			translate(1250 + project.previewImgRight.height / 2, 20 + project.previewImgRight.width / 2);
-			rotate(3 * PI / 2);
+			translate(1250 + project.previewImgLeft.height / 2, 20 + project.previewImgLeft.width / 2);
+			rotate(-3 * PI / 2);
 			imageMode(CENTER);
-			image(project.previewImgRight, 0, 0);
+			image(project.previewImgLeft, 0, 0);
 			imageMode(CORNER);
 			popMatrix();
+			fill(255);
+			textSize(18);
+			text(project.selectedItem.imagePathLeft,950 + project.previewImgLeft.height / 2, 40 );
+			popStyle();
 		} else {
 			stroke(255);
 			fill(50);
@@ -315,15 +323,20 @@ public class ManuCapture_v1_1 extends PApplet {
 	}
 
 	private void drawLeft() {
-		if (project.previewImgLeft != null) {
+		if (project.previewImgRight != null) {
+			pushStyle();
 			pushMatrix();
-			translate(580 + project.previewImgLeft.height / 2, 20 + project.previewImgLeft.width / 2);
-			rotate(PI / 2);
+			translate(580 + project.previewImgRight.height / 2, 20 + project.previewImgRight.width / 2);
+			rotate(-PI / 2);
 			imageMode(CENTER);
-			image(project.previewImgLeft, 0, 0, project.previewImgLeft.width, project.previewImgLeft.height, 0, 0,
-					project.previewImgLeft.width, project.previewImgLeft.height);
+			image(project.previewImgRight, 0, 0, project.previewImgRight.width, project.previewImgRight.height, 0, 0,
+					project.previewImgRight.width, project.previewImgRight.height);
 			imageMode(CORNER);
 			popMatrix();
+			fill(255);
+			textSize(18);
+			text(project.selectedItem.imagePathRight,250 + project.previewImgRight.height / 2, 40 );
+			popStyle();
 		} else {
 			stroke(255);
 			fill(50);
@@ -459,12 +472,12 @@ public class ManuCapture_v1_1 extends PApplet {
 						}
 
 						if ((i != project.selectedItemIndex) || (itemsViewTransition != ADDING_ITEM_TRANSITION)) {
-							if (item.imgThumbRight != null) {
-								itemsViewPort.image(item.imgThumbRight, marginX + item.imgThumbRight.width,
+							if (item.imgThumbLeft != null) {
+								itemsViewPort.image(item.imgThumbLeft, marginX + item.imgThumbLeft.width,
 										viewPortRelativeHeight);
 							}
-							if (item.imgThumbLeft != null) {
-								itemsViewPort.image(item.imgThumbLeft, marginX, viewPortRelativeHeight);
+							if (item.imgThumbRight != null) {
+								itemsViewPort.image(item.imgThumbRight, marginX, viewPortRelativeHeight);
 							}
 							itemsViewPort.noFill();
 							itemsViewPort.stroke(255);

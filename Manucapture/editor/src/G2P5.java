@@ -128,6 +128,7 @@ public class G2P5 {
     
     public boolean capture() {
     	
+    	
     	setAction(CAMERA_CAPTURE);
     	
     	if(active){
