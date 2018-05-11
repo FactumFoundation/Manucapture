@@ -23,7 +23,9 @@ public class TracingPrintStream extends PrintStream {
 
 		int h = calendar.get(Calendar.HOUR_OF_DAY);
 		int mi = calendar.get(Calendar.MINUTE);
+		int seg = calendar.get(Calendar.SECOND);
+		int millis  = calendar.get(Calendar.MILLISECOND);
 		super.println(caller.getClassName() + ":"+caller.getLineNumber()+" (" + y + "/" + m + "/" + d
-				+ "/ " + h + ":" + mi + ") " + line);
+				+ "/ " + h + ":" + mi + ":"+ seg + "."+ millis +  ") " + line);
 	}
 }

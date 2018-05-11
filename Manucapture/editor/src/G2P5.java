@@ -164,6 +164,8 @@ public class G2P5 {
 	
 	private boolean captureTetheredLoop() {
 
+		System.setOut(new TracingPrintStream(System.out));
+		
 		String fullPath = parent.sketchPath() + "/data/" + id + ".cr2";
 		String commandToRun = "gphoto2 --capture-tethered --port " + port + " --force-overwrite --filename " + fullPath;
 		PApplet.println(commandToRun);
