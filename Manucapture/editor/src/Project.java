@@ -12,30 +12,35 @@ import processing.core.PImage;
 import processing.data.XML;
 
 public class Project {
-	
+
 	String projectFilePath = "";
 	String projectDirectory = "";
+	// metadata
 	String projectName = "";
 	String projectComment = "";
 	String projectCode = "";
 	String projectAuthor = "";
+
+	// new metadata
+	String timestamp = "";
+	String targetDirectory = "";
+	String targetSubdirectory = "";
+	String uploaded = "";
+	String source;
+
 	ArrayList<Item> items = new ArrayList<Item>();
-	
+
 	boolean thumbnailsLoaded = false;
-	
+
 	ManuCaptureContext context;
-	
 
 	int NO_SCROLL_TRANSITION = 0;
 	int SCROLL_TRANSITION = 1;
 	int scrollTransitionState = NO_SCROLL_TRANSITION;
 
-	
 	PImage previewImgLeft = null;
 	PImage previewImgRight = null;
 
-
-	
 	public synchronized void loadProjectMethod(String projectPath) {
 
 		if (!projectFilePath.equals("")) {
@@ -93,7 +98,7 @@ public class Project {
 					String fileName = itemImgLeft.getName();
 					String thumbnailPath = projectDirectoryFile.getPath() + "/thumbnails/"
 							+ FilenameUtils.removeExtension(fileName) + "_thumb.jpg";
-					context.parent.	println("Left " + thumbnailPath);
+					context.parent.println("Left " + thumbnailPath);
 					File thumbFile = new File(thumbnailPath);
 					if (!thumbFile.exists()) {
 						item.imgThumbLeft = context.thumbnail.generateThumbnail(context, itemImgLeft, false);
@@ -141,11 +146,11 @@ public class Project {
 		try {
 			G2P5.setImageCount(new Integer(projectDataXML.getChild("image_counter").getContent()));
 		} catch (Exception e) {
-			context.parent.	println("ERROR loading image counter, seting to list size");
+			context.parent.println("ERROR loading image counter, seting to list size");
 			G2P5.setImageCount(items.size());
 		}
 		thumbnailsLoaded = true;
-	
+
 	}
 
 	public void loadProjectMetadata(XML projectDataXML) {
@@ -161,8 +166,34 @@ public class Project {
 		context.parent.println(projectDataXML.getChild("image_counter"));
 		G2P5.setImageCount(new Integer(projectDataXML.getChild("image_counter").getContent()));
 
+		XML timestampXML = projectDataXML.getChild("metadata").getChild("timestamp");
+		XML targetDirectoryXML = projectDataXML.getChild("metadata").getChild("targetDirectory");
+		XML targetSubdirectoryXML = projectDataXML.getChild("metadata").getChild("targetSubdirectory");
+		XML uploadedXML = projectDataXML.getChild("metadata").getChild("uploaded");
+		
+		if (timestampXML != null)
+			timestamp = timestampXML.getContent("");
+		else
+			timestamp = "";
+		
+		if (targetDirectoryXML != null)
+			targetDirectory = targetDirectoryXML.getContent("");
+		else
+			targetDirectory = "";
+		
+		if (targetSubdirectoryXML != null)
+			targetSubdirectory = targetSubdirectoryXML.getContent("");
+		else
+			targetSubdirectory = "";
+		
+		if (uploadedXML != null)
+			uploaded = uploadedXML.getContent("");
+		else
+			uploaded = "";
+
+
 	}
-	
+
 	public void saveProjectXML() {
 		context.parent.println(projectName, projectCode, projectAuthor, projectComment);
 		if (!(projectName.equals("") && projectCode.equals("") && projectAuthor.equals("")
@@ -182,6 +213,23 @@ public class Project {
 			XML authorXML = new XML("author");
 			authorXML.setContent(projectAuthor);
 			metadataXML.addChild(authorXML);
+			// timestamp
+			XML timestampXML = new XML("timestamp");
+			timestampXML.setContent(targetDirectory);
+			metadataXML.addChild(timestampXML);
+			// targetSubdirectory
+			XML targetSubdirectoryXML = new XML("targetSubdirectory");
+			targetSubdirectoryXML.setContent(targetSubdirectory);
+			metadataXML.addChild(targetSubdirectoryXML);
+			// target directory
+			XML targetDirectoryXML = new XML("targetDirectory");
+			targetDirectoryXML.setContent(targetDirectory);
+			metadataXML.addChild(targetDirectoryXML);
+			// uploaded
+			XML uploadedXML = new XML("uploaded");
+			uploadedXML.setContent(uploaded);
+			metadataXML.addChild(uploadedXML);
+
 			projectXML.addChild(metadataXML);
 
 			XML itemsXML = new XML("items");
@@ -225,7 +273,7 @@ public class Project {
 			File fileProject = new File(projectFilePath);
 			if (fileProject.exists()) {
 				String commandGenerate = "mv " + projectFilePath + " " + projectDirectory + "/project_backup.xml";
-				context.parent.	println(commandGenerate);
+				context.parent.println(commandGenerate);
 				try {
 					String[] commands = new String[] { "/bin/sh", "-c", commandGenerate };
 					Process process = new ProcessBuilder(commands).start();
@@ -246,7 +294,8 @@ public class Project {
 			context.parent.println("Saved project to ", projectFilePath);
 		} else {
 			context.parent.println("ERROR: No project info, no data is saved. Please write the project name and code");
-			G4P.showMessage(context.parent, "ERROR: No project info, no data is saved.\nPlease write the project name and code. ",
+			G4P.showMessage(context.parent,
+					"ERROR: No project info, no data is saved.\nPlease write the project name and code. ",
 					"Save project", G4P.ERROR);
 
 		}
@@ -264,10 +313,9 @@ public class Project {
 		projectComment = "";
 		projectDirectory = "";
 
-		// TODO: Check everything to close in the  Reset viewer
+		// TODO: Check everything to close in the Reset viewer
 
 	}
-	
 
 	private void deleteFile(String targetFilePath) {
 		String commandGenerate = "rm " + targetFilePath;
@@ -287,7 +335,7 @@ public class Project {
 			e.printStackTrace();
 		}
 	}
-	
+
 	/*
 	 * Garbage Image Collector
 	 */
@@ -334,7 +382,6 @@ public class Project {
 
 	}
 
-	
 	public synchronized void removeUnusedImages() {
 		// Garbage collection
 		String[] unusedImgs = getUnusedImage();
@@ -342,13 +389,12 @@ public class Project {
 			for (int index = 0; index < unusedImgs.length; index++) {
 				String targetFilePath = unusedImgs[index];
 				deleteFile(targetFilePath);
-				String thumbnailPath = context.thumbnail.getThumbnailPath(projectDirectory,
-						new File(targetFilePath));
+				String thumbnailPath = context.thumbnail.getThumbnailPath(projectDirectory, new File(targetFilePath));
 				deleteFile(thumbnailPath);
 			}
 		}
 	}
-	
+
 	int selectedItemIndex = -1;
 
 	/*
@@ -488,9 +534,8 @@ public class Project {
 
 		}
 
-		long endMillis =context.parent. millis();
+		long endMillis = context.parent.millis();
 
 	}
 
-		
 }

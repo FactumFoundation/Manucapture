@@ -226,7 +226,7 @@ public class ManuCapture_v1_1 extends PApplet {
 		createGUI();
 		customGUI();
 
-		itemsViewPort = createGraphics(itemListViewPortWidth, itemListViewPortHeight);
+		itemsViewPort = createGraphics(itemListViewPortWidth, itemListViewPortHeight, P2D);
 		scrollHandleState = SCROLL_HANDLE_IDLE;
 		textMode(MODEL);
 
@@ -235,32 +235,31 @@ public class ManuCapture_v1_1 extends PApplet {
 		context.oscP5 = new OscP5(this, receivePort);
 		context.viewerLocation = new NetAddress("127.0.0.1", sendPort);
 
-		
 		bookIcon = loadImage("bookIcon.png");
 		bookIcon.resize(bookIcon.width / 6, bookIcon.height / 6);
-		
+
 		background(backgroundColor);
-		
+
 		frameRate(25);
 
 	}
-	
+
 	boolean loadData = true;
 
 	public void draw() {
-		
-		if(loadData){
+
+		if (loadData) {
 			loadLastSessionData();
 			loadData = false;
 		}
 
 		if (surface != null) {
-			surface.setLocation(0, 0);
+			// surface.setLocation(0, 0);
 		}
 
-//+		background(backgroundColor);
+		// + background(backgroundColor);
 		fill(backgroundColor);
-		rect(0,0,200,200);
+		rect(0, 0, 200, 200);
 
 		// CAMERA STATE SECTION
 		// ///////////////////////////////////////////////////////
@@ -284,18 +283,16 @@ public class ManuCapture_v1_1 extends PApplet {
 		drawItemsViewPort();
 
 		image(itemsViewPort, itemListViewPortX, itemListViewPortY);
-		if(context.renderLeft){
+		if (context.renderLeft) {
 			drawLeft();
-			context.renderLeft = false;
+			context.renderLeft = true;
 		}
-		
-		if(context.renderRight){
-			drawRight();
-			context.renderRight = false;
-		}
-		
 
-		
+		if (context.renderRight) {
+			drawRight();
+			context.renderRight = true;
+		}
+
 		fill(255);
 		text(frameRate, 10, 10);
 
@@ -323,7 +320,8 @@ public class ManuCapture_v1_1 extends PApplet {
 			translate(580 + project.previewImgLeft.height / 2, 20 + project.previewImgLeft.width / 2);
 			rotate(PI / 2);
 			imageMode(CENTER);
-			image(project.previewImgLeft, 0, 0);
+			image(project.previewImgLeft, 0, 0, project.previewImgLeft.width, project.previewImgLeft.height, 0, 0,
+					project.previewImgLeft.width, project.previewImgLeft.height);
 			imageMode(CORNER);
 			popMatrix();
 		} else {
@@ -462,7 +460,7 @@ public class ManuCapture_v1_1 extends PApplet {
 
 						if ((i != project.selectedItemIndex) || (itemsViewTransition != ADDING_ITEM_TRANSITION)) {
 							if (item.imgThumbRight != null) {
-								itemsViewPort.image(item.imgThumbRight, marginX + item.imgThumbLeft.width,
+								itemsViewPort.image(item.imgThumbRight, marginX + item.imgThumbRight.width,
 										viewPortRelativeHeight);
 							}
 							if (item.imgThumbLeft != null) {
@@ -1553,7 +1551,7 @@ public class ManuCapture_v1_1 extends PApplet {
 
 	public void settings() {
 		// size(595, 1030);
-		size(1920, 1030);
+		size(1920, 1030, P2D);
 	}
 
 	static public void main(String[] passedArgs) {
