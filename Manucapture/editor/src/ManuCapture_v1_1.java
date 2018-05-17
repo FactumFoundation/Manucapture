@@ -184,6 +184,7 @@ public class ManuCapture_v1_1 extends PApplet {
 	float itemBaseY = 0;
 
 	PVector lastPressedR = null;
+	PVector lastPressedL = null;
 
 	public void _println(String message) {
 		int s = second(); // Values from 0 - 59
@@ -259,10 +260,9 @@ public class ManuCapture_v1_1 extends PApplet {
 
 	public void draw() {
 
-		background(0);
-		
+		background(75);
 
-		ellipse(marginLeftViewerRight, marginTopViewer, 125, 125);
+//		ellipse(marginLeftViewerRight, marginTopViewer, 125, 125);
 
 		if (loadData) {
 			thread("loadLastSessionData");
@@ -317,34 +317,27 @@ public class ManuCapture_v1_1 extends PApplet {
 
 		fill(255, 0, 0);
 
-		rect(marginLeftViewerLeft, marginTopViewer, 100, 100);
+//		rect(marginLeftViewerLeft, marginTopViewer, 100, 100);
 
 	}
 
 	int wImageViewerSize = 1000;
 	int hImageViewerSize = 667;
 
-	int marginTopViewer = 189;
-	int marginLeftViewerRight = 1090;
-	int marginLeftViewerLeft = 420;
+	int marginTopViewer = 20;
+	int marginLeftViewerRight = 1250;
+	int marginLeftViewerLeft = 583;
 
 	private void drawLeft() {
-		
 
 		if (project.previewImgLeft != null) {
-			
+
 			pushStyle();
 			pushMatrix();
-			translate(marginLeftViewerRight + wImageViewerSize / 2, marginTopViewer + hImageViewerSize / 2);
+			translate(marginLeftViewerRight, marginTopViewer);
 
-//			rotate(-3 * PI / 2);
-			imageMode(CENTER);
-			float h = project.previewImgLeft.width / (float) wImageViewerSize;
-			// image(project.previewImgLeft, 0, 0, 1000,
-			// project.previewImgLeft.height * h);
-			image(project.previewImgLeft, 0, 0,  hImageViewerSize,wImageViewerSize, 0, 0, project.previewImgLeft.width,
-					project.previewImgLeft.height);
-			imageMode(CORNER);
+			drawImagePreview(project.previewImgLeft, lastPressedL, marginLeftViewerRight);
+
 			popMatrix();
 			fill(255);
 			textSize(18);
@@ -362,55 +355,11 @@ public class ManuCapture_v1_1 extends PApplet {
 		if (project.previewImgRight != null) {
 			pushStyle();
 			pushMatrix();
-			translate(marginLeftViewerLeft + wImageViewerSize / 2, marginTopViewer + hImageViewerSize / 2);
-//			rotate(-PI / 2);
-			imageMode(CENTER);
-			float h = project.previewImgRight.width / (float) wImageViewerSize;
-			// image(project.previewImgRight, 0, 0,
-			// project.previewImgRight.width,
-			// project.previewImgRight.height,0,0,1000, (int)(h
-			// *project.previewImgRight.height)
-			// );
-			// image(project.previewImgRight, 0, 0, 1000,
-			// project.previewImgLeft.height * h);
-
-			if (lastPressedR != null) {
-				// pimero quiero saber pos en la imagen
-				float imgScale = project.previewImgRight.width / (float) wImageViewerSize;
-				PVector virtualPos = PVector.sub(lastPressedR, new PVector(marginLeftViewerLeft, marginTopViewer));
-				virtualPos = virtualPos.mult(imgScale);
-
-				int portviewSizeX = (int) (wImageViewerSize / 2);
-				int portviewSizeY = (int) (hImageViewerSize / 2);
-
-				int portviewStartX = (int) (virtualPos.x - portviewSizeX);
-				int portviewStartY = (int) (virtualPos.y - portviewSizeY);
-
-				if (portviewStartX + portviewSizeX > project.previewImgRight.width) {
-					portviewStartX = project.previewImgRight.width - portviewSizeX;
-				}
-
-				if (portviewStartY + portviewSizeY > project.previewImgRight.height) {
-					portviewStartY = project.previewImgRight.height - portviewSizeY;
-				}
-
-				if (portviewStartX < 0) {
-					portviewStartX = portviewSizeX;
-				}
-
-				if (portviewStartY < 0) {
-					portviewStartY = portviewSizeY;
-				}
-
-				image(project.previewImgRight, 0, 0, hImageViewerSize, wImageViewerSize, portviewStartX, portviewStartY,
-						portviewSizeX * 2, portviewSizeY * 2);
-			} else {
-
-				image(project.previewImgRight, 0, 0, hImageViewerSize, wImageViewerSize, 0, 0,
-						project.previewImgRight.width, project.previewImgRight.height);
-			}
-
+			translate(marginLeftViewerLeft, marginTopViewer);
 			imageMode(CORNER);
+
+			drawImagePreview(project.previewImgRight, lastPressedR, marginLeftViewerLeft);
+
 			popMatrix();
 			fill(255);
 			textSize(18);
@@ -420,6 +369,44 @@ public class ManuCapture_v1_1 extends PApplet {
 			stroke(255);
 			fill(50);
 			rect(580, 20, hImageViewerSize, wImageViewerSize);
+		}
+	}
+
+	private void drawImagePreview(PImage img, PVector lastPressedR, int marginLeftViewer) {
+		if (lastPressedR != null) {
+			// pimero quiero saber pos en la imagen
+			float imgScale = img.width / (float) hImageViewerSize;
+			PVector virtualPos = PVector.sub(lastPressedR, new PVector(marginLeftViewer, marginTopViewer));
+
+			PVector virtualPosScaled = PVector.mult(virtualPos, imgScale);
+
+			int portviewSizeX = (int) (hImageViewerSize);
+			int portviewSizeY = (int) (wImageViewerSize);
+
+			int portviewStartX = (int) (virtualPosScaled.x - portviewSizeX / 2);
+			int portviewStartY = (int) (virtualPosScaled.y - portviewSizeY / 2);
+
+			if (portviewStartX + portviewSizeX > img.width) {
+				portviewStartX = img.width - portviewSizeX;
+			}
+
+			if (portviewStartY + portviewSizeY > img.height) {
+				portviewStartY = img.height - portviewSizeY;
+			}
+
+			if (portviewStartX < 0) {
+				portviewStartX = 0;
+			}
+
+			if (portviewStartY < 0) {
+				portviewStartY = 0;
+			}
+
+			image(img, 0, 0, hImageViewerSize, wImageViewerSize, portviewStartX, portviewStartY,
+					portviewStartX + portviewSizeX, portviewStartY + portviewSizeY);
+		} else {
+
+			image(img, 0, 0, hImageViewerSize, wImageViewerSize, 0, 0, img.width, img.height);
 		}
 	}
 
@@ -643,6 +630,17 @@ public class ManuCapture_v1_1 extends PApplet {
 			}
 		}
 		scrollHandleState = SCROLL_HANDLE_IDLE;
+
+		if (lastPressedR != null) {
+			updateZoomRight();
+
+		}
+
+		if (lastPressedL != null) {
+			updateZoomLeft();
+
+		}
+
 	}
 
 	public void forceSelectedItem(int index, boolean transition) {
@@ -725,24 +723,58 @@ public class ManuCapture_v1_1 extends PApplet {
 			}
 		}
 		scrollHandleState = SCROLL_HANDLE_IDLE;
-		lastPressedR = null;
-		if (mouseY > 26 && mouseY < height) {
-//			Estamos en y
-			if (mouseX > 577 && mouseX < 1256) {
 
-				if (mouseButton == LEFT)
-
-					if (mouseX > marginLeftViewerRight) {
-
-					} else {
-						lastPressedR = new PVector(mouseX, mouseY);
-					}
-			} else {
-				
-			}
+		if (mouseButton == LEFT) {
+			if (lastPressedL == null)
+				updateZoomLeft();
+//			else
+//				lastPressedL = null;
+			
+			if (lastPressedR == null)
+				updateZoomRight();
+//			else
+//				lastPressedR = null;
+			
+			
+		}
+		if (mouseButton == RIGHT) {
+			lastPressedR = null;
+			lastPressedL = null;
 		}
 
 		println("mouseX:" + mouseX + " mouseY:" + mouseY);
+	}
+
+	private void updateZoomLeft() {
+		// lastPressedR = null;
+		if (mouseY > marginTopViewer && mouseY < height) {
+			// Estamos en y
+
+			if (mouseX > marginLeftViewerRight) {
+				lastPressedL = new PVector(mouseX, mouseY);
+			} else {
+
+			}
+		} else {
+
+		}
+	}
+
+	private void updateZoomRight() {
+		// lastPressedR = null;
+		if (mouseY > marginTopViewer && mouseY < height) {
+			// Estamos en y
+			if (mouseX > marginLeftViewerLeft && mouseX < marginLeftViewerRight) {
+
+				if (mouseX > marginLeftViewerRight) {
+
+				} else {
+					lastPressedR = new PVector(mouseX, mouseY);
+				}
+			} else {
+
+			}
+		}
 	}
 
 	public void mouseDragged() {
