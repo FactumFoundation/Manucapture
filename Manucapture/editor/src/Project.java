@@ -486,7 +486,6 @@ public class Project {
 		System.out.println("end preview rigth");
 
 		long endMillis = context.parent.millis();
-
 	}
 
 	public void loadRightPreview() {
@@ -516,8 +515,9 @@ public class Project {
 
 			// command = "convert " + previewFullPath + " -resize 1000x667 " +
 			// resizedImageFullPath;
-			command = "imgp -x 1000x667 " + previewFullPath;
-			System.out.println("end command exiv2, start convert " + command);
+			command = "/home/factum/git/book_scanner/bookScanner/Manucapture/epegbin/epeg -w 2000 -p -q 100 "
+					+ previewFullPath + " " + resizedImageFullPath.replace(".jpg", "-rot.jpg");
+			System.out.println("end command exiv2, start resize " + command);
 			try {
 				Process process = Runtime.getRuntime().exec(command);
 				InputStream error = process.getErrorStream();
@@ -531,14 +531,27 @@ public class Project {
 					context.parent.println(err);
 				}
 
+				command = "convert " + resizedImageFullPath.replace(".jpg", "-rot.jpg") + " -rotate 270 "
+						+ resizedImageFullPath;
+				System.out.println("comando " + command);
+				try {
+					process = Runtime.getRuntime().exec(command);
+					process.waitFor();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+
 				System.out.println("end convert, start loadimage");
 
-				String newPath = previewFullPath.replace(".jpg", "_IMGP.jpg");
+				// String newPath = previewFullPath.replace(".jpg",
+				// "_IMGP.jpg");
 
-				Files.move(Paths.get(newPath), Paths.get(resizedImageFullPath), StandardCopyOption.REPLACE_EXISTING);
+				// Files.move(Paths.get(newPath),
+				// Paths.get(resizedImageFullPath),
+				// StandardCopyOption.REPLACE_EXISTING);
 				previewImgRight = context.parent.loadImage(resizedImageFullPath);
 				context.renderRight = true;
-				System.out.println("end loadimage, FINISH loadRightPreview");
+				System.out.println("end loadimage, FINISH loadRightPreview " + resizedImageFullPath);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -570,15 +583,43 @@ public class Project {
 
 			// command = "convert " + previewFullPath + " -resize 1000x667 " +
 			// resizedImageFullPath;
-			command = "imgp -x 1000x667 " + previewFullPath;
+			command = "/home/factum/git/book_scanner/bookScanner/Manucapture/epegbin/epeg -w 2000 -p -q 100 "
+					+ previewFullPath + " " + resizedImageFullPath.replace(".jpg", "-rot.jpg");
+			System.out.println("end command exiv2, start resize " + command);
 			try {
 				Process process = Runtime.getRuntime().exec(command);
-				process.waitFor();
-				String newPath = previewFullPath.replace(".jpg", "_IMGP.jpg");
+				InputStream error = process.getErrorStream();
 
-				Files.move(Paths.get(newPath), Paths.get(resizedImageFullPath), StandardCopyOption.REPLACE_EXISTING);
+				process.waitFor();
+				String err = "Error:";
+				for (int i = 0; i < error.available(); i++) {
+					err += (char) error.read();
+				}
+				if (!err.equals("Error:")) {
+					context.parent.println(err);
+				}
+
+				command = "convert " + resizedImageFullPath.replace(".jpg", "-rot.jpg") + " -rotate 90 "
+						+ resizedImageFullPath;
+				System.out.println("comando " + command);
+				try {
+					process = Runtime.getRuntime().exec(command);
+					process.waitFor();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+
+				System.out.println("end convert, start loadimage");
+
+				// String newPath = previewFullPath.replace(".jpg",
+				// "_IMGP.jpg");
+
+				// Files.move(Paths.get(newPath),
+				// Paths.get(resizedImageFullPath),
+				// StandardCopyOption.REPLACE_EXISTING);
 				previewImgLeft = context.parent.loadImage(resizedImageFullPath);
 				context.renderLeft = true;
+				System.out.println("end loadimage, FINISH loadLeftPreview " + resizedImageFullPath);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

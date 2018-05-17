@@ -183,6 +183,8 @@ public class ManuCapture_v1_1 extends PApplet {
 	float transitionPhase = 0.0f;
 	float itemBaseY = 0;
 
+	PVector lastPressedR = null;
+
 	public void _println(String message) {
 		int s = second(); // Values from 0 - 59
 		int min = minute(); // Values from 0 - 59
@@ -257,6 +259,11 @@ public class ManuCapture_v1_1 extends PApplet {
 
 	public void draw() {
 
+		background(0);
+		
+
+		ellipse(marginLeftViewerRight, marginTopViewer, 125, 125);
+
 		if (loadData) {
 			thread("loadLastSessionData");
 			// loadLastSessionData();
@@ -295,28 +302,48 @@ public class ManuCapture_v1_1 extends PApplet {
 		image(itemsViewPort, itemListViewPortX, itemListViewPortY);
 		if (context.renderRight) {
 			drawRight();
-			context.renderRight = false;
-			println("renderizamos imagen derecha");
+			context.renderRight = true;
+			// println("renderizamos imagen derecha");
 		}
 
 		if (context.renderLeft) {
 			drawLeft();
-			context.renderLeft = false;
-			println("renderizamos imagen izquierda");
+			context.renderLeft = true;
+			// println("renderizamos imagen izquierda");
 		}
 
 		fill(255);
 		text(frameRate, 10, 10);
+
+		fill(255, 0, 0);
+
+		rect(marginLeftViewerLeft, marginTopViewer, 100, 100);
+
 	}
 
+	int wImageViewerSize = 1000;
+	int hImageViewerSize = 667;
+
+	int marginTopViewer = 189;
+	int marginLeftViewerRight = 1090;
+	int marginLeftViewerLeft = 420;
+
 	private void drawLeft() {
-		if (project.previewImgRight != null) {
+		
+
+		if (project.previewImgLeft != null) {
+			
 			pushStyle();
 			pushMatrix();
-			translate(1250 + project.previewImgLeft.height / 2, 20 + project.previewImgLeft.width / 2);
-			rotate(-3 * PI / 2);
+			translate(marginLeftViewerRight + wImageViewerSize / 2, marginTopViewer + hImageViewerSize / 2);
+
+//			rotate(-3 * PI / 2);
 			imageMode(CENTER);
-			image(project.previewImgLeft, 0, 0);
+			float h = project.previewImgLeft.width / (float) wImageViewerSize;
+			// image(project.previewImgLeft, 0, 0, 1000,
+			// project.previewImgLeft.height * h);
+			image(project.previewImgLeft, 0, 0,  hImageViewerSize,wImageViewerSize, 0, 0, project.previewImgLeft.width,
+					project.previewImgLeft.height);
 			imageMode(CORNER);
 			popMatrix();
 			fill(255);
@@ -326,19 +353,63 @@ public class ManuCapture_v1_1 extends PApplet {
 		} else {
 			stroke(255);
 			fill(50);
-			rect(1250, 20, 667, 1000);
+			rect(1250, 20, hImageViewerSize, wImageViewerSize);
 		}
 	}
 
 	private void drawRight() {
+
 		if (project.previewImgRight != null) {
 			pushStyle();
 			pushMatrix();
-			translate(580 + project.previewImgRight.height / 2, 20 + project.previewImgRight.width / 2);
-			rotate(-PI / 2);
+			translate(marginLeftViewerLeft + wImageViewerSize / 2, marginTopViewer + hImageViewerSize / 2);
+//			rotate(-PI / 2);
 			imageMode(CENTER);
-			image(project.previewImgRight, 0, 0, project.previewImgRight.width, project.previewImgRight.height, 0, 0,
-					project.previewImgRight.width, project.previewImgRight.height);
+			float h = project.previewImgRight.width / (float) wImageViewerSize;
+			// image(project.previewImgRight, 0, 0,
+			// project.previewImgRight.width,
+			// project.previewImgRight.height,0,0,1000, (int)(h
+			// *project.previewImgRight.height)
+			// );
+			// image(project.previewImgRight, 0, 0, 1000,
+			// project.previewImgLeft.height * h);
+
+			if (lastPressedR != null) {
+				// pimero quiero saber pos en la imagen
+				float imgScale = project.previewImgRight.width / (float) wImageViewerSize;
+				PVector virtualPos = PVector.sub(lastPressedR, new PVector(marginLeftViewerLeft, marginTopViewer));
+				virtualPos = virtualPos.mult(imgScale);
+
+				int portviewSizeX = (int) (wImageViewerSize / 2);
+				int portviewSizeY = (int) (hImageViewerSize / 2);
+
+				int portviewStartX = (int) (virtualPos.x - portviewSizeX);
+				int portviewStartY = (int) (virtualPos.y - portviewSizeY);
+
+				if (portviewStartX + portviewSizeX > project.previewImgRight.width) {
+					portviewStartX = project.previewImgRight.width - portviewSizeX;
+				}
+
+				if (portviewStartY + portviewSizeY > project.previewImgRight.height) {
+					portviewStartY = project.previewImgRight.height - portviewSizeY;
+				}
+
+				if (portviewStartX < 0) {
+					portviewStartX = portviewSizeX;
+				}
+
+				if (portviewStartY < 0) {
+					portviewStartY = portviewSizeY;
+				}
+
+				image(project.previewImgRight, 0, 0, hImageViewerSize, wImageViewerSize, portviewStartX, portviewStartY,
+						portviewSizeX * 2, portviewSizeY * 2);
+			} else {
+
+				image(project.previewImgRight, 0, 0, hImageViewerSize, wImageViewerSize, 0, 0,
+						project.previewImgRight.width, project.previewImgRight.height);
+			}
+
 			imageMode(CORNER);
 			popMatrix();
 			fill(255);
@@ -348,7 +419,7 @@ public class ManuCapture_v1_1 extends PApplet {
 		} else {
 			stroke(255);
 			fill(50);
-			rect(580, 20, 667, 1000);
+			rect(580, 20, hImageViewerSize, wImageViewerSize);
 		}
 	}
 
@@ -654,6 +725,24 @@ public class ManuCapture_v1_1 extends PApplet {
 			}
 		}
 		scrollHandleState = SCROLL_HANDLE_IDLE;
+		lastPressedR = null;
+		if (mouseY > 26 && mouseY < height) {
+//			Estamos en y
+			if (mouseX > 577 && mouseX < 1256) {
+
+				if (mouseButton == LEFT)
+
+					if (mouseX > marginLeftViewerRight) {
+
+					} else {
+						lastPressedR = new PVector(mouseX, mouseY);
+					}
+			} else {
+				
+			}
+		}
+
+		println("mouseX:" + mouseX + " mouseY:" + mouseY);
 	}
 
 	public void mouseDragged() {
@@ -1371,11 +1460,11 @@ public class ManuCapture_v1_1 extends PApplet {
 		// size(595, 1030);
 		size(1920, 1030, P2D);
 	}
-	
+
 	public void loadRightPreview() {
 		project.loadRightPreview();
 	}
-	
+
 	public void loadLeftPreview() {
 		project.loadLeftPreview();
 	}
@@ -1412,6 +1501,5 @@ public class ManuCapture_v1_1 extends PApplet {
 		}
 
 	}
-	
-	
+
 }
