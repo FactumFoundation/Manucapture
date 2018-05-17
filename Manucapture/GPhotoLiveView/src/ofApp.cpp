@@ -732,6 +732,13 @@ void ofApp::dragEvent(ofDragInfo dragInfo){
 
 }
 
+
+void ofApp::exit(){
+ stop_preview();
+ cout << 'Exiting app throw the door' << endl;
+ sleep(1);
+}
+
 /*
  * On exit:
  *
