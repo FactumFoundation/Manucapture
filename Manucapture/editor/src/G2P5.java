@@ -20,7 +20,7 @@ import processing.opengl.*;
 
 public class G2P5 {
 	
-    private PApplet parent = null;
+    private ManuCapture_v1_1 parent = null;
     private String eosSerial;
     private String port;
     private String id;
@@ -44,7 +44,7 @@ public class G2P5 {
     	
     }
     
-    private G2P5(PApplet parent, String eosSerial, String port, String id){
+    private G2P5(ManuCapture_v1_1 parent, String eosSerial, String port, String id){
     	this.parent = parent;
     	this.eosSerial = eosSerial;
     	this.id = id;
@@ -166,7 +166,7 @@ public class G2P5 {
 
 		System.setOut(new TracingPrintStream(System.out));
 		
-		String fullPath = parent.sketchPath() + "/data/" + id + ".cr2";
+		String fullPath = parent.homeDirectory() + id + ".cr2";
 		String commandToRun = "gphoto2 --capture-tethered --port " + port + " --force-overwrite --filename " + fullPath;
 		PApplet.println(commandToRun);
 
@@ -328,7 +328,7 @@ public class G2P5 {
 	   return imageCounter;	
 	}
 	
-    public static G2P5 create(PApplet parent, String eosSerial, String id) {
+    public static G2P5 create(ManuCapture_v1_1 parent, String eosSerial, String id) {
     	String port = getCameraPort(eosSerial);
     	G2P5 camera = new G2P5(parent,eosSerial,port,id);
      	return camera;

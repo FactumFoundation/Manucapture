@@ -349,6 +349,11 @@ public class Project {
 	private void deleteAllFiles(String targetFilePath, String suf) {
 		context.parent.println("delete all " + suf + "files " + targetFilePath);
 		File storageDir = new File(targetFilePath);
+		
+		if(!storageDir.exists()){
+			storageDir.mkdir();
+		}
+		
 		for (File tempFile : storageDir.listFiles()) {
 			if (tempFile.getName().endsWith(suf))
 				tempFile.delete();
@@ -493,7 +498,7 @@ public class Project {
 	public void loadRightPreview() {
 		if (!nextRightImagePath.equals("")) {
 
-			String previewFolder = context.parent.sketchPath() + "/data/preview_right/";
+			String previewFolder = context.parent.homeDirectory() + "/preview_right/";
 
 			// Clear preview folder
 			deleteAllFiles(previewFolder, ".jpg");
@@ -564,7 +569,7 @@ public class Project {
 	public void loadLeftPreview() {
 		if (!nextLeftImagePath.equals("")) {
 
-			String previewFolder = context.parent.sketchPath() + "/data/preview_left/";
+			String previewFolder = context.parent.homeDirectory() + "/preview_left/";
 
 			deleteAllFiles(previewFolder, ".jpg");
 

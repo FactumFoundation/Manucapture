@@ -4,7 +4,7 @@ import processing.core.PApplet;
 
 public class ManuCaptureContext {
 
-	PApplet parent;
+	ManuCapture_v1_1 parent;
 
 	RawFile thumbnail;
 

@@ -186,6 +186,8 @@ public class ManuCapture_v1_1 extends PApplet {
 	PVector lastPressedR = null;
 	PVector lastPressedL = null;
 
+	int liveViewActive = -1;
+
 	public void _println(String message) {
 		int s = second(); // Values from 0 - 59
 		int min = minute(); // Values from 0 - 59
@@ -203,6 +205,7 @@ public class ManuCapture_v1_1 extends PApplet {
 
 	public void setup() {
 
+		
 		System.setOut(new TracingPrintStream(System.out));
 
 		context.parent = this;
@@ -225,9 +228,9 @@ public class ManuCapture_v1_1 extends PApplet {
 
 		G2P5.init(0);
 		context.gphotoA = G2P5.create(this, serialCameraA, "A");
-		context.gphotoA.setTargetFile(sketchPath(), "test");
+		context.gphotoA.setTargetFile(homeDirectory(), "test");
 		context.gphotoB = G2P5.create(this, serialCameraB, "B");
-		context.gphotoB.setTargetFile(sketchPath(), "test");
+		context.gphotoB.setTargetFile(homeDirectory(), "test");
 
 		surface.setTitle("ManuCapture v1");
 		G4P.messagesEnabled(false);
@@ -259,10 +262,34 @@ public class ManuCapture_v1_1 extends PApplet {
 	boolean loadData = true;
 
 	public void draw() {
+		
+		
 
 		background(75);
 
-//		ellipse(marginLeftViewerRight, marginTopViewer, 125, 125);
+		 if (liveViewActive == 1) {
+
+				context.gphotoA.setActive(false);
+				context.gphotoB.setActive(false);
+
+				G2P5.killAllGphotoProcess();
+
+				String command = "/home/factum/git/book_scanner/bookScanner/Manucapture/GPhotoLiveView/bin/GPhotoLiveView_debug";
+				try {
+					Process process = Runtime.getRuntime().exec(command);
+					process.waitFor();
+
+				} catch (Exception e) {
+					e.printStackTrace();
+				} finally {
+					G2P5.killAllGphotoProcess();
+					camera_B_connected_click(null, null);
+					camera_A_connected_click(null, null);
+					liveViewActive = -1;
+				}
+			}
+		
+		// ellipse(marginLeftViewerRight, marginTopViewer, 125, 125);
 
 		if (loadData) {
 			thread("loadLastSessionData");
@@ -317,7 +344,15 @@ public class ManuCapture_v1_1 extends PApplet {
 
 		fill(255, 0, 0);
 
-//		rect(marginLeftViewerLeft, marginTopViewer, 100, 100);
+		if (liveViewActive == 0) {
+			fill(100, 100);
+			rect(0, 0, width, height);
+			textSize(32);
+			fill(255,0,0);
+			text("LIVEVIEW MODE ENABLED", width / 2-100, height / 2);
+			liveViewActive++;
+		} 
+		// rect(marginLeftViewerLeft, marginTopViewer, 100, 100);
 
 	}
 
@@ -727,15 +762,14 @@ public class ManuCapture_v1_1 extends PApplet {
 		if (mouseButton == LEFT) {
 			if (lastPressedL == null)
 				updateZoomLeft();
-//			else
-//				lastPressedL = null;
-			
+			// else
+			// lastPressedL = null;
+
 			if (lastPressedR == null)
 				updateZoomRight();
-//			else
-//				lastPressedR = null;
-			
-			
+			// else
+			// lastPressedR = null;
+
 		}
 		if (mouseButton == RIGHT) {
 			lastPressedR = null;
@@ -1278,6 +1312,11 @@ public class ManuCapture_v1_1 extends PApplet {
 
 		return false;
 	}
+	
+	public String homeDirectory(){
+		String pathApp = System.getProperty("user.home")+"/.manucapture";
+		return pathApp;
+	}
 
 	/*
 	 * ========================================================= ==== WARNING
@@ -1409,7 +1448,7 @@ public class ManuCapture_v1_1 extends PApplet {
 		println("button1 - GButton >> GEvent." + event + " @ " + millis());
 		if (!context.gphotoA.isConnected()) {
 			context.gphotoA = G2P5.create(this, serialCameraA, "A");
-			context.gphotoA.setTargetFile(sketchPath(), "test");
+			context.gphotoA.setTargetFile(homeDirectory(), "test");
 		}
 	} // _CODE_:camera_A_connected_button:265149:
 
@@ -1436,7 +1475,7 @@ public class ManuCapture_v1_1 extends PApplet {
 		println("camera_B_connected_button - GButton >> GEvent." + event + " @ " + millis());
 		if (!context.gphotoB.isConnected()) {
 			context.gphotoB = G2P5.create(this, serialCameraB, "B");
-			context.gphotoB.setTargetFile(sketchPath(), "test");
+			context.gphotoB.setTargetFile(homeDirectory(), "test");
 		}
 	} // _CODE_:camera_B_connected_button:564189:
 
@@ -1485,7 +1524,10 @@ public class ManuCapture_v1_1 extends PApplet {
 	} // _CODE_:page_search_text:741750:
 
 	public void liveView_button_click(GButton source, GEvent event) { // _CODE_:export_button:581416:
-		println("export_button - GButton >> GEvent." + event + " @ " + millis());
+		// println("export_button - GButton >> GEvent." + event + " @ " +
+		// millis());
+		liveViewActive = 0;
+
 	} // _CODE_:export_button:581416:
 
 	public void settings() {
