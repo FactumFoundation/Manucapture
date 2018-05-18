@@ -49,7 +49,7 @@ public class Project {
 
 	String nextLeftImagePath = "";
 	String nextRightImagePath = "";
-	
+
 	private int resW = 3000;
 
 	public synchronized void loadProjectMethod(String projectPath) {
@@ -349,11 +349,11 @@ public class Project {
 	private void deleteAllFiles(String targetFilePath, String suf) {
 		context.parent.println("delete all " + suf + "files " + targetFilePath);
 		File storageDir = new File(targetFilePath);
-		
-		if(!storageDir.exists()){
-			storageDir.mkdir();
+
+		if (!storageDir.exists()) {
+			storageDir.mkdirs();
 		}
-		
+
 		for (File tempFile : storageDir.listFiles()) {
 			if (tempFile.getName().endsWith(suf))
 				tempFile.delete();
@@ -522,8 +522,8 @@ public class Project {
 
 			// command = "convert " + previewFullPath + " -resize 1000x667 " +
 			// resizedImageFullPath;
-			command = "/home/factum/git/book_scanner/bookScanner/Manucapture/epegbin/epeg -w "+resW+" -p -q 100 "
-					+ previewFullPath + " " + resizedImageFullPath.replace(".jpg", "-rot.jpg");
+			command = context.appPath + "/epeg-master/src/bin/epeg -w " + resW + " -p -q 100 " + previewFullPath + " "
+					+ resizedImageFullPath.replace(".jpg", "-rot.jpg");
 			System.out.println("end command exiv2, start resize " + command);
 			try {
 				Process process = Runtime.getRuntime().exec(command);
@@ -590,7 +590,7 @@ public class Project {
 
 			// command = "convert " + previewFullPath + " -resize 1000x667 " +
 			// resizedImageFullPath;
-			command = "/home/factum/git/book_scanner/bookScanner/Manucapture/epegbin/epeg -w "+resW+" -p -q 100 "
+			command = context.appPath+"/epeg-master/src/bin/epeg -w " + resW + " -p -q 100 "
 					+ previewFullPath + " " + resizedImageFullPath.replace(".jpg", "-rot.jpg");
 			System.out.println("end command exiv2, start resize " + command);
 			try {

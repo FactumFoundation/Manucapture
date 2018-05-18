@@ -22,4 +22,6 @@ public class ManuCaptureContext {
 	boolean renderLeft = true;
 	boolean renderRight = true;
 	
+	String appPath = "/home/factum/git/book_scanner/bookScanner/Manucapture";
+	
 }

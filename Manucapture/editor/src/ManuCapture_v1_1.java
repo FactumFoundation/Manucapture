@@ -212,6 +212,7 @@ public class ManuCapture_v1_1 extends PApplet {
 		context.thumbnail = new RawFile();
 		context.parent = this;
 		context.gui = new GUI();
+		context.appPath = sketchPath()+"/..";
 
 		project = new Project();
 		project.context = context;
