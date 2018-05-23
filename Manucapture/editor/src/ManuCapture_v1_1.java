@@ -26,45 +26,43 @@ public class ManuCapture_v1_1 extends PApplet {
 	/*
 	 * ManuCapture.pde A Visual tool for recording books using DSLR Cameras
 	 * 
-	 * This source file is part of the ManuCapture software For the latest info,
-	 * see http://www.factumfoundation.org/pag/235/Digitisation-of-oriental-
+	 * This source file is part of the ManuCapture software For the latest info, see
+	 * http://www.factumfoundation.org/pag/235/Digitisation-of-oriental-
 	 * manuscripts-in-Daghestan
 	 * 
-	 * Copyright (c) 2016-2018 Jorge Cano and Enrique Esteban in Factum
-	 * Foundation
+	 * Copyright (c) 2016-2018 Jorge Cano and Enrique Esteban in Factum Foundation
 	 * 
-	 * This program is free software; you can redistribute it and/or modify it
-	 * under the terms of the GNU General Public License as published by the
-	 * Free Software Foundation; either version 2 of the License, or (at your
-	 * option) any later version.
+	 * This program is free software; you can redistribute it and/or modify it under
+	 * the terms of the GNU General Public License as published by the Free Software
+	 * Foundation; either version 2 of the License, or (at your option) any later
+	 * version.
 	 * 
-	 * This program is distributed in the hope that it will be useful, but
-	 * WITHOUT ANY WARRANTY; without even the implied warranty of
-	 * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
-	 * Public License for more details.
+	 * This program is distributed in the hope that it will be useful, but WITHOUT
+	 * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+	 * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+	 * details.
 	 * 
-	 * You should have received a copy of the GNU General Public License along
-	 * with this program; if not, write to the Free Software Foundation, Inc.,
-	 * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+	 * You should have received a copy of the GNU General Public License along with
+	 * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
+	 * Place, Suite 330, Boston, MA 02111-1307 USA
 	 */
 
 	/*
 	 * 
 	 * Todo:
 	 * 
-	 * Viewer: Left image correspons to the left -> should be on the right
-	 * Switch images Left is upside down and right is mirrored Botón para
-	 * extraer snapshots
+	 * Viewer: Left image correspons to the left -> should be on the right Switch
+	 * images Left is upside down and right is mirrored Botón para extraer snapshots
 	 * 
 	 * 
 	 * Editor: Procesar lista de thumbnails pendientes en un thread aparte y
-	 * metadatos en un thread aparte Calibration: Definir con Pereira Al iniciar
-	 * no se situa en el útimo elemento Cajas de texto adaptables al tamaño, no
-	 * funcionansaltos de linea Activar/Desactiva camaras Feedback visual de que
-	 * se está capturando foto (cambiar background a anaranjado)
+	 * metadatos en un thread aparte Calibration: Definir con Pereira Al iniciar no
+	 * se situa en el útimo elemento Cajas de texto adaptables al tamaño, no
+	 * funcionansaltos de linea Activar/Desactiva camaras Feedback visual de que se
+	 * está capturando foto (cambiar background a anaranjado)
 	 * 
-	 * Al añadir subpágina no se suman todas las páginas sub siguientes AL
-	 * eliminar subpágina que no se renombren las siguientes
+	 * Al añadir subpágina no se suman todas las páginas sub siguientes AL eliminar
+	 * subpágina que no se renombren las siguientes
 	 * 
 	 */
 
@@ -191,6 +189,8 @@ public class ManuCapture_v1_1 extends PApplet {
 
 	int liveViewActive = -1;
 
+	boolean mock = true;
+
 	public void _println(String message) {
 		int s = second(); // Values from 0 - 59
 		int min = minute(); // Values from 0 - 59
@@ -208,18 +208,22 @@ public class ManuCapture_v1_1 extends PApplet {
 
 	public void setup() {
 
-		
 		System.setOut(new TracingPrintStream(System.out));
 
 		context.parent = this;
 		context.thumbnail = new RawFile();
 		context.parent = this;
 		context.gui = new GUI();
-		context.appPath = sketchPath()+"/..";
+		context.appPath = sketchPath() + "/..";
 
 		project = new Project();
 		project.context = context;
 
+		String home = homeDirectory();
+		File file = new File(home);
+		if(!file.exists()) {
+			file.mkdir();
+		}
 		context.project = project;
 
 		if (surface != null) {
@@ -229,24 +233,32 @@ public class ManuCapture_v1_1 extends PApplet {
 		XML serialXML = loadXML("cameraSerials.xml");
 		serialCameraA = serialXML.getChild("Camera_A").getContent();
 		serialCameraB = serialXML.getChild("Camera_B").getContent();
-		
+
 		String rotA = serialXML.getChild("Camera_A").getString("rotation");
 		String rotB = serialXML.getChild("Camera_B").getString("rotation");
-		
-		if(rotA != null)
-		context.rotA = Integer.parseInt(rotA);
-		
-		if(rotB!= null)
-		context.rotB = Integer.parseInt(rotB);
-				
-		System.out.println("camera A rotation"+rotA);
-		System.out.println("camera B rotation"+rotB);
 
-		G2P5.init(0);
-		context.gphotoA = G2P5.create(this, serialCameraA, "A");
-		context.gphotoA.setTargetFile(homeDirectory(), "test");
-		context.gphotoB = G2P5.create(this, serialCameraB, "B");
-		context.gphotoB.setTargetFile(homeDirectory(), "test");
+		if (rotA != null)
+			context.rotA = Integer.parseInt(rotA);
+
+		if (rotB != null)
+			context.rotB = Integer.parseInt(rotB);
+
+		System.out.println("camera A rotation" + rotA);
+		System.out.println("camera B rotation" + rotB);
+
+		if (mock) {
+			context.gphotoA = G2P5MockDisk.create(this, serialCameraA, "A");
+			context.gphotoA.setTargetFile(homeDirectory(), "test");
+			context.gphotoB = G2P5MockDisk.create(this, serialCameraB, "B");
+			context.gphotoB.setTargetFile(homeDirectory(), "test");
+		} else {
+
+			G2P5.init(0);
+			context.gphotoA = G2P5.create(this, serialCameraA, "A");
+			context.gphotoA.setTargetFile(homeDirectory(), "test");
+			context.gphotoB = G2P5.create(this, serialCameraB, "B");
+			context.gphotoB.setTargetFile(homeDirectory(), "test");
+		}
 
 		surface.setTitle("ManuCapture v1");
 		G4P.messagesEnabled(false);
@@ -1342,14 +1354,14 @@ public class ManuCapture_v1_1 extends PApplet {
 	}
 
 	/*
-	 * ========================================================= ==== WARNING
-	 * === ========================================================= The code in
-	 * this tab has been generated from the GUI form designer and care should be
-	 * taken when editing this file. Only add/edit code inside the event
-	 * handlers i.e. only use lines between the matching comment tags. e.g.
+	 * ========================================================= ==== WARNING ===
+	 * ========================================================= The code in this
+	 * tab has been generated from the GUI form designer and care should be taken
+	 * when editing this file. Only add/edit code inside the event handlers i.e.
+	 * only use lines between the matching comment tags. e.g.
 	 * 
-	 * void myBtnEvents(GButton button) { //_CODE_:button1:12356: // It is safe
-	 * to enter your event code here } //_CODE_:button1:12356:
+	 * void myBtnEvents(GButton button) { //_CODE_:button1:12356: // It is safe to
+	 * enter your event code here } //_CODE_:button1:12356:
 	 * 
 	 * Do not rename this tab!
 	 * =========================================================
@@ -1572,8 +1584,8 @@ public class ManuCapture_v1_1 extends PApplet {
 
 		/*
 		 * GraphicsEnvironment environment =
-		 * GraphicsEnvironment.getLocalGraphicsEnvironment(); GraphicsDevice
-		 * devices[] = environment.getScreenDevices();
+		 * GraphicsEnvironment.getLocalGraphicsEnvironment(); GraphicsDevice devices[] =
+		 * environment.getScreenDevices();
 		 * 
 		 * if(devices.length>1 ){ //we have a 2nd display/projector
 		 * 

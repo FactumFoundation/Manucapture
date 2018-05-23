@@ -20,31 +20,31 @@ import processing.opengl.*;
 
 public class G2P5 {
 	
-    private ManuCapture_v1_1 parent = null;
+    protected ManuCapture_v1_1 parent = null;
     private String eosSerial;
     private String port;
-    private String id;
+    protected String id;
     private boolean active = false;
     private boolean tethering = false;
-    private String targetFileName;
-    private String folderPath;
+    protected String targetFileName;
+    protected String folderPath;
     private int actionCode;
     
     private int  CAMERA_IDLE = 0;
     private int CAMERA_CAPTURE = 1;
     private int CAMERA_INACTIVE = -1;
     
-    
+    protected String fullTargetPath = "";
     TetheredCaptureThread t;
     
     static int imageCounter;
     
     
-    private G2P5(){
+    public G2P5(){
     	
     }
     
-    private G2P5(ManuCapture_v1_1 parent, String eosSerial, String port, String id){
+    public G2P5(ManuCapture_v1_1 parent, String eosSerial, String port, String id){
     	this.parent = parent;
     	this.eosSerial = eosSerial;
     	this.id = id;
@@ -107,7 +107,7 @@ public class G2P5 {
     	this.folderPath = folderPath;
     }
     
-    private String fullTargetPath = "";
+    
     
     public void setFullTargetPath(){
     	fullTargetPath = folderPath + "/" + targetFileName + "_" + id + "_" + getImageCount()+ ".cr2";
