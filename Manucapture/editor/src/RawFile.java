@@ -42,9 +42,9 @@ public class RawFile {
 		int angle = 270;
 		boolean mirrorThumbnail = false;
 		if (rightImg)
-			angle = 270;
+			angle = context.rotA;
 		else
-			angle = 90;
+			angle = context.rotB;
 
 		String commandRotate;
 		if (mirrorThumbnail) {

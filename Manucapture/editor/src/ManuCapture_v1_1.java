@@ -169,6 +169,9 @@ public class ManuCapture_v1_1 extends PApplet {
 
 	String serialCameraA;
 	String serialCameraB;
+	
+//	int rotA = 0;
+//	int rotB = 0;
 
 	String newImagePathA = "";
 	String newImagePathB = "";
@@ -226,6 +229,15 @@ public class ManuCapture_v1_1 extends PApplet {
 		XML serialXML = loadXML("cameraSerials.xml");
 		serialCameraA = serialXML.getChild("Camera_A").getContent();
 		serialCameraB = serialXML.getChild("Camera_B").getContent();
+		
+		String rotA = serialXML.getChild("Camera_A").getString("rotation");
+		String rotB = serialXML.getChild("Camera_B").getString("rotation");
+		
+		context.rotA = Integer.parseInt(rotA);
+		context.rotB = Integer.parseInt(rotB);
+				
+		System.out.println("camera A rotation"+rotA);
+		System.out.println("camera B rotation"+rotB);
 
 		G2P5.init(0);
 		context.gphotoA = G2P5.create(this, serialCameraA, "A");
@@ -275,7 +287,7 @@ public class ManuCapture_v1_1 extends PApplet {
 
 				G2P5.killAllGphotoProcess();
 
-				String command = "/home/factum/git/book_scanner/bookScanner/Manucapture/GPhotoLiveView/bin/GPhotoLiveView_debug";
+				String command =  context.appPath+"/GPhotoLiveView/bin/GPhotoLiveView_debug";
 				try {
 					Process process = Runtime.getRuntime().exec(command);
 					process.waitFor();
@@ -353,9 +365,20 @@ public class ManuCapture_v1_1 extends PApplet {
 			text("LIVEVIEW MODE ENABLED", width / 2-100, height / 2);
 			liveViewActive++;
 		} 
+		
+		
+		//stroke(0,0,255);
+		//line(0,guideHeight_1,width,guideHeight_1);
+		//stroke(0,255,0);	
+		//line(0,guideHeight_2,width,guideHeight_2);
+
+		
 		// rect(marginLeftViewerLeft, marginTopViewer, 100, 100);
 
 	}
+
+	int guideHeight_1 = 200;
+	int guideHeight_2 = 600;
 
 	int wImageViewerSize = 1000;
 	int hImageViewerSize = 667;

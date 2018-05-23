@@ -24,4 +24,7 @@ public class ManuCaptureContext {
 	
 	String appPath = "/home/factum/git/book_scanner/bookScanner/Manucapture";
 	
+	int rotA = 0;
+	int rotB = 0;
+	
 }

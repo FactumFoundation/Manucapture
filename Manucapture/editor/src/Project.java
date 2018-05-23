@@ -538,7 +538,7 @@ public class Project {
 					context.parent.println(err);
 				}
 
-				command = "convert " + resizedImageFullPath.replace(".jpg", "-rot.jpg") + " -rotate 270 "
+				command = "convert " + resizedImageFullPath.replace(".jpg", "-rot.jpg") + " -rotate "+context.rotA+" "
 						+ resizedImageFullPath;
 				System.out.println("comando " + command);
 				try {
@@ -606,7 +606,7 @@ public class Project {
 					context.parent.println(err);
 				}
 
-				command = "convert " + resizedImageFullPath.replace(".jpg", "-rot.jpg") + " -rotate 90 "
+				command = "convert " + resizedImageFullPath.replace(".jpg", "-rot.jpg") + " -rotate "+context.rotB+" "
 						+ resizedImageFullPath;
 				System.out.println("comando " + command);
 				try {
