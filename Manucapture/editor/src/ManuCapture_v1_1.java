@@ -169,9 +169,9 @@ public class ManuCapture_v1_1 extends PApplet {
 
 	String serialCameraA;
 	String serialCameraB;
-	
-//	int rotA = 0;
-//	int rotB = 0;
+
+	// int rotA = 0;
+	// int rotB = 0;
 
 	String newImagePathA = "";
 	String newImagePathB = "";
@@ -233,7 +233,10 @@ public class ManuCapture_v1_1 extends PApplet {
 		String rotA = serialXML.getChild("Camera_A").getString("rotation");
 		String rotB = serialXML.getChild("Camera_B").getString("rotation");
 		
+		if(rotA != null)
 		context.rotA = Integer.parseInt(rotA);
+		
+		if(rotB!= null)
 		context.rotB = Integer.parseInt(rotB);
 				
 		System.out.println("camera A rotation"+rotA);
@@ -275,33 +278,31 @@ public class ManuCapture_v1_1 extends PApplet {
 	boolean loadData = true;
 
 	public void draw() {
-		
-		
 
 		background(75);
 
-		 if (liveViewActive == 1) {
+		if (liveViewActive == 1) {
 
-				context.gphotoA.setActive(false);
-				context.gphotoB.setActive(false);
+			context.gphotoA.setActive(false);
+			context.gphotoB.setActive(false);
 
+			G2P5.killAllGphotoProcess();
+
+			String command = context.appPath + "/GPhotoLiveView/bin/GPhotoLiveView_debug";
+			try {
+				Process process = Runtime.getRuntime().exec(command);
+				process.waitFor();
+
+			} catch (Exception e) {
+				e.printStackTrace();
+			} finally {
 				G2P5.killAllGphotoProcess();
-
-				String command =  context.appPath+"/GPhotoLiveView/bin/GPhotoLiveView_debug";
-				try {
-					Process process = Runtime.getRuntime().exec(command);
-					process.waitFor();
-
-				} catch (Exception e) {
-					e.printStackTrace();
-				} finally {
-					G2P5.killAllGphotoProcess();
-					camera_B_connected_click(null, null);
-					camera_A_connected_click(null, null);
-					liveViewActive = -1;
-				}
+				camera_B_connected_click(null, null);
+				camera_A_connected_click(null, null);
+				liveViewActive = -1;
 			}
-		
+		}
+
 		// ellipse(marginLeftViewerRight, marginTopViewer, 125, 125);
 
 		if (loadData) {
@@ -361,18 +362,16 @@ public class ManuCapture_v1_1 extends PApplet {
 			fill(100, 100);
 			rect(0, 0, width, height);
 			textSize(32);
-			fill(255,0,0);
-			text("LIVEVIEW MODE ENABLED", width / 2-100, height / 2);
+			fill(255, 0, 0);
+			text("LIVEVIEW MODE ENABLED", width / 2 - 100, height / 2);
 			liveViewActive++;
-		} 
-		
-		
-		//stroke(0,0,255);
-		//line(0,guideHeight_1,width,guideHeight_1);
-		//stroke(0,255,0);	
-		//line(0,guideHeight_2,width,guideHeight_2);
+		}
 
-		
+		// stroke(0,0,255);
+		// line(0,guideHeight_1,width,guideHeight_1);
+		// stroke(0,255,0);
+		// line(0,guideHeight_2,width,guideHeight_2);
+
 		// rect(marginLeftViewerLeft, marginTopViewer, 100, 100);
 
 	}
@@ -1336,9 +1335,9 @@ public class ManuCapture_v1_1 extends PApplet {
 
 		return false;
 	}
-	
-	public String homeDirectory(){
-		String pathApp = System.getProperty("user.home")+"/.manucapture";
+
+	public String homeDirectory() {
+		String pathApp = System.getProperty("user.home") + "/.manucapture";
 		return pathApp;
 	}
 
