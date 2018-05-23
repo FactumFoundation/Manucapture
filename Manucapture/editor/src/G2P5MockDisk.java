@@ -23,7 +23,7 @@ public class G2P5MockDisk extends G2P5 {
 	public boolean capture() {
 		String fullPath = parent.homeDirectory();
 
-		String datasetPath = context.appPath + "/dataset/"+index+"/";
+		String datasetPath = context.appPath + "/dataset/" + index + "/";
 		File file = new File(datasetPath);
 
 		for (File tempFile : file.listFiles()) {
@@ -31,7 +31,7 @@ public class G2P5MockDisk extends G2P5 {
 				targetFileName = tempFile.getName();
 		}
 
-		String commandGenerate = "cp " +datasetPath+targetFileName + " " + getFullTargetPath();
+		String commandGenerate = "cp " + datasetPath + targetFileName + " " + getFullTargetPath();
 		context.parent.println(commandGenerate);
 		try {
 			String[] commands = new String[] { "/bin/sh", "-c", commandGenerate };
@@ -44,8 +44,13 @@ public class G2P5MockDisk extends G2P5 {
 			}
 			inputStream.close();
 			bufferedReader.close();
-			invokePhotoEvent();	
-			index++;
+			invokePhotoEvent();
+			
+			if (index < 3)
+				index++;
+			else
+				index = 0;
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -56,7 +61,7 @@ public class G2P5MockDisk extends G2P5 {
 	@Override
 	public String getFullTargetPath() {
 
-		fullTargetPath = folderPath+ "/" + targetFileName;
+		fullTargetPath = folderPath + "/" + targetFileName;
 		return fullTargetPath;
 		// return super.getFullTargetPath();
 	}
@@ -65,7 +70,7 @@ public class G2P5MockDisk extends G2P5 {
 		G2P5 camera = new G2P5MockDisk(parent, eosSerial, null, id);
 		return camera;
 	}
-	
+
 	@Override
 	public boolean isConnected() {
 		return true;
