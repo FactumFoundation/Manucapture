@@ -779,7 +779,8 @@ public class ManuCapture_v1_1 extends PApplet {
 							if ((mouseX > cancelButtonX) && (mouseX < (cancelButtonX + removeIconSize))) {
 								if ((mouseY > cancelButtonY) && (mouseY < (cancelButtonY + removeIconSize))) {
 									if (shutterMode != REPEAT_SHUTTER) {
-										removeItem(i);
+										project.removeItem(i);
+										forceSelectedItem(i, true);
 									} else {
 										clearItem(i);
 									}
@@ -1077,44 +1078,7 @@ public class ManuCapture_v1_1 extends PApplet {
 
 	}
 
-	public void removeItem(int index) {
-		Item itemToRemove = project.items.get(index);
-		String type = itemToRemove.type;
-		float pageNum = itemToRemove.pagNum;
-
-		ArrayList<Item> items = project.items;
-
-		items.remove(index);
-
-		if (itemToRemove.type.equals("Item")) {
-			if (index < items.size()) {
-				for (int i = index; i < items.size(); i++) {
-					items.get(i).pagNum--;
-				}
-			}
-		} else {
-			if (index < items.size() - 1) {
-				for (int i = index; i < items.size() - 1; i++) {
-					if ((int) items.get(i).pagNum == (int) pageNum) {
-						if (items.get(i).pagNum - (int) items.get(i).pagNum > pageNum - (int) pageNum) {
-							float newPageNum = round((items.get(i).pagNum - 0.1f) * 10) / 10.0f;
-							items.get(i).pagNum = newPageNum;
-						}
-					}
-
-				}
-			}
-		}
-		project.selectedItemIndex = min(index, items.size() - 1);
-		if (project.selectedItemIndex >= 0 && items.size() > 0) {
-			project.selectItem(project.selectedItemIndex);
-		}
-		forceSelectedItem(project.selectedItemIndex, true);
-		project.saveProjectXML();
-		project.removeUnusedImages();
-
-	}
-
+	
 	public synchronized void addItem(int index, Item newItem) {
 		ArrayList<Item> items = project.items;
 		if (index >= 0) {

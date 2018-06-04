@@ -11,6 +11,7 @@ import org.apache.commons.io.FilenameUtils;
 
 import g4p_controls.G4P;
 import oscP5.OscMessage;
+import processing.core.PApplet;
 import processing.core.PImage;
 import processing.data.XML;
 
@@ -97,6 +98,19 @@ public class Project {
 				}
 			} else {
 				context.parent.println("Failed to create thumbnail directory!");
+			}
+		}
+
+		File previewsFolder = new File(projectDirectory + "/previews");
+		if (!previewsFolder.exists()) {
+			if (previewsFolder.mkdir()) {
+				try {
+					Runtime.getRuntime().exec("chmod -R ugo+rw " + previewsFolder.getPath());
+				} catch (Exception e) {
+					context.parent.println("Couldn't create previews directory permisions");
+				}
+			} else {
+				context.parent.println("Failed to create previews directory!");
 			}
 		}
 
@@ -498,140 +512,207 @@ public class Project {
 	public void loadRightPreview() {
 		if (!nextRightImagePath.equals("")) {
 
-			String previewFolder = context.parent.homeDirectory() + "/preview_right/";
+			String previewFolder = projectDirectory + "/preview_right/";
 
 			// Clear preview folder
 			deleteAllFiles(previewFolder, ".jpg");
 
-			File itemImgRight = new File(nextRightImagePath);
-			String fileName = FilenameUtils.removeExtension(itemImgRight.getName());
-			String resizedImage = "right_preview.jpg";
-			String previewName = fileName + "-preview3.jpg";
-			String previewFullPath = previewFolder + previewName;
-			String resizedImageFullPath = previewFolder + resizedImage;
-			lastRightImagePath = previewFullPath;
+			String previewFile = nextRightImagePath.replace(".cr2", ".jpg").replace("/raw/", "/previews/");
 
-			String command = "exiv2 -ep3 -l " + previewFolder + " " + nextRightImagePath;
-			System.out.println("comando " + command);
-			try {
-				Process process = Runtime.getRuntime().exec(command);
-				process.waitFor();
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+			if (new File(previewFile).exists()) {
+				previewImgRight = context.parent.loadImage(previewFile);
+			} else {
 
-			// command = "convert " + previewFullPath + " -resize 1000x667 " +
-			// resizedImageFullPath;
-			command = context.appPath + "/epeg-master/src/bin/epeg -w " + resW + " -p -q 100 " + previewFullPath + " "
-					+ resizedImageFullPath.replace(".jpg", "-rot.jpg");
-			System.out.println("end command exiv2, start resize " + command);
-			try {
-				Process process = Runtime.getRuntime().exec(command);
-				InputStream error = process.getErrorStream();
+				File itemImgRight = new File(nextRightImagePath);
+				String fileName = FilenameUtils.removeExtension(itemImgRight.getName());
+				String resizedImage = "right_preview.jpg";
+				String previewName = fileName + "-preview3.jpg";
+				String previewFullPath = previewFolder + previewName;
+				String resizedImageFullPath = previewFolder + resizedImage;
+				lastRightImagePath = previewFullPath;
 
-				process.waitFor();
-				String err = "Error:";
-				for (int i = 0; i < error.available(); i++) {
-					err += (char) error.read();
-				}
-				if (!err.equals("Error:")) {
-					context.parent.println(err);
-				}
-
-				command = "convert " + resizedImageFullPath.replace(".jpg", "-rot.jpg") + " -rotate "+context.rotA+" "
-						+ resizedImageFullPath;
+				String command = "exiv2 -ep3 -l " + previewFolder + " " + nextRightImagePath;
 				System.out.println("comando " + command);
 				try {
-					process = Runtime.getRuntime().exec(command);
+					Process process = Runtime.getRuntime().exec(command);
 					process.waitFor();
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
 
-				System.out.println("end convert, start loadimage");
+				// command = "convert " + previewFullPath + " -resize 1000x667 " +
+				// resizedImageFullPath;
+				command = context.appPath + "/epeg-master/src/bin/epeg -w " + resW + " -p -q 100 " + previewFullPath
+						+ " " + resizedImageFullPath.replace(".jpg", "-rot.jpg");
+				System.out.println("end command exiv2, start resize " + command);
+				try {
+					Process process = Runtime.getRuntime().exec(command);
+					InputStream error = process.getErrorStream();
 
-				// String newPath = previewFullPath.replace(".jpg",
-				// "_IMGP.jpg");
+					process.waitFor();
+					String err = "Error:";
+					for (int i = 0; i < error.available(); i++) {
+						err += (char) error.read();
+					}
+					if (!err.equals("Error:")) {
+						context.parent.println(err);
+					}
 
-				// Files.move(Paths.get(newPath),
-				// Paths.get(resizedImageFullPath),
-				// StandardCopyOption.REPLACE_EXISTING);
-				previewImgRight = context.parent.loadImage(resizedImageFullPath);
-				context.renderRight = true;
-				System.out.println("end loadimage, FINISH loadRightPreview " + resizedImageFullPath);
-			} catch (Exception e) {
-				e.printStackTrace();
+					command = "convert " + resizedImageFullPath.replace(".jpg", "-rot.jpg") + " -rotate " + context.rotA
+							+ " " + resizedImageFullPath;
+					System.out.println("comando " + command);
+					try {
+						process = Runtime.getRuntime().exec(command);
+						process.waitFor();
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+
+					command = "cp " + resizedImageFullPath + " " + previewFile;
+					System.out.println("comando " + command);
+					try {
+						process = Runtime.getRuntime().exec(command);
+						process.waitFor();
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+
+					System.out.println("end convert, start loadimage");
+
+					// String newPath = previewFullPath.replace(".jpg",
+					// "_IMGP.jpg");
+
+					// Files.move(Paths.get(newPath),
+					// Paths.get(resizedImageFullPath),
+					// StandardCopyOption.REPLACE_EXISTING);
+					previewImgRight = context.parent.loadImage(resizedImageFullPath);
+					context.renderRight = true;
+					System.out.println("end loadimage, FINISH loadRightPreview " + resizedImageFullPath);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+
 			}
-
 		}
 	}
 
 	public void loadLeftPreview() {
 		if (!nextLeftImagePath.equals("")) {
 
-			String previewFolder = context.parent.homeDirectory() + "/preview_left/";
+			String previewFile = nextLeftImagePath.replace(".cr2", ".jpg").replace("/raw/", "/previews/");
+
+			String previewFolder = projectDirectory + "/preview_left/";
 
 			deleteAllFiles(previewFolder, ".jpg");
 
-			File itemImgLeft = new File(nextLeftImagePath);
-			String fileName = FilenameUtils.removeExtension(itemImgLeft.getName());
-			String resizedImage = "left_preview.jpg";
-			String previewName = fileName + "-preview3.jpg";
-			String previewFullPath = previewFolder + previewName;
-			String resizedImageFullPath = previewFolder + resizedImage;
-			String command = "exiv2 -ep3 -l " + previewFolder + " " + nextLeftImagePath;
-			lastLeftImagePath = previewFullPath;
-			try {
-				Process process = Runtime.getRuntime().exec(command);
-				process.waitFor();
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+			if (new File(previewFile).exists()) {
+				previewImgLeft = context.parent.loadImage(previewFile);
+			} else {
 
-			// command = "convert " + previewFullPath + " -resize 1000x667 " +
-			// resizedImageFullPath;
-			command = context.appPath+"/epeg-master/src/bin/epeg -w " + resW + " -p -q 100 "
-					+ previewFullPath + " " + resizedImageFullPath.replace(".jpg", "-rot.jpg");
-			System.out.println("end command exiv2, start resize " + command);
-			try {
-				Process process = Runtime.getRuntime().exec(command);
-				InputStream error = process.getErrorStream();
-
-				process.waitFor();
-				String err = "Error:";
-				for (int i = 0; i < error.available(); i++) {
-					err += (char) error.read();
-				}
-				if (!err.equals("Error:")) {
-					context.parent.println(err);
-				}
-
-				command = "convert " + resizedImageFullPath.replace(".jpg", "-rot.jpg") + " -rotate "+context.rotB+" "
-						+ resizedImageFullPath;
-				System.out.println("comando " + command);
+				File itemImgLeft = new File(nextLeftImagePath);
+				String fileName = FilenameUtils.removeExtension(itemImgLeft.getName());
+				String resizedImage = "left_preview.jpg";
+				String previewName = fileName + "-preview3.jpg";
+				String previewFullPath = previewFolder + previewName;
+				String resizedImageFullPath = previewFolder + resizedImage;
+				String command = "exiv2 -ep3 -l " + previewFolder + " " + nextLeftImagePath;
+				lastLeftImagePath = previewFullPath;
 				try {
-					process = Runtime.getRuntime().exec(command);
+					Process process = Runtime.getRuntime().exec(command);
 					process.waitFor();
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
 
-				System.out.println("end convert, start loadimage");
+				// command = "convert " + previewFullPath + " -resize 1000x667 " +
+				// resizedImageFullPath;
+				command = context.appPath + "/epeg-master/src/bin/epeg -w " + resW + " -p -q 100 " + previewFullPath
+						+ " " + resizedImageFullPath.replace(".jpg", "-rot.jpg");
+				System.out.println("end command exiv2, start resize " + command);
+				try {
+					Process process = Runtime.getRuntime().exec(command);
+					InputStream error = process.getErrorStream();
 
-				// String newPath = previewFullPath.replace(".jpg",
-				// "_IMGP.jpg");
+					process.waitFor();
+					String err = "Error:";
+					for (int i = 0; i < error.available(); i++) {
+						err += (char) error.read();
+					}
+					if (!err.equals("Error:")) {
+						context.parent.println(err);
+					}
 
-				// Files.move(Paths.get(newPath),
-				// Paths.get(resizedImageFullPath),
-				// StandardCopyOption.REPLACE_EXISTING);
-				previewImgLeft = context.parent.loadImage(resizedImageFullPath);
-				context.renderLeft = true;
-				System.out.println("end loadimage, FINISH loadLeftPreview " + resizedImageFullPath);
-			} catch (Exception e) {
-				e.printStackTrace();
+					command = "convert " + resizedImageFullPath.replace(".jpg", "-rot.jpg") + " -rotate " + context.rotB
+							+ " " + resizedImageFullPath;
+					System.out.println("comando " + command);
+					try {
+						process = Runtime.getRuntime().exec(command);
+						process.waitFor();
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+
+					command = "cp " + resizedImageFullPath + " " + previewFile;
+					System.out.println("comando " + command);
+					try {
+						process = Runtime.getRuntime().exec(command);
+						process.waitFor();
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+
+					System.out.println("end convert, start loadimage");
+
+					// String newPath = previewFullPath.replace(".jpg",
+					// "_IMGP.jpg");
+
+					// Files.move(Paths.get(newPath),
+					// Paths.get(resizedImageFullPath),
+					// StandardCopyOption.REPLACE_EXISTING);
+					previewImgLeft = context.parent.loadImage(resizedImageFullPath);
+					context.renderLeft = true;
+					System.out.println("end loadimage, FINISH loadLeftPreview " + resizedImageFullPath);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 			}
 
 		}
+	}
+
+	public void removeItem(int index) {
+		Item itemToRemove = items.get(index);
+		float pageNum = itemToRemove.pagNum;
+
+		items.remove(index);
+
+		if (itemToRemove.type.equals("Item")) {
+			if (index < items.size()) {
+				for (int i = index; i < items.size(); i++) {
+					items.get(i).pagNum--;
+				}
+			}
+		} else {
+			if (index < items.size() - 1) {
+				for (int i = index; i < items.size() - 1; i++) {
+					if ((int) items.get(i).pagNum == (int) pageNum) {
+						if (items.get(i).pagNum - (int) items.get(i).pagNum > pageNum - (int) pageNum) {
+							float newPageNum = PApplet.round((items.get(i).pagNum - 0.1f) * 10) / 10.0f;
+							items.get(i).pagNum = newPageNum;
+						}
+					}
+
+				}
+			}
+		}
+		selectedItemIndex = PApplet.min(index, items.size() - 1);
+		if (selectedItemIndex >= 0 && items.size() > 0) {
+			selectItem(selectedItemIndex);
+		}
+		// forceSelectedItem(selectedItemIndex, true);
+		saveProjectXML();
+		removeUnusedImages();
+
 	}
 
 }
