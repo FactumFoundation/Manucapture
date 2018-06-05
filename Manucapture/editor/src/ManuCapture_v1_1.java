@@ -191,6 +191,13 @@ public class ManuCapture_v1_1 extends PApplet {
 
 	boolean mock = true;
 
+	public static int CAPTURING = 0;
+	public static int CHART = 1;
+
+	int state = CAPTURING;
+
+	int chartState = 0;
+
 	public void _println(String message) {
 		int s = second(); // Values from 0 - 59
 		int min = minute(); // Values from 0 - 59
@@ -221,7 +228,7 @@ public class ManuCapture_v1_1 extends PApplet {
 
 		String home = homeDirectory();
 		File file = new File(home);
-		if(!file.exists()) {
+		if (!file.exists()) {
 			file.mkdir();
 		}
 		context.project = project;
@@ -366,7 +373,7 @@ public class ManuCapture_v1_1 extends PApplet {
 		}
 
 		fill(255);
-		text(frameRate, 10, 10);
+		text("state"+state+"\n "+"stateChart "+chartState+"\n "+frameRate, 250, 10);
 
 		fill(255, 0, 0);
 
@@ -385,6 +392,38 @@ public class ManuCapture_v1_1 extends PApplet {
 		// line(0,guideHeight_2,width,guideHeight_2);
 
 		// rect(marginLeftViewerLeft, marginTopViewer, 100, 100);
+		
+		if (state == CHART) {
+			pushMatrix();
+			pushStyle();
+			
+			if(chartState == 0) {
+				textAlign(CENTER);
+				fill(255, 0, 0, 100);
+				rect(marginLeftViewerLeft, 0, hImageViewerSize*2, wImageViewerSize);
+				fill(255);
+				textSize(24);
+				text("CALIBRATING, PLEASE CAPTURE \n THIS BACKGROUND \nWITHOUT ANY DOCUMENT", marginLeftViewerRight, 200);
+			}else {
+				textAlign(CENTER);
+				if (chartState == 2) {
+					translate(marginLeftViewerLeft, 0);
+				}else {
+					translate(marginLeftViewerRight, 0);
+				}
+
+				
+				fill(255, 0, 0, 100);
+				rect(0, 0, hImageViewerSize, wImageViewerSize);
+				fill(255);
+				textSize(24);
+				text("CALIBRATING, PLEASE CAPTURE  THIS CAMERA", hImageViewerSize/2, 200);
+			}
+			
+			popStyle();
+			popMatrix();
+
+		}
 
 	}
 
@@ -416,7 +455,7 @@ public class ManuCapture_v1_1 extends PApplet {
 		} else {
 			stroke(255);
 			fill(50);
-			rect(1250, 20, hImageViewerSize, wImageViewerSize);
+			rect(marginLeftViewerRight, 20, hImageViewerSize, wImageViewerSize);
 		}
 	}
 
@@ -1078,7 +1117,6 @@ public class ManuCapture_v1_1 extends PApplet {
 
 	}
 
-	
 	public synchronized void addItem(int index, Item newItem) {
 		ArrayList<Item> items = project.items;
 		if (index >= 0) {
@@ -1433,6 +1471,11 @@ public class ManuCapture_v1_1 extends PApplet {
 		gui.repeat_shutter_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
 		gui.subpage_shutter_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
 		gui.calibration_shutter_button.setLocalColorScheme(GCScheme.ORANGE_SCHEME);
+
+		if (state == CAPTURING) {
+			state = CHART;
+			chartState = 0;
+		}
 	} // _CODE_:calibration_shutter_button:835827:
 
 	public void trigger_button_click(GButton source, GEvent event) { // _CODE_:trigger_button:381491:
@@ -1441,6 +1484,12 @@ public class ManuCapture_v1_1 extends PApplet {
 		context.gphotoB.capture();
 		newImagePathA = "";
 		newImagePathB = "";
+		if (state == CHART) {
+			chartState++;
+			if(chartState == 3) {
+				state = CAPTURING;
+			}
+		}
 	} // _CODE_:trigger_button:381491:
 
 	public void camera_A_connected_click(GButton source, GEvent event) { // _CODE_:camera_A_connected_button:265149:
