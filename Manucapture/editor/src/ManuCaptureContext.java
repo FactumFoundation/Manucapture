@@ -1,3 +1,6 @@
+import java.util.ArrayList;
+import java.util.List;
+
 import netP5.NetAddress;
 import oscP5.OscP5;
 import processing.core.PApplet;
@@ -26,5 +29,8 @@ public class ManuCaptureContext {
 	
 	int rotA = 270;
 	int rotB = 90;
+	
+	List<HotArea> pointsLeft = new ArrayList<>();
+	List<HotArea> pointsRight = new ArrayList<>();
 	
 }
