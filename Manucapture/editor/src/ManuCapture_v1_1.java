@@ -173,6 +173,9 @@ public class ManuCapture_v1_1 extends PApplet {
 
 	String newImagePathA = "";
 	String newImagePathB = "";
+	
+	String lastImagePathA = "";
+	String lastImagePathB = "";
 
 	ManuCaptureContext context = new ManuCaptureContext();
 
@@ -373,7 +376,7 @@ public class ManuCapture_v1_1 extends PApplet {
 		}
 
 		fill(255);
-		text("state"+state+"\n "+"stateChart "+chartState+"\n "+frameRate, 250, 10);
+		text("state" + state + "\n " + "stateChart " + chartState + "\n " + frameRate, 250, 10);
 
 		fill(255, 0, 0);
 
@@ -392,34 +395,34 @@ public class ManuCapture_v1_1 extends PApplet {
 		// line(0,guideHeight_2,width,guideHeight_2);
 
 		// rect(marginLeftViewerLeft, marginTopViewer, 100, 100);
-		
+
 		if (state == CHART) {
 			pushMatrix();
 			pushStyle();
-			
-			if(chartState == 0) {
+
+			if (chartState == 0) {
 				textAlign(CENTER);
 				fill(255, 0, 0, 100);
-				rect(marginLeftViewerLeft, 0, hImageViewerSize*2, wImageViewerSize);
+				rect(marginLeftViewerLeft, 0, hImageViewerSize * 2, wImageViewerSize);
 				fill(255);
 				textSize(24);
-				text("CALIBRATING, PLEASE CAPTURE \n THIS BACKGROUND \nWITHOUT ANY DOCUMENT", marginLeftViewerRight, 200);
-			}else {
+				text("CALIBRATING, PLEASE CAPTURE \n THIS BACKGROUND \nWITHOUT ANY DOCUMENT", marginLeftViewerRight,
+						200);
+			} else {
 				textAlign(CENTER);
 				if (chartState == 2) {
 					translate(marginLeftViewerLeft, 0);
-				}else {
+				} else {
 					translate(marginLeftViewerRight, 0);
 				}
 
-				
 				fill(255, 0, 0, 100);
 				rect(0, 0, hImageViewerSize, wImageViewerSize);
 				fill(255);
 				textSize(24);
-				text("CALIBRATING, PLEASE CAPTURE  THIS CAMERA", hImageViewerSize/2, 200);
+				text("CALIBRATING, PLEASE CAPTURE  THIS CAMERA", hImageViewerSize / 2, 200);
 			}
-			
+
 			popStyle();
 			popMatrix();
 
@@ -922,35 +925,7 @@ public class ManuCapture_v1_1 extends PApplet {
 			// delay(3000);
 			if (shutterMode == NORMAL_SHUTTER) {
 
-				float newPageNum;
-				if (project.selectedItemIndex < 0) {
-					newPageNum = 1;
-				} else {
-					newPageNum = (int) project.items.get(project.selectedItemIndex).pagNum + 1;
-				}
-				// TODO add new item: PRoblem when only one image arrives
-
-				String relNewImagePathA = "";
-
-				if (project.projectDirectory.equals("")) {
-					newImagePathA = "";
-					newImagePathB = "";
-				}
-
-				if (!newImagePathA.equals(""))
-					relNewImagePathA = newImagePathA.substring(project.projectDirectory.length() + 1,
-							newImagePathA.length());
-				String relNewImagePathB = "";
-				if (!newImagePathB.equals(""))
-					relNewImagePathB = newImagePathB.substring(project.projectDirectory.length() + 1,
-							newImagePathB.length());
-
-				Item newItem = new Item(context, relNewImagePathA, relNewImagePathB, newPageNum, "", "Item");
-				newItem.loadThumbnails(project, newImagePathA, newImagePathB);
-
-				addItem(project.selectedItemIndex + 1, newItem);
-				newImagePathA = "";
-				newImagePathB = "";
+				doNormalShutter(Item.TYPE_ITEM);
 
 			} else if (shutterMode == SUBPAGE_SHUTTER) {
 
@@ -960,8 +935,7 @@ public class ManuCapture_v1_1 extends PApplet {
 					// TODO add new item
 
 					if (project.projectDirectory.equals("")) {
-						newImagePathA = "";
-						newImagePathB = "";
+						clearPaths();
 					}
 
 					String relNewImagePathA = "";
@@ -976,8 +950,7 @@ public class ManuCapture_v1_1 extends PApplet {
 					Item newItem = new Item(context, relNewImagePathA, relNewImagePathB, newPageNum, "", "SubItem");
 					newItem.loadThumbnails(project, newImagePathA, newImagePathB);
 					addSubItem(project.selectedItemIndex + 1, newItem);
-					newImagePathA = "";
-					newImagePathB = "";
+					clearPaths();
 				}
 
 			} else if (shutterMode == REPEAT_SHUTTER) {
@@ -985,8 +958,7 @@ public class ManuCapture_v1_1 extends PApplet {
 					float newPageNum = project.selectedItem.pagNum;
 
 					if (project.projectDirectory.equals("")) {
-						newImagePathA = "";
-						newImagePathB = "";
+						clearPaths();
 					}
 
 					String relNewImagePathA = "";
@@ -1002,15 +974,76 @@ public class ManuCapture_v1_1 extends PApplet {
 							project.selectedItem.type);
 					newItem.loadThumbnails(project);
 					replaceItem(project.selectedItemIndex, newItem);
-					newImagePathA = "";
-					newImagePathB = "";
+					clearPaths();
 				}
 
 			} else if (shutterMode == CALIB_SHUTTER) {
 				println("Calib shutter");
+
+				if (chartState < 2) {
+					doNormalShutter(Item.TYPE_BACKGROUND);
+				} else if (chartState < 2) {
+					// we do background and first photo normally
+					doNormalShutter(Item.TYPE_CHART);
+				} else {
+					float newPageNum = project.selectedItem.pagNum;
+
+					if (project.projectDirectory.equals("")) {
+						clearPaths();
+					}
+
+					String relNewImagePathA = "";
+					if (!lastImagePathA.equals(""))
+						relNewImagePathA = lastImagePathA.substring(project.projectDirectory.length() + 1,
+								lastImagePathA.length());
+					String relNewImagePathB = "";
+					if (!newImagePathB.equals(""))
+						relNewImagePathB = newImagePathB.substring(project.projectDirectory.length() + 1,
+								newImagePathB.length());
+
+					Item newItem = new Item(context, relNewImagePathA, relNewImagePathB, newPageNum, "",
+							Item.TYPE_CHART);
+					newItem.loadThumbnails(project);
+					replaceItem(project.selectedItemIndex, newItem);
+					clearPaths();
+				}
 			}
 		}
+	}
 
+	private void clearPaths() {
+		lastImagePathA = newImagePathA;
+		lastImagePathB = newImagePathB;
+		newImagePathA = "";
+		newImagePathB = "";
+	}
+
+	private void doNormalShutter(String type) {
+		float newPageNum;
+		if (project.selectedItemIndex < 0) {
+			newPageNum = 1;
+		} else {
+			newPageNum = (int) project.items.get(project.selectedItemIndex).pagNum + 1;
+		}
+		// TODO add new item: PRoblem when only one image arrives
+
+		String relNewImagePathA = "";
+
+		if (project.projectDirectory.equals("")) {
+			clearPaths();
+		}
+
+		if (!newImagePathA.equals(""))
+			relNewImagePathA = newImagePathA.substring(project.projectDirectory.length() + 1, newImagePathA.length());
+		String relNewImagePathB = "";
+		if (!newImagePathB.equals(""))
+			relNewImagePathB = newImagePathB.substring(project.projectDirectory.length() + 1, newImagePathB.length());
+
+		Item newItem = new Item(context, relNewImagePathA, relNewImagePathB, newPageNum, "", type);
+		newItem.loadThumbnails(project, newImagePathA, newImagePathB);
+
+		addItem(project.selectedItemIndex + 1, newItem);
+		clearPaths();
 	}
 
 	public void loadLastSessionData() {
@@ -1197,13 +1230,13 @@ public class ManuCapture_v1_1 extends PApplet {
 			items.remove(index);
 			items.add(index, newItem);
 			project.selectedItemIndex = min(index + 1, items.size());
-			if (!newItem.type.equals("SubItem")) {
-				if ((project.selectedItemIndex == items.size())
-						|| (items.get(project.selectedItemIndex).pagNum != newItem.pagNum + 1)) {
-					Item emptyItem = new Item(context, "", "", newItem.pagNum + 1, "", "Item");
-					items.add(project.selectedItemIndex, emptyItem);
-				}
-			}
+			// if (!newItem.type.equals("SubItem")) {
+			// if ((project.selectedItemIndex == items.size())
+			// || (items.get(project.selectedItemIndex).pagNum != newItem.pagNum + 1)) {
+			// Item emptyItem = new Item(context, "", "", newItem.pagNum + 1, "", "Item");
+			// items.add(project.selectedItemIndex, emptyItem);
+			// }
+			// }
 			forceSelectedItem(project.selectedItemIndex, true);
 			project.saveProjectXML();
 		}
@@ -1464,15 +1497,16 @@ public class ManuCapture_v1_1 extends PApplet {
 	} // _CODE_:subpage_shutter_button:295319:
 
 	public void calibration_shutter_click(GButton source, GEvent event) { // _CODE_:calibration_shutter_button:835827:
-		println("SHUTTER CONTROL SET CALIBRATION MODE");
-		shutterMode = CALIB_SHUTTER;
-		GUI gui = context.gui;
-		gui.normal_shutter_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
-		gui.repeat_shutter_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
-		gui.subpage_shutter_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
-		gui.calibration_shutter_button.setLocalColorScheme(GCScheme.ORANGE_SCHEME);
 
 		if (state == CAPTURING) {
+			println("SHUTTER CONTROL SET CALIBRATION MODE");
+			shutterMode = CALIB_SHUTTER;
+			GUI gui = context.gui;
+			gui.normal_shutter_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
+			gui.repeat_shutter_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
+			gui.subpage_shutter_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
+			gui.calibration_shutter_button.setLocalColorScheme(GCScheme.ORANGE_SCHEME);
+
 			state = CHART;
 			chartState = 0;
 		}
@@ -1482,12 +1516,12 @@ public class ManuCapture_v1_1 extends PApplet {
 		println("SHUTTER TRIGGERED");
 		context.gphotoA.capture();
 		context.gphotoB.capture();
-		newImagePathA = "";
-		newImagePathB = "";
+		clearPaths();
 		if (state == CHART) {
 			chartState++;
-			if(chartState == 3) {
+			if (chartState == 3) {
 				state = CAPTURING;
+				normal_shutter_click1(source, event);
 			}
 		}
 	} // _CODE_:trigger_button:381491:

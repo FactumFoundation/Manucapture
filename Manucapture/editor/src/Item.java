@@ -9,6 +9,11 @@ import processing.core.PApplet;
 import processing.core.PImage;
 
 public class Item {
+	
+	public static String TYPE_ITEM = "Item";
+	public static String TYPE_CHART = "Chart";
+	public static String TYPE_BACKGROUND = "background";
+	
 
 	String imagePathLeft;
 	String imagePathRight;
