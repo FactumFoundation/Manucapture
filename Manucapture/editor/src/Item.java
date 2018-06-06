@@ -25,47 +25,48 @@ public class Item {
 	public Item(ManuCaptureContext context, String imagePathLeft, String imagePathRight, float pagNum, String comment,
 			String type) {
 
-		this.mImageLeft.imagePath = imagePathLeft;
-		this.mImageRight.imagePath = imagePathRight;
 		this.pagNum = pagNum;
 		this.comment = comment;
 		this.type = type;
 
 		this.context = context;
+
+		this.mImageLeft.imagePath = imagePathLeft;
+		this.mImageRight.imagePath = imagePathRight;
+		this.mImageLeft.mesh = context.copyMesh(context.pointsLeft);
+		this.mImageRight.mesh = context.copyMesh(context.pointsRight);
+		this.mImageRight.context = context;
+		this.mImageLeft.context = context;
 	}
 
-	void clear() {
+	void remove() {
 
 		comment = "";
-		mImageLeft.clear();
-		mImageRight.clear();
+		mImageLeft.remove();
+		mImageRight.remove();
 	}
 
-	void loadThumbnails(Project project) {
-		loadTumbnails(project, mImageLeft);
-		loadTumbnails(project, mImageRight);
+	void loadThumbnails() {
+		mImageLeft.loadTumbnail();
+		mImageRight.loadTumbnail();
 	}
 
-	private void loadTumbnails(Project project, MImage mImage) {
-		if (mImage.imagePath != null && !mImage.imagePath.equals("")) {
-			File itemImg = new File(project.projectDirectory + "/" + mImage.imagePath);
+	
 
-			if (itemImg.exists()) {
-				String thumbnailPath = context.thumbnail.getThumbnailPath(project.projectDirectory, itemImg);
-				context.parent.println("itemImage " + thumbnailPath);
-				File thumbFile = new File(thumbnailPath);
-				if (!thumbFile.exists()) {
-					mImage.imgThumb = context.thumbnail.generateThumbnail(context, itemImg, false);
-				} else {
-					PImage thumbImg = context.parent.loadImage(thumbnailPath);
-					thumbImg = thumbImg.get(context.thumbnail.thumbMargin, 0,
-							thumbImg.width - context.thumbnail.thumbMargin, thumbImg.height);
-					mImage.imgThumb = thumbImg;
-				}
-			} else {
-				PApplet.println("item ERROR", itemImg.getPath(), "image not found");
-			}
-		}
+	public void loadMetadata() {
+		// TODO Auto-generated method stub
+		this.mImageLeft.loadMetadata();
+		this.mImageRight.loadMetadata();
+		
+		
 	}
+
+	public void saveMetadata() {
+		// TODO Auto-generated method stub
+		this.mImageLeft.saveMetadata();
+		this.mImageRight.saveMetadata();
+	}
+	
+	
 
 }

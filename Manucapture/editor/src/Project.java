@@ -89,6 +89,7 @@ public class Project {
 				String comment = itemXML.getChild("comment").getContent();
 				String type = itemXML.getChild("type").getContent();
 				Item newItem = new Item(context, imagePathLeft, imagePathRight, pageNum, comment, type);
+				newItem.loadMetadata();
 				items.add(newItem);
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -127,56 +128,57 @@ public class Project {
 		File projectDirectoryFile = new File(projectDirectory);
 		for (int i = 0; i < items.size(); i++) {
 			Item item = items.get(i);
-			if (!item.mImageLeft.imagePath.equals("")) {
-				File itemImgLeft = new File(projectDirectory + "/" + item.mImageLeft.imagePath);
-				if (itemImgLeft.exists()) {
-					String fileName = itemImgLeft.getName();
-					String thumbnailPath = projectDirectoryFile.getPath() + "/thumbnails/"
-							+ FilenameUtils.removeExtension(fileName) + "_thumb.jpg";
-					context.parent.println("Left " + thumbnailPath);
-					File thumbFile = new File(thumbnailPath);
-					if (!thumbFile.exists()) {
-						item.mImageLeft.imgThumb = context.thumbnail.generateThumbnail(context, itemImgLeft, false);
-					} else {
-						PImage thumbImg = context.parent.loadImage(thumbnailPath);
-						if (thumbImg == null) {
-							context.parent.println("ni pudimos cargar la imagen " + thumbnailPath);
-						} else {
-
-						}
-						thumbImg = thumbImg.get(context.thumbnail.thumbMargin, 0,
-								thumbImg.width - context.thumbnail.thumbMargin, thumbImg.height);
-						item.mImageLeft.imgThumb = thumbImg;
-					}
-				} else {
-					item.mImageLeft.imgThumb = null;
-					context.parent.println("Left ERROR", itemImgLeft.getPath(), "image not found");
-				}
-			} else {
-				item.mImageLeft.imgThumb = null;
-			}
-			if (!item.mImageRight.imagePath.equals("")) {
-				File itemImgRight = new File(projectDirectory + "/" + item.mImageRight.imagePath);
-				if (itemImgRight.exists()) {
-					String fileName = itemImgRight.getName();
-					String thumbnailPath = projectDirectoryFile.getPath() + "/thumbnails/"
-							+ FilenameUtils.removeExtension(fileName) + "_thumb.jpg";
-					context.parent.println("Right " + thumbnailPath);
-					File thumbFile = new File(thumbnailPath);
-					if (!thumbFile.exists()) {
-						item.mImageRight.imgThumb = context.thumbnail.generateThumbnail(context, itemImgRight, true);
-					} else {
-						PImage thumbImg = context.parent.loadImage(thumbnailPath);
-						thumbImg = thumbImg.get(0, 0, thumbImg.width - context.thumbnail.thumbMargin, thumbImg.height);
-						item.mImageRight.imgThumb = thumbImg;
-					}
-				} else {
-					item.mImageRight.imgThumb = null;
-					context.parent.println("Right ERROR", itemImgRight.getPath(), "image not found");
-				}
-			} else {
-				item.mImageRight.imgThumb = null;
-			}
+			item.loadThumbnails();
+//			if (!item.mImageLeft.imagePath.equals("")) {
+//				File itemImgLeft = new File(projectDirectory + "/" + item.mImageLeft.imagePath);
+//				if (itemImgLeft.exists()) {
+//					String fileName = itemImgLeft.getName();
+//					String thumbnailPath = projectDirectoryFile.getPath() + "/thumbnails/"
+//							+ FilenameUtils.removeExtension(fileName) + "_thumb.jpg";
+//					context.parent.println("Left " + thumbnailPath);
+//					File thumbFile = new File(thumbnailPath);
+//					if (!thumbFile.exists()) {
+//						item.mImageLeft.imgThumb = context.thumbnail.generateThumbnail(context, itemImgLeft, false);
+//					} else {
+//						PImage thumbImg = context.parent.loadImage(thumbnailPath);
+//						if (thumbImg == null) {
+//							context.parent.println("ni pudimos cargar la imagen " + thumbnailPath);
+//						} else {
+//
+//						}
+//						thumbImg = thumbImg.get(context.thumbnail.thumbMargin, 0,
+//								thumbImg.width - context.thumbnail.thumbMargin, thumbImg.height);
+//						item.mImageLeft.imgThumb = thumbImg;
+//					}
+//				} else {
+//					item.mImageLeft.imgThumb = null;
+//					context.parent.println("Left ERROR", itemImgLeft.getPath(), "image not found");
+//				}
+//			} else {
+//				item.mImageLeft.imgThumb = null;
+//			}
+//			if (!item.mImageRight.imagePath.equals("")) {
+//				File itemImgRight = new File(projectDirectory + "/" + item.mImageRight.imagePath);
+//				if (itemImgRight.exists()) {
+//					String fileName = itemImgRight.getName();
+//					String thumbnailPath = projectDirectoryFile.getPath() + "/thumbnails/"
+//							+ FilenameUtils.removeExtension(fileName) + "_thumb.jpg";
+//					context.parent.println("Right " + thumbnailPath);
+//					File thumbFile = new File(thumbnailPath);
+//					if (!thumbFile.exists()) {
+//						item.mImageRight.imgThumb = context.thumbnail.generateThumbnail(context, itemImgRight, true);
+//					} else {
+//						PImage thumbImg = context.parent.loadImage(thumbnailPath);
+//						thumbImg = thumbImg.get(0, 0, thumbImg.width - context.thumbnail.thumbMargin, thumbImg.height);
+//						item.mImageRight.imgThumb = thumbImg;
+//					}
+//				} else {
+//					item.mImageRight.imgThumb = null;
+//					context.parent.println("Right ERROR", itemImgRight.getPath(), "image not found");
+//				}
+//			} else {
+//				item.mImageRight.imgThumb = null;
+//			}
 		}
 		try {
 			G2P5.setImageCount(new Integer(projectDataXML.getChild("image_counter").getContent()));
@@ -643,8 +645,11 @@ public class Project {
 		}
 		// forceSelectedItem(selectedItemIndex, true);
 		saveProjectXML();
-		removeUnusedImages();
+		itemToRemove.remove();
+		//removeUnusedImages();
 
+		
+		
 	}
 
 }

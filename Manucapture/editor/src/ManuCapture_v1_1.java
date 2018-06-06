@@ -885,12 +885,12 @@ public class ManuCapture_v1_1 extends PApplet {
 							float cancelButtonY = viewPortRelativeHeight + marginY + itemListViewPortY;
 							if ((mouseX > cancelButtonX) && (mouseX < (cancelButtonX + removeIconSize))) {
 								if ((mouseY > cancelButtonY) && (mouseY < (cancelButtonY + removeIconSize))) {
-									if (shutterMode != REPEAT_SHUTTER) {
-										project.removeItem(i);
-										forceSelectedItem(i, true);
-									} else {
-										clearItem(i);
-									}
+									// if (shutterMode != REPEAT_SHUTTER) {
+									project.removeItem(i);
+									forceSelectedItem(i, true);
+									// } else {
+									// removeItem(i);
+									// }
 									break;
 								}
 							}
@@ -1047,7 +1047,7 @@ public class ManuCapture_v1_1 extends PApplet {
 								newImagePathB.length());
 
 					Item newItem = new Item(context, relNewImagePathA, relNewImagePathB, newPageNum, "", "SubItem");
-					newItem.loadThumbnails(project);
+					newItem.loadThumbnails();
 					addSubItem(project.selectedItemIndex + 1, newItem);
 					clearPaths();
 				}
@@ -1071,7 +1071,7 @@ public class ManuCapture_v1_1 extends PApplet {
 
 					Item newItem = new Item(context, relNewImagePathA, relNewImagePathB, newPageNum, "",
 							project.selectedItem.type);
-					newItem.loadThumbnails(project);
+					newItem.loadThumbnails();
 					replaceItem(project.selectedItemIndex, newItem);
 					clearPaths();
 				}
@@ -1102,7 +1102,7 @@ public class ManuCapture_v1_1 extends PApplet {
 
 					Item newItem = new Item(context, relNewImagePathA, relNewImagePathB, newPageNum, "",
 							Item.TYPE_CHART);
-					newItem.loadThumbnails(project);
+					newItem.loadThumbnails();
 					replaceItem(project.selectedItemIndex, newItem);
 					clearPaths();
 				}
@@ -1139,10 +1139,8 @@ public class ManuCapture_v1_1 extends PApplet {
 			relNewImagePathB = newImagePathB.substring(project.projectDirectory.length() + 1, newImagePathB.length());
 
 		Item newItem = new Item(context, relNewImagePathA, relNewImagePathB, newPageNum, "", type);
-		newItem.mImageLeft.mesh = context.copyMesh(context.pointsLeft);
-		newItem.mImageRight.mesh = context.copyMesh(context.pointsRight);
-
-		newItem.loadThumbnails(project);
+		newItem.saveMetadata();
+		newItem.loadThumbnails();
 
 		addItem(project.selectedItemIndex + 1, newItem);
 		clearPaths();
@@ -1239,18 +1237,17 @@ public class ManuCapture_v1_1 extends PApplet {
 		saveXML(lastSessionData, "data/lastSession.xml");
 	}
 
-	public void clearItem(int index) {
-		Item itemToClear = project.items.get(index);
-		itemToClear.clear();
-		project.selectedItemIndex = min(index, project.items.size());
-		if (project.selectedItemIndex >= 0 && project.items.size() > 0) {
-			project.selectItem(project.selectedItemIndex);
-		}
-		forceSelectedItem(project.selectedItemIndex, true);
-		project.saveProjectXML();
-		project.removeUnusedImages();
-
-	}
+	/*
+	 * public void removeItem(int index) { Item itemToClear =
+	 * project.items.get(index); itemToClear.remove(); project.selectedItemIndex
+	 * = min(index, project.items.size()); if (project.selectedItemIndex >= 0 &&
+	 * project.items.size() > 0) {
+	 * project.selectItem(project.selectedItemIndex); }
+	 * forceSelectedItem(project.selectedItemIndex, true);
+	 * project.saveProjectXML(); project.removeUnusedImages();
+	 * 
+	 * }
+	 */
 
 	public synchronized void addItem(int index, Item newItem) {
 		ArrayList<Item> items = project.items;
@@ -1323,11 +1320,11 @@ public class ManuCapture_v1_1 extends PApplet {
 		if (index >= 0 && index < items.size()) {
 			if (newItem.mImageLeft.imagePath.equals("")) {
 				newItem.mImageLeft.imagePath = items.get(index).mImageLeft.imagePath;
-				newItem.loadThumbnails(project);
+				newItem.loadThumbnails();
 			}
 			if (newItem.mImageRight.imagePath.equals("")) {
 				newItem.mImageRight.imagePath = items.get(index).mImageRight.imagePath;
-				newItem.loadThumbnails(project);
+				newItem.loadThumbnails();
 			}
 			items.remove(index);
 			items.add(index, newItem);
