@@ -244,17 +244,19 @@ public class ManuCapture_v1_1 extends PApplet {
 		PVector translatePos1 = new PVector(marginLeftViewerLeft, marginTopViewer);
 		PVector translatePos2 = new PVector(marginLeftViewerRight, marginTopViewer);
 
-		context.pointsLeft.add(new HotArea(new PVector(0, 0), translatePos1, 0, size, "LTL"));
-		context.pointsLeft.add(new HotArea(new PVector(hImageViewerSize, 0), translatePos1, 1, size, "LTR"));
+		context.pointsLeft.add(new HotArea(new PVector(size, size), translatePos1, 0, size, "LTL"));
 		context.pointsLeft
-				.add(new HotArea(new PVector(hImageViewerSize, wImageViewerSize), translatePos1, 2, size, "LBL"));
-		context.pointsLeft.add(new HotArea(new PVector(0, wImageViewerSize), translatePos1, 3, size, "LBR"));
+				.add(new HotArea(new PVector(hImageViewerSize - size, 0 + size), translatePos1, 1, size, "LTR"));
+		context.pointsLeft.add(new HotArea(new PVector(hImageViewerSize - size, wImageViewerSize - size), translatePos1,
+				2, size, "LBL"));
+		context.pointsLeft
+				.add(new HotArea(new PVector(0 + size, wImageViewerSize - size), translatePos1, 3, size, "LBR"));
 
-		context.pointsRight.add(new HotArea(new PVector(0, 0), translatePos2, 1, size, "RTL"));
-		context.pointsRight.add(new HotArea(new PVector(hImageViewerSize, 0), translatePos2, 2, size, "RTR"));
-		context.pointsRight
-				.add(new HotArea(new PVector(hImageViewerSize, wImageViewerSize), translatePos2, 3, size, "RBL"));
-		context.pointsRight.add(new HotArea(new PVector(0, wImageViewerSize), translatePos2, 4, size, "RBR"));
+		context.pointsRight.add(new HotArea(new PVector(size, size), translatePos2, 1, size, "RTL"));
+		context.pointsRight.add(new HotArea(new PVector(hImageViewerSize - size, size), translatePos2, 2, size, "RTR"));
+		context.pointsRight.add(new HotArea(new PVector(hImageViewerSize - size, wImageViewerSize - size),
+				translatePos2, 3, size, "RBL"));
+		context.pointsRight.add(new HotArea(new PVector(size, wImageViewerSize - size), translatePos2, 4, size, "RBR"));
 
 		project = new Project();
 		project.context = context;
@@ -411,19 +413,19 @@ public class ManuCapture_v1_1 extends PApplet {
 			// hotAreaSelected.threshold, hotAreaSelected.threshold);
 			hotAreaSelected.draw(g);
 		}
-		
-		for (int i = 1;i<=context.pointsLeft.size();i++) {
-			PVector areaPos1 = context.pointsLeft.get(i-1).getRealPosition();
-			PVector areaPos2 = context.pointsLeft.get(i%context.pointsLeft.size()).getRealPosition();
+
+		for (int i = 1; i <= context.pointsLeft.size(); i++) {
+			PVector areaPos1 = context.pointsLeft.get(i - 1).getRealPosition();
+			PVector areaPos2 = context.pointsLeft.get(i % context.pointsLeft.size()).getRealPosition();
 			stroke(255);
-			line(areaPos1.x,areaPos1.y,areaPos2.x,areaPos2.y);
+			line(areaPos1.x, areaPos1.y, areaPos2.x, areaPos2.y);
 		}
-		
-		for (int i = 1;i<=context.pointsRight.size();i++) {
-			PVector areaPos1 = context.pointsRight.get(i-1).getRealPosition();
-			PVector areaPos2 = context.pointsRight.get(i%context.pointsRight.size()).getRealPosition();
+
+		for (int i = 1; i <= context.pointsRight.size(); i++) {
+			PVector areaPos1 = context.pointsRight.get(i - 1).getRealPosition();
+			PVector areaPos2 = context.pointsRight.get(i % context.pointsRight.size()).getRealPosition();
 			stroke(255);
-			line(areaPos1.x,areaPos1.y,areaPos2.x,areaPos2.y);
+			line(areaPos1.x, areaPos1.y, areaPos2.x, areaPos2.y);
 		}
 
 		stroke(255);
@@ -1307,7 +1309,7 @@ public class ManuCapture_v1_1 extends PApplet {
 		ArrayList<Item> items = project.items;
 		if (index >= 0 && index < items.size()) {
 			if (newItem.mImageLeft.imagePath.equals("")) {
-				newItem.mImageLeft.imagePath= items.get(index).mImageLeft.imagePath;
+				newItem.mImageLeft.imagePath = items.get(index).mImageLeft.imagePath;
 				newItem.loadThumbnails(project);
 			}
 			if (newItem.mImageRight.imagePath.equals("")) {
