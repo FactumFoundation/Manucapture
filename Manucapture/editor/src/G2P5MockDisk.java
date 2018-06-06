@@ -8,6 +8,8 @@ public class G2P5MockDisk extends G2P5 {
 	int index = 0;
 
 	ManuCaptureContext context;
+	
+	String nameDataSetPath = "dataset2";
 
 	public G2P5MockDisk() {
 		// TODO Auto-generated constructor stub
@@ -23,7 +25,7 @@ public class G2P5MockDisk extends G2P5 {
 	public boolean capture() {
 		String fullPath = parent.homeDirectory();
 
-		String datasetPath = context.appPath + "/dataset/" + index + "/";
+		String datasetPath = context.appPath + "/"+nameDataSetPath+"/" + index + "/";
 		File file = new File(datasetPath);
 
 		for (File tempFile : file.listFiles()) {
@@ -46,7 +48,7 @@ public class G2P5MockDisk extends G2P5 {
 			bufferedReader.close();
 			invokePhotoEvent();
 			
-			if (index < 3)
+			if (index < file.getParentFile().listFiles().length-1)
 				index++;
 			else
 				index = 0;
