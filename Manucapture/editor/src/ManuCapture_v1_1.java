@@ -26,43 +26,45 @@ public class ManuCapture_v1_1 extends PApplet {
 	/*
 	 * ManuCapture.pde A Visual tool for recording books using DSLR Cameras
 	 * 
-	 * This source file is part of the ManuCapture software For the latest info, see
-	 * http://www.factumfoundation.org/pag/235/Digitisation-of-oriental-
+	 * This source file is part of the ManuCapture software For the latest info,
+	 * see http://www.factumfoundation.org/pag/235/Digitisation-of-oriental-
 	 * manuscripts-in-Daghestan
 	 * 
-	 * Copyright (c) 2016-2018 Jorge Cano and Enrique Esteban in Factum Foundation
+	 * Copyright (c) 2016-2018 Jorge Cano and Enrique Esteban in Factum
+	 * Foundation
 	 * 
-	 * This program is free software; you can redistribute it and/or modify it under
-	 * the terms of the GNU General Public License as published by the Free Software
-	 * Foundation; either version 2 of the License, or (at your option) any later
-	 * version.
+	 * This program is free software; you can redistribute it and/or modify it
+	 * under the terms of the GNU General Public License as published by the
+	 * Free Software Foundation; either version 2 of the License, or (at your
+	 * option) any later version.
 	 * 
-	 * This program is distributed in the hope that it will be useful, but WITHOUT
-	 * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-	 * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
-	 * details.
+	 * This program is distributed in the hope that it will be useful, but
+	 * WITHOUT ANY WARRANTY; without even the implied warranty of
+	 * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
+	 * Public License for more details.
 	 * 
-	 * You should have received a copy of the GNU General Public License along with
-	 * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
-	 * Place, Suite 330, Boston, MA 02111-1307 USA
+	 * You should have received a copy of the GNU General Public License along
+	 * with this program; if not, write to the Free Software Foundation, Inc.,
+	 * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 	 */
 
 	/*
 	 * 
 	 * Todo:
 	 * 
-	 * Viewer: Left image correspons to the left -> should be on the right Switch
-	 * images Left is upside down and right is mirrored Botón para extraer snapshots
+	 * Viewer: Left image correspons to the left -> should be on the right
+	 * Switch images Left is upside down and right is mirrored Botón para
+	 * extraer snapshots
 	 * 
 	 * 
 	 * Editor: Procesar lista de thumbnails pendientes en un thread aparte y
-	 * metadatos en un thread aparte Calibration: Definir con Pereira Al iniciar no
-	 * se situa en el útimo elemento Cajas de texto adaptables al tamaño, no
-	 * funcionansaltos de linea Activar/Desactiva camaras Feedback visual de que se
-	 * está capturando foto (cambiar background a anaranjado)
+	 * metadatos en un thread aparte Calibration: Definir con Pereira Al iniciar
+	 * no se situa en el útimo elemento Cajas de texto adaptables al tamaño, no
+	 * funcionansaltos de linea Activar/Desactiva camaras Feedback visual de que
+	 * se está capturando foto (cambiar background a anaranjado)
 	 * 
-	 * Al añadir subpágina no se suman todas las páginas sub siguientes AL eliminar
-	 * subpágina que no se renombren las siguientes
+	 * Al añadir subpágina no se suman todas las páginas sub siguientes AL
+	 * eliminar subpágina que no se renombren las siguientes
 	 * 
 	 */
 
@@ -404,11 +406,20 @@ public class ManuCapture_v1_1 extends PApplet {
 		}
 
 		if (hotAreaSelected != null) {
-			fill(255, 0, 0, 200);
+			stroke(255, 0, 0);
 			// ellipse(hotAreaSelected.pos.x, hotAreaSelected.pos.y,
 			// hotAreaSelected.threshold, hotAreaSelected.threshold);
 			hotAreaSelected.draw(g);
 		}
+		
+		for (int i = 1;i<=context.pointsLeft.size();i++) {
+			PVector areaPos1 = context.pointsLeft.get(i-1).getRealPosition();
+			PVector areaPos2 = context.pointsLeft.get(i%context.pointsLeft.size()).getRealPosition();
+			stroke(255);
+			line(areaPos1.x,areaPos1.y,areaPos2.x,areaPos2.y);
+		}
+
+		stroke(255);
 
 		fill(255);
 		text("state" + state + "\n " + "stateChart " + chartState + "\n " + frameRate, 250, 10);
@@ -553,7 +564,6 @@ public class ManuCapture_v1_1 extends PApplet {
 			image(img, 0, 0, hImageViewerSize, wImageViewerSize, 0, 0, img.width, img.height);
 		}
 
-	
 	}
 
 	private void drawItemsViewPort() {
@@ -778,9 +788,11 @@ public class ManuCapture_v1_1 extends PApplet {
 		scrollHandleState = SCROLL_HANDLE_IDLE;
 
 		if (hotAreaSelected != null) {
-			// hotAreaSelected.pos = hotAreaSelected.pos.add(mouseX - dmouseX,mouseY
+			// hotAreaSelected.pos = hotAreaSelected.pos.add(mouseX -
+			// dmouseX,mouseY
 			// -dmouseY);
 			hotAreaSelected.setRealPosition(mouseX, mouseY);
+
 		}
 
 		if (lastPressedR != null) {
@@ -877,21 +889,45 @@ public class ManuCapture_v1_1 extends PApplet {
 		}
 		scrollHandleState = SCROLL_HANDLE_IDLE;
 
-		if (mouseButton == LEFT) {
-			if (lastPressedL == null)
-				updateZoomLeft();
-			// else
-			// lastPressedL = null;
+		if (hotAreaSelected == null) {
+			for (HotArea area : context.pointsLeft) {
+				if (area.isInArea(mouseX, mouseY)) {
+					hotAreaSelected = area;
+					break;
+				}
 
-			if (lastPressedR == null)
-				updateZoomRight();
-			// else
-			// lastPressedR = null;
+			}
 
-		}
-		if (mouseButton == RIGHT) {
-			lastPressedR = null;
-			lastPressedL = null;
+			for (HotArea area : context.pointsRight) {
+				if (area.isInArea(mouseX, mouseY)) {
+					hotAreaSelected = area;
+					break;
+				}
+
+			}
+
+			if (hotAreaSelected == null) {
+				if (hotAreaSelected == null) {
+					if (mouseButton == LEFT) {
+						if (lastPressedL == null)
+							updateZoomLeft();
+						// else
+						// lastPressedL = null;
+
+						if (lastPressedR == null)
+							updateZoomRight();
+						// else
+						// lastPressedR = null;
+
+					}
+					if (mouseButton == RIGHT) {
+						lastPressedR = null;
+						lastPressedL = null;
+					}
+				}
+			}
+		} else {
+			hotAreaSelected = null;
 		}
 
 		println("mouseX:" + mouseX + " mouseY:" + mouseY);
@@ -948,14 +984,7 @@ public class ManuCapture_v1_1 extends PApplet {
 	public void mouseReleased() {
 		scrollHandleState = SCROLL_HANDLE_IDLE;
 
-		hotAreaSelected = null;
-		for (HotArea area : context.pointsLeft) {
-			if (area.isInArea(mouseX, mouseY)) {
-				hotAreaSelected = area;
-				break;
-			}
-
-		}
+		// hotAreaSelected = null;
 
 	}
 
@@ -1283,8 +1312,10 @@ public class ManuCapture_v1_1 extends PApplet {
 			project.selectedItemIndex = min(index + 1, items.size());
 			// if (!newItem.type.equals("SubItem")) {
 			// if ((project.selectedItemIndex == items.size())
-			// || (items.get(project.selectedItemIndex).pagNum != newItem.pagNum + 1)) {
-			// Item emptyItem = new Item(context, "", "", newItem.pagNum + 1, "", "Item");
+			// || (items.get(project.selectedItemIndex).pagNum != newItem.pagNum
+			// + 1)) {
+			// Item emptyItem = new Item(context, "", "", newItem.pagNum + 1,
+			// "", "Item");
 			// items.add(project.selectedItemIndex, emptyItem);
 			// }
 			// }
@@ -1440,14 +1471,14 @@ public class ManuCapture_v1_1 extends PApplet {
 	}
 
 	/*
-	 * ========================================================= ==== WARNING ===
-	 * ========================================================= The code in this
-	 * tab has been generated from the GUI form designer and care should be taken
-	 * when editing this file. Only add/edit code inside the event handlers i.e.
-	 * only use lines between the matching comment tags. e.g.
+	 * ========================================================= ==== WARNING
+	 * === ========================================================= The code in
+	 * this tab has been generated from the GUI form designer and care should be
+	 * taken when editing this file. Only add/edit code inside the event
+	 * handlers i.e. only use lines between the matching comment tags. e.g.
 	 * 
-	 * void myBtnEvents(GButton button) { //_CODE_:button1:12356: // It is safe to
-	 * enter your event code here } //_CODE_:button1:12356:
+	 * void myBtnEvents(GButton button) { //_CODE_:button1:12356: // It is safe
+	 * to enter your event code here } //_CODE_:button1:12356:
 	 * 
 	 * Do not rename this tab!
 	 * =========================================================
@@ -1549,18 +1580,18 @@ public class ManuCapture_v1_1 extends PApplet {
 
 	public void calibration_shutter_click(GButton source, GEvent event) { // _CODE_:calibration_shutter_button:835827:
 
-		if (state == CAPTURING) {
-			println("SHUTTER CONTROL SET CALIBRATION MODE");
-			shutterMode = CALIB_SHUTTER;
-			GUI gui = context.gui;
-			gui.normal_shutter_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
-			gui.repeat_shutter_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
-			gui.subpage_shutter_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
-			gui.calibration_shutter_button.setLocalColorScheme(GCScheme.ORANGE_SCHEME);
+		// if (state == CAPTURING) {
+		println("SHUTTER CONTROL SET CALIBRATION MODE");
+		shutterMode = CALIB_SHUTTER;
+		GUI gui = context.gui;
+		gui.normal_shutter_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
+		gui.repeat_shutter_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
+		gui.subpage_shutter_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
+		gui.calibration_shutter_button.setLocalColorScheme(GCScheme.ORANGE_SCHEME);
 
-			state = CHART;
-			chartState = 0;
-		}
+		state = CHART;
+		chartState = 0;
+		// }
 	} // _CODE_:calibration_shutter_button:835827:
 
 	public void trigger_button_click(GButton source, GEvent event) { // _CODE_:trigger_button:381491:
@@ -1682,8 +1713,8 @@ public class ManuCapture_v1_1 extends PApplet {
 
 		/*
 		 * GraphicsEnvironment environment =
-		 * GraphicsEnvironment.getLocalGraphicsEnvironment(); GraphicsDevice devices[] =
-		 * environment.getScreenDevices();
+		 * GraphicsEnvironment.getLocalGraphicsEnvironment(); GraphicsDevice
+		 * devices[] = environment.getScreenDevices();
 		 * 
 		 * if(devices.length>1 ){ //we have a 2nd display/projector
 		 * 
