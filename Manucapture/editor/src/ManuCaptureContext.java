@@ -33,4 +33,14 @@ public class ManuCaptureContext {
 	List<HotArea> pointsLeft = new ArrayList<>();
 	List<HotArea> pointsRight = new ArrayList<>();
 	
+	public List<HotArea> copyMesh(List<HotArea> mesh) {
+		List<HotArea> temp = new ArrayList<>();
+		for (int i = 0; i < mesh.size(); i++) {
+			HotArea ha = mesh.get(i);
+			temp.add(new HotArea(ha.pos.copy(), ha.translatePos.copy(), ha.id, ha.threshold, ha.name));
+		}
+
+		return temp;
+	}
+	
 }

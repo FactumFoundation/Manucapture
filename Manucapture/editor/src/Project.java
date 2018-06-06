@@ -52,6 +52,15 @@ public class Project {
 	String nextRightImagePath = "";
 
 	private int resW = 3000;
+	
+	int selectedItemIndex = -1;
+
+	/*
+	 * Items
+	 */
+
+	Item selectedItem = null;
+
 
 	public synchronized void loadProjectMethod(String projectPath) {
 
@@ -435,14 +444,7 @@ public class Project {
 		}
 	}
 
-	int selectedItemIndex = -1;
-
-	/*
-	 * Items
-	 */
-
-	Item selectedItem = null;
-
+	
 	public int findItemIndexByPagNum(float pgNum) {
 		int index = -1;
 		for (int i = 0; i < items.size(); i++) {
@@ -484,7 +486,9 @@ public class Project {
 			context.gui.page_num_text.setText(String.valueOf(selectedItem.pagNum));
 			context.gphotoA.setTargetFile(projectDirectory + "/raw", projectCode);
 			context.gphotoB.setTargetFile(projectDirectory + "/raw", projectCode);
-
+			
+			context.pointsLeft = selectedItem.mImageLeft.copyMesh(context.pointsLeft);
+			context.pointsRight = selectedItem.mImageRight.copyMesh(context.pointsRight);
 		}
 	}
 

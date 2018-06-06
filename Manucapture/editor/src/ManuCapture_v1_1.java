@@ -804,7 +804,8 @@ public class ManuCapture_v1_1 extends PApplet {
 			// dmouseX,mouseY
 			// -dmouseY);
 			hotAreaSelected.setRealPosition(mouseX, mouseY);
-
+			project.selectedItem.mImageLeft.mesh = context.copyMesh(context.pointsLeft);
+			project.selectedItem.mImageRight.mesh = context.copyMesh(context.pointsRight);
 		}
 
 		if (lastPressedR != null) {
@@ -992,6 +993,8 @@ public class ManuCapture_v1_1 extends PApplet {
 
 		if (hotAreaSelected != null) {
 			hotAreaSelected.setRealPosition(mouseX, mouseY);
+			project.selectedItem.mImageLeft.mesh = context.copyMesh(context.pointsLeft);
+			project.selectedItem.mImageRight.mesh = context.copyMesh(context.pointsRight);
 		}
 	}
 
@@ -1136,6 +1139,9 @@ public class ManuCapture_v1_1 extends PApplet {
 			relNewImagePathB = newImagePathB.substring(project.projectDirectory.length() + 1, newImagePathB.length());
 
 		Item newItem = new Item(context, relNewImagePathA, relNewImagePathB, newPageNum, "", type);
+		newItem.mImageLeft.mesh = context.copyMesh(context.pointsLeft);
+		newItem.mImageRight.mesh = context.copyMesh(context.pointsRight);
+
 		newItem.loadThumbnails(project);
 
 		addItem(project.selectedItemIndex + 1, newItem);
