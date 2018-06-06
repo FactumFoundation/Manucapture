@@ -82,6 +82,7 @@ public class Project {
 				Item newItem = new Item(context, imagePathLeft, imagePathRight, pageNum, comment, type);
 				items.add(newItem);
 			} catch (Exception e) {
+				e.printStackTrace();
 				context.parent.println("ERROR loading item", i);
 			}
 		}
@@ -117,8 +118,8 @@ public class Project {
 		File projectDirectoryFile = new File(projectDirectory);
 		for (int i = 0; i < items.size(); i++) {
 			Item item = items.get(i);
-			if (!item.imagePathLeft.equals("")) {
-				File itemImgLeft = new File(projectDirectory + "/" + item.imagePathLeft);
+			if (!item.mImageLeft.imagePath.equals("")) {
+				File itemImgLeft = new File(projectDirectory + "/" + item.mImageLeft.imagePath);
 				if (itemImgLeft.exists()) {
 					String fileName = itemImgLeft.getName();
 					String thumbnailPath = projectDirectoryFile.getPath() + "/thumbnails/"
@@ -126,7 +127,7 @@ public class Project {
 					context.parent.println("Left " + thumbnailPath);
 					File thumbFile = new File(thumbnailPath);
 					if (!thumbFile.exists()) {
-						item.imgThumbLeft = context.thumbnail.generateThumbnail(context, itemImgLeft, false);
+						item.mImageLeft.imgThumb = context.thumbnail.generateThumbnail(context, itemImgLeft, false);
 					} else {
 						PImage thumbImg = context.parent.loadImage(thumbnailPath);
 						if (thumbImg == null) {
@@ -136,17 +137,17 @@ public class Project {
 						}
 						thumbImg = thumbImg.get(context.thumbnail.thumbMargin, 0,
 								thumbImg.width - context.thumbnail.thumbMargin, thumbImg.height);
-						item.imgThumbLeft = thumbImg;
+						item.mImageLeft.imgThumb = thumbImg;
 					}
 				} else {
-					item.imgThumbLeft = null;
+					item.mImageLeft.imgThumb = null;
 					context.parent.println("Left ERROR", itemImgLeft.getPath(), "image not found");
 				}
 			} else {
-				item.imgThumbLeft = null;
+				item.mImageLeft.imgThumb = null;
 			}
-			if (!item.imagePathRight.equals("")) {
-				File itemImgRight = new File(projectDirectory + "/" + item.imagePathRight);
+			if (!item.mImageRight.imagePath.equals("")) {
+				File itemImgRight = new File(projectDirectory + "/" + item.mImageRight.imagePath);
 				if (itemImgRight.exists()) {
 					String fileName = itemImgRight.getName();
 					String thumbnailPath = projectDirectoryFile.getPath() + "/thumbnails/"
@@ -154,18 +155,18 @@ public class Project {
 					context.parent.println("Right " + thumbnailPath);
 					File thumbFile = new File(thumbnailPath);
 					if (!thumbFile.exists()) {
-						item.imgThumbRight = context.thumbnail.generateThumbnail(context, itemImgRight, true);
+						item.mImageRight.imgThumb = context.thumbnail.generateThumbnail(context, itemImgRight, true);
 					} else {
 						PImage thumbImg = context.parent.loadImage(thumbnailPath);
 						thumbImg = thumbImg.get(0, 0, thumbImg.width - context.thumbnail.thumbMargin, thumbImg.height);
-						item.imgThumbRight = thumbImg;
+						item.mImageRight.imgThumb = thumbImg;
 					}
 				} else {
-					item.imgThumbRight = null;
+					item.mImageRight.imgThumb = null;
 					context.parent.println("Right ERROR", itemImgRight.getPath(), "image not found");
 				}
 			} else {
-				item.imgThumbRight = null;
+				item.mImageRight.imgThumb = null;
 			}
 		}
 		try {
@@ -259,22 +260,22 @@ public class Project {
 			XML itemsXML = new XML("items");
 			for (int i = 0; i < items.size(); i++) {
 				Item item = items.get(i);
-				if (!(item.imagePathLeft.equals("") && item.imagePathRight.equals(""))) {
+				if (!(item.mImageLeft.imagePath.equals("") && item.mImageRight.imagePath.equals(""))) {
 					XML itemXML = new XML("item");
 					XML imageLeftXML = new XML("image_left");
-					if (item.imagePathLeft != null) {
-						imageLeftXML.setContent(item.imagePathLeft);
+					if (item.mImageLeft.imagePath != null) {
+						imageLeftXML.setContent(item.mImageLeft.imagePath);
 					} else {
 						imageLeftXML.setContent("");
 					}
 					itemXML.addChild(imageLeftXML);
 					XML imageRightXML = new XML("image_right");
-					if (item.imagePathRight != null) {
-						imageRightXML.setContent(item.imagePathRight);
+					if (item.mImageRight.imagePath != null) {
+						imageRightXML.setContent(item.mImageRight.imagePath);
 					} else {
 						imageRightXML.setContent("");
 					}
-					imageRightXML.setContent(item.imagePathRight);
+					imageRightXML.setContent(item.mImageRight.imagePath);
 					itemXML.addChild(imageRightXML);
 					XML pageNumXML = new XML("page_num");
 					pageNumXML.setContent(String.valueOf(item.pagNum));
@@ -383,10 +384,10 @@ public class Project {
 		ArrayList<String> usedImgs = new ArrayList<String>();
 		for (int index = 0; index < items.size(); index++) {
 			Item item = items.get(index);
-			if (!item.imagePathLeft.equals(""))
-				usedImgs.add(projectDirectory + "/" + item.imagePathLeft);
-			if (!item.imagePathRight.equals(""))
-				usedImgs.add(projectDirectory + "/" + item.imagePathRight);
+			if (!item.mImageLeft.imagePath.equals(""))
+				usedImgs.add(projectDirectory + "/" + item.mImageLeft.imagePath);
+			if (!item.mImageRight.imagePath.equals(""))
+				usedImgs.add(projectDirectory + "/" + item.mImageRight.imagePath);
 
 		}
 
@@ -459,14 +460,14 @@ public class Project {
 			OscMessage myMessage = new OscMessage("/load/item");
 			String leftImagePath = "";
 			String rightImagePath = "";
-			if (selectedItem.imagePathRight != null && selectedItem.imagePathRight.length() != 0) {
-				rightImagePath = projectDirectory + "/" + selectedItem.imagePathRight;
+			if (selectedItem.mImageRight.imagePath != null && selectedItem.mImageRight.imagePath.length() != 0) {
+				rightImagePath = projectDirectory + "/" + selectedItem.mImageRight.imagePath;
 				myMessage.add(rightImagePath);
 			} else {
 				myMessage.add("");
 			}
-			if (selectedItem.imagePathLeft != null && (selectedItem.imagePathLeft.length() != 0)) {
-				leftImagePath = projectDirectory + "/" + selectedItem.imagePathLeft;
+			if (selectedItem.mImageLeft.imagePath != null && (selectedItem.mImageLeft.imagePath.length() != 0)) {
+				leftImagePath = projectDirectory + "/" + selectedItem.mImageLeft.imagePath;
 				myMessage.add(leftImagePath);
 			} else {
 				myMessage.add("");

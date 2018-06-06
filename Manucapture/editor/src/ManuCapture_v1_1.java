@@ -499,7 +499,7 @@ public class ManuCapture_v1_1 extends PApplet {
 			}
 			fill(255);
 			textSize(18);
-			text(project.selectedItem.imagePathLeft, 950 + project.previewImgLeft.height / 2, 40);
+			text(project.selectedItem.mImageLeft.imagePath, 950 + project.previewImgLeft.height / 2, 40);
 			popStyle();
 		} else {
 			stroke(255);
@@ -525,7 +525,7 @@ public class ManuCapture_v1_1 extends PApplet {
 			}
 			fill(255);
 			textSize(18);
-			text(project.selectedItem.imagePathRight, 250 + project.previewImgRight.height / 2, 40);
+			text(project.selectedItem.mImageRight.imagePath, 250 + project.previewImgRight.height / 2, 40);
 			popStyle();
 		} else {
 			stroke(255);
@@ -701,12 +701,12 @@ public class ManuCapture_v1_1 extends PApplet {
 						}
 
 						if ((i != project.selectedItemIndex) || (itemsViewTransition != ADDING_ITEM_TRANSITION)) {
-							if (item.imgThumbLeft != null) {
-								itemsViewPort.image(item.imgThumbLeft, marginX + item.imgThumbLeft.width,
+							if (item.mImageLeft.imgThumb != null) {
+								itemsViewPort.image(item.mImageLeft.imgThumb, marginX + item.mImageLeft.imgThumb.width,
 										viewPortRelativeHeight);
 							}
-							if (item.imgThumbRight != null) {
-								itemsViewPort.image(item.imgThumbRight, marginX, viewPortRelativeHeight);
+							if (item.mImageRight.imgThumb != null) {
+								itemsViewPort.image(item.mImageRight.imgThumb, marginX, viewPortRelativeHeight);
 							}
 							itemsViewPort.noFill();
 							itemsViewPort.stroke(255);
@@ -1035,7 +1035,7 @@ public class ManuCapture_v1_1 extends PApplet {
 								newImagePathB.length());
 
 					Item newItem = new Item(context, relNewImagePathA, relNewImagePathB, newPageNum, "", "SubItem");
-					newItem.loadThumbnails(project, newImagePathA, newImagePathB);
+					newItem.loadThumbnails(project);
 					addSubItem(project.selectedItemIndex + 1, newItem);
 					clearPaths();
 				}
@@ -1127,7 +1127,7 @@ public class ManuCapture_v1_1 extends PApplet {
 			relNewImagePathB = newImagePathB.substring(project.projectDirectory.length() + 1, newImagePathB.length());
 
 		Item newItem = new Item(context, relNewImagePathA, relNewImagePathB, newPageNum, "", type);
-		newItem.loadThumbnails(project, newImagePathA, newImagePathB);
+		newItem.loadThumbnails(project);
 
 		addItem(project.selectedItemIndex + 1, newItem);
 		clearPaths();
@@ -1243,7 +1243,7 @@ public class ManuCapture_v1_1 extends PApplet {
 			if (index < items.size()) {
 				if (index > 0) {
 					Item targetItem = items.get(index - 1);
-					if (targetItem.imagePathLeft.equals("") && targetItem.imagePathRight.equals("")) {
+					if (targetItem.mImageLeft.imagePath.equals("") && targetItem.mImageRight.imagePath.equals("")) {
 						newItem.pagNum = targetItem.pagNum;
 						items.set(index - 1, newItem);
 						project.selectedItemIndex = min(index, items.size());
@@ -1269,7 +1269,7 @@ public class ManuCapture_v1_1 extends PApplet {
 					forceSelectedItem(index, true);
 				} else {
 					Item targetItem = items.get(index - 1);
-					if (targetItem.imagePathLeft.equals("") && targetItem.imagePathRight.equals("")) {
+					if (targetItem.mImageLeft.imagePath.equals("") && targetItem.mImageRight.imagePath.equals("")) {
 						newItem.pagNum = targetItem.pagNum;
 						items.set(index - 1, newItem);
 						project.selectedItemIndex = min(index, items.size());
@@ -1306,12 +1306,12 @@ public class ManuCapture_v1_1 extends PApplet {
 	public synchronized void replaceItem(int index, Item newItem) {
 		ArrayList<Item> items = project.items;
 		if (index >= 0 && index < items.size()) {
-			if (newItem.imagePathLeft.equals("")) {
-				newItem.imagePathLeft = items.get(index).imagePathLeft;
+			if (newItem.mImageLeft.imagePath.equals("")) {
+				newItem.mImageLeft.imagePath= items.get(index).mImageLeft.imagePath;
 				newItem.loadThumbnails(project);
 			}
-			if (newItem.imagePathRight.equals("")) {
-				newItem.imagePathRight = items.get(index).imagePathRight;
+			if (newItem.mImageRight.imagePath.equals("")) {
+				newItem.mImageRight.imagePath = items.get(index).mImageRight.imagePath;
 				newItem.loadThumbnails(project);
 			}
 			items.remove(index);
