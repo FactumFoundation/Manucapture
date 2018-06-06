@@ -252,11 +252,11 @@ public class ManuCapture_v1_1 extends PApplet {
 		context.pointsLeft
 				.add(new HotArea(new PVector(0 + size, wImageViewerSize - size), translatePos1, 3, size, "LBR"));
 
-		context.pointsRight.add(new HotArea(new PVector(size, size), translatePos2, 1, size, "RTL"));
-		context.pointsRight.add(new HotArea(new PVector(hImageViewerSize - size, size), translatePos2, 2, size, "RTR"));
+		context.pointsRight.add(new HotArea(new PVector(size, size), translatePos2, 0, size, "RTL"));
+		context.pointsRight.add(new HotArea(new PVector(hImageViewerSize - size, size), translatePos2, 1, size, "RTR"));
 		context.pointsRight.add(new HotArea(new PVector(hImageViewerSize - size, wImageViewerSize - size),
-				translatePos2, 3, size, "RBL"));
-		context.pointsRight.add(new HotArea(new PVector(size, wImageViewerSize - size), translatePos2, 4, size, "RBR"));
+				translatePos2, 2, size, "RBL"));
+		context.pointsRight.add(new HotArea(new PVector(size, wImageViewerSize - size), translatePos2, 3, size, "RBR"));
 
 		project = new Project();
 		project.context = context;
@@ -414,19 +414,20 @@ public class ManuCapture_v1_1 extends PApplet {
 			hotAreaSelected.draw(g);
 		}
 
-		for (int i = 1; i <= context.pointsLeft.size(); i++) {
-			PVector areaPos1 = context.pointsLeft.get(i - 1).getRealPosition();
-			PVector areaPos2 = context.pointsLeft.get(i % context.pointsLeft.size()).getRealPosition();
-			stroke(255);
-			line(areaPos1.x, areaPos1.y, areaPos2.x, areaPos2.y);
-		}
-
-		for (int i = 1; i <= context.pointsRight.size(); i++) {
-			PVector areaPos1 = context.pointsRight.get(i - 1).getRealPosition();
-			PVector areaPos2 = context.pointsRight.get(i % context.pointsRight.size()).getRealPosition();
-			stroke(255);
-			line(areaPos1.x, areaPos1.y, areaPos2.x, areaPos2.y);
-		}
+		if (lastPressedR == null)
+			for (int i = 1; i <= context.pointsLeft.size(); i++) {
+				PVector areaPos1 = context.pointsLeft.get(i - 1).getRealPosition();
+				PVector areaPos2 = context.pointsLeft.get(i % context.pointsLeft.size()).getRealPosition();
+				stroke(255);
+				line(areaPos1.x, areaPos1.y, areaPos2.x, areaPos2.y);
+			}
+		if (lastPressedL == null)
+			for (int i = 1; i <= context.pointsRight.size(); i++) {
+				PVector areaPos1 = context.pointsRight.get(i - 1).getRealPosition();
+				PVector areaPos2 = context.pointsRight.get(i % context.pointsRight.size()).getRealPosition();
+				stroke(255);
+				line(areaPos1.x, areaPos1.y, areaPos2.x, areaPos2.y);
+			}
 
 		stroke(255);
 
@@ -494,14 +495,15 @@ public class ManuCapture_v1_1 extends PApplet {
 			translate(marginLeftViewerRight, marginTopViewer);
 
 			drawImagePreview(project.previewImgLeft, lastPressedL, marginLeftViewerRight, context.pointsRight);
-
-			popMatrix();
-			for (HotArea area : context.pointsRight) {
-				area.draw(g);
-			}
 			fill(255);
-			textSize(18);
-			text(project.selectedItem.mImageLeft.imagePath, 950 + project.previewImgLeft.height / 2, 40);
+			textSize(14);
+			text(project.selectedItem.mImageLeft.imagePath, 0, 0);
+			popMatrix();
+			if (lastPressedL == null)
+				for (HotArea area : context.pointsRight) {
+					area.draw(g);
+				}
+
 			popStyle();
 		} else {
 			stroke(255);
@@ -519,15 +521,16 @@ public class ManuCapture_v1_1 extends PApplet {
 			imageMode(CORNER);
 
 			drawImagePreview(project.previewImgRight, lastPressedR, marginLeftViewerLeft, context.pointsLeft);
-
+			fill(255);
+			textSize(14);
+			text(project.selectedItem.mImageRight.imagePath, 0, 0);
 			popMatrix();
 			fill(0, 255, 0, 100);
-			for (HotArea area : context.pointsLeft) {
-				area.draw(g);
-			}
-			fill(255);
-			textSize(18);
-			text(project.selectedItem.mImageRight.imagePath, 250 + project.previewImgRight.height / 2, 40);
+			if (lastPressedR == null)
+				for (HotArea area : context.pointsLeft) {
+					area.draw(g);
+				}
+
 			popStyle();
 		} else {
 			stroke(255);
@@ -985,6 +988,10 @@ public class ManuCapture_v1_1 extends PApplet {
 				}
 			} else
 				scrollHandleY = 0;
+		}
+
+		if (hotAreaSelected != null) {
+			hotAreaSelected.setRealPosition(mouseX, mouseY);
 		}
 	}
 
