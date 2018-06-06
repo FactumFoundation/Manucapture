@@ -46,15 +46,24 @@ public class HotArea {
 		
 	}
 
+	PVector getRealPosition(){
+		return PVector.add(pos,translatePos);
+	}
+	
 	public void draw(PGraphics canvas) {
 		draw(canvas, PVector.add(pos,translatePos));
 	}
+
 
 	public void draw(PGraphics canvas, PVector pos) {
 
 //		realPos.x = canvas.screenX(pos.x, pos.y);
 //		realPos.y = canvas.screenY(pos.x, pos.y);
-
+		canvas.noFill();
 		canvas.ellipse(pos.x, pos.y, threshold, threshold);
+		canvas.line(pos.x-threshold/2, pos.y,pos.x+threshold/2, pos.y);
+		canvas.line(pos.x, pos.y-threshold/2,pos.x
+				, pos.y+threshold/2);
+		
 	}
 }
