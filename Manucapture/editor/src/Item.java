@@ -54,7 +54,6 @@ public class Item {
 	
 
 	public void loadMetadata() {
-		// TODO Auto-generated method stub
 		this.mImageLeft.loadMetadata();
 		this.mImageRight.loadMetadata();
 		
@@ -62,7 +61,6 @@ public class Item {
 	}
 
 	public void saveMetadata() {
-		// TODO Auto-generated method stub
 		this.mImageLeft.saveMetadata();
 		this.mImageRight.saveMetadata();
 	}
