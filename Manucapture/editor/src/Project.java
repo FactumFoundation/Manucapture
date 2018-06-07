@@ -6,6 +6,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.commons.io.FilenameUtils;
 
@@ -52,7 +53,7 @@ public class Project {
 	String nextRightImagePath = "";
 
 	private int resW = 3000;
-	
+
 	int selectedItemIndex = -1;
 
 	/*
@@ -60,7 +61,6 @@ public class Project {
 	 */
 
 	Item selectedItem = null;
-
 
 	public synchronized void loadProjectMethod(String projectPath) {
 
@@ -129,56 +129,66 @@ public class Project {
 		for (int i = 0; i < items.size(); i++) {
 			Item item = items.get(i);
 			item.loadThumbnails();
-//			if (!item.mImageLeft.imagePath.equals("")) {
-//				File itemImgLeft = new File(projectDirectory + "/" + item.mImageLeft.imagePath);
-//				if (itemImgLeft.exists()) {
-//					String fileName = itemImgLeft.getName();
-//					String thumbnailPath = projectDirectoryFile.getPath() + "/thumbnails/"
-//							+ FilenameUtils.removeExtension(fileName) + "_thumb.jpg";
-//					context.parent.println("Left " + thumbnailPath);
-//					File thumbFile = new File(thumbnailPath);
-//					if (!thumbFile.exists()) {
-//						item.mImageLeft.imgThumb = context.thumbnail.generateThumbnail(context, itemImgLeft, false);
-//					} else {
-//						PImage thumbImg = context.parent.loadImage(thumbnailPath);
-//						if (thumbImg == null) {
-//							context.parent.println("ni pudimos cargar la imagen " + thumbnailPath);
-//						} else {
-//
-//						}
-//						thumbImg = thumbImg.get(context.thumbnail.thumbMargin, 0,
-//								thumbImg.width - context.thumbnail.thumbMargin, thumbImg.height);
-//						item.mImageLeft.imgThumb = thumbImg;
-//					}
-//				} else {
-//					item.mImageLeft.imgThumb = null;
-//					context.parent.println("Left ERROR", itemImgLeft.getPath(), "image not found");
-//				}
-//			} else {
-//				item.mImageLeft.imgThumb = null;
-//			}
-//			if (!item.mImageRight.imagePath.equals("")) {
-//				File itemImgRight = new File(projectDirectory + "/" + item.mImageRight.imagePath);
-//				if (itemImgRight.exists()) {
-//					String fileName = itemImgRight.getName();
-//					String thumbnailPath = projectDirectoryFile.getPath() + "/thumbnails/"
-//							+ FilenameUtils.removeExtension(fileName) + "_thumb.jpg";
-//					context.parent.println("Right " + thumbnailPath);
-//					File thumbFile = new File(thumbnailPath);
-//					if (!thumbFile.exists()) {
-//						item.mImageRight.imgThumb = context.thumbnail.generateThumbnail(context, itemImgRight, true);
-//					} else {
-//						PImage thumbImg = context.parent.loadImage(thumbnailPath);
-//						thumbImg = thumbImg.get(0, 0, thumbImg.width - context.thumbnail.thumbMargin, thumbImg.height);
-//						item.mImageRight.imgThumb = thumbImg;
-//					}
-//				} else {
-//					item.mImageRight.imgThumb = null;
-//					context.parent.println("Right ERROR", itemImgRight.getPath(), "image not found");
-//				}
-//			} else {
-//				item.mImageRight.imgThumb = null;
-//			}
+			// if (!item.mImageLeft.imagePath.equals("")) {
+			// File itemImgLeft = new File(projectDirectory + "/" +
+			// item.mImageLeft.imagePath);
+			// if (itemImgLeft.exists()) {
+			// String fileName = itemImgLeft.getName();
+			// String thumbnailPath = projectDirectoryFile.getPath() +
+			// "/thumbnails/"
+			// + FilenameUtils.removeExtension(fileName) + "_thumb.jpg";
+			// context.parent.println("Left " + thumbnailPath);
+			// File thumbFile = new File(thumbnailPath);
+			// if (!thumbFile.exists()) {
+			// item.mImageLeft.imgThumb =
+			// context.thumbnail.generateThumbnail(context, itemImgLeft, false);
+			// } else {
+			// PImage thumbImg = context.parent.loadImage(thumbnailPath);
+			// if (thumbImg == null) {
+			// context.parent.println("ni pudimos cargar la imagen " +
+			// thumbnailPath);
+			// } else {
+			//
+			// }
+			// thumbImg = thumbImg.get(context.thumbnail.thumbMargin, 0,
+			// thumbImg.width - context.thumbnail.thumbMargin, thumbImg.height);
+			// item.mImageLeft.imgThumb = thumbImg;
+			// }
+			// } else {
+			// item.mImageLeft.imgThumb = null;
+			// context.parent.println("Left ERROR", itemImgLeft.getPath(),
+			// "image not found");
+			// }
+			// } else {
+			// item.mImageLeft.imgThumb = null;
+			// }
+			// if (!item.mImageRight.imagePath.equals("")) {
+			// File itemImgRight = new File(projectDirectory + "/" +
+			// item.mImageRight.imagePath);
+			// if (itemImgRight.exists()) {
+			// String fileName = itemImgRight.getName();
+			// String thumbnailPath = projectDirectoryFile.getPath() +
+			// "/thumbnails/"
+			// + FilenameUtils.removeExtension(fileName) + "_thumb.jpg";
+			// context.parent.println("Right " + thumbnailPath);
+			// File thumbFile = new File(thumbnailPath);
+			// if (!thumbFile.exists()) {
+			// item.mImageRight.imgThumb =
+			// context.thumbnail.generateThumbnail(context, itemImgRight, true);
+			// } else {
+			// PImage thumbImg = context.parent.loadImage(thumbnailPath);
+			// thumbImg = thumbImg.get(0, 0, thumbImg.width -
+			// context.thumbnail.thumbMargin, thumbImg.height);
+			// item.mImageRight.imgThumb = thumbImg;
+			// }
+			// } else {
+			// item.mImageRight.imgThumb = null;
+			// context.parent.println("Right ERROR", itemImgRight.getPath(),
+			// "image not found");
+			// }
+			// } else {
+			// item.mImageRight.imgThumb = null;
+			// }
 		}
 		try {
 			G2P5.setImageCount(new Integer(projectDataXML.getChild("image_counter").getContent()));
@@ -391,62 +401,55 @@ public class Project {
 	 * Garbage Image Collector
 	 */
 
-	public synchronized String[] getUnusedImage() {
-		ArrayList<String> usedImgs = new ArrayList<String>();
+	public synchronized List<MImage> getUnusedImage() {
+		ArrayList<MImage> usedImgs = new ArrayList<MImage>();
 		for (int index = 0; index < items.size(); index++) {
 			Item item = items.get(index);
 			if (!item.mImageLeft.imagePath.equals(""))
-				usedImgs.add(projectDirectory + "/" + item.mImageLeft.imagePath);
+				usedImgs.add(item.mImageLeft);
 			if (!item.mImageRight.imagePath.equals(""))
-				usedImgs.add(projectDirectory + "/" + item.mImageRight.imagePath);
+				usedImgs.add(item.mImageRight);
 
 		}
 
 		File folder = new File(projectDirectory + "/raw");
 		String[] files = folder.list();
 		if (files != null) {
-			ArrayList<String> unusedFiles = new ArrayList<String>();
+			ArrayList<MImage> unusedFiles = new ArrayList<>();
 			for (int index = 0; index < files.length; index++) {
 				boolean found = false;
 				for (int index2 = 0; index2 < usedImgs.size(); index2++) {
-					File usedImg = new File(usedImgs.get(index2));
 					// println(usedImg.getName(),files[index]);
-					if (usedImg.getName().equals(files[index])) {
+					if (usedImgs.get(index2).getName().equals(files[index])) {
 						found = true;
 						break;
 					}
 				}
 				if (!found) {
 					String targetPath = folder.getPath() + "/" + files[index];
-					unusedFiles.add(targetPath);
+					MImage unusedImg = new MImage();
+					unusedFiles.add(unusedImg);
 				}
 			}
-			unusedFiles.removeAll(usedImgs);
-			String[] unusedArr = new String[unusedFiles.size()];
-			for (int index = 0; index < unusedArr.length; index++) {
-				unusedArr[index] = unusedFiles.get(index);
-			}
-			return unusedArr;
+			// unusedFiles.removeAll(usedImgs);
+			return unusedFiles;
 		} else {
-			return null;
+			return new ArrayList<>();
 		}
 
 	}
 
 	public synchronized void removeUnusedImages() {
 		// Garbage collection
-		String[] unusedImgs = getUnusedImage();
-		if (unusedImgs != null && unusedImgs.length > 0 && unusedImgs.length < items.size() * 2) {
-			for (int index = 0; index < unusedImgs.length; index++) {
-				String targetFilePath = unusedImgs[index];
-				deleteFile(targetFilePath);
-				String thumbnailPath = context.thumbnail.getThumbnailPath(projectDirectory, new File(targetFilePath));
-				deleteFile(thumbnailPath);
-			}
-		}
+		// List<MImageE> unusedImgs = getUnusedImage();
+		// if (unusedImgs != null && unusedImgs.length > 0 && unusedImgs.length
+		// < items.size() * 2) {
+		// for (int index = 0; index < unusedImgs.length; index++) {
+		// unusedImgs.remove();
+		// }
+		// }
 	}
 
-	
 	public int findItemIndexByPagNum(float pgNum) {
 		int index = -1;
 		for (int i = 0; i < items.size(); i++) {
@@ -459,9 +462,9 @@ public class Project {
 	}
 
 	public void selectItem(int index) {
-		
+
 		if (index >= 0 && index < items.size()) {
-			
+
 			selectedItem = items.get(index);
 			OscMessage myMessage = new OscMessage("/load/item");
 			String leftImagePath = "";
@@ -490,9 +493,9 @@ public class Project {
 			context.gui.page_num_text.setText(String.valueOf(selectedItem.pagNum));
 			context.gphotoA.setTargetFile(projectDirectory + "/raw", projectCode);
 			context.gphotoB.setTargetFile(projectDirectory + "/raw", projectCode);
-			
+
 			selectedItem.loadMetadata();
-			
+
 			context.pointsLeft = selectedItem.mImageLeft.copyMesh(context.pointsLeft);
 			context.pointsRight = selectedItem.mImageRight.copyMesh(context.pointsRight);
 		}
@@ -501,11 +504,13 @@ public class Project {
 	// Image preview
 
 	public void loadRightPreview() {
-		previewImgRight  = loadPreview(projectDirectory + "/preview_right/", nextRightImagePath, "right_preview.jpg", context.rotA);
+		previewImgRight = loadPreview(projectDirectory + "/preview_right/", nextRightImagePath, "right_preview.jpg",
+				context.rotA);
 	}
 
 	public void loadLeftPreview() {
-		previewImgLeft = loadPreview(projectDirectory + "/preview_left/", nextLeftImagePath, "left_preview.jpg", context.rotB);
+		previewImgLeft = loadPreview(projectDirectory + "/preview_left/", nextLeftImagePath, "left_preview.jpg",
+				context.rotB);
 	}
 
 	void loadPreviews(String leftImagePath, String rightImagePath) {
@@ -530,9 +535,9 @@ public class Project {
 	}
 
 	public PImage loadPreview(String previewFolder, String nextRightImagePath, String resizedImage, int rot) {
-		
+
 		PImage img = null;
-		
+
 		if (!nextRightImagePath.equals("")) {
 
 			// Clear preview folder
@@ -560,7 +565,8 @@ public class Project {
 					e.printStackTrace();
 				}
 
-				// command = "convert " + previewFullPath + " -resize 1000x667 " +
+				// command = "convert " + previewFullPath + " -resize 1000x667 "
+				// +
 				// resizedImageFullPath;
 				command = context.appPath + "/epeg-master/src/bin/epeg -w " + resW + " -p -q 100 " + previewFullPath
 						+ " " + resizedImageFullPath.replace(".jpg", "-rot.jpg");
@@ -614,7 +620,7 @@ public class Project {
 
 			}
 		}
-		
+
 		return img;
 	}
 
@@ -650,10 +656,8 @@ public class Project {
 		// forceSelectedItem(selectedItemIndex, true);
 		saveProjectXML();
 		itemToRemove.remove();
-		//removeUnusedImages();
+		// removeUnusedImages();
 
-		
-		
 	}
 
 }

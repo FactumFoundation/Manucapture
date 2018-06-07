@@ -30,6 +30,9 @@ public class Item {
 		this.type = type;
 
 		this.context = context;
+		
+		mImageLeft.rotation = context.rotB;
+		mImageRight.rotation = context.rotA;
 
 		this.mImageLeft.imagePath = imagePathLeft;
 		this.mImageRight.imagePath = imagePathRight;

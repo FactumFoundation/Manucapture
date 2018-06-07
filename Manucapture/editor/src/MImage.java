@@ -1,6 +1,11 @@
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.apache.commons.io.FilenameUtils;
 
 import processing.core.PApplet;
 import processing.core.PImage;
@@ -36,7 +41,6 @@ public class MImage {
 			new File(getXmpPath()).delete();
 
 		// PReview
-		// Metadata
 	}
 
 	public List<HotArea> copyMesh(List<HotArea> defaultValue) {
@@ -59,22 +63,93 @@ public class MImage {
 			File itemImg = new File(context.project.projectDirectory + "/" + imagePath);
 
 			if (itemImg.exists()) {
-				String thumbnailPath = context.thumbnail.getThumbnailPath(context.project.projectDirectory, itemImg);
+				String thumbnailPath = getThumbnailPath(context.project.projectDirectory, itemImg);
 				context.parent.println("itemImage " + thumbnailPath);
 				File thumbFile = new File(thumbnailPath);
 				thumbPath = thumbnailPath;
 				if (!thumbFile.exists()) {
-					imgThumb = context.thumbnail.generateThumbnail(context, itemImg, false);
+					imgThumb = generateThumbnail(context, itemImg);
 				} else {
 					PImage thumbImg = context.parent.loadImage(thumbnailPath);
-					thumbImg = thumbImg.get(context.thumbnail.thumbMargin, 0,
-							thumbImg.width - context.thumbnail.thumbMargin, thumbImg.height);
+					thumbImg = thumbImg.get(thumbMargin, 0, thumbImg.width - thumbMargin, thumbImg.height);
 					imgThumb = thumbImg;
 				}
 			} else {
 				PApplet.println("item ERROR", itemImg.getPath(), "image not found");
 			}
 		}
+	}
+
+	int thumbMargin = 6;
+
+	public PImage generateThumbnail(ManuCaptureContext context, File rawImgFile) {
+
+		PApplet parent = context.parent;
+
+		String thumbnailPath = getThumbnailPath(context.project.projectDirectory, rawImgFile);
+		String commandGenerate = "exiftool -b -ThumbnailImage " + rawImgFile.getPath() + " > " + thumbnailPath;
+		parent.println(commandGenerate);
+		try {
+			String[] commands = new String[] { "/bin/sh", "-c", commandGenerate };
+			Process process = new ProcessBuilder(commands).start();
+			InputStream inputStream = process.getInputStream();
+			BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream), 1);
+			String line;
+			while ((line = bufferedReader.readLine()) != null) {
+				// println("InputStreamReader : " + line);
+			}
+			inputStream.close();
+			bufferedReader.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+			parent.print("ERROR generating thumbnail!");
+			return null;
+		}
+
+		int angle = 270;
+		boolean mirrorThumbnail = false;
+		angle = rotation;
+		String commandRotate;
+		if (mirrorThumbnail) {
+			commandRotate = "convert -rotate " + angle + " -flop " + thumbnailPath + " " + thumbnailPath;
+		} else {
+			commandRotate = "convert -rotate " + angle + " " + thumbnailPath + " " + thumbnailPath;
+		}
+		parent.println(commandRotate);
+		try {
+			String[] commands = new String[] { "/bin/sh", "-c", commandRotate };
+			Process process = new ProcessBuilder(commands).start();
+			InputStream inputStream = process.getInputStream();
+			BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream), 1);
+			String line;
+			while ((line = bufferedReader.readLine()) != null) {
+				// println("InputStreamReader : " + line);
+			}
+			inputStream.close();
+			bufferedReader.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		parent.delay(100);
+		PImage thumbImg = parent.loadImage(thumbnailPath);
+//		if (rightImg) {
+			thumbImg = thumbImg.get(0, 0, thumbImg.width - thumbMargin, thumbImg.height);
+//		} else {
+//			thumbImg = thumbImg.get(thumbMargin, 0, thumbImg.width - thumbMargin, thumbImg.height);
+//		}
+
+		context.parent.println("Thumbnail Generated : " + thumbnailPath);
+		return thumbImg;
+	}
+
+	/*
+	 * Thumbnail processing
+	 * 
+	 */
+
+	public String getThumbnailPath(String projectDirectory, File imageFile) {
+		String rawImgName = FilenameUtils.removeExtension(imageFile.getName());
+		return projectDirectory + "/thumbnails/" + rawImgName + "_thumb.jpg";
 	}
 
 	public void saveMetadata() {
@@ -105,6 +180,14 @@ public class MImage {
 
 	private String getXmpPath() {
 		return (context.project.projectDirectory + "/" + imagePath).replace(".cr2", ".xmp");
+	}
+
+	public String getAbsolutePath() {
+		return (context.project.projectDirectory + "/" + imagePath);
+	}
+
+	public String getName() {
+		return (imagePath.replace("raw/", ""));
 	}
 
 	public void loadMetadata() {
