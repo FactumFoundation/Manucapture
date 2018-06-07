@@ -33,6 +33,10 @@ public class ManuCaptureContext {
 	List<HotArea> pointsLeft = new ArrayList<>();
 	List<HotArea> pointsRight = new ArrayList<>();
 	
+
+	int wImageViewerSize = 1000;
+	int hImageViewerSize = 667;
+	
 	public List<HotArea> copyMesh(List<HotArea> mesh) {
 		List<HotArea> temp = new ArrayList<>();
 		for (int i = 0; i < mesh.size(); i++) {

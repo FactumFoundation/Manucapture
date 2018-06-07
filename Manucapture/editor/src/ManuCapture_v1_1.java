@@ -207,8 +207,6 @@ public class ManuCapture_v1_1 extends PApplet {
 	int guideHeight_1 = 200;
 	int guideHeight_2 = 600;
 
-	int wImageViewerSize = 1000;
-	int hImageViewerSize = 667;
 
 	int marginTopViewer = 20;
 	int marginLeftViewerRight = 1250;
@@ -246,17 +244,17 @@ public class ManuCapture_v1_1 extends PApplet {
 
 		context.pointsLeft.add(new HotArea(new PVector(size, size), translatePos1, 0, size, "LTL"));
 		context.pointsLeft
-				.add(new HotArea(new PVector(hImageViewerSize - size, 0 + size), translatePos1, 1, size, "LTR"));
-		context.pointsLeft.add(new HotArea(new PVector(hImageViewerSize - size, wImageViewerSize - size), translatePos1,
+				.add(new HotArea(new PVector(context.hImageViewerSize - size, 0 + size), translatePos1, 1, size, "LTR"));
+		context.pointsLeft.add(new HotArea(new PVector(context.hImageViewerSize - size, context.wImageViewerSize - size), translatePos1,
 				2, size, "LBL"));
 		context.pointsLeft
-				.add(new HotArea(new PVector(0 + size, wImageViewerSize - size), translatePos1, 3, size, "LBR"));
+				.add(new HotArea(new PVector(0 + size, context.wImageViewerSize - size), translatePos1, 3, size, "LBR"));
 
 		context.pointsRight.add(new HotArea(new PVector(size, size), translatePos2, 0, size, "RTL"));
-		context.pointsRight.add(new HotArea(new PVector(hImageViewerSize - size, size), translatePos2, 1, size, "RTR"));
-		context.pointsRight.add(new HotArea(new PVector(hImageViewerSize - size, wImageViewerSize - size),
+		context.pointsRight.add(new HotArea(new PVector(context.hImageViewerSize - size, size), translatePos2, 1, size, "RTR"));
+		context.pointsRight.add(new HotArea(new PVector(context.hImageViewerSize - size, context.wImageViewerSize - size),
 				translatePos2, 2, size, "RBL"));
-		context.pointsRight.add(new HotArea(new PVector(size, wImageViewerSize - size), translatePos2, 3, size, "RBR"));
+		context.pointsRight.add(new HotArea(new PVector(size, context.wImageViewerSize - size), translatePos2, 3, size, "RBR"));
 
 		project = new Project();
 		project.context = context;
@@ -459,7 +457,7 @@ public class ManuCapture_v1_1 extends PApplet {
 			if (chartState == 0) {
 				textAlign(CENTER);
 				fill(255, 0, 0, 100);
-				rect(marginLeftViewerLeft, 0, hImageViewerSize * 2, wImageViewerSize);
+				rect(marginLeftViewerLeft, 0, context.hImageViewerSize * 2, context.wImageViewerSize);
 				fill(255);
 				textSize(24);
 				text("CALIBRATING, PLEASE CAPTURE \n THIS BACKGROUND \nWITHOUT ANY DOCUMENT", marginLeftViewerRight,
@@ -473,10 +471,10 @@ public class ManuCapture_v1_1 extends PApplet {
 				}
 
 				fill(255, 0, 0, 100);
-				rect(0, 0, hImageViewerSize, wImageViewerSize);
+				rect(0, 0, context.hImageViewerSize, context.wImageViewerSize);
 				fill(255);
 				textSize(24);
-				text("CALIBRATING, PLEASE CAPTURE  THIS CAMERA", hImageViewerSize / 2, 200);
+				text("CALIBRATING, PLEASE CAPTURE  THIS CAMERA", context.hImageViewerSize / 2, 200);
 			}
 
 			popStyle();
@@ -508,7 +506,7 @@ public class ManuCapture_v1_1 extends PApplet {
 		} else {
 			stroke(255);
 			fill(50);
-			rect(marginLeftViewerRight, 20, hImageViewerSize, wImageViewerSize);
+			rect(marginLeftViewerRight, 20, context.hImageViewerSize, context.wImageViewerSize);
 		}
 	}
 
@@ -535,20 +533,20 @@ public class ManuCapture_v1_1 extends PApplet {
 		} else {
 			stroke(255);
 			fill(50);
-			rect(580, 20, hImageViewerSize, wImageViewerSize);
+			rect(580, 20, context.hImageViewerSize, context.wImageViewerSize);
 		}
 	}
 
 	private void drawImagePreview(PImage img, PVector lastPressedR, int marginLeftViewer, List<HotArea> areas) {
 		if (lastPressedR != null) {
 			// pimero quiero saber pos en la imagen
-			float imgScale = img.width / (float) hImageViewerSize;
+			float imgScale = img.width / (float) context.hImageViewerSize;
 			PVector virtualPos = PVector.sub(lastPressedR, new PVector(marginLeftViewer, marginTopViewer));
 
 			PVector virtualPosScaled = PVector.mult(virtualPos, imgScale);
 
-			int portviewSizeX = (int) (hImageViewerSize);
-			int portviewSizeY = (int) (wImageViewerSize);
+			int portviewSizeX = (int) (context.hImageViewerSize);
+			int portviewSizeY = (int) (context.wImageViewerSize);
 
 			int portviewStartX = (int) (virtualPosScaled.x - portviewSizeX / 2);
 			int portviewStartY = (int) (virtualPosScaled.y - portviewSizeY / 2);
@@ -569,11 +567,11 @@ public class ManuCapture_v1_1 extends PApplet {
 				portviewStartY = 0;
 			}
 
-			image(img, 0, 0, hImageViewerSize, wImageViewerSize, portviewStartX, portviewStartY,
+			image(img, 0, 0, context.hImageViewerSize, context.wImageViewerSize, portviewStartX, portviewStartY,
 					portviewStartX + portviewSizeX, portviewStartY + portviewSizeY);
 		} else {
 
-			image(img, 0, 0, hImageViewerSize, wImageViewerSize, 0, 0, img.width, img.height);
+			image(img, 0, 0, context.hImageViewerSize, context.wImageViewerSize, 0, 0, img.width, img.height);
 		}
 
 	}
@@ -941,6 +939,7 @@ public class ManuCapture_v1_1 extends PApplet {
 			}
 		} else {
 			hotAreaSelected = null;
+			context.project.selectedItem.saveMetadata();
 		}
 
 		println("mouseX:" + mouseX + " mouseY:" + mouseY);

@@ -459,7 +459,9 @@ public class Project {
 	}
 
 	public void selectItem(int index) {
+		
 		if (index >= 0 && index < items.size()) {
+			
 			selectedItem = items.get(index);
 			OscMessage myMessage = new OscMessage("/load/item");
 			String leftImagePath = "";
@@ -488,6 +490,8 @@ public class Project {
 			context.gui.page_num_text.setText(String.valueOf(selectedItem.pagNum));
 			context.gphotoA.setTargetFile(projectDirectory + "/raw", projectCode);
 			context.gphotoB.setTargetFile(projectDirectory + "/raw", projectCode);
+			
+			selectedItem.loadMetadata();
 			
 			context.pointsLeft = selectedItem.mImageLeft.copyMesh(context.pointsLeft);
 			context.pointsRight = selectedItem.mImageRight.copyMesh(context.pointsRight);
