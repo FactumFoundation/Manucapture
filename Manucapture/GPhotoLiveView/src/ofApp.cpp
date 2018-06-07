@@ -631,6 +631,8 @@ void ofApp::setup(){
     init_cameras();
     start_preview();
 
+     patternImage.load("images/pattern.png");
+
 }
 
 
@@ -660,9 +662,12 @@ void ofApp::update(){
 
 //--------------------------------------------------------------
 void ofApp::draw(){
+
     if(liveDataReady){
         canon_preview();
     }
+
+    patternImage.draw(0, 0,ofGetWindowWidth(),ofGetWindowHeight());
 }
 
 //--------------------------------------------------------------

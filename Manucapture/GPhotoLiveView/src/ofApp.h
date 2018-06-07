@@ -71,4 +71,6 @@ public:
     Camera		**cams;
     int cameraCount = 0;
     GPContext *canoncontext;
+
+    ofImage patternImage;
 };
