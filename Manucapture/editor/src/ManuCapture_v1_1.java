@@ -26,45 +26,43 @@ public class ManuCapture_v1_1 extends PApplet {
 	/*
 	 * ManuCapture.pde A Visual tool for recording books using DSLR Cameras
 	 * 
-	 * This source file is part of the ManuCapture software For the latest info,
-	 * see http://www.factumfoundation.org/pag/235/Digitisation-of-oriental-
+	 * This source file is part of the ManuCapture software For the latest info, see
+	 * http://www.factumfoundation.org/pag/235/Digitisation-of-oriental-
 	 * manuscripts-in-Daghestan
 	 * 
-	 * Copyright (c) 2016-2018 Jorge Cano and Enrique Esteban in Factum
-	 * Foundation
+	 * Copyright (c) 2016-2018 Jorge Cano and Enrique Esteban in Factum Foundation
 	 * 
-	 * This program is free software; you can redistribute it and/or modify it
-	 * under the terms of the GNU General Public License as published by the
-	 * Free Software Foundation; either version 2 of the License, or (at your
-	 * option) any later version.
+	 * This program is free software; you can redistribute it and/or modify it under
+	 * the terms of the GNU General Public License as published by the Free Software
+	 * Foundation; either version 2 of the License, or (at your option) any later
+	 * version.
 	 * 
-	 * This program is distributed in the hope that it will be useful, but
-	 * WITHOUT ANY WARRANTY; without even the implied warranty of
-	 * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
-	 * Public License for more details.
+	 * This program is distributed in the hope that it will be useful, but WITHOUT
+	 * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+	 * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+	 * details.
 	 * 
-	 * You should have received a copy of the GNU General Public License along
-	 * with this program; if not, write to the Free Software Foundation, Inc.,
-	 * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+	 * You should have received a copy of the GNU General Public License along with
+	 * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
+	 * Place, Suite 330, Boston, MA 02111-1307 USA
 	 */
 
 	/*
 	 * 
 	 * Todo:
 	 * 
-	 * Viewer: Left image correspons to the left -> should be on the right
-	 * Switch images Left is upside down and right is mirrored Botón para
-	 * extraer snapshots
+	 * Viewer: Left image correspons to the left -> should be on the right Switch
+	 * images Left is upside down and right is mirrored Botón para extraer snapshots
 	 * 
 	 * 
 	 * Editor: Procesar lista de thumbnails pendientes en un thread aparte y
-	 * metadatos en un thread aparte Calibration: Definir con Pereira Al iniciar
-	 * no se situa en el útimo elemento Cajas de texto adaptables al tamaño, no
-	 * funcionansaltos de linea Activar/Desactiva camaras Feedback visual de que
-	 * se está capturando foto (cambiar background a anaranjado)
+	 * metadatos en un thread aparte Calibration: Definir con Pereira Al iniciar no
+	 * se situa en el útimo elemento Cajas de texto adaptables al tamaño, no
+	 * funcionansaltos de linea Activar/Desactiva camaras Feedback visual de que se
+	 * está capturando foto (cambiar background a anaranjado)
 	 * 
-	 * Al añadir subpágina no se suman todas las páginas sub siguientes AL
-	 * eliminar subpágina que no se renombren las siguientes
+	 * Al añadir subpágina no se suman todas las páginas sub siguientes AL eliminar
+	 * subpágina que no se renombren las siguientes
 	 * 
 	 */
 
@@ -207,7 +205,6 @@ public class ManuCapture_v1_1 extends PApplet {
 	int guideHeight_1 = 200;
 	int guideHeight_2 = 600;
 
-
 	int marginTopViewer = 20;
 	int marginLeftViewerRight = 1250;
 	int marginLeftViewerLeft = 583;
@@ -243,18 +240,22 @@ public class ManuCapture_v1_1 extends PApplet {
 		PVector translatePos2 = new PVector(marginLeftViewerRight, marginTopViewer);
 
 		context.pointsLeft.add(new HotArea(new PVector(size, size), translatePos1, 0, size, "LTL"));
+		context.pointsLeft.add(
+				new HotArea(new PVector(context.hImageViewerSize - size, 0 + size), translatePos1, 1, size, "LTR"));
 		context.pointsLeft
-				.add(new HotArea(new PVector(context.hImageViewerSize - size, 0 + size), translatePos1, 1, size, "LTR"));
-		context.pointsLeft.add(new HotArea(new PVector(context.hImageViewerSize - size, context.wImageViewerSize - size), translatePos1,
-				2, size, "LBL"));
-		context.pointsLeft
-				.add(new HotArea(new PVector(0 + size, context.wImageViewerSize - size), translatePos1, 3, size, "LBR"));
+				.add(new HotArea(new PVector(context.hImageViewerSize - size, context.wImageViewerSize - size),
+						translatePos1, 2, size, "LBL"));
+		context.pointsLeft.add(
+				new HotArea(new PVector(0 + size, context.wImageViewerSize - size), translatePos1, 3, size, "LBR"));
 
 		context.pointsRight.add(new HotArea(new PVector(size, size), translatePos2, 0, size, "RTL"));
-		context.pointsRight.add(new HotArea(new PVector(context.hImageViewerSize - size, size), translatePos2, 1, size, "RTR"));
-		context.pointsRight.add(new HotArea(new PVector(context.hImageViewerSize - size, context.wImageViewerSize - size),
-				translatePos2, 2, size, "RBL"));
-		context.pointsRight.add(new HotArea(new PVector(size, context.wImageViewerSize - size), translatePos2, 3, size, "RBR"));
+		context.pointsRight
+				.add(new HotArea(new PVector(context.hImageViewerSize - size, size), translatePos2, 1, size, "RTR"));
+		context.pointsRight
+				.add(new HotArea(new PVector(context.hImageViewerSize - size, context.wImageViewerSize - size),
+						translatePos2, 2, size, "RBL"));
+		context.pointsRight
+				.add(new HotArea(new PVector(size, context.wImageViewerSize - size), translatePos2, 3, size, "RBR"));
 
 		project = new Project();
 		project.context = context;
@@ -294,10 +295,8 @@ public class ManuCapture_v1_1 extends PApplet {
 		} else {
 
 			G2P5.init(0);
-			context.gphotoA = G2P5.create(this, serialCameraA, "A");
-			context.gphotoA.setTargetFile(homeDirectory(), "test");
-			context.gphotoB = G2P5.create(this, serialCameraB, "B");
-			context.gphotoB.setTargetFile(homeDirectory(), "test");
+			context.gphotoA = createG2P5(serialCameraA, "A");
+			context.gphotoB = createG2P5(serialCameraB, "B");
 		}
 
 		surface.setTitle("ManuCapture v1");
@@ -325,6 +324,12 @@ public class ManuCapture_v1_1 extends PApplet {
 
 		frameRate(25);
 
+	}
+
+	private G2P5 createG2P5(String serial, String name) {
+		G2P5 g2p5 = G2P5.create(this, serial,name);
+		g2p5.setTargetFile(homeDirectory(), "test");
+		return g2p5;
 	}
 
 	boolean loadData = true;
@@ -1238,12 +1243,11 @@ public class ManuCapture_v1_1 extends PApplet {
 
 	/*
 	 * public void removeItem(int index) { Item itemToClear =
-	 * project.items.get(index); itemToClear.remove(); project.selectedItemIndex
-	 * = min(index, project.items.size()); if (project.selectedItemIndex >= 0 &&
-	 * project.items.size() > 0) {
-	 * project.selectItem(project.selectedItemIndex); }
-	 * forceSelectedItem(project.selectedItemIndex, true);
-	 * project.saveProjectXML(); project.removeUnusedImages();
+	 * project.items.get(index); itemToClear.remove(); project.selectedItemIndex =
+	 * min(index, project.items.size()); if (project.selectedItemIndex >= 0 &&
+	 * project.items.size() > 0) { project.selectItem(project.selectedItemIndex); }
+	 * forceSelectedItem(project.selectedItemIndex, true); project.saveProjectXML();
+	 * project.removeUnusedImages();
 	 * 
 	 * }
 	 */
@@ -1489,14 +1493,14 @@ public class ManuCapture_v1_1 extends PApplet {
 	}
 
 	/*
-	 * ========================================================= ==== WARNING
-	 * === ========================================================= The code in
-	 * this tab has been generated from the GUI form designer and care should be
-	 * taken when editing this file. Only add/edit code inside the event
-	 * handlers i.e. only use lines between the matching comment tags. e.g.
+	 * ========================================================= ==== WARNING ===
+	 * ========================================================= The code in this
+	 * tab has been generated from the GUI form designer and care should be taken
+	 * when editing this file. Only add/edit code inside the event handlers i.e.
+	 * only use lines between the matching comment tags. e.g.
 	 * 
-	 * void myBtnEvents(GButton button) { //_CODE_:button1:12356: // It is safe
-	 * to enter your event code here } //_CODE_:button1:12356:
+	 * void myBtnEvents(GButton button) { //_CODE_:button1:12356: // It is safe to
+	 * enter your event code here } //_CODE_:button1:12356:
 	 * 
 	 * Do not rename this tab!
 	 * =========================================================
@@ -1629,8 +1633,7 @@ public class ManuCapture_v1_1 extends PApplet {
 	public void camera_A_connected_click(GButton source, GEvent event) { // _CODE_:camera_A_connected_button:265149:
 		println("button1 - GButton >> GEvent." + event + " @ " + millis());
 		if (!context.gphotoA.isConnected()) {
-			context.gphotoA = G2P5.create(this, serialCameraA, "A");
-			context.gphotoA.setTargetFile(homeDirectory(), "test");
+			context.gphotoA = createG2P5(serialCameraA,"A");
 		}
 	} // _CODE_:camera_A_connected_button:265149:
 
@@ -1656,8 +1659,7 @@ public class ManuCapture_v1_1 extends PApplet {
 	public void camera_B_connected_click(GButton source, GEvent event) { // _CODE_:camera_B_connected_button:564189:
 		println("camera_B_connected_button - GButton >> GEvent." + event + " @ " + millis());
 		if (!context.gphotoB.isConnected()) {
-			context.gphotoB = G2P5.create(this, serialCameraB, "B");
-			context.gphotoB.setTargetFile(homeDirectory(), "test");
+			context.gphotoA = createG2P5(serialCameraB,"B");
 		}
 	} // _CODE_:camera_B_connected_button:564189:
 
@@ -1731,8 +1733,8 @@ public class ManuCapture_v1_1 extends PApplet {
 
 		/*
 		 * GraphicsEnvironment environment =
-		 * GraphicsEnvironment.getLocalGraphicsEnvironment(); GraphicsDevice
-		 * devices[] = environment.getScreenDevices();
+		 * GraphicsEnvironment.getLocalGraphicsEnvironment(); GraphicsDevice devices[] =
+		 * environment.getScreenDevices();
 		 * 
 		 * if(devices.length>1 ){ //we have a 2nd display/projector
 		 * 
