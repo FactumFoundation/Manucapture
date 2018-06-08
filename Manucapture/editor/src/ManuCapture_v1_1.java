@@ -145,6 +145,7 @@ public class ManuCapture_v1_1 extends PApplet {
 	boolean initSelectedItem = false;
 
 	PImage removeItemIcon;
+	PImage chartItemIcon;
 	int marginX = 2;
 	int marginSubpgX = 8;
 	int marginInfo = 10;
@@ -313,6 +314,7 @@ public class ManuCapture_v1_1 extends PApplet {
 		textMode(MODEL);
 
 		removeItemIcon = loadImage("cross_inv_20x20.jpeg");
+		chartItemIcon = loadImage("chart-item.png");
 
 		context.oscP5 = new OscP5(this, receivePort);
 		context.viewerLocation = new NetAddress("127.0.0.1", sendPort);
@@ -327,7 +329,7 @@ public class ManuCapture_v1_1 extends PApplet {
 	}
 
 	private G2P5 createG2P5(String serial, String name) {
-		G2P5 g2p5 = G2P5.create(this, serial,name);
+		G2P5 g2p5 = G2P5.create(this, serial, name);
 		g2p5.setTargetFile(homeDirectory(), "test");
 		return g2p5;
 	}
@@ -491,13 +493,14 @@ public class ManuCapture_v1_1 extends PApplet {
 
 	private void drawLeft() {
 
-		if (project.selectedItem.mImageLeft.previewImg != null) {
+		if (project.selectedItem != null && project.selectedItem.mImageLeft.previewImg != null) {
 
 			pushStyle();
 			pushMatrix();
 			translate(marginLeftViewerRight, marginTopViewer);
 
-			drawImagePreview(project.selectedItem.mImageLeft.previewImg, lastPressedL, marginLeftViewerRight, context.pointsRight);
+			drawImagePreview(project.selectedItem.mImageLeft.previewImg, lastPressedL, marginLeftViewerRight,
+					context.pointsRight);
 			fill(255);
 			textSize(14);
 			text(project.selectedItem.mImageLeft.imagePath, 0, 0);
@@ -517,13 +520,14 @@ public class ManuCapture_v1_1 extends PApplet {
 
 	private void drawRight() {
 
-		if (project.selectedItem.mImageRight.previewImg != null) {
+		if (project.selectedItem != null && project.selectedItem.mImageRight.previewImg != null) {
 			pushStyle();
 			pushMatrix();
 			translate(marginLeftViewerLeft, marginTopViewer);
 			imageMode(CORNER);
 
-			drawImagePreview(project.selectedItem.mImageRight.previewImg, lastPressedR, marginLeftViewerLeft, context.pointsLeft);
+			drawImagePreview(project.selectedItem.mImageRight.previewImg, lastPressedR, marginLeftViewerLeft,
+					context.pointsLeft);
 			fill(255);
 			textSize(14);
 			text(project.selectedItem.mImageRight.imagePath, 0, 0);
@@ -729,6 +733,11 @@ public class ManuCapture_v1_1 extends PApplet {
 									viewPortRelativeHeight + marginY);
 
 							itemsViewPort.noTint();
+							if (item.type == Item.TYPE_CHART)
+								itemsViewPort.image(chartItemIcon,
+										itemsViewPort.width - scrollBarWidth - marginInfo - removeIconSize,
+										viewPortRelativeHeight + marginY * 4, 20, 20);
+
 							String page = String.valueOf(item.pagNum);
 							page = page.replace(".0", "");
 							float pageNumberWidth = textWidth(page) + 10;
@@ -1633,7 +1642,7 @@ public class ManuCapture_v1_1 extends PApplet {
 	public void camera_A_connected_click(GButton source, GEvent event) { // _CODE_:camera_A_connected_button:265149:
 		println("button1 - GButton >> GEvent." + event + " @ " + millis());
 		if (!context.gphotoA.isConnected()) {
-			context.gphotoA = createG2P5(serialCameraA,"A");
+			context.gphotoA = createG2P5(serialCameraA, "A");
 		}
 	} // _CODE_:camera_A_connected_button:265149:
 
@@ -1659,7 +1668,7 @@ public class ManuCapture_v1_1 extends PApplet {
 	public void camera_B_connected_click(GButton source, GEvent event) { // _CODE_:camera_B_connected_button:564189:
 		println("camera_B_connected_button - GButton >> GEvent." + event + " @ " + millis());
 		if (!context.gphotoB.isConnected()) {
-			context.gphotoA = createG2P5(serialCameraB,"B");
+			context.gphotoA = createG2P5(serialCameraB, "B");
 		}
 	} // _CODE_:camera_B_connected_button:564189:
 
@@ -1719,13 +1728,13 @@ public class ManuCapture_v1_1 extends PApplet {
 		size(1920, 1030, P2D);
 	}
 
-//	public void loadRightPreview() {
-//		project.loadRightPreview();
-//	}
-//
-//	public void loadLeftPreview() {
-//		project.loadLeftPreview();
-//	}
+	// public void loadRightPreview() {
+	// project.loadRightPreview();
+	// }
+	//
+	// public void loadLeftPreview() {
+	// project.loadLeftPreview();
+	// }
 
 	static public void main(String[] passedArgs) {
 
