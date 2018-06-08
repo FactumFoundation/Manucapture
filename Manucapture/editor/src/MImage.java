@@ -23,15 +23,15 @@ public class MImage {
 
 	List<HotArea> mesh = new ArrayList<>();
 	
-
 	int thumbMargin = 6;
 
 	int rotation;
 
+	long timestamp = -1;
+	
 	String lastLeftImagePath = "";
 	String lastRightImagePath = "";
-
-
+	
 	void remove() {
 		// imagePath = "";
 		// thumbPath = "";

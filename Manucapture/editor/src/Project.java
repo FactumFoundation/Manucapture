@@ -421,5 +421,96 @@ public class Project {
 		// removeUnusedImages();
 
 	}
+	
+	public void forceSelectedItem(int index, boolean transition) {
+		selectedItemIndex = PApplet.min(index, items.size() - 1);
+		if (transition) {
+			scrollTransitionState = SCROLL_TRANSITION;
+		}
+		if (selectedItemIndex >= 0 && items.size() > 0) {
+			// Update gui list
+			context.parent.itemsViewport.forceSelectedItem(index, transition);
+			selectItem(selectedItemIndex);
+		}
+	}
+	
+	public synchronized void addItem(int index, Item newItem) {
+		if (index >= 0) {
+			if (index < items.size()) {
+				if (index > 0) {
+					Item targetItem = items.get(index - 1);
+					if (targetItem.mImageLeft.imagePath.equals("") && targetItem.mImageRight.imagePath.equals("")) {
+						newItem.pagNum = targetItem.pagNum;
+						items.set(index - 1, newItem);
+						selectedItemIndex = PApplet.min(index, items.size());
+						if ((selectedItemIndex != items.size())
+								|| (items.get(selectedItemIndex).pagNum != newItem.pagNum + 1)) {
+							Item emptyItem = new Item(context, "", "", (int) (newItem.pagNum) + 1, "", "Item");
+							items.add(selectedItemIndex, emptyItem);
+							forceSelectedItem(index, true);
+						} else if (selectedItemIndex != items.size()) {
+							forceSelectedItem(selectedItemIndex, true);
+						}
+					} else {
+						items.add(index, newItem);
+						forceSelectedItem(index, true);
+					}
+				} else {
+					items.add(index, newItem);
+					forceSelectedItem(index, true);
+				}
+			} else {
+				if (items.size() == 0) {
+					items.add(newItem);
+					forceSelectedItem(index, true);
+				} else {
+					Item targetItem = items.get(index - 1);
+					if (targetItem.mImageLeft.imagePath.equals("") && targetItem.mImageRight.imagePath.equals("")) {
+						newItem.pagNum = targetItem.pagNum;
+						items.set(index - 1, newItem);
+						selectedItemIndex = PApplet.min(index, items.size());
+						forceSelectedItem(selectedItemIndex, true);
+					} else {
+						items.add(newItem);
+						forceSelectedItem(index, true);
+					}
+
+				}
+			}
+
+			for (int i = index + 1; i < items.size(); i++) {
+				items.get(i).pagNum++;
+			}
+
+			saveProjectXML();
+			context._println("item added");
+		}
+	}
+	public synchronized void replaceItem(int index, Item newItem) {
+		if (index >= 0 && index < items.size()) {
+			if (newItem.mImageLeft.imagePath.equals("")) {
+				newItem.mImageLeft.imagePath = items.get(index).mImageLeft.imagePath;
+				newItem.loadThumbnails();
+			}
+			if (newItem.mImageRight.imagePath.equals("")) {
+				newItem.mImageRight.imagePath = items.get(index).mImageRight.imagePath;
+				newItem.loadThumbnails();
+			}
+			items.remove(index);
+			items.add(index, newItem);
+			selectedItemIndex = PApplet.min(index + 1, items.size());
+			// if (!newItem.type.equals("SubItem")) {
+			// if ((project.selectedItemIndex == items.size())
+			// || (items.get(project.selectedItemIndex).pagNum != newItem.pagNum
+			// + 1)) {
+			// Item emptyItem = new Item(context, "", "", newItem.pagNum + 1,
+			// "", "Item");
+			// items.add(project.selectedItemIndex, emptyItem);
+			// }
+			// }
+				forceSelectedItem(selectedItemIndex, true);
+			saveProjectXML();
+		}
+	}
 
 }
