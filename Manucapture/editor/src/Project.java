@@ -43,16 +43,8 @@ public class Project {
 	int SCROLL_TRANSITION = 1;
 	int scrollTransitionState = NO_SCROLL_TRANSITION;
 
-	PImage previewImgLeft = null;
-	PImage previewImgRight = null;
-
-	String lastLeftImagePath = "";
-	String lastRightImagePath = "";
-
 	String nextLeftImagePath = "";
 	String nextRightImagePath = "";
-
-	private int resW = 3000;
 
 	int selectedItemIndex = -1;
 
@@ -129,66 +121,6 @@ public class Project {
 		for (int i = 0; i < items.size(); i++) {
 			Item item = items.get(i);
 			item.loadThumbnails();
-			// if (!item.mImageLeft.imagePath.equals("")) {
-			// File itemImgLeft = new File(projectDirectory + "/" +
-			// item.mImageLeft.imagePath);
-			// if (itemImgLeft.exists()) {
-			// String fileName = itemImgLeft.getName();
-			// String thumbnailPath = projectDirectoryFile.getPath() +
-			// "/thumbnails/"
-			// + FilenameUtils.removeExtension(fileName) + "_thumb.jpg";
-			// context.parent.println("Left " + thumbnailPath);
-			// File thumbFile = new File(thumbnailPath);
-			// if (!thumbFile.exists()) {
-			// item.mImageLeft.imgThumb =
-			// context.thumbnail.generateThumbnail(context, itemImgLeft, false);
-			// } else {
-			// PImage thumbImg = context.parent.loadImage(thumbnailPath);
-			// if (thumbImg == null) {
-			// context.parent.println("ni pudimos cargar la imagen " +
-			// thumbnailPath);
-			// } else {
-			//
-			// }
-			// thumbImg = thumbImg.get(context.thumbnail.thumbMargin, 0,
-			// thumbImg.width - context.thumbnail.thumbMargin, thumbImg.height);
-			// item.mImageLeft.imgThumb = thumbImg;
-			// }
-			// } else {
-			// item.mImageLeft.imgThumb = null;
-			// context.parent.println("Left ERROR", itemImgLeft.getPath(),
-			// "image not found");
-			// }
-			// } else {
-			// item.mImageLeft.imgThumb = null;
-			// }
-			// if (!item.mImageRight.imagePath.equals("")) {
-			// File itemImgRight = new File(projectDirectory + "/" +
-			// item.mImageRight.imagePath);
-			// if (itemImgRight.exists()) {
-			// String fileName = itemImgRight.getName();
-			// String thumbnailPath = projectDirectoryFile.getPath() +
-			// "/thumbnails/"
-			// + FilenameUtils.removeExtension(fileName) + "_thumb.jpg";
-			// context.parent.println("Right " + thumbnailPath);
-			// File thumbFile = new File(thumbnailPath);
-			// if (!thumbFile.exists()) {
-			// item.mImageRight.imgThumb =
-			// context.thumbnail.generateThumbnail(context, itemImgRight, true);
-			// } else {
-			// PImage thumbImg = context.parent.loadImage(thumbnailPath);
-			// thumbImg = thumbImg.get(0, 0, thumbImg.width -
-			// context.thumbnail.thumbMargin, thumbImg.height);
-			// item.mImageRight.imgThumb = thumbImg;
-			// }
-			// } else {
-			// item.mImageRight.imgThumb = null;
-			// context.parent.println("Right ERROR", itemImgRight.getPath(),
-			// "image not found");
-			// }
-			// } else {
-			// item.mImageRight.imgThumb = null;
-			// }
 		}
 		try {
 			G2P5.setImageCount(new Integer(projectDataXML.getChild("image_counter").getContent()));
@@ -363,40 +295,6 @@ public class Project {
 
 	}
 
-	private void deleteFile(String targetFilePath) {
-		String commandGenerate = "rm " + targetFilePath;
-		context.parent.println(commandGenerate);
-		try {
-			String[] commands = new String[] { "/bin/sh", "-c", commandGenerate };
-			Process process = new ProcessBuilder(commands).start();
-			InputStream inputStream = process.getInputStream();
-			BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream), 1);
-			String line;
-			while ((line = bufferedReader.readLine()) != null) {
-				// println("InputStreamReader : " + line);
-			}
-			inputStream.close();
-			bufferedReader.close();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-
-	private void deleteAllFiles(String targetFilePath, String suf) {
-		context.parent.println("delete all " + suf + "files " + targetFilePath);
-		File storageDir = new File(targetFilePath);
-
-		if (!storageDir.exists()) {
-			storageDir.mkdirs();
-		}
-
-		for (File tempFile : storageDir.listFiles()) {
-			if (tempFile.getName().endsWith(suf))
-				tempFile.delete();
-		}
-		context.parent.println("end delete all " + suf + "files " + targetFilePath);
-	}
-
 	/*
 	 * Garbage Image Collector
 	 */
@@ -487,7 +385,7 @@ public class Project {
 			// View message for viewer
 			context.oscP5.send(myMessage, context.viewerLocation);
 			// Now we do the preview on app
-			loadPreviews(leftImagePath, rightImagePath);
+			selectedItem.loadPreviews(projectDirectory, leftImagePath, rightImagePath);
 
 			context.gui.page_comments_text.setText(selectedItem.comment);
 			context.gui.page_num_text.setText(String.valueOf(selectedItem.pagNum));
@@ -502,127 +400,6 @@ public class Project {
 	}
 
 	// Image preview
-
-	public void loadRightPreview() {
-		previewImgRight = loadPreview(projectDirectory + "/preview_right/", nextRightImagePath, "right_preview.jpg",
-				context.rotA);
-	}
-
-	public void loadLeftPreview() {
-		previewImgLeft = loadPreview(projectDirectory + "/preview_left/", nextLeftImagePath, "left_preview.jpg",
-				context.rotB);
-	}
-
-	void loadPreviews(String leftImagePath, String rightImagePath) {
-
-		long startMillis = context.parent.millis();
-
-		System.out.println("start preview");
-
-		nextRightImagePath = rightImagePath;
-		loadRightPreview();
-		System.out.println("end preview left");
-		nextLeftImagePath = leftImagePath;
-		loadLeftPreview();
-
-		// context.parent.thread("loadLeftPreview");
-
-		// context.parent.thread("loadRightPreview");
-
-		System.out.println("end preview rigth");
-
-		long endMillis = context.parent.millis();
-	}
-
-	public PImage loadPreview(String previewFolder, String nextRightImagePath, String resizedImage, int rot) {
-
-		PImage img = null;
-
-		if (!nextRightImagePath.equals("")) {
-
-			// Clear preview folder
-			deleteAllFiles(previewFolder, ".jpg");
-
-			String previewFile = nextRightImagePath.replace(".cr2", ".jpg").replace("/raw/", "/previews/");
-
-			if (new File(previewFile).exists()) {
-				return context.parent.loadImage(previewFile);
-			} else {
-
-				File itemImgRight = new File(nextRightImagePath);
-				String fileName = FilenameUtils.removeExtension(itemImgRight.getName());
-				String previewName = fileName + "-preview3.jpg";
-				String previewFullPath = previewFolder + previewName;
-				String resizedImageFullPath = previewFolder + resizedImage;
-				lastRightImagePath = previewFullPath;
-
-				String command = "exiv2 -ep3 -l " + previewFolder + " " + nextRightImagePath;
-				System.out.println("comando " + command);
-				try {
-					Process process = Runtime.getRuntime().exec(command);
-					process.waitFor();
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-
-				// command = "convert " + previewFullPath + " -resize 1000x667 "
-				// +
-				// resizedImageFullPath;
-				command = context.appPath + "/epeg-master/src/bin/epeg -w " + resW + " -p -q 100 " + previewFullPath
-						+ " " + resizedImageFullPath.replace(".jpg", "-rot.jpg");
-				System.out.println("end command exiv2, start resize " + command);
-				try {
-					Process process = Runtime.getRuntime().exec(command);
-					InputStream error = process.getErrorStream();
-
-					process.waitFor();
-					String err = "Error:";
-					for (int i = 0; i < error.available(); i++) {
-						err += (char) error.read();
-					}
-					if (!err.equals("Error:")) {
-						context.parent.println(err);
-					}
-
-					command = "convert " + resizedImageFullPath.replace(".jpg", "-rot.jpg") + " -rotate " + rot + " "
-							+ resizedImageFullPath;
-					System.out.println("comando " + command);
-					try {
-						process = Runtime.getRuntime().exec(command);
-						process.waitFor();
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-
-					command = "cp " + resizedImageFullPath + " " + previewFile;
-					System.out.println("comando " + command);
-					try {
-						process = Runtime.getRuntime().exec(command);
-						process.waitFor();
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-
-					System.out.println("end convert, start loadimage");
-
-					// String newPath = previewFullPath.replace(".jpg",
-					// "_IMGP.jpg");
-
-					// Files.move(Paths.get(newPath),
-					// Paths.get(resizedImageFullPath),
-					// StandardCopyOption.REPLACE_EXISTING);
-					img = context.parent.loadImage(resizedImageFullPath);
-					context.renderRight = true;
-					System.out.println("end loadimage, FINISH loadRightPreview " + resizedImageFullPath);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-
-			}
-		}
-
-		return img;
-	}
 
 	public void removeItem(int index) {
 		Item itemToRemove = items.get(index);

@@ -491,13 +491,13 @@ public class ManuCapture_v1_1 extends PApplet {
 
 	private void drawLeft() {
 
-		if (project.previewImgLeft != null) {
+		if (project.selectedItem.mImageLeft.previewImg != null) {
 
 			pushStyle();
 			pushMatrix();
 			translate(marginLeftViewerRight, marginTopViewer);
 
-			drawImagePreview(project.previewImgLeft, lastPressedL, marginLeftViewerRight, context.pointsRight);
+			drawImagePreview(project.selectedItem.mImageLeft.previewImg, lastPressedL, marginLeftViewerRight, context.pointsRight);
 			fill(255);
 			textSize(14);
 			text(project.selectedItem.mImageLeft.imagePath, 0, 0);
@@ -517,13 +517,13 @@ public class ManuCapture_v1_1 extends PApplet {
 
 	private void drawRight() {
 
-		if (project.previewImgRight != null) {
+		if (project.selectedItem.mImageRight.previewImg != null) {
 			pushStyle();
 			pushMatrix();
 			translate(marginLeftViewerLeft, marginTopViewer);
 			imageMode(CORNER);
 
-			drawImagePreview(project.previewImgRight, lastPressedR, marginLeftViewerLeft, context.pointsLeft);
+			drawImagePreview(project.selectedItem.mImageRight.previewImg, lastPressedR, marginLeftViewerLeft, context.pointsLeft);
 			fill(255);
 			textSize(14);
 			text(project.selectedItem.mImageRight.imagePath, 0, 0);
@@ -1719,13 +1719,13 @@ public class ManuCapture_v1_1 extends PApplet {
 		size(1920, 1030, P2D);
 	}
 
-	public void loadRightPreview() {
-		project.loadRightPreview();
-	}
-
-	public void loadLeftPreview() {
-		project.loadLeftPreview();
-	}
+//	public void loadRightPreview() {
+//		project.loadRightPreview();
+//	}
+//
+//	public void loadLeftPreview() {
+//		project.loadLeftPreview();
+//	}
 
 	static public void main(String[] passedArgs) {
 

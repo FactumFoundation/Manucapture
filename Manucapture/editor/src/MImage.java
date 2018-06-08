@@ -25,6 +25,11 @@ public class MImage {
 
 	int rotation;
 
+	String lastLeftImagePath = "";
+	String lastRightImagePath = "";
+
+	PImage previewImg;
+
 	void remove() {
 		// imagePath = "";
 		// thumbPath = "";
@@ -132,11 +137,12 @@ public class MImage {
 		}
 		parent.delay(100);
 		PImage thumbImg = parent.loadImage(thumbnailPath);
-//		if (rightImg) {
-			thumbImg = thumbImg.get(0, 0, thumbImg.width - thumbMargin, thumbImg.height);
-//		} else {
-//			thumbImg = thumbImg.get(thumbMargin, 0, thumbImg.width - thumbMargin, thumbImg.height);
-//		}
+		// if (rightImg) {
+		thumbImg = thumbImg.get(0, 0, thumbImg.width - thumbMargin, thumbImg.height);
+		// } else {
+		// thumbImg = thumbImg.get(thumbMargin, 0, thumbImg.width - thumbMargin,
+		// thumbImg.height);
+		// }
 
 		context.parent.println("Thumbnail Generated : " + thumbnailPath);
 		return thumbImg;
@@ -150,6 +156,97 @@ public class MImage {
 	public String getThumbnailPath(String projectDirectory, File imageFile) {
 		String rawImgName = FilenameUtils.removeExtension(imageFile.getName());
 		return projectDirectory + "/thumbnails/" + rawImgName + "_thumb.jpg";
+	}
+
+	public void loadPreview(String previewFolder, String nextRightImagePath, String resizedImage) {
+
+		PImage img = null;
+
+		if (!nextRightImagePath.equals("")) {
+
+			// Clear preview folder
+			context.deleteAllFiles(previewFolder, ".jpg");
+
+			String previewFile = nextRightImagePath.replace(".cr2", ".jpg").replace("/raw/", "/previews/");
+
+			if (new File(previewFile).exists()) {
+				imgPreview = context.parent.loadImage(previewFile);
+			} else {
+
+				File itemImgRight = new File(nextRightImagePath);
+				String fileName = FilenameUtils.removeExtension(itemImgRight.getName());
+				String previewName = fileName + "-preview3.jpg";
+				String previewFullPath = previewFolder + previewName;
+				String resizedImageFullPath = previewFolder + resizedImage;
+				lastRightImagePath = previewFullPath;
+
+				String command = "exiv2 -ep3 -l " + previewFolder + " " + nextRightImagePath;
+				System.out.println("comando " + command);
+				try {
+					Process process = Runtime.getRuntime().exec(command);
+					process.waitFor();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+
+				// command = "convert " + previewFullPath + " -resize 1000x667 "
+				// +
+				// resizedImageFullPath;
+				command = context.appPath + "/epeg-master/src/bin/epeg -w " + context.viewerWidthResolution
+						+ " -p -q 100 " + previewFullPath + " " + resizedImageFullPath.replace(".jpg", "-rot.jpg");
+				System.out.println("end command exiv2, start resize " + command);
+				try {
+					Process process = Runtime.getRuntime().exec(command);
+					InputStream error = process.getErrorStream();
+
+					process.waitFor();
+					String err = "Error:";
+					for (int i = 0; i < error.available(); i++) {
+						err += (char) error.read();
+					}
+					if (!err.equals("Error:")) {
+						context.parent.println(err);
+					}
+
+					command = "convert " + resizedImageFullPath.replace(".jpg", "-rot.jpg") + " -rotate " + rotation
+							+ " " + resizedImageFullPath;
+					System.out.println("comando " + command);
+					try {
+						process = Runtime.getRuntime().exec(command);
+						process.waitFor();
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+
+					command = "cp " + resizedImageFullPath + " " + previewFile;
+					System.out.println("comando " + command);
+					try {
+						process = Runtime.getRuntime().exec(command);
+						process.waitFor();
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+
+					System.out.println("end convert, start loadimage");
+
+					// String newPath = previewFullPath.replace(".jpg",
+					// "_IMGP.jpg");
+
+					// Files.move(Paths.get(newPath),
+					// Paths.get(resizedImageFullPath),
+					// StandardCopyOption.REPLACE_EXISTING);
+					img = context.parent.loadImage(resizedImageFullPath);
+					context.renderRight = true;
+					System.out.println("end loadimage, FINISH loadRightPreview " + resizedImageFullPath);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+
+			}
+		}
+
+		this.previewImg = img;
+		// return img;
 	}
 
 	public void saveMetadata() {

@@ -30,7 +30,7 @@ public class Item {
 		this.type = type;
 
 		this.context = context;
-		
+
 		mImageLeft.rotation = context.rotB;
 		mImageRight.rotation = context.rotA;
 
@@ -54,20 +54,40 @@ public class Item {
 		mImageRight.loadTumbnail();
 	}
 
-	
-
 	public void loadMetadata() {
 		this.mImageLeft.loadMetadata();
 		this.mImageRight.loadMetadata();
-		
-		
+
 	}
 
 	public void saveMetadata() {
 		this.mImageLeft.saveMetadata();
 		this.mImageRight.saveMetadata();
 	}
-	
-	
+
+	public void loadRightPreview(String projectDirectory, String nextRightImagePath) {
+		mImageRight.loadPreview(projectDirectory + "/preview_right/", nextRightImagePath, "right_preview.jpg");
+	}
+
+	public void loadLeftPreview(String projectDirectory, String leftImagePath) {
+		mImageLeft.loadPreview(projectDirectory + "/preview_left/", leftImagePath, "left_preview.jpg");
+	}
+
+	void loadPreviews(String projectDirectory, String leftImagePath, String rightImagePath) {
+
+		long startMillis = context.parent.millis();
+
+		System.out.println("start preview");
+
+		// nextRightImagePath = rightImagePath;
+		loadRightPreview(projectDirectory, rightImagePath);
+		System.out.println("end preview left");
+		// nextLeftImagePath = leftImagePath;
+		loadLeftPreview(projectDirectory, leftImagePath);
+
+		System.out.println("end preview rigth");
+
+		long endMillis = context.parent.millis();
+	}
 
 }
