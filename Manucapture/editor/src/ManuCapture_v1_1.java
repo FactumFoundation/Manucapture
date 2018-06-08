@@ -147,7 +147,7 @@ public class ManuCapture_v1_1 extends PApplet {
 	PImage removeItemIcon;
 	PImage chartItemIcon;
 	int marginX = 2;
-	int marginSubpgX = 8;
+//	int marginSubpgX = 8;
 	int marginInfo = 10;
 	int marginY = 10;
 	int itemThumbHeight = 160;
@@ -157,7 +157,7 @@ public class ManuCapture_v1_1 extends PApplet {
 	int shutterMode = 0;
 	int NORMAL_SHUTTER = 0;
 	int REPEAT_SHUTTER = 1;
-	int SUBPAGE_SHUTTER = 2;
+//	int SUBPAGE_SHUTTER = 2;
 	int CALIB_SHUTTER = 3;
 
 	int backgroundColor = 0xff000C12;
@@ -493,13 +493,13 @@ public class ManuCapture_v1_1 extends PApplet {
 
 	private void drawLeft() {
 
-		if (project.selectedItem != null && project.selectedItem.mImageLeft.previewImg != null) {
+		if (project.selectedItem != null && project.selectedItem.mImageLeft.imgPreview != null) {
 
 			pushStyle();
 			pushMatrix();
 			translate(marginLeftViewerRight, marginTopViewer);
 
-			drawImagePreview(project.selectedItem.mImageLeft.previewImg, lastPressedL, marginLeftViewerRight,
+			drawImagePreview(project.selectedItem.mImageLeft.imgPreview, lastPressedL, marginLeftViewerRight,
 					context.pointsRight);
 			fill(255);
 			textSize(14);
@@ -520,13 +520,13 @@ public class ManuCapture_v1_1 extends PApplet {
 
 	private void drawRight() {
 
-		if (project.selectedItem != null && project.selectedItem.mImageRight.previewImg != null) {
+		if (project.selectedItem != null && project.selectedItem.mImageRight.imgPreview != null) {
 			pushStyle();
 			pushMatrix();
 			translate(marginLeftViewerLeft, marginTopViewer);
 			imageMode(CORNER);
 
-			drawImagePreview(project.selectedItem.mImageRight.previewImg, lastPressedR, marginLeftViewerLeft,
+			drawImagePreview(project.selectedItem.mImageRight.imgPreview, lastPressedR, marginLeftViewerLeft,
 					context.pointsLeft);
 			fill(255);
 			textSize(14);
@@ -1039,7 +1039,8 @@ public class ManuCapture_v1_1 extends PApplet {
 
 				doNormalShutter(Item.TYPE_ITEM);
 
-			} else if (shutterMode == SUBPAGE_SHUTTER) {
+			} 
+			/*else if (shutterMode == SUBPAGE_SHUTTER) {
 
 				if (project.items.size() > 0) {
 					float currentPN = project.selectedItem.pagNum;
@@ -1065,7 +1066,8 @@ public class ManuCapture_v1_1 extends PApplet {
 					clearPaths();
 				}
 
-			} else if (shutterMode == REPEAT_SHUTTER) {
+			}(*/ 
+			else if (shutterMode == REPEAT_SHUTTER) {
 				if (project.items.size() > 0) {
 					float newPageNum = project.selectedItem.pagNum;
 
@@ -1315,17 +1317,17 @@ public class ManuCapture_v1_1 extends PApplet {
 		}
 	}
 
-	public synchronized void addSubItem(int index, Item newItem) {
-		ArrayList<Item> items = project.items;
-		if (index >= 0 && index <= items.size()) {
-			items.add(index, newItem);
-			project.selectedItemIndex = min(index, items.size());
-			if (project.selectedItemIndex >= 0 && items.size() > 0) {
-				forceSelectedItem(project.selectedItemIndex, true);
-			}
-			project.saveProjectXML();
-		}
-	}
+//	public synchronized void addSubItem(int index, Item newItem) {
+//		ArrayList<Item> items = project.items;
+//		if (index >= 0 && index <= items.size()) {
+//			items.add(index, newItem);
+//			project.selectedItemIndex = min(index, items.size());
+//			if (project.selectedItemIndex >= 0 && items.size() > 0) {
+//				forceSelectedItem(project.selectedItemIndex, true);
+//			}
+//			project.saveProjectXML();
+//		}
+//	}
 
 	public synchronized void replaceItem(int index, Item newItem) {
 		ArrayList<Item> items = project.items;
@@ -1585,7 +1587,6 @@ public class ManuCapture_v1_1 extends PApplet {
 		GUI gui = context.gui;
 		gui.normal_shutter_button.setLocalColorScheme(GCScheme.ORANGE_SCHEME);
 		gui.repeat_shutter_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
-		gui.subpage_shutter_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
 		gui.calibration_shutter_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
 	} // _CODE_:normal_shutter_button:563899:
 
@@ -1595,19 +1596,17 @@ public class ManuCapture_v1_1 extends PApplet {
 		GUI gui = context.gui;
 		gui.normal_shutter_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
 		gui.repeat_shutter_button.setLocalColorScheme(GCScheme.ORANGE_SCHEME);
-		gui.subpage_shutter_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
 		gui.calibration_shutter_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
 	} // _CODE_:repeat_shutter_button:591981:
 
-	public void subpage_shutter_click(GButton source, GEvent event) { // _CODE_:subpage_shutter_button:295319:
-		println("SHUTTER CONTROL SET SUBPAGE MODE");
-		shutterMode = SUBPAGE_SHUTTER;
-		GUI gui = context.gui;
-		gui.normal_shutter_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
-		gui.repeat_shutter_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
-		gui.subpage_shutter_button.setLocalColorScheme(GCScheme.ORANGE_SCHEME);
-		gui.calibration_shutter_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
-	} // _CODE_:subpage_shutter_button:295319:
+//	public void subpage_shutter_click(GButton source, GEvent event) { // _CODE_:subpage_shutter_button:295319:
+//		println("SHUTTER CONTROL SET SUBPAGE MODE");
+//		shutterMode = SUBPAGE_SHUTTER;
+//		GUI gui = context.gui;
+//		gui.normal_shutter_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
+//		gui.repeat_shutter_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
+//		gui.calibration_shutter_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
+//	} // _CODE_:subpage_shutter_button:295319:
 
 	public void calibration_shutter_click(GButton source, GEvent event) { // _CODE_:calibration_shutter_button:835827:
 
@@ -1617,7 +1616,6 @@ public class ManuCapture_v1_1 extends PApplet {
 		GUI gui = context.gui;
 		gui.normal_shutter_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
 		gui.repeat_shutter_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
-		gui.subpage_shutter_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
 		gui.calibration_shutter_button.setLocalColorScheme(GCScheme.ORANGE_SCHEME);
 
 		state = CHART;

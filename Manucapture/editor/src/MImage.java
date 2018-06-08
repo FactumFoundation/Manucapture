@@ -22,13 +22,15 @@ public class MImage {
 	ManuCaptureContext context;
 
 	List<HotArea> mesh = new ArrayList<>();
+	
+
+	int thumbMargin = 6;
 
 	int rotation;
 
 	String lastLeftImagePath = "";
 	String lastRightImagePath = "";
 
-	PImage previewImg;
 
 	void remove() {
 		// imagePath = "";
@@ -85,7 +87,6 @@ public class MImage {
 		}
 	}
 
-	int thumbMargin = 6;
 
 	public PImage generateThumbnail(ManuCaptureContext context, File rawImgFile) {
 
@@ -170,7 +171,7 @@ public class MImage {
 			String previewFile = nextRightImagePath.replace(".cr2", ".jpg").replace("/raw/", "/previews/");
 
 			if (new File(previewFile).exists()) {
-				imgPreview = context.parent.loadImage(previewFile);
+				img = context.parent.loadImage(previewFile);
 			} else {
 
 				File itemImgRight = new File(nextRightImagePath);
@@ -245,7 +246,7 @@ public class MImage {
 			}
 		}
 
-		this.previewImg = img;
+		this.imgPreview = img;
 		// return img;
 	}
 

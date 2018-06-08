@@ -31,7 +31,7 @@ public class GUI {
 		public GTextField page_num_text;
 		public GButton normal_shutter_button;
 		public GButton repeat_shutter_button;
-		public GButton subpage_shutter_button;
+//		public GButton subpage_shutter_button;
 		public GButton calibration_shutter_button;
 		public GButton trigger_button;
 		public GButton camera_A_connected_button;
@@ -157,10 +157,10 @@ public class GUI {
 			gui.repeat_shutter_button.setText("REPEAT");
 			gui.repeat_shutter_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
 			gui.repeat_shutter_button.addEventHandler(parent, "repeat_shutter_click");
-			gui.subpage_shutter_button = new GButton(parent, 386, 547, 122, 24);
-			gui.subpage_shutter_button.setText("SUBPAGE");
-			gui.subpage_shutter_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
-			gui.subpage_shutter_button.addEventHandler(parent, "subpage_shutter_click");
+//			gui.subpage_shutter_button = new GButton(parent, 386, 547, 122, 24);
+//			gui.subpage_shutter_button.setText("SUBPAGE");
+//			gui.subpage_shutter_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
+//			gui.subpage_shutter_button.addEventHandler(parent, "subpage_shutter_click");
 			gui.calibration_shutter_button = new GButton(parent, 386, 577, 122, 24);
 			gui.calibration_shutter_button.setText("CALIBRATION");
 			gui.calibration_shutter_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);

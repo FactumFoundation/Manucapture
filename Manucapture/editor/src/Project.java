@@ -29,7 +29,6 @@ public class Project {
 	// new metadata
 	String timestamp = "";
 	String targetDirectory = "";
-	String targetSubdirectory = "";
 	String uploaded = "";
 	String source;
 
@@ -147,7 +146,6 @@ public class Project {
 
 		XML timestampXML = projectDataXML.getChild("metadata").getChild("timestamp");
 		XML targetDirectoryXML = projectDataXML.getChild("metadata").getChild("targetDirectory");
-		XML targetSubdirectoryXML = projectDataXML.getChild("metadata").getChild("targetSubdirectory");
 		XML uploadedXML = projectDataXML.getChild("metadata").getChild("uploaded");
 
 		if (timestampXML != null)
@@ -159,11 +157,6 @@ public class Project {
 			targetDirectory = targetDirectoryXML.getContent("");
 		else
 			targetDirectory = "";
-
-		if (targetSubdirectoryXML != null)
-			targetSubdirectory = targetSubdirectoryXML.getContent("");
-		else
-			targetSubdirectory = "";
 
 		if (uploadedXML != null)
 			uploaded = uploadedXML.getContent("");
@@ -195,10 +188,6 @@ public class Project {
 			XML timestampXML = new XML("timestamp");
 			timestampXML.setContent(targetDirectory);
 			metadataXML.addChild(timestampXML);
-			// targetSubdirectory
-			XML targetSubdirectoryXML = new XML("targetSubdirectory");
-			targetSubdirectoryXML.setContent(targetSubdirectory);
-			metadataXML.addChild(targetSubdirectoryXML);
 			// target directory
 			XML targetDirectoryXML = new XML("targetDirectory");
 			targetDirectoryXML.setContent(targetDirectory);
@@ -407,25 +396,21 @@ public class Project {
 
 		items.remove(index);
 
-		if (itemToRemove.type.equals("Item")) {
-			if (index < items.size()) {
-				for (int i = index; i < items.size(); i++) {
-					items.get(i).pagNum--;
-				}
-			}
-		} else {
-			if (index < items.size() - 1) {
-				for (int i = index; i < items.size() - 1; i++) {
-					if ((int) items.get(i).pagNum == (int) pageNum) {
-						if (items.get(i).pagNum - (int) items.get(i).pagNum > pageNum - (int) pageNum) {
-							float newPageNum = PApplet.round((items.get(i).pagNum - 0.1f) * 10) / 10.0f;
-							items.get(i).pagNum = newPageNum;
-						}
-					}
-
-				}
+		// if (itemToRemove.type.equals("Item")) {
+		if (index < items.size()) {
+			for (int i = index; i < items.size(); i++) {
+				items.get(i).pagNum--;
 			}
 		}
+		/*
+		 * } else { if (index < items.size() - 1) { for (int i = index; i < items.size()
+		 * - 1; i++) { if ((int) items.get(i).pagNum == (int) pageNum) { if
+		 * (items.get(i).pagNum - (int) items.get(i).pagNum > pageNum - (int) pageNum) {
+		 * float newPageNum = PApplet.round((items.get(i).pagNum - 0.1f) * 10) / 10.0f;
+		 * items.get(i).pagNum = newPageNum; } }
+		 * 
+		 * } } }
+		 */
 		selectedItemIndex = PApplet.min(index, items.size() - 1);
 		if (selectedItemIndex >= 0 && items.size() > 0) {
 			selectItem(selectedItemIndex);
