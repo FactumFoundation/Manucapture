@@ -166,7 +166,7 @@ public class G2P5 {
 
 		System.setOut(new TracingPrintStream(System.out));
 		
-		String fullPath = parent.homeDirectory() + id + ".cr2";
+		String fullPath = parent.homeDirectory()+"/" + id + ".cr2";
 		String commandToRun = "gphoto2 --capture-tethered --port " + port + " --force-overwrite --filename " + fullPath;
 		PApplet.println(commandToRun);
 

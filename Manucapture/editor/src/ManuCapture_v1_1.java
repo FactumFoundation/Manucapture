@@ -25,25 +25,26 @@ public class ManuCapture_v1_1 extends PApplet {
 	/*
 	 * ManuCapture.pde A Visual tool for recording books using DSLR Cameras
 	 * 
-	 * This source file is part of the ManuCapture software For the latest info, see
-	 * http://www.factumfoundation.org/pag/235/Digitisation-of-oriental-
+	 * This source file is part of the ManuCapture software For the latest info,
+	 * see http://www.factumfoundation.org/pag/235/Digitisation-of-oriental-
 	 * manuscripts-in-Daghestan
 	 * 
-	 * Copyright (c) 2016-2018 Jorge Cano and Enrique Esteban in Factum Foundation
+	 * Copyright (c) 2016-2018 Jorge Cano and Enrique Esteban in Factum
+	 * Foundation
 	 * 
-	 * This program is free software; you can redistribute it and/or modify it under
-	 * the terms of the GNU General Public License as published by the Free Software
-	 * Foundation; either version 2 of the License, or (at your option) any later
-	 * version.
+	 * This program is free software; you can redistribute it and/or modify it
+	 * under the terms of the GNU General Public License as published by the
+	 * Free Software Foundation; either version 2 of the License, or (at your
+	 * option) any later version.
 	 * 
-	 * This program is distributed in the hope that it will be useful, but WITHOUT
-	 * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-	 * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
-	 * details.
+	 * This program is distributed in the hope that it will be useful, but
+	 * WITHOUT ANY WARRANTY; without even the implied warranty of
+	 * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
+	 * Public License for more details.
 	 * 
-	 * You should have received a copy of the GNU General Public License along with
-	 * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
-	 * Place, Suite 330, Boston, MA 02111-1307 USA
+	 * You should have received a copy of the GNU General Public License along
+	 * with this program; if not, write to the Free Software Foundation, Inc.,
+	 * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 	 */
 
 	int receivePort = 3334;
@@ -72,7 +73,7 @@ public class ManuCapture_v1_1 extends PApplet {
 
 	int liveViewActive = -1;
 
-	boolean mock = true;
+	boolean mock = false;
 
 	// Chart identification
 	public static int CAPTURING = 0;
@@ -587,21 +588,8 @@ public class ManuCapture_v1_1 extends PApplet {
 				if (project.items.size() > 0) {
 					float newPageNum = project.selectedItem.pagNum;
 
-					if (project.projectDirectory.equals("")) {
-						context.clearPaths();
-					}
-
-					String relNewImagePathA = "";
-					if (!context.newImagePathA.equals(""))
-						relNewImagePathA = context.newImagePathA.substring(project.projectDirectory.length() + 1,
-								context.newImagePathA.length());
-					String relNewImagePathB = "";
-					if (!context.newImagePathB.equals(""))
-						relNewImagePathB = context.newImagePathB.substring(project.projectDirectory.length() + 1,
-								context.newImagePathB.length());
-
-					Item newItem = new Item(context, relNewImagePathA, relNewImagePathB, newPageNum, "",
-							project.selectedItem.type);
+					Item newItem = initNewItem(project.selectedItem.type, newPageNum);
+					
 					newItem.loadThumbnails();
 					project.replaceItem(project.selectedItemIndex, newItem);
 					context.clearPaths();
@@ -618,27 +606,25 @@ public class ManuCapture_v1_1 extends PApplet {
 				} else {
 					float newPageNum = project.selectedItem.pagNum;
 
-					if (project.projectDirectory.equals("")) {
-						context.clearPaths();
-					}
-
-					String relNewImagePathA = "";
-					if (!context.lastImagePathA.equals(""))
-						relNewImagePathA = context.lastImagePathA.substring(project.projectDirectory.length() + 1,
-								context.lastImagePathA.length());
-					String relNewImagePathB = "";
-					if (!context.newImagePathB.equals(""))
-						relNewImagePathB = context.newImagePathB.substring(project.projectDirectory.length() + 1,
-								context.newImagePathB.length());
-
-					Item newItem = new Item(context, relNewImagePathA, relNewImagePathB, newPageNum, "",
-							Item.TYPE_CHART);
+					Item newItem = initNewItem(Item.TYPE_CHART, newPageNum);
 					newItem.loadThumbnails();
 					project.replaceItem(project.selectedItemIndex, newItem);
 					context.clearPaths();
 				}
 			}
 		}
+	}
+
+	private String getNewPathImage(String projectDirectory, String newImagePath) {
+		String relNewImagePathA = null;
+		int start = project.projectDirectory.length() + 1;
+		int end = newImagePath.length();
+		if (end < start) {
+			println("Error en los paths " + newImagePath + " \n" + projectDirectory);
+		} else {
+			relNewImagePathA = newImagePath.substring(start, end);
+		}
+		return relNewImagePathA;
 	}
 
 	private void doNormalShutter(String type) {
@@ -648,28 +634,31 @@ public class ManuCapture_v1_1 extends PApplet {
 		} else {
 			newPageNum = (int) project.items.get(project.selectedItemIndex).pagNum + 1;
 		}
-		// TODO add new item: PRoblem when only one image arrives
-
-		String relNewImagePathA = "";
-
-		if (project.projectDirectory.equals("")) {
-			context.clearPaths();
-		}
-
-		if (!context.newImagePathA.equals(""))
-			relNewImagePathA = context.newImagePathA.substring(project.projectDirectory.length() + 1,
-					context.newImagePathA.length());
-		String relNewImagePathB = "";
-		if (!context.newImagePathB.equals(""))
-			relNewImagePathB = context.newImagePathB.substring(project.projectDirectory.length() + 1,
-					context.newImagePathB.length());
-
-		Item newItem = new Item(context, relNewImagePathA, relNewImagePathB, newPageNum, "", type);
+	
+		Item newItem = initNewItem(type, newPageNum);
 		newItem.saveMetadata();
 		newItem.loadThumbnails();
 
 		project.addItem(project.selectedItemIndex + 1, newItem);
 		context.clearPaths();
+	}
+
+	private Item initNewItem(String type, float newPageNum) {
+		
+		if (project.projectDirectory.equals("")) {
+			context.clearPaths();
+		}
+		
+		String relNewImagePathA = "";
+		if (!context.newImagePathA.equals("")) {
+			relNewImagePathA = getNewPathImage(project.projectDirectory, context.newImagePathA);
+		}
+		String relNewImagePathB = "";
+		if (!context.newImagePathB.equals(""))
+			relNewImagePathB = getNewPathImage(project.projectDirectory, context.newImagePathB);
+
+		Item newItem = new Item(context, relNewImagePathA, relNewImagePathB, newPageNum, "", type);
+		return newItem;
 	}
 
 	public void loadLastSessionData() {
@@ -810,14 +799,14 @@ public class ManuCapture_v1_1 extends PApplet {
 	}
 
 	/*
-	 * ========================================================= ==== WARNING ===
-	 * ========================================================= The code in this
-	 * tab has been generated from the GUI form designer and care should be taken
-	 * when editing this file. Only add/edit code inside the event handlers i.e.
-	 * only use lines between the matching comment tags. e.g.
+	 * ========================================================= ==== WARNING
+	 * === ========================================================= The code in
+	 * this tab has been generated from the GUI form designer and care should be
+	 * taken when editing this file. Only add/edit code inside the event
+	 * handlers i.e. only use lines between the matching comment tags. e.g.
 	 * 
-	 * void myBtnEvents(GButton button) { //_CODE_:button1:12356: // It is safe to
-	 * enter your event code here } //_CODE_:button1:12356:
+	 * void myBtnEvents(GButton button) { //_CODE_:button1:12356: // It is safe
+	 * to enter your event code here } //_CODE_:button1:12356:
 	 * 
 	 * Do not rename this tab!
 	 * =========================================================
@@ -1047,8 +1036,8 @@ public class ManuCapture_v1_1 extends PApplet {
 
 		/*
 		 * GraphicsEnvironment environment =
-		 * GraphicsEnvironment.getLocalGraphicsEnvironment(); GraphicsDevice devices[] =
-		 * environment.getScreenDevices();
+		 * GraphicsEnvironment.getLocalGraphicsEnvironment(); GraphicsDevice
+		 * devices[] = environment.getScreenDevices();
 		 * 
 		 * if(devices.length>1 ){ //we have a 2nd display/projector
 		 * 
