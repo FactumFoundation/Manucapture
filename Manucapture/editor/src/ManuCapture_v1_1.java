@@ -213,8 +213,31 @@ public class ManuCapture_v1_1 extends PApplet {
 				e.printStackTrace();
 			} finally {
 				G2P5.killAllGphotoProcess();
-				camera_B_connected_click(null, null);
-				camera_A_connected_click(null, null);
+				
+//				context.cameraActiveA = false;
+//				context.gphotoA.setActive(false);
+//				
+//				context.cameraActiveB = false;
+//				context.gphotoB.setActive(false);
+				
+				try {
+					Thread.sleep(100);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+				if (!context.gphotoA.isConnected()) {
+					context.gphotoA = context.createG2P5(context.serialCameraA, "A");
+				}
+				if (!context.gphotoB.isConnected()) {
+					context.gphotoB = context.createG2P5(context.serialCameraB, "B");
+				}
+				
+				context.gphotoA.setTargetFile(project.projectDirectory + "/raw", project.projectCode);
+				context.gphotoB.setTargetFile(project.projectDirectory + "/raw", project.projectCode);
+				
+				//camera_A_connected_click(null, null);
 				liveViewActive = -1;
 			}
 		}
@@ -617,10 +640,11 @@ public class ManuCapture_v1_1 extends PApplet {
 
 	private String getNewPathImage(String projectDirectory, String newImagePath) {
 		String relNewImagePathA = null;
-		int start = project.projectDirectory.length() + 1;
+		int start = projectDirectory.length() + 1;
 		int end = newImagePath.length();
 		if (end < start) {
-			println("Error en los paths " + newImagePath + " \n" + projectDirectory);
+			println("Error en los "
+					+ " " + newImagePath + " \n" + projectDirectory);
 		} else {
 			relNewImagePathA = newImagePath.substring(start, end);
 		}
@@ -962,7 +986,7 @@ public class ManuCapture_v1_1 extends PApplet {
 	public void camera_B_connected_click(GButton source, GEvent event) { // _CODE_:camera_B_connected_button:564189:
 		println("camera_B_connected_button - GButton >> GEvent." + event + " @ " + millis());
 		if (!context.gphotoB.isConnected()) {
-			context.gphotoA = context.createG2P5(context.serialCameraB, "B");
+			context.gphotoB = context.createG2P5(context.serialCameraB, "B");
 		}
 	} // _CODE_:camera_B_connected_button:564189:
 

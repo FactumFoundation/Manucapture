@@ -22,7 +22,7 @@ public class G2P5 {
 	
     protected ManuCapture_v1_1 parent = null;
     private String eosSerial;
-    private String port;
+    public String port;
     protected String id;
     private boolean active = false;
     private boolean tethering = false;
@@ -30,9 +30,9 @@ public class G2P5 {
     protected String folderPath;
     private int actionCode;
     
-    private int  CAMERA_IDLE = 0;
-    private int CAMERA_CAPTURE = 1;
-    private int CAMERA_INACTIVE = -1;
+    public static int  CAMERA_IDLE = 0;
+    public static int CAMERA_CAPTURE = 1;
+    public static int CAMERA_INACTIVE = -1;
     
     protected String fullTargetPath = "";
     TetheredCaptureThread t;
@@ -68,6 +68,7 @@ public class G2P5 {
 	    	if(active){
 	    		setAction(CAMERA_IDLE);
 	 			t = new TetheredCaptureThread();
+	 			t.g2p5 = this;
 				t.start();
 	    	}
 			else{
@@ -118,11 +119,11 @@ public class G2P5 {
     }
     
     
-    private synchronized void setAction(int actionCode){
+    public synchronized void setAction(int actionCode){
     	this.actionCode = actionCode;
     }
     
-    private synchronized int getAction(){
+    public synchronized int getAction(){
     	return actionCode;
     }
     
@@ -160,9 +161,37 @@ public class G2P5 {
        } catch (Exception e) { e.printStackTrace();}
     }
     
-    
+	public boolean moveFile(String fullPath) throws IOException {
+		String commandToRun;
+		commandToRun = "mv " + fullPath + " " + getFullTargetPath();
+		PApplet.println(commandToRun);
+		InputStream iStream = null;
+		BufferedReader bReader = null;
+		try {
+			String[] cmds = new String[] { "/bin/sh", "-c", commandToRun };
+			Process p = new ProcessBuilder(cmds).start();
+			iStream = p.getInputStream();
+			bReader = new BufferedReader(new InputStreamReader(iStream), 1);
+			String moveline;
+			while ((moveline = bReader.readLine()) != null) {
+				PApplet.println(port + "MV message : " + moveline);
+			}
+			// Thread.sleep(500);
+			return true;
+
+		} catch (IOException ioe) {
+			ioe.printStackTrace();
+			return false;
+		} finally {
+			if (iStream != null)
+				iStream.close();
+			if (bReader != null)
+				bReader.close();
+		}
+
+	}
 	
-	private boolean captureTetheredLoop() {
+	public boolean captureTetheredLoop() {
 
 		System.setOut(new TracingPrintStream(System.out));
 		
@@ -185,25 +214,8 @@ public class G2P5 {
 								Thread.sleep(600);
 								addImageCount();
 								setFullTargetPath();
-								commandToRun = "mv " + fullPath + " " + getFullTargetPath();
-								PApplet.println(commandToRun);
-								try {
-									String[] cmds = new String[] { "/bin/sh", "-c", commandToRun };
-									Process p = new ProcessBuilder(cmds).start();
-									InputStream iStream = p.getInputStream();
-									BufferedReader bReader = new BufferedReader(new InputStreamReader(iStream), 1);
-									String moveline;
-									while ((moveline = bReader.readLine()) != null) {
-										PApplet.println(port + "MV message : " + moveline);
-									}
-									//Thread.sleep(500);
-									invokePhotoEvent();
-									iStream.close();
-									bReader.close();
-								} catch (IOException ioe) {
-									ioe.printStackTrace();
-									return false;
-								}
+								moveFile(fullPath);
+								invokePhotoEvent();
 							}
 						}
 					 catch (Throwable t) {
@@ -225,54 +237,6 @@ public class G2P5 {
 		return true;
 	}
 
-	
-	class TetheredCaptureThread extends Thread {
-
-		public void run() {	
-			
-			while(true){
-				if(getAction()==CAMERA_IDLE){
-					try{
-						captureTetheredLoop();
-					} catch(Exception e){
-						e.printStackTrace();
-						break;
-					}
-				}
-				if(getAction()==CAMERA_CAPTURE){
-					
-					addImageCount();
-					setFullTargetPath();
-					String commandToRun = "gphoto2 --port " + port
-							+ " --capture-image-and-download --force-overwrite --filename " + getFullTargetPath();
-					PApplet.println(commandToRun);
-					try {
-						String[] commands = new String[] { "/bin/sh", "-c", commandToRun };
-						Process process = new ProcessBuilder(commands).start();
-						InputStream inputStream = process.getInputStream();
-						BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream), 1);
-						process.waitFor();
-						String line;
-						while ((line = bufferedReader.readLine()) != null) {
-							// PApplet.println(port + " Capture message : " + line);
-						}
-						invokePhotoEvent();	
-						setAction(CAMERA_IDLE);
-						inputStream.close();
-						bufferedReader.close();
-					} catch (Exception e) {
-						e.printStackTrace();
-						break;
-					}				
-				}
-				if(getAction()==CAMERA_INACTIVE){
-					break;
-				}
-			}
-			PApplet.println("End of thread");
-		}
-		
-	}
 	
 	public static void init(int initialImageCount) {
 		setImageCount(initialImageCount);
@@ -316,7 +280,7 @@ public class G2P5 {
 	}
 
 	
-	private static synchronized void addImageCount(){
+	public static synchronized void addImageCount(){
 		imageCounter++;
 	}
 	

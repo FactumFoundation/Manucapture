@@ -65,7 +65,8 @@ public class ManuCaptureContext {
 	
 	public G2P5 createG2P5(String serial, String name) {
 		G2P5 g2p5 = G2P5.create(parent, serial, name);
-		g2p5.setTargetFile(parent.homeDirectory(), "test");
+		//TODO check if is null if not project created 
+		g2p5.setTargetFile(parent.project.projectDirectory + "/raw", parent.project.projectName);
 		return g2p5;
 	}
 	
