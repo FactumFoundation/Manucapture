@@ -22,7 +22,7 @@ public class G2P5 {
 	
     protected ManuCapture_v1_1 parent = null;
     private String eosSerial;
-    private String port;
+    public String port;
     protected String id;
     private boolean active = false;
     private boolean tethering = false;
@@ -30,9 +30,9 @@ public class G2P5 {
     protected String folderPath;
     private int actionCode;
     
-    private int  CAMERA_IDLE = 0;
-    private int CAMERA_CAPTURE = 1;
-    private int CAMERA_INACTIVE = -1;
+    public static int  CAMERA_IDLE = 0;
+    public static int CAMERA_CAPTURE = 1;
+    public static int CAMERA_INACTIVE = -1;
     
     protected String fullTargetPath = "";
     TetheredCaptureThread t;
@@ -118,11 +118,11 @@ public class G2P5 {
     }
     
     
-    private synchronized void setAction(int actionCode){
+    public synchronized void setAction(int actionCode){
     	this.actionCode = actionCode;
     }
     
-    private synchronized int getAction(){
+    public synchronized int getAction(){
     	return actionCode;
     }
     
@@ -162,7 +162,7 @@ public class G2P5 {
     
     
 	
-	private boolean captureTetheredLoop() {
+	public boolean captureTetheredLoop() {
 
 		System.setOut(new TracingPrintStream(System.out));
 		
@@ -316,7 +316,7 @@ public class G2P5 {
 	}
 
 	
-	private static synchronized void addImageCount(){
+	public static synchronized void addImageCount(){
 		imageCounter++;
 	}
 	
