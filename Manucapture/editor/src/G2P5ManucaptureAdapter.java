@@ -35,19 +35,20 @@ public class G2P5ManucaptureAdapter implements G2P5Listener {
 	}
 
 	public void setFullTargetPath(int ic) {
-		fullTargetPath = folderPath + "/" + targetFileName + "_" + id + "_" + ic + ".cr2";
+
 	}
 
 	public void newEvent(G2P5Event event) {
 
 		System.out.println();
-		
+
 		if (event.eventID == G2P5Event.NEW_PHOTO) {
 			//
 			int ic = G2P5Manager.addImageCount();
-			setFullTargetPath(ic);
+			fullTargetPath = folderPath + "/" + targetFileName + "_" + id + "_" + ic + ".cr2";
+			// fullTargetPath = folderPath + "/" + targetFileName;
 			try {
-				moveFile(event.fullPath);
+				moveFile(event.content, fullTargetPath);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -62,9 +63,9 @@ public class G2P5ManucaptureAdapter implements G2P5Listener {
 		// return super.getFullTargetPath();
 	}
 
-	public boolean moveFile(String fullPath) throws IOException {
+	public boolean moveFile(String fullPath, String toFullPath) throws IOException {
 		String commandToRun;
-		commandToRun = "mv " + fullPath + " " + getFullTargetPath();
+		commandToRun = "mv " + fullPath + " " + toFullPath;
 		PApplet.println(commandToRun);
 		InputStream iStream = null;
 		BufferedReader bReader = null;

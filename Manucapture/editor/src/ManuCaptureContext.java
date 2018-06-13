@@ -228,6 +228,9 @@ public class ManuCaptureContext {
 		
 		gphotoA = gphotoAAdapter.g2p5;
 		gphotoB = gphotoBAdapter.g2p5;
+		
+		gphotoA.listener = gphotoAAdapter;
+		gphotoB.listener = gphotoBAdapter;
 	}
 	
 	public void capture() {

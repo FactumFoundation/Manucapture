@@ -969,6 +969,9 @@ public class ManuCapture_v1_1 extends PApplet {
 		gui.camera_A_inactive_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
 		context.cameraActiveA = true;
 		context.gphotoA.setActive(true);
+		if(context.gphotoA.captureRunnable instanceof TetheredMockCaptureRunnable) {
+			context.gphotoA.active = true;
+		}
 	} // _CODE_:camera_A_active_button:906773:
 
 	public void camera_A_inactive_button_click(GButton source, GEvent event) { // _CODE_:camera_A_inactive_button:493860:
@@ -995,6 +998,9 @@ public class ManuCapture_v1_1 extends PApplet {
 		gui.camera_B_inactive_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
 		context.cameraActiveB = true;
 		context.gphotoB.setActive(true);
+		if(context.gphotoB.captureRunnable instanceof TetheredMockCaptureRunnable) {
+			context.gphotoB.active = true;
+		}
 
 	} // _CODE_:camera_B_active_button:640605:
 

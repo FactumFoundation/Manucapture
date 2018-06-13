@@ -92,6 +92,7 @@ public class G2P5 {
 				Thread thread = new Thread(captureRunnable);
 				captureRunnable.g2p5 = this;
 				captureRunnable.thread = thread;
+				this.captureRunnable = captureRunnable;
 				thread.start();
 				this.thread = thread;
 			}
@@ -161,6 +162,13 @@ public class G2P5 {
 		System.out.println("NEW EVENT " + event.eventCode + " " + event.content);
 
 		events.add(event);
+		
+		try {
+			Thread.sleep(200);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	public static void killAllGphotoProcess() {
@@ -284,7 +292,7 @@ public class G2P5 {
 					if (active) {
 						Thread.sleep(600);
 						int index = line.lastIndexOf(" ");
-						String cad = line.substring(index, line.length());
+						String cad = line.substring(index+1, line.length());
 						invokePhotoEvent(cad);
 					}
 				} catch (Throwable t) {

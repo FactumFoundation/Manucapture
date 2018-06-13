@@ -18,19 +18,11 @@ public class G2P5Event {
 
 	public String content;
 
-	public String fullPath;
-
 	public G2P5 g2p5;
 
 	public G2P5Event(int eventID) {
 		super();
 		this.eventID = eventID;
-	}
-
-	public G2P5Event(int eventID, String fullPath) {
-		super();
-		this.eventID = eventID;
-		this.fullPath = fullPath;
 	}
 
 	public G2P5Event(int eventID, String eventCode, String content) {
