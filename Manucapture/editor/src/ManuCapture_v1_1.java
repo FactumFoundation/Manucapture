@@ -169,6 +169,7 @@ public class ManuCapture_v1_1 extends PApplet {
 			G2P5Manager.init(0);
 			context.gphotoAAdapter = context.createG2P5(context.serialCameraA, "A");
 			context.gphotoBAdapter = context.createG2P5(context.serialCameraB, "B");
+			context.init();
 		}
 
 		surface.setTitle("ManuCapture v1");
@@ -800,9 +801,8 @@ public class ManuCapture_v1_1 extends PApplet {
 		project.projectFilePath = projectFolderPath + "/project.xml";
 		project.selectedItemIndex = -1;
 		project.thumbnailsLoaded = true;
-		context.gphotoAAdapter.setTargetFile(project.projectDirectory + "/raw", project.projectCode);
-		context.gphotoBAdapter.setTargetFile(project.projectDirectory + "/raw", project.projectCode);
-
+		context.init();
+		
 		saveLastSessionData();
 
 	}
@@ -810,8 +810,7 @@ public class ManuCapture_v1_1 extends PApplet {
 	public synchronized void loadProject(String projectPath) {
 		project.loadProjectMethod(projectPath);
 		initSelectedItem = true;
-		context.gphotoAAdapter.setTargetFile(project.projectDirectory + "/raw", project.projectCode);
-		context.gphotoBAdapter.setTargetFile(project.projectDirectory + "/raw", project.projectCode);
+		context.init();
 		project.forceSelectedItem(project.items.size(), false);
 		saveLastSessionData();
 		project.removeUnusedImages();
@@ -945,8 +944,7 @@ public class ManuCapture_v1_1 extends PApplet {
 
 	public void trigger_button_click(GButton source, GEvent event) { // _CODE_:trigger_button:381491:
 		println("SHUTTER TRIGGERED");
-		context.gphotoA.capture();
-		context.gphotoB.capture();
+		context.capture();
 		context.clearPaths();
 		if (state == CHART) {
 			chartState++;

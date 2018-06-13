@@ -4,7 +4,7 @@ import java.io.InputStreamReader;
 
 import processing.core.PApplet;
 
-class TetheredCaptureThread extends Thread {
+class G2P5TetheredCaptureThread extends Thread {
 
 	G2P5 g2p5;
 
@@ -15,7 +15,7 @@ class TetheredCaptureThread extends Thread {
 		while (true) {
 			if (g2p5.getAction() == G2P5.CAMERA_IDLE) {
 				try {
-					g2p5.captureTetheredLoop();
+//					g2p5.captureTetheredLoop();
 				} catch (Exception e) {
 					e.printStackTrace();
 					break;

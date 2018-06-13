@@ -15,17 +15,15 @@ import processing.core.PImage;
 
 public class ManuCaptureContext {
 
-
 	PrintWriter logOutput;
 
-	
 	ManuCapture_v1_1 parent;
 
 	RawFile thumbnail;
 
 	G2P5 gphotoA;
 	G2P5 gphotoB;
-	
+
 	G2P5ManucaptureAdapter gphotoAAdapter;
 	G2P5ManucaptureAdapter gphotoBAdapter;
 
@@ -53,7 +51,7 @@ public class ManuCaptureContext {
 
 	// width resolution for viewer
 	public int viewerWidthResolution = 3000;
-	
+
 	boolean cameraActiveA = false;
 	boolean cameraActiveB = false;
 
@@ -65,16 +63,15 @@ public class ManuCaptureContext {
 
 	String lastImagePathA = "";
 	String lastImagePathB = "";
-	
+
 	public G2P5ManucaptureAdapter createG2P5(String serial, String name) {
 		G2P5 g2p5 = G2P5.create(parent.homeDirectory(), serial, name);
 		G2P5ManucaptureAdapter adapter = new G2P5ManucaptureAdapter();
 		adapter.g2p5 = g2p5;
-		//TODO check if is null if not project created 
+		// TODO check if is null if not project created
 		adapter.setTargetFile(parent.project.projectDirectory + "/raw", parent.project.projectName);
 		return adapter;
 	}
-	
 
 	public List<HotArea> copyMesh(List<HotArea> mesh) {
 		List<HotArea> temp = new ArrayList<>();
@@ -107,6 +104,7 @@ public class ManuCaptureContext {
 		newImagePathA = "";
 		newImagePathB = "";
 	}
+
 	public void deleteFile(String targetFilePath) {
 		String commandGenerate = "rm " + targetFilePath;
 		parent.println(commandGenerate);
@@ -125,7 +123,7 @@ public class ManuCaptureContext {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public boolean writeExifData(String fullFileName, String documentId, String xResolution, String yResolution) {
 
 		Process pr = null;
@@ -158,7 +156,6 @@ public class ManuCaptureContext {
 		return false;
 	}
 
-	
 	public void _println(String message) {
 		int s = parent.second(); // Values from 0 - 59
 		int min = parent.minute(); // Values from 0 - 59
@@ -174,7 +171,6 @@ public class ManuCaptureContext {
 		logOutput.flush(); // Writes the remaining data to the file
 	}
 
-	
 	/*
 	 * MetaData_Utils : Extra functions for Metadata generation: md5, timestamp
 	 * 
@@ -223,6 +219,20 @@ public class ManuCaptureContext {
 		SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
 		timeStamp = sdf.format(file.lastModified());
 		return timeStamp;
+	}
+
+	public void init() {
+		
+		gphotoAAdapter.setTargetFile(project.projectDirectory + "/raw", project.projectCode);
+		gphotoBAdapter.setTargetFile(project.projectDirectory + "/raw", project.projectCode);
+		
+		gphotoA = gphotoAAdapter.g2p5;
+		gphotoB = gphotoBAdapter.g2p5;
+	}
+	
+	public void capture() {
+		gphotoA.capture();
+		gphotoB.capture();
 	}
 
 }

@@ -23,7 +23,7 @@ public class G2P5 {
 	private String eosSerial;
 	public String port;
 	protected String id;
-	private boolean active = false;
+	public boolean active = false;
 	private boolean tethering = false;
 
 	private int actionCode;
@@ -32,10 +32,12 @@ public class G2P5 {
 	public static int CAMERA_CAPTURE = 1;
 	public static int CAMERA_INACTIVE = -1;
 
-	TetheredCaptureThread t;
-	
+	// G2P5TetheredCaptureThread t;
+
+	TetheredCaptureRunnable captureRunnable;
+
 	G2P5Listener listener;
-	
+
 	String homeDirectory;
 
 	public G2P5() {
@@ -65,25 +67,26 @@ public class G2P5 {
 		if (port != null) {
 			if (active) {
 				setAction(CAMERA_IDLE);
-				t = new TetheredCaptureThread();
-				t.g2p5 = this;
-				t.start();
+				TetheredCaptureRunnable captureRunnable = new TetheredCaptureRunnable();
+				Thread thread = new Thread(captureRunnable);
+				captureRunnable.g2p5 = this;
+				captureRunnable.thread = thread;
+				thread.start();
 			} else {
 				setAction(CAMERA_INACTIVE);
 				killAllProcessByName(id + ".cr2");
 				actionCode = CAMERA_INACTIVE;
 			}
 		} else {
-			t = new TetheredCaptureThread();
+			captureRunnable = new TetheredCaptureRunnable();
 			this.active = false;
 		}
 
 	}
 
 	public boolean isConnected() {
-		return t.isAlive();
+		return captureRunnable.thread != null && captureRunnable.thread.isAlive();
 	}
-
 
 	public synchronized void setAction(int actionCode) {
 		this.actionCode = actionCode;
@@ -123,64 +126,11 @@ public class G2P5 {
 		return false;
 	}
 
-	public synchronized void invokePhotoEvent() {
-//		try {
-//			Method newPhotoEvent = parent.getClass().getMethod("newPhotoEvent", G2P5.class, String.class);
-//			newPhotoEvent.invoke(parent, this, getFullTargetPath());
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//		}
-		
-		if(listener != null) {
+	public void invokePhotoEvent() {
+		if (listener != null) {
 			listener.newEvent(new G2P5Event(G2P5Event.NEW_PHOTO));
 		}
 	}
-
-	
-
-	public boolean captureTetheredLoop() {
-
-		System.setOut(new TracingPrintStream(System.out));
-
-		String fullPath =  homeDirectory + "/" + id + ".cr2";
-		String commandToRun = "gphoto2 --capture-tethered --port " + port + " --force-overwrite --filename " + fullPath;
-		PApplet.println(commandToRun);
-
-		try {
-			String[] commands = new String[] { "/bin/sh", "-c", commandToRun };
-			Process process = new ProcessBuilder(commands).start();
-			InputStream inputStream = process.getInputStream();
-			BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream), 1);
-			String line;
-			while ((line = bufferedReader.readLine()) != null) {
-				// PApplet.println(port + " Tethered message : " + line);
-				if (line.contains(id + ".cr2") && !line.contains("LANG=C")) {
-
-					try {
-						if (active) {
-							Thread.sleep(600);
-							invokePhotoEvent();
-						}
-					} catch (Throwable t) {
-						PApplet.println(t);
-					}
-				} else if (line.contains("LANG=C")) {
-					PApplet.println("Problem opening thethering on camera " + id);
-					inputStream.close();
-					bufferedReader.close();
-					setAction(CAMERA_INACTIVE);
-				}
-			}
-
-			inputStream.close();
-			bufferedReader.close();
-		} catch (IOException ioe) {
-			ioe.printStackTrace();
-		}
-		return true;
-	}
-
-	
 
 	public static void killAllGphotoProcess() {
 		String commandToRun = "ps aux | grep -ie gphoto | awk '{print $2}' | xargs kill -9";
