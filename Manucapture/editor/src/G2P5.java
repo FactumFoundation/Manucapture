@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.List;
 
 import processing.core.*;
 import processing.data.*;
@@ -34,11 +35,14 @@ public class G2P5 {
 
 	// G2P5TetheredCaptureThread t;
 
-	TetheredCaptureRunnable captureRunnable;
+	Runnable captureRunnable;
+	Thread thread;
 
 	G2P5Listener listener;
 
 	String homeDirectory;
+
+	List<G2P5Event> events = new ArrayList<>();
 
 	public G2P5() {
 
@@ -67,11 +71,14 @@ public class G2P5 {
 		if (port != null) {
 			if (active) {
 				setAction(CAMERA_IDLE);
+
 				TetheredCaptureRunnable captureRunnable = new TetheredCaptureRunnable();
 				Thread thread = new Thread(captureRunnable);
 				captureRunnable.g2p5 = this;
 				captureRunnable.thread = thread;
 				thread.start();
+				this.thread = thread;
+
 			} else {
 				setAction(CAMERA_INACTIVE);
 				killAllProcessByName(id + ".cr2");
@@ -80,12 +87,20 @@ public class G2P5 {
 		} else {
 			captureRunnable = new TetheredCaptureRunnable();
 			this.active = false;
+			if (true) {
+				TetheredMockCaptureRunnable captureRunnable = new TetheredMockCaptureRunnable();
+				Thread thread = new Thread(captureRunnable);
+				captureRunnable.g2p5 = this;
+				captureRunnable.thread = thread;
+				thread.start();
+				this.thread = thread;
+			}
 		}
 
 	}
 
 	public boolean isConnected() {
-		return captureRunnable.thread != null && captureRunnable.thread.isAlive();
+		return thread != null && thread.isAlive();
 	}
 
 	public synchronized void setAction(int actionCode) {
@@ -126,10 +141,26 @@ public class G2P5 {
 		return false;
 	}
 
-	public void invokePhotoEvent() {
+	public void invokePhotoEvent(String path) {
+		sendEvent(new G2P5Event(G2P5Event.NEW_PHOTO, "", path));
+	}
+
+	private void invokeEventMask(String cad) {
+		sendEvent(new G2P5Event(G2P5Event.EVENT_MASK, "mask", cad));
+	}
+
+	private void invokeEventCode(String cad, String content) {
+		sendEvent(new G2P5Event(G2P5Event.EVENT_CODE, cad, content));
+	}
+
+	private void sendEvent(G2P5Event event) {
 		if (listener != null) {
-			listener.newEvent(new G2P5Event(G2P5Event.NEW_PHOTO));
+			listener.newEvent(event);
 		}
+
+		System.out.println("NEW EVENT " + event.eventCode + " " + event.content);
+
+		events.add(event);
 	}
 
 	public static void killAllGphotoProcess() {
@@ -227,5 +258,54 @@ public class G2P5 {
 		}
 		return null;
 	}
+
+	public void processLogLine(String line) {
+
+		System.out.println(line);
+
+		if (line.contains("OLCInfo event")) {
+
+			if (line.contains("0x")) {
+				int index = line.indexOf("0x");
+				int indexContent = line.indexOf("content");
+				String cad = line.substring(index, indexContent - 1);
+				String content = line.substring(indexContent + 8, line.length());
+				invokeEventCode(cad, content);
+			} else if (line.contains("mask")) {
+				int index = line.indexOf("mask=");
+				String cad = line.substring(index + 5, line.length());
+				invokeEventMask(cad);
+			}
+
+		} else if (line.contains(id + ".cr2")) {
+			// something about the file
+			if (!line.contains("LANG=C")) {
+				try {
+					if (active) {
+						Thread.sleep(600);
+						int index = line.lastIndexOf(" ");
+						String cad = line.substring(index, line.length());
+						invokePhotoEvent(cad);
+					}
+				} catch (Throwable t) {
+					PApplet.println(t);
+				}
+			} else if (line.contains("LANG=C")) {
+				PApplet.println("Problem opening thethering on camera " + id);
+				setAction(CAMERA_INACTIVE);
+			}
+		}
+	}
+
+	/*
+	 * if (line.contains(g2p5.id + ".cr2") && !line.contains("LANG=C")) {
+	 * 
+	 * try { if (g2p5.active) { Thread.sleep(600); g2p5.invokePhotoEvent(); } }
+	 * catch (Throwable t) { PApplet.println(t); } } else if
+	 * (line.contains("LANG=C")) {
+	 * PApplet.println("Problem opening thethering on camera " + g2p5.id);
+	 * inputStream.close(); bufferedReader.close();
+	 * g2p5.setAction(g2p5.CAMERA_INACTIVE); }
+	 */
 
 }

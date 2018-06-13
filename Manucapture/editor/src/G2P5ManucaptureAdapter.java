@@ -40,6 +40,8 @@ public class G2P5ManucaptureAdapter implements G2P5Listener {
 
 	public void newEvent(G2P5Event event) {
 
+		System.out.println();
+		
 		if (event.eventID == G2P5Event.NEW_PHOTO) {
 			//
 			int ic = G2P5Manager.addImageCount();

@@ -28,22 +28,7 @@ public class TetheredCaptureRunnable implements Runnable{
 			String line;
 			while ((line = bufferedReader.readLine()) != null) {
 				// PApplet.println(port + " Tethered message : " + line);
-				if (line.contains(g2p5.id + ".cr2") && !line.contains("LANG=C")) {
-
-					try {
-						if (g2p5.active) {
-							Thread.sleep(600);
-							g2p5.invokePhotoEvent();
-						}
-					} catch (Throwable t) {
-						PApplet.println(t);
-					}
-				} else if (line.contains("LANG=C")) {
-					PApplet.println("Problem opening thethering on camera " + g2p5.id);
-					inputStream.close();
-					bufferedReader.close();
-					g2p5.setAction(g2p5.CAMERA_INACTIVE);
-				}
+				g2p5.processLogLine(line);
 			}
 
 			inputStream.close();
@@ -51,10 +36,7 @@ public class TetheredCaptureRunnable implements Runnable{
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
 		}
-//		return true;
 
 	}
 
-	
-	
 }
