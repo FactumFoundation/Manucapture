@@ -122,10 +122,10 @@ public class Project {
 			item.loadThumbnails();
 		}
 		try {
-			G2P5.setImageCount(new Integer(projectDataXML.getChild("image_counter").getContent()));
+			G2P5Manager.setImageCount(new Integer(projectDataXML.getChild("image_counter").getContent()));
 		} catch (Exception e) {
 			context.parent.println("ERROR loading image counter, seting to list size");
-			G2P5.setImageCount(items.size());
+			G2P5Manager.setImageCount(items.size());
 		}
 		thumbnailsLoaded = true;
 
@@ -142,7 +142,7 @@ public class Project {
 		projectAuthor = projectDataXML.getChild("metadata").getChild("author").getContent();
 		context.gui.author_text.setText(projectAuthor);
 		context.parent.println(projectDataXML.getChild("image_counter"));
-		G2P5.setImageCount(new Integer(projectDataXML.getChild("image_counter").getContent()));
+		G2P5Manager.setImageCount(new Integer(projectDataXML.getChild("image_counter").getContent()));
 
 		XML timestampXML = projectDataXML.getChild("metadata").getChild("timestamp");
 		XML targetDirectoryXML = projectDataXML.getChild("metadata").getChild("targetDirectory");
@@ -234,7 +234,7 @@ public class Project {
 			projectXML.addChild(itemsXML);
 
 			XML imageCounterXML = new XML("image_counter");
-			imageCounterXML.setContent(String.valueOf(G2P5.getImageCount()));
+			imageCounterXML.setContent(String.valueOf(G2P5Manager.getImageCount()));
 			projectXML.addChild(imageCounterXML);
 
 			File fileProject = new File(projectFilePath);
@@ -378,8 +378,8 @@ public class Project {
 
 			context.gui.page_comments_text.setText(selectedItem.comment);
 			context.gui.page_num_text.setText(String.valueOf(selectedItem.pagNum));
-			context.gphotoA.setTargetFile(projectDirectory + "/raw", projectCode);
-			context.gphotoB.setTargetFile(projectDirectory + "/raw", projectCode);
+			context.gphotoAAdapter.setTargetFile(projectDirectory + "/raw", projectCode);
+			context.gphotoBAdapter.setTargetFile(projectDirectory + "/raw", projectCode);
 
 			selectedItem.loadMetadata();
 
@@ -421,7 +421,7 @@ public class Project {
 		// removeUnusedImages();
 
 	}
-	
+
 	public void forceSelectedItem(int index, boolean transition) {
 		selectedItemIndex = PApplet.min(index, items.size() - 1);
 		if (transition) {
@@ -433,7 +433,7 @@ public class Project {
 			selectItem(selectedItemIndex);
 		}
 	}
-	
+
 	public synchronized void addItem(int index, Item newItem) {
 		if (index >= 0) {
 			if (index < items.size()) {
@@ -486,6 +486,7 @@ public class Project {
 			context._println("item added");
 		}
 	}
+
 	public synchronized void replaceItem(int index, Item newItem) {
 		if (index >= 0 && index < items.size()) {
 			if (newItem.mImageLeft.imagePath.equals("")) {
@@ -508,7 +509,7 @@ public class Project {
 			// items.add(project.selectedItemIndex, emptyItem);
 			// }
 			// }
-				forceSelectedItem(selectedItemIndex, true);
+			forceSelectedItem(selectedItemIndex, true);
 			saveProjectXML();
 		}
 	}

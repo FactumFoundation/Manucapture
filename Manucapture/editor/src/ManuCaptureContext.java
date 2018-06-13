@@ -25,6 +25,9 @@ public class ManuCaptureContext {
 
 	G2P5 gphotoA;
 	G2P5 gphotoB;
+	
+	G2P5ManucaptureAdapter gphotoAAdapter;
+	G2P5ManucaptureAdapter gphotoBAdapter;
 
 	OscP5 oscP5;
 
@@ -63,11 +66,13 @@ public class ManuCaptureContext {
 	String lastImagePathA = "";
 	String lastImagePathB = "";
 	
-	public G2P5 createG2P5(String serial, String name) {
-		G2P5 g2p5 = G2P5.create(parent, serial, name);
+	public G2P5ManucaptureAdapter createG2P5(String serial, String name) {
+		G2P5 g2p5 = G2P5.create(parent.homeDirectory(), serial, name);
+		G2P5ManucaptureAdapter adapter = new G2P5ManucaptureAdapter();
+		adapter.g2p5 = g2p5;
 		//TODO check if is null if not project created 
-		g2p5.setTargetFile(parent.project.projectDirectory + "/raw", parent.project.projectName);
-		return g2p5;
+		adapter.setTargetFile(parent.project.projectDirectory + "/raw", parent.project.projectName);
+		return adapter;
 	}
 	
 

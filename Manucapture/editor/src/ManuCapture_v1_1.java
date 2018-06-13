@@ -161,14 +161,14 @@ public class ManuCapture_v1_1 extends PApplet {
 
 		if (mock) {
 			context.gphotoA = G2P5MockDisk.create(this, context.serialCameraA, "A");
-			context.gphotoA.setTargetFile(homeDirectory(), "test");
+			context.gphotoAAdapter.setTargetFile(homeDirectory(), "test");
 			context.gphotoB = G2P5MockDisk.create(this, context.serialCameraB, "B");
-			context.gphotoB.setTargetFile(homeDirectory(), "test");
+			context.gphotoBAdapter.setTargetFile(homeDirectory(), "test");
 		} else {
 
-			G2P5.init(0);
-			context.gphotoA = context.createG2P5(context.serialCameraA, "A");
-			context.gphotoB = context.createG2P5(context.serialCameraB, "B");
+			G2P5Manager.init(0);
+			context.gphotoAAdapter = context.createG2P5(context.serialCameraA, "A");
+			context.gphotoBAdapter = context.createG2P5(context.serialCameraB, "B");
 		}
 
 		surface.setTitle("ManuCapture v1");
@@ -228,14 +228,14 @@ public class ManuCapture_v1_1 extends PApplet {
 				}
 				
 				if (!context.gphotoA.isConnected()) {
-					context.gphotoA = context.createG2P5(context.serialCameraA, "A");
+					context.gphotoAAdapter = context.createG2P5(context.serialCameraA, "A");
 				}
 				if (!context.gphotoB.isConnected()) {
-					context.gphotoB = context.createG2P5(context.serialCameraB, "B");
+					context.gphotoBAdapter = context.createG2P5(context.serialCameraB, "B");
 				}
 				
-				context.gphotoA.setTargetFile(project.projectDirectory + "/raw", project.projectCode);
-				context.gphotoB.setTargetFile(project.projectDirectory + "/raw", project.projectCode);
+				context.gphotoAAdapter.setTargetFile(project.projectDirectory + "/raw", project.projectCode);
+				context.gphotoBAdapter.setTargetFile(project.projectDirectory + "/raw", project.projectCode);
 				
 				//camera_A_connected_click(null, null);
 				liveViewActive = -1;
@@ -800,8 +800,8 @@ public class ManuCapture_v1_1 extends PApplet {
 		project.projectFilePath = projectFolderPath + "/project.xml";
 		project.selectedItemIndex = -1;
 		project.thumbnailsLoaded = true;
-		context.gphotoA.setTargetFile(project.projectDirectory + "/raw", project.projectCode);
-		context.gphotoB.setTargetFile(project.projectDirectory + "/raw", project.projectCode);
+		context.gphotoAAdapter.setTargetFile(project.projectDirectory + "/raw", project.projectCode);
+		context.gphotoBAdapter.setTargetFile(project.projectDirectory + "/raw", project.projectCode);
 
 		saveLastSessionData();
 
@@ -810,8 +810,8 @@ public class ManuCapture_v1_1 extends PApplet {
 	public synchronized void loadProject(String projectPath) {
 		project.loadProjectMethod(projectPath);
 		initSelectedItem = true;
-		context.gphotoA.setTargetFile(project.projectDirectory + "/raw", project.projectCode);
-		context.gphotoB.setTargetFile(project.projectDirectory + "/raw", project.projectCode);
+		context.gphotoAAdapter.setTargetFile(project.projectDirectory + "/raw", project.projectCode);
+		context.gphotoBAdapter.setTargetFile(project.projectDirectory + "/raw", project.projectCode);
 		project.forceSelectedItem(project.items.size(), false);
 		saveLastSessionData();
 		project.removeUnusedImages();
@@ -960,7 +960,7 @@ public class ManuCapture_v1_1 extends PApplet {
 	public void camera_A_connected_click(GButton source, GEvent event) { // _CODE_:camera_A_connected_button:265149:
 		println("button1 - GButton >> GEvent." + event + " @ " + millis());
 		if (!context.gphotoA.isConnected()) {
-			context.gphotoA = context.createG2P5(context.serialCameraA, "A");
+			context.gphotoAAdapter = context.createG2P5(context.serialCameraA, "A");
 		}
 	} // _CODE_:camera_A_connected_button:265149:
 
@@ -986,7 +986,7 @@ public class ManuCapture_v1_1 extends PApplet {
 	public void camera_B_connected_click(GButton source, GEvent event) { // _CODE_:camera_B_connected_button:564189:
 		println("camera_B_connected_button - GButton >> GEvent." + event + " @ " + millis());
 		if (!context.gphotoB.isConnected()) {
-			context.gphotoB = context.createG2P5(context.serialCameraB, "B");
+			context.gphotoBAdapter = context.createG2P5(context.serialCameraB, "B");
 		}
 	} // _CODE_:camera_B_connected_button:564189:
 
