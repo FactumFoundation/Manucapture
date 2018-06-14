@@ -71,23 +71,39 @@ public class G2P5 {
 		if (port != null) {
 			if (active) {
 				setAction(CAMERA_IDLE);
-
-				TetheredCaptureRunnable captureRunnable = new TetheredCaptureRunnable();
-				Thread thread = new Thread(captureRunnable);
-				captureRunnable.g2p5 = this;
-				captureRunnable.thread = thread;
-				thread.start();
-				this.thread = thread;
-
+				if (true) {
+					TetheredMockCaptureRunnable captureRunnable = new TetheredMockCaptureRunnable();
+					Thread thread = new Thread(captureRunnable);
+					captureRunnable.g2p5 = this;
+					captureRunnable.thread = thread;
+					this.captureRunnable = captureRunnable;
+					thread.start();
+					this.thread = thread;
+				} else {
+					TetheredCaptureRunnable captureRunnable = new TetheredCaptureRunnable();
+					Thread thread = new Thread(captureRunnable);
+					captureRunnable.g2p5 = this;
+					captureRunnable.thread = thread;
+					thread.start();
+					this.thread = thread;
+				}
 			} else {
 				setAction(CAMERA_INACTIVE);
 				killAllProcessByName(id + ".cr2");
 				actionCode = CAMERA_INACTIVE;
+				if (thread != null && thread.isAlive()) {
+					thread.interrupt();
+				}
 			}
 		} else {
-			captureRunnable = new TetheredCaptureRunnable();
-			this.active = false;
-			if (true) {
+			if (!active) {
+				setAction(CAMERA_INACTIVE);
+				killAllProcessByName(id + ".cr2");
+				actionCode = CAMERA_INACTIVE;
+				if (thread != null && thread.isAlive()) {
+					thread.interrupt();
+				}
+			} else if (true) {
 				TetheredMockCaptureRunnable captureRunnable = new TetheredMockCaptureRunnable();
 				Thread thread = new Thread(captureRunnable);
 				captureRunnable.g2p5 = this;
@@ -95,6 +111,9 @@ public class G2P5 {
 				this.captureRunnable = captureRunnable;
 				thread.start();
 				this.thread = thread;
+			} else {
+				captureRunnable = new TetheredCaptureRunnable();
+				this.active = false;
 			}
 		}
 
@@ -155,14 +174,17 @@ public class G2P5 {
 	}
 
 	private void sendEvent(G2P5Event event) {
+
+		System.out.println("NEW EVENT " + event.eventCode + " " + event.content);
+
+		event.g2p5 = this;
+
 		if (listener != null) {
 			listener.newEvent(event);
 		}
 
-		System.out.println("NEW EVENT " + event.eventCode + " " + event.content);
-
 		events.add(event);
-		
+
 		try {
 			Thread.sleep(200);
 		} catch (InterruptedException e) {
@@ -269,7 +291,7 @@ public class G2P5 {
 
 	public void processLogLine(String line) {
 
-		System.out.println(line);
+		// System.out.println(line);
 
 		if (line.contains("OLCInfo event")) {
 
@@ -292,7 +314,7 @@ public class G2P5 {
 					if (active) {
 						Thread.sleep(600);
 						int index = line.lastIndexOf(" ");
-						String cad = line.substring(index+1, line.length());
+						String cad = line.substring(index + 1, line.length());
 						invokePhotoEvent(cad);
 					}
 				} catch (Throwable t) {
@@ -303,6 +325,11 @@ public class G2P5 {
 				setAction(CAMERA_INACTIVE);
 			}
 		}
+	}
+
+	public String getFilePath() {
+		String fullPath = homeDirectory + "/" + id + ".cr2";
+		return fullPath;
 	}
 
 	/*

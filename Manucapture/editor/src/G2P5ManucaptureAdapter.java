@@ -22,6 +22,8 @@ public class G2P5ManucaptureAdapter implements G2P5Listener {
 	G2P5 g2p5;
 
 	protected String id;
+	
+	public ManuCapture_v1_1 manuCapture;
 
 	/*
 	 * public synchronized boolean captureTethered(boolean on) { if(active){
@@ -34,8 +36,8 @@ public class G2P5ManucaptureAdapter implements G2P5Listener {
 		this.folderPath = folderPath;
 	}
 
-	public void setFullTargetPath(int ic) {
-
+	public void setFullTargetPath(String ic) {
+		fullTargetPath = folderPath + "/" + targetFileName + "_" + g2p5.id + "_" + ic + ".cr2";
 	}
 
 	public void newEvent(G2P5Event event) {
@@ -45,51 +47,24 @@ public class G2P5ManucaptureAdapter implements G2P5Listener {
 		if (event.eventID == G2P5Event.NEW_PHOTO) {
 			//
 			int ic = G2P5Manager.addImageCount();
-			fullTargetPath = folderPath + "/" + targetFileName + "_" + id + "_" + ic + ".cr2";
+			manuCapture.newPhotoEvent(event, ""+ic);
+			//
 			// fullTargetPath = folderPath + "/" + targetFileName;
-			try {
-				moveFile(event.content, fullTargetPath);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+//			try {
+//				moveFile(event.content, fullTargetPath);
+//			} catch (IOException e) {
+//				e.printStackTrace();
+//			}
 		}
 
 	}
 
 	public String getFullTargetPath() {
 
-		fullTargetPath = folderPath + "/" + targetFileName;
+//		fullTargetPath = folderPath + "/" + targetFileName;
+		
 		return fullTargetPath;
 		// return super.getFullTargetPath();
 	}
 
-	public boolean moveFile(String fullPath, String toFullPath) throws IOException {
-		String commandToRun;
-		commandToRun = "mv " + fullPath + " " + toFullPath;
-		PApplet.println(commandToRun);
-		InputStream iStream = null;
-		BufferedReader bReader = null;
-		try {
-			String[] cmds = new String[] { "/bin/sh", "-c", commandToRun };
-			Process p = new ProcessBuilder(cmds).start();
-			iStream = p.getInputStream();
-			bReader = new BufferedReader(new InputStreamReader(iStream), 1);
-			String moveline;
-			while ((moveline = bReader.readLine()) != null) {
-				PApplet.println("MV message : " + moveline);
-			}
-			// Thread.sleep(500);
-			return true;
-
-		} catch (IOException ioe) {
-			ioe.printStackTrace();
-			return false;
-		} finally {
-			if (iStream != null)
-				iStream.close();
-			if (bReader != null)
-				bReader.close();
-		}
-
 	}
-}

@@ -68,6 +68,7 @@ public class ManuCaptureContext {
 		G2P5 g2p5 = G2P5.create(parent.homeDirectory(), serial, name);
 		G2P5ManucaptureAdapter adapter = new G2P5ManucaptureAdapter();
 		adapter.g2p5 = g2p5;
+		adapter.manuCapture = parent;
 		// TODO check if is null if not project created
 		adapter.setTargetFile(parent.project.projectDirectory + "/raw", parent.project.projectName);
 		return adapter;
@@ -124,6 +125,51 @@ public class ManuCaptureContext {
 		}
 	}
 
+	public void copyFiles(String form, String to) {
+		
+	}
+	
+	public boolean moveFile(String fullPath, String toFullPath) {
+		String commandToRun;
+		commandToRun = "mv " + fullPath + " " + toFullPath;
+		PApplet.println(commandToRun);
+		InputStream iStream = null;
+		BufferedReader bReader = null;
+		try {
+			String[] cmds = new String[] { "/bin/sh", "-c", commandToRun };
+			Process p = new ProcessBuilder(cmds).start();
+			iStream = p.getInputStream();
+			bReader = new BufferedReader(new InputStreamReader(iStream), 1);
+			String moveline;
+			while ((moveline = bReader.readLine()) != null) {
+				PApplet.println("MV message : " + moveline);
+			}
+			// Thread.sleep(500);
+			return true;
+
+		} catch (IOException ioe) {
+			ioe.printStackTrace();
+			return false;
+		} finally {
+			if (iStream != null)
+				try {
+					iStream.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			if (bReader != null)
+				try {
+					bReader.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+		}
+
+	}
+
+	
 	public boolean writeExifData(String fullFileName, String documentId, String xResolution, String yResolution) {
 
 		Process pr = null;
@@ -237,5 +283,7 @@ public class ManuCaptureContext {
 		gphotoA.capture();
 		gphotoB.capture();
 	}
+
+	
 
 }

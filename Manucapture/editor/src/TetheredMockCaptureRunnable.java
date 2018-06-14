@@ -52,9 +52,12 @@ public class TetheredMockCaptureRunnable implements Runnable {
 		String line = null;
 		while (true) {
 			line = logs[indexLogs];
+			
+			line = line.replaceAll("/A.cr2", "/"+g2p5.id+".cr2");
+			
 			g2p5.processLogLine(line);
 			indexLogs++;
-			if (indexLogs > logs.length) {
+			if (indexLogs >= logs.length) {
 				indexLogs = 0;
 			}
 			try {
@@ -65,6 +68,7 @@ public class TetheredMockCaptureRunnable implements Runnable {
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
+				return;
 			}
 		}
 		// PApplet.println(port + " Tethered message : " + line);

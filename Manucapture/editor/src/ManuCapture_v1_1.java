@@ -587,14 +587,23 @@ public class ManuCapture_v1_1 extends PApplet {
 
 	}
 
-	public void newPhotoEvent(G2P5 gphoto, String absoluteFilePath) {
+	public void newPhotoEvent(G2P5Event event, String ic) {
 
-		println("New photo!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!", absoluteFilePath);
-		if (gphoto == context.gphotoA) {
-			context.newImagePathA = absoluteFilePath;
-
-		} else if (gphoto == context.gphotoB) {
-			context.newImagePathB = absoluteFilePath;
+		if(project.projectName == null || project.projectName.equals("")) {
+			return;
+		}
+		
+		println("New photo Event!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!", event.content);
+		if (event.g2p5 == context.gphotoA) {
+			context.gphotoAAdapter.setTargetFile(project.projectDirectory + "/raw", project.projectCode);
+			context.gphotoAAdapter.setFullTargetPath(ic);
+			context.moveFile(event.content, context.gphotoAAdapter.getFullTargetPath());
+			context.newImagePathA = event.content;
+		} else if (event.g2p5 == context.gphotoB) {
+			context.newImagePathB = event.content;
+			context.gphotoBAdapter.setTargetFile(project.projectDirectory + "/raw", project.projectCode);
+			context.gphotoBAdapter.setFullTargetPath(ic);
+			context.moveFile(event.content, context.gphotoBAdapter.getFullTargetPath());
 		}
 
 		if ((context.gphotoA.isConnected() && context.gphotoB.isConnected()
