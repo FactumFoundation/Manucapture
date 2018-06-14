@@ -44,6 +44,8 @@ public class G2P5 {
 
 	List<G2P5Event> events = new ArrayList<>();
 
+	boolean mock = false;
+
 	public G2P5() {
 
 	}
@@ -54,7 +56,7 @@ public class G2P5 {
 		this.port = port;
 		this.tethering = true;
 		this.homeDirectory = homeDirectory;
-//		setActive(true);
+		// setActive(true);
 
 	}
 
@@ -68,8 +70,6 @@ public class G2P5 {
 
 	public void setActive(boolean active) {
 
-		boolean mock = true;
-		
 		if (thread != null && thread.isAlive()) {
 			thread.interrupt();
 		}
@@ -97,7 +97,7 @@ public class G2P5 {
 				setAction(CAMERA_INACTIVE);
 				killAllProcessByName(id + ".cr2");
 				actionCode = CAMERA_INACTIVE;
-				
+
 			} else if (true) {
 				if (!mock) {
 					captureRunnable = new TetheredCaptureRunnable();
@@ -184,12 +184,13 @@ public class G2P5 {
 
 		events.add(event);
 
-		try {
-			Thread.sleep(200);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		if (mock)
+			try {
+				Thread.sleep(200);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 	}
 
 	public static void killAllGphotoProcess() {

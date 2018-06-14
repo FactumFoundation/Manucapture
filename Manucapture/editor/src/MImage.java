@@ -281,7 +281,7 @@ public class MImage {
 	}
 
 	private String getXmpPath() {
-		return (imagePath).replace(".cr2", ".xmp");
+		return context.project.projectDirectory +(imagePath).replace(".cr2", ".xmp");
 	}
 
 	public String getAbsolutePath() {

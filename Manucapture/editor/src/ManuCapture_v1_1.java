@@ -687,12 +687,12 @@ public class ManuCapture_v1_1 extends PApplet {
 		String relNewImagePathA = "";
 		if (!context.newImagePathA.equals("")) {
 //			relNewImagePathA = getNewPathImage(project.projectDirectory, context.newImagePathA);
-			relNewImagePathA = context.newImagePathA;
+			relNewImagePathA = context.newImagePathA.substring(project.projectDirectory.length());
 		}
 		String relNewImagePathB = "";
 		if (!context.newImagePathB.equals(""))
 //			relNewImagePathB = getNewPathImage(project.projectDirectory, context.newImagePathB);
-			relNewImagePathB = context.newImagePathB;
+			relNewImagePathB = context.newImagePathB.substring(project.projectDirectory.length());
 
 		Item newItem = new Item(context, relNewImagePathA, relNewImagePathB, newPageNum, "", type);
 		return newItem;
