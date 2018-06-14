@@ -590,6 +590,7 @@ public class ManuCapture_v1_1 extends PApplet {
 	public void newPhotoEvent(G2P5Event event, String ic) {
 
 		if(project.projectName == null || project.projectName.equals("")) {
+			context.handleMessageDialog("Error","Can't capture photos without project name",G4P.ERROR);
 			return;
 		}
 		

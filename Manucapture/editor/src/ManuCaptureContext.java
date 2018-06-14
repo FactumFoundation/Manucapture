@@ -8,6 +8,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+import g4p_controls.G4P;
 import netP5.NetAddress;
 import oscP5.OscP5;
 import processing.core.PApplet;
@@ -284,6 +285,11 @@ public class ManuCaptureContext {
 		gphotoB.capture();
 	}
 
-	
+	// G4P code for message dialogs
+		public void handleMessageDialog(String title,String message,int type) {
+			// Determine message type
+			G4P.showMessage(parent, message, title, type);
+		}
+
 
 }

@@ -61,6 +61,7 @@ public class Item {
 	}
 
 	public void saveMetadata() {
+		
 		this.mImageLeft.saveMetadata();
 		this.mImageRight.saveMetadata();
 	}
