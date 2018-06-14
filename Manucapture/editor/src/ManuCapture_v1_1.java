@@ -598,12 +598,13 @@ public class ManuCapture_v1_1 extends PApplet {
 			context.gphotoAAdapter.setTargetFile(project.projectDirectory + "/raw", project.projectCode);
 			context.gphotoAAdapter.setFullTargetPath(ic);
 			context.moveFile(event.content, context.gphotoAAdapter.getFullTargetPath());
-			context.newImagePathA = event.content;
+			context.newImagePathA = context.gphotoAAdapter.getFullTargetPath();
 		} else if (event.g2p5 == context.gphotoB) {
-			context.newImagePathB = event.content;
+			
 			context.gphotoBAdapter.setTargetFile(project.projectDirectory + "/raw", project.projectCode);
 			context.gphotoBAdapter.setFullTargetPath(ic);
 			context.moveFile(event.content, context.gphotoBAdapter.getFullTargetPath());
+			context.newImagePathB = context.gphotoBAdapter.getFullTargetPath();
 		}
 
 		if ((context.gphotoA.isConnected() && context.gphotoB.isConnected()
@@ -685,11 +686,13 @@ public class ManuCapture_v1_1 extends PApplet {
 		
 		String relNewImagePathA = "";
 		if (!context.newImagePathA.equals("")) {
-			relNewImagePathA = getNewPathImage(project.projectDirectory, context.newImagePathA);
+//			relNewImagePathA = getNewPathImage(project.projectDirectory, context.newImagePathA);
+			relNewImagePathA = context.newImagePathA;
 		}
 		String relNewImagePathB = "";
 		if (!context.newImagePathB.equals(""))
-			relNewImagePathB = getNewPathImage(project.projectDirectory, context.newImagePathB);
+//			relNewImagePathB = getNewPathImage(project.projectDirectory, context.newImagePathB);
+			relNewImagePathB = context.newImagePathB;
 
 		Item newItem = new Item(context, relNewImagePathA, relNewImagePathB, newPageNum, "", type);
 		return newItem;
@@ -820,6 +823,7 @@ public class ManuCapture_v1_1 extends PApplet {
 		project.loadProjectMethod(projectPath);
 		initSelectedItem = true;
 		context.init();
+		G2P5Manager.setImageCount(project.items.size());
 		project.forceSelectedItem(project.items.size(), false);
 		saveLastSessionData();
 		project.removeUnusedImages();

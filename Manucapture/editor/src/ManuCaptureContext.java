@@ -131,7 +131,7 @@ public class ManuCaptureContext {
 	
 	public boolean moveFile(String fullPath, String toFullPath) {
 		String commandToRun;
-		commandToRun = "mv " + fullPath + " " + toFullPath;
+		commandToRun = "cp " + fullPath + " " + toFullPath;
 		PApplet.println(commandToRun);
 		InputStream iStream = null;
 		BufferedReader bReader = null;

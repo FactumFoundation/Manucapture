@@ -251,6 +251,10 @@ public class MImage {
 	}
 
 	public void saveMetadata() {
+		
+		if(imagePath == null || imagePath.equals("")) {
+			return;
+		}
 
 		XML projectXML = new XML("xmp");
 
@@ -277,7 +281,7 @@ public class MImage {
 	}
 
 	private String getXmpPath() {
-		return (context.project.projectDirectory + "/" + imagePath).replace(".cr2", ".xmp");
+		return (imagePath).replace(".cr2", ".xmp");
 	}
 
 	public String getAbsolutePath() {

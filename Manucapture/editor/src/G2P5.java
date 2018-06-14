@@ -54,7 +54,7 @@ public class G2P5 {
 		this.port = port;
 		this.tethering = true;
 		this.homeDirectory = homeDirectory;
-		setActive(true);
+//		setActive(true);
 
 	}
 
@@ -67,26 +67,23 @@ public class G2P5 {
 	}
 
 	public void setActive(boolean active) {
+
+		boolean mock = true;
+		
+		if (thread != null && thread.isAlive()) {
+			thread.interrupt();
+		}
+
 		this.active = active;
 		if (port != null) {
 			if (active) {
 				setAction(CAMERA_IDLE);
-				if (true) {
-					TetheredMockCaptureRunnable captureRunnable = new TetheredMockCaptureRunnable();
-					Thread thread = new Thread(captureRunnable);
-					captureRunnable.g2p5 = this;
-					captureRunnable.thread = thread;
-					this.captureRunnable = captureRunnable;
-					thread.start();
-					this.thread = thread;
-				} else {
-					TetheredCaptureRunnable captureRunnable = new TetheredCaptureRunnable();
-					Thread thread = new Thread(captureRunnable);
-					captureRunnable.g2p5 = this;
-					captureRunnable.thread = thread;
-					thread.start();
-					this.thread = thread;
-				}
+				TetheredCaptureRunnable captureRunnable = new TetheredCaptureRunnable();
+				Thread thread = new Thread(captureRunnable);
+				captureRunnable.g2p5 = this;
+				captureRunnable.thread = thread;
+				thread.start();
+				this.thread = thread;
 			} else {
 				setAction(CAMERA_INACTIVE);
 				killAllProcessByName(id + ".cr2");
@@ -100,21 +97,23 @@ public class G2P5 {
 				setAction(CAMERA_INACTIVE);
 				killAllProcessByName(id + ".cr2");
 				actionCode = CAMERA_INACTIVE;
-				if (thread != null && thread.isAlive()) {
-					thread.interrupt();
-				}
+				
 			} else if (true) {
-				TetheredMockCaptureRunnable captureRunnable = new TetheredMockCaptureRunnable();
-				Thread thread = new Thread(captureRunnable);
-				captureRunnable.g2p5 = this;
-				captureRunnable.thread = thread;
-				this.captureRunnable = captureRunnable;
-				thread.start();
-				this.thread = thread;
-			} else {
-				captureRunnable = new TetheredCaptureRunnable();
-				this.active = false;
+				if (!mock) {
+					captureRunnable = new TetheredCaptureRunnable();
+					this.active = false;
+				}
 			}
+		}
+
+		if (mock && active) {
+			TetheredMockCaptureRunnable captureRunnable = new TetheredMockCaptureRunnable();
+			Thread thread = new Thread(captureRunnable);
+			captureRunnable.g2p5 = this;
+			captureRunnable.thread = thread;
+			this.captureRunnable = captureRunnable;
+			thread.start();
+			this.thread = thread;
 		}
 
 	}
@@ -318,7 +317,7 @@ public class G2P5 {
 						invokePhotoEvent(cad);
 					}
 				} catch (Throwable t) {
-					PApplet.println(t);
+					t.printStackTrace();
 				}
 			} else if (line.contains("LANG=C")) {
 				PApplet.println("Problem opening thethering on camera " + id);
