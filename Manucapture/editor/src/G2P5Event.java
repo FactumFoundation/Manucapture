@@ -8,12 +8,18 @@
 
 public class G2P5Event {
 
+	//zero and negative are for processed events
+	
+	public static int EVENT_FOCUSING = -2;
+	public static int EVENT_EXPOSURE = -1;
 	public static int NEW_PHOTO = 0;
+	
 	public static int EVENT_MASK = 1;
 	public static int EVENT_CODE = 2;
 	public static int EVENT_BUTTON = 3;
 	public static int EVENT_PTP = 4;
 	public static int EVENT_CAMERA = 5;
+	
 
 	public int eventID = -1;
 

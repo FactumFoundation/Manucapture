@@ -34,6 +34,9 @@ public class Item {
 		mImageLeft.rotation = context.rotB;
 		mImageRight.rotation = context.rotA;
 
+		mImageLeft.g2p5Adapter = context.gphotoBAdapter;
+		mImageRight.g2p5Adapter = context.gphotoAAdapter;
+
 		this.mImageLeft.imagePath = imagePathLeft;
 		this.mImageRight.imagePath = imagePathRight;
 		this.mImageLeft.mesh = context.copyMesh(context.pointsLeft);
@@ -61,7 +64,7 @@ public class Item {
 	}
 
 	public void saveMetadata() {
-		
+
 		this.mImageLeft.saveMetadata();
 		this.mImageRight.saveMetadata();
 	}

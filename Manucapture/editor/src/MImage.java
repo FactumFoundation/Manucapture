@@ -32,6 +32,8 @@ public class MImage {
 	String lastLeftImagePath = "";
 	String lastRightImagePath = "";
 	
+	G2P5ManucaptureAdapter g2p5Adapter;
+	
 	void remove() {
 		// imagePath = "";
 		// thumbPath = "";

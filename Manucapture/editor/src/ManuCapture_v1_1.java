@@ -379,7 +379,7 @@ public class ManuCapture_v1_1 extends PApplet {
 			pushMatrix();
 			translate(marginLeftViewerRight, marginTopViewer);
 
-			drawImagePreview(project.selectedItem.mImageLeft.imgPreview, lastPressedL, marginLeftViewerRight,
+			drawImagePreview(project.selectedItem.mImageLeft, lastPressedL, marginLeftViewerRight,
 					context.pointsRight);
 			fill(255);
 			textSize(14);
@@ -396,6 +396,11 @@ public class ManuCapture_v1_1 extends PApplet {
 			fill(50);
 			rect(marginLeftViewerRight, 20, context.hImageViewerSize, context.wImageViewerSize);
 		}
+		
+		//datos de cámara
+		
+		fill(255);
+		text("exposure: "+context.gphotoAAdapter.exposure, marginLeftViewerRight, 40);
 	}
 
 	private void drawRight() {
@@ -406,11 +411,13 @@ public class ManuCapture_v1_1 extends PApplet {
 			translate(marginLeftViewerLeft, marginTopViewer);
 			imageMode(CORNER);
 
-			drawImagePreview(project.selectedItem.mImageRight.imgPreview, lastPressedR, marginLeftViewerLeft,
+			drawImagePreview(project.selectedItem.mImageRight, lastPressedR, marginLeftViewerLeft,
 					context.pointsLeft);
+			
 			fill(255);
 			textSize(14);
 			text(project.selectedItem.mImageRight.imagePath, 0, 0);
+			
 			popMatrix();
 			fill(0, 255, 0, 100);
 			if (lastPressedR == null)
@@ -424,12 +431,15 @@ public class ManuCapture_v1_1 extends PApplet {
 			fill(50);
 			rect(580, 20, context.hImageViewerSize, context.wImageViewerSize);
 		}
+		//datos de cámara
+		fill(255);
+		text("exposure: "+context.gphotoBAdapter.exposure, 580, 40);
 	}
 
-	private void drawImagePreview(PImage img, PVector lastPressedR, int marginLeftViewer, List<HotArea> areas) {
+	private void drawImagePreview(MImage img, PVector lastPressedR, int marginLeftViewer, List<HotArea> areas) {
 		if (lastPressedR != null) {
 			// pimero quiero saber pos en la imagen
-			float imgScale = img.width / (float) context.hImageViewerSize;
+			float imgScale = img.imgPreview.width / (float) context.hImageViewerSize;
 			PVector virtualPos = PVector.sub(lastPressedR, new PVector(marginLeftViewer, marginTopViewer));
 
 			PVector virtualPosScaled = PVector.mult(virtualPos, imgScale);
@@ -440,12 +450,12 @@ public class ManuCapture_v1_1 extends PApplet {
 			int portviewStartX = (int) (virtualPosScaled.x - portviewSizeX / 2);
 			int portviewStartY = (int) (virtualPosScaled.y - portviewSizeY / 2);
 
-			if (portviewStartX + portviewSizeX > img.width) {
-				portviewStartX = img.width - portviewSizeX;
+			if (portviewStartX + portviewSizeX > img.imgPreview.width) {
+				portviewStartX = img.imgPreview.width - portviewSizeX;
 			}
 
-			if (portviewStartY + portviewSizeY > img.height) {
-				portviewStartY = img.height - portviewSizeY;
+			if (portviewStartY + portviewSizeY > img.imgPreview.height) {
+				portviewStartY = img.imgPreview.height - portviewSizeY;
 			}
 
 			if (portviewStartX < 0) {
@@ -456,11 +466,11 @@ public class ManuCapture_v1_1 extends PApplet {
 				portviewStartY = 0;
 			}
 
-			image(img, 0, 0, context.hImageViewerSize, context.wImageViewerSize, portviewStartX, portviewStartY,
+			image(img.imgPreview, 0, 0, context.hImageViewerSize, context.wImageViewerSize, portviewStartX, portviewStartY,
 					portviewStartX + portviewSizeX, portviewStartY + portviewSizeY);
 		} else {
 
-			image(img, 0, 0, context.hImageViewerSize, context.wImageViewerSize, 0, 0, img.width, img.height);
+			image(img.imgPreview, 0, 0, context.hImageViewerSize, context.wImageViewerSize, 0, 0, img.imgPreview.width, img.imgPreview.height);
 		}
 
 	}
@@ -649,17 +659,17 @@ public class ManuCapture_v1_1 extends PApplet {
 		}
 	}
 
-	private String getNewPathImage(String projectDirectory, String newImagePath) {
-		String relNewImagePathA = null;
-		int start = projectDirectory.length() + 1;
-		int end = newImagePath.length();
-		if (end < start) {
-			println("Error en los " + " " + newImagePath + " \n" + projectDirectory);
-		} else {
-			relNewImagePathA = newImagePath.substring(start, end);
-		}
-		return relNewImagePathA;
-	}
+//	private String getNewPathImage(String projectDirectory, String newImagePath) {
+//		String relNewImagePathA = null;
+//		int start = projectDirectory.length() + 1;
+//		int end = newImagePath.length();
+//		if (end < start) {
+//			println("Error en los " + " " + newImagePath + " \n" + projectDirectory);
+//		} else {
+//			relNewImagePathA = newImagePath.substring(start, end);
+//		}
+//		return relNewImagePathA;
+//	}
 
 	private void doNormalShutter(String type) {
 		float newPageNum;
@@ -695,6 +705,7 @@ public class ManuCapture_v1_1 extends PApplet {
 			// context.newImagePathB);
 			relNewImagePathB = context.newImagePathB.substring(project.projectDirectory.length());
 
+		//TODO here we decide what is in the left and the right
 		Item newItem = new Item(context, relNewImagePathA, relNewImagePathB, newPageNum, "", type);
 		return newItem;
 	}

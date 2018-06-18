@@ -27,6 +27,9 @@ public class ManuCaptureContext {
 
 	G2P5ManucaptureAdapter gphotoAAdapter;
 	G2P5ManucaptureAdapter gphotoBAdapter;
+	
+	G2P5ManucaptureView viewA;
+	G2P5ManucaptureView viewB;
 
 	OscP5 oscP5;
 

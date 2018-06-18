@@ -23,6 +23,8 @@ public class G2P5ManucaptureAdapter implements G2P5Listener {
 
 	protected String id;
 	
+	String exposure = "unknown";
+
 	public ManuCapture_v1_1 manuCapture;
 
 	/*
@@ -47,24 +49,19 @@ public class G2P5ManucaptureAdapter implements G2P5Listener {
 		if (event.eventID == G2P5Event.NEW_PHOTO) {
 			//
 			int ic = G2P5Manager.addImageCount();
-			manuCapture.newPhotoEvent(event, ""+ic);
-			//
-			// fullTargetPath = folderPath + "/" + targetFileName;
-//			try {
-//				moveFile(event.content, fullTargetPath);
-//			} catch (IOException e) {
-//				e.printStackTrace();
-//			}
+			manuCapture.newPhotoEvent(event, "" + ic);
+		} else if (event.eventID == G2P5Event.EVENT_EXPOSURE) {
+			exposure = event.content;
 		}
 
 	}
 
 	public String getFullTargetPath() {
 
-//		fullTargetPath = folderPath + "/" + targetFileName;
-		
+		// fullTargetPath = folderPath + "/" + targetFileName;
+
 		return fullTargetPath;
 		// return super.getFullTargetPath();
 	}
 
-	}
+}
