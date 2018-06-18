@@ -44,7 +44,7 @@ public class G2P5 {
 
 	List<G2P5Event> events = new ArrayList<>();
 
-	boolean mock = true;
+	boolean mock = false;
 
 	public G2P5() {
 
@@ -190,7 +190,7 @@ public class G2P5 {
 
 	private void sendEvent(G2P5Event event) {
 
-		System.out.println("NEW EVENT " + event.eventCode + " " + event.content);
+		System.out.println("NEW EVENT " + id + " "+event.eventCode + " " + event.content);
 
 		event.g2p5 = this;
 
@@ -247,7 +247,7 @@ public class G2P5 {
 
 	public void processLogLine(String line) {
 
-		// System.out.println(line);
+		 System.out.println(line);
 		if (line.contains("Camera")) {
 			int index = line.indexOf("Camera");
 			String cad = line.substring(index, line.length());
