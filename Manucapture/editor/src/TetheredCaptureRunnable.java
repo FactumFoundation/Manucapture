@@ -17,7 +17,7 @@ public class TetheredCaptureRunnable implements Runnable{
 		System.setOut(new TracingPrintStream(System.out));
 
 		String fullPath = g2p5.getFilePath();
-		String commandToRun = "gphoto2 --capture-tethered --port " + g2p5.port + " --force-overwrite --filename " + fullPath;
+		String commandToRun = "stdbuf -oL  gphoto2 --capture-tethered --port " + g2p5.port + " --force-overwrite --filename " + fullPath;
 		PApplet.println(commandToRun);
 
 		try {

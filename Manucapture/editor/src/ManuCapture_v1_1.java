@@ -379,8 +379,7 @@ public class ManuCapture_v1_1 extends PApplet {
 			pushMatrix();
 			translate(marginLeftViewerRight, marginTopViewer);
 
-			drawImagePreview(project.selectedItem.mImageLeft, lastPressedL, marginLeftViewerRight,
-					context.pointsRight);
+			drawImagePreview(project.selectedItem.mImageLeft, lastPressedL, marginLeftViewerRight, context.pointsRight);
 			fill(255);
 			textSize(14);
 			text(project.selectedItem.mImageLeft.imagePath, 0, 0);
@@ -396,11 +395,18 @@ public class ManuCapture_v1_1 extends PApplet {
 			fill(50);
 			rect(marginLeftViewerRight, 20, context.hImageViewerSize, context.wImageViewerSize);
 		}
-		
-		//datos de cámara
-		
+
+		// datos de cámara
+
 		fill(255);
-		text("exposure: "+context.gphotoAAdapter.exposure, marginLeftViewerRight, 40);
+		text("exposure: " + context.gphotoAAdapter.exposure, marginLeftViewerRight+5, 40);
+		text("focus: ", marginLeftViewerRight+5, 55);
+		if (!context.gphotoAAdapter.focus) {
+			fill(255,0,0);
+		}else {
+			fill(0,255,0);
+		}
+		ellipse(marginLeftViewerRight+50, 50,15,15);
 	}
 
 	private void drawRight() {
@@ -411,13 +417,12 @@ public class ManuCapture_v1_1 extends PApplet {
 			translate(marginLeftViewerLeft, marginTopViewer);
 			imageMode(CORNER);
 
-			drawImagePreview(project.selectedItem.mImageRight, lastPressedR, marginLeftViewerLeft,
-					context.pointsLeft);
-			
+			drawImagePreview(project.selectedItem.mImageRight, lastPressedR, marginLeftViewerLeft, context.pointsLeft);
+
 			fill(255);
 			textSize(14);
 			text(project.selectedItem.mImageRight.imagePath, 0, 0);
-			
+
 			popMatrix();
 			fill(0, 255, 0, 100);
 			if (lastPressedR == null)
@@ -431,9 +436,17 @@ public class ManuCapture_v1_1 extends PApplet {
 			fill(50);
 			rect(580, 20, context.hImageViewerSize, context.wImageViewerSize);
 		}
-		//datos de cámara
+		// datos de cámara
 		fill(255);
-		text("exposure: "+context.gphotoBAdapter.exposure, 580, 40);
+		text("exposure: " + context.gphotoBAdapter.exposure, 590, 40);
+		text("focus: ", 590, 55);
+		if (!context.gphotoBAdapter.focus) {
+			fill(255,0,0);
+		}else {
+			fill(255);
+		}
+		ellipse(640, 50,15,15);
+
 	}
 
 	private void drawImagePreview(MImage img, PVector lastPressedR, int marginLeftViewer, List<HotArea> areas) {
@@ -466,11 +479,12 @@ public class ManuCapture_v1_1 extends PApplet {
 				portviewStartY = 0;
 			}
 
-			image(img.imgPreview, 0, 0, context.hImageViewerSize, context.wImageViewerSize, portviewStartX, portviewStartY,
-					portviewStartX + portviewSizeX, portviewStartY + portviewSizeY);
+			image(img.imgPreview, 0, 0, context.hImageViewerSize, context.wImageViewerSize, portviewStartX,
+					portviewStartY, portviewStartX + portviewSizeX, portviewStartY + portviewSizeY);
 		} else {
 
-			image(img.imgPreview, 0, 0, context.hImageViewerSize, context.wImageViewerSize, 0, 0, img.imgPreview.width, img.imgPreview.height);
+			image(img.imgPreview, 0, 0, context.hImageViewerSize, context.wImageViewerSize, 0, 0, img.imgPreview.width,
+					img.imgPreview.height);
 		}
 
 	}
@@ -659,17 +673,18 @@ public class ManuCapture_v1_1 extends PApplet {
 		}
 	}
 
-//	private String getNewPathImage(String projectDirectory, String newImagePath) {
-//		String relNewImagePathA = null;
-//		int start = projectDirectory.length() + 1;
-//		int end = newImagePath.length();
-//		if (end < start) {
-//			println("Error en los " + " " + newImagePath + " \n" + projectDirectory);
-//		} else {
-//			relNewImagePathA = newImagePath.substring(start, end);
-//		}
-//		return relNewImagePathA;
-//	}
+	// private String getNewPathImage(String projectDirectory, String newImagePath)
+	// {
+	// String relNewImagePathA = null;
+	// int start = projectDirectory.length() + 1;
+	// int end = newImagePath.length();
+	// if (end < start) {
+	// println("Error en los " + " " + newImagePath + " \n" + projectDirectory);
+	// } else {
+	// relNewImagePathA = newImagePath.substring(start, end);
+	// }
+	// return relNewImagePathA;
+	// }
 
 	private void doNormalShutter(String type) {
 		float newPageNum;
@@ -705,7 +720,7 @@ public class ManuCapture_v1_1 extends PApplet {
 			// context.newImagePathB);
 			relNewImagePathB = context.newImagePathB.substring(project.projectDirectory.length());
 
-		//TODO here we decide what is in the left and the right
+		// TODO here we decide what is in the left and the right
 		Item newItem = new Item(context, relNewImagePathA, relNewImagePathB, newPageNum, "", type);
 		return newItem;
 	}
