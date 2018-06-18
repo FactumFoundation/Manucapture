@@ -127,9 +127,9 @@ public class ManuCaptureContext {
 	}
 
 	public void copyFiles(String form, String to) {
-		
+
 	}
-	
+
 	public boolean moveFile(String fullPath, String toFullPath) {
 		String commandToRun;
 		commandToRun = "cp " + fullPath + " " + toFullPath;
@@ -170,7 +170,6 @@ public class ManuCaptureContext {
 
 	}
 
-	
 	public boolean writeExifData(String fullFileName, String documentId, String xResolution, String yResolution) {
 
 		Process pr = null;
@@ -269,27 +268,26 @@ public class ManuCaptureContext {
 	}
 
 	public void init() {
-		
+
 		gphotoAAdapter.setTargetFile(project.projectDirectory + "/raw", project.projectCode);
 		gphotoBAdapter.setTargetFile(project.projectDirectory + "/raw", project.projectCode);
-		
+
 		gphotoA = gphotoAAdapter.g2p5;
 		gphotoB = gphotoBAdapter.g2p5;
-		
+
 		gphotoA.listener = gphotoAAdapter;
 		gphotoB.listener = gphotoBAdapter;
 	}
-	
+
 	public void capture() {
 		gphotoA.capture();
 		gphotoB.capture();
 	}
 
 	// G4P code for message dialogs
-		public void handleMessageDialog(String title,String message,int type) {
-			// Determine message type
-			G4P.showMessage(parent, message, title, type);
-		}
-
+	public void handleMessageDialog(String title, String message, int type) {
+		// Determine message type
+		G4P.showMessage(parent, message, title, type);
+	}
 
 }

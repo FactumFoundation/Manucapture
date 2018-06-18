@@ -161,7 +161,7 @@ public class G2P5 {
 	}
 
 	public void invokePhotoEvent(String path) {
-		sendEvent(new G2P5Event(G2P5Event.NEW_PHOTO, "", path));
+		sendEvent(new G2P5Event(G2P5Event.NEW_PHOTO, "new_photo", path));
 	}
 
 	private void invokeEventMask(String cad) {
@@ -170,6 +170,18 @@ public class G2P5 {
 
 	private void invokeEventCode(String cad, String content) {
 		sendEvent(new G2P5Event(G2P5Event.EVENT_CODE, cad, content));
+	}
+
+	private void invokeEventPTP(String cad) {
+		sendEvent(new G2P5Event(G2P5Event.EVENT_PTP, "ptp", cad));
+	}
+
+	private void invokeEventCamera(String cad) {
+		sendEvent(new G2P5Event(G2P5Event.EVENT_CAMERA, "camera", cad));
+	}
+
+	private void invokeEventButton(String cad) {
+		sendEvent(new G2P5Event(G2P5Event.EVENT_BUTTON, "button", cad));
 	}
 
 	private void sendEvent(G2P5Event event) {
@@ -292,19 +304,44 @@ public class G2P5 {
 	public void processLogLine(String line) {
 
 		// System.out.println(line);
+		if (line.contains("Camera")) {
+			int index = line.indexOf("Camera");
+			String cad = line.substring(index, line.length());
+			// invokeEventCamera(cad);
 
-		if (line.contains("OLCInfo event")) {
+		} else if (line.contains("PTP")) {
+			// UNKNOWN PTP Property d1d3 changed
+			int index = line.indexOf("PTP");
+			String cad = line.substring(index, line.length());
+			// invokeEventPTP(cad);
 
-			if (line.contains("0x")) {
-				int index = line.indexOf("0x");
-				int indexContent = line.indexOf("content");
-				String cad = line.substring(index, indexContent - 1);
-				String content = line.substring(indexContent + 8, line.length());
-				invokeEventCode(cad, content);
-			} else if (line.contains("mask")) {
-				int index = line.indexOf("mask=");
-				String cad = line.substring(index + 5, line.length());
-				invokeEventMask(cad);
+		} else if (line.contains("Button")) {
+			// UNKNOWN Button 1032
+			int index = line.indexOf("Button");
+			String cad = line.substring(index, line.length());
+			// invokeEventButton(cad);
+
+		} else if (line.contains("OLCInfo")) {
+			// UNKNOWN OLCInfo event 0x0800 content 0000000000000000
+			// UNKNOWN OLCInfo event mask=900
+			if (line.contains("OLCInfo event")) {
+				if (line.contains("0x")) {
+					int index = line.indexOf("0x");
+					int indexContent = line.indexOf("content");
+					String cad = line.substring(index, indexContent - 1);
+					String content = line.substring(indexContent + 8, line.length());
+					invokeEventCode(cad, content);
+				} else if (line.contains("mask")) {
+					int index = line.indexOf("mask=");
+					String cad = line.substring(index + 5, line.length());
+					invokeEventMask(cad);
+				}
+			} else if (line.contains("OLCInfo exposure")) {
+				// int index = line.indexOf("Button");
+				// String cad = line.substring(index, line.length());
+				// invokeEventButton(cad);
+			} else {
+				// aquí los no reconocidos
 			}
 
 		} else if (line.contains(id + ".cr2")) {

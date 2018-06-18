@@ -25,26 +25,25 @@ public class ManuCapture_v1_1 extends PApplet {
 	/*
 	 * ManuCapture.pde A Visual tool for recording books using DSLR Cameras
 	 * 
-	 * This source file is part of the ManuCapture software For the latest info,
-	 * see http://www.factumfoundation.org/pag/235/Digitisation-of-oriental-
+	 * This source file is part of the ManuCapture software For the latest info, see
+	 * http://www.factumfoundation.org/pag/235/Digitisation-of-oriental-
 	 * manuscripts-in-Daghestan
 	 * 
-	 * Copyright (c) 2016-2018 Jorge Cano and Enrique Esteban in Factum
-	 * Foundation
+	 * Copyright (c) 2016-2018 Jorge Cano and Enrique Esteban in Factum Foundation
 	 * 
-	 * This program is free software; you can redistribute it and/or modify it
-	 * under the terms of the GNU General Public License as published by the
-	 * Free Software Foundation; either version 2 of the License, or (at your
-	 * option) any later version.
+	 * This program is free software; you can redistribute it and/or modify it under
+	 * the terms of the GNU General Public License as published by the Free Software
+	 * Foundation; either version 2 of the License, or (at your option) any later
+	 * version.
 	 * 
-	 * This program is distributed in the hope that it will be useful, but
-	 * WITHOUT ANY WARRANTY; without even the implied warranty of
-	 * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
-	 * Public License for more details.
+	 * This program is distributed in the hope that it will be useful, but WITHOUT
+	 * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+	 * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+	 * details.
 	 * 
-	 * You should have received a copy of the GNU General Public License along
-	 * with this program; if not, write to the Free Software Foundation, Inc.,
-	 * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+	 * You should have received a copy of the GNU General Public License along with
+	 * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
+	 * Place, Suite 330, Boston, MA 02111-1307 USA
 	 */
 
 	int receivePort = 3334;
@@ -214,31 +213,31 @@ public class ManuCapture_v1_1 extends PApplet {
 				e.printStackTrace();
 			} finally {
 				G2P5.killAllGphotoProcess();
-				
-//				context.cameraActiveA = false;
-//				context.gphotoA.setActive(false);
-//				
-//				context.cameraActiveB = false;
-//				context.gphotoB.setActive(false);
-				
+
+				// context.cameraActiveA = false;
+				// context.gphotoA.setActive(false);
+				//
+				// context.cameraActiveB = false;
+				// context.gphotoB.setActive(false);
+
 				try {
 					Thread.sleep(100);
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-				
+
 				if (!context.gphotoA.isConnected()) {
 					context.gphotoAAdapter = context.createG2P5(context.serialCameraA, "A");
 				}
 				if (!context.gphotoB.isConnected()) {
 					context.gphotoBAdapter = context.createG2P5(context.serialCameraB, "B");
 				}
-				
+
 				context.gphotoAAdapter.setTargetFile(project.projectDirectory + "/raw", project.projectCode);
 				context.gphotoBAdapter.setTargetFile(project.projectDirectory + "/raw", project.projectCode);
-				
-				//camera_A_connected_click(null, null);
+
+				// camera_A_connected_click(null, null);
 				liveViewActive = -1;
 			}
 		}
@@ -589,11 +588,11 @@ public class ManuCapture_v1_1 extends PApplet {
 
 	public void newPhotoEvent(G2P5Event event, String ic) {
 
-		if(project.projectName == null || project.projectName.equals("")) {
-			context.handleMessageDialog("Error","Can't capture photos without project name",G4P.ERROR);
+		if (project.projectName == null || project.projectName.equals("")) {
+			context.handleMessageDialog("Error", "Can't capture photos without project name", G4P.ERROR);
 			return;
 		}
-		
+
 		println("New photo Event!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!", event.content);
 		if (event.g2p5 == context.gphotoA) {
 			context.gphotoAAdapter.setTargetFile(project.projectDirectory + "/raw", project.projectCode);
@@ -601,7 +600,7 @@ public class ManuCapture_v1_1 extends PApplet {
 			context.moveFile(event.content, context.gphotoAAdapter.getFullTargetPath());
 			context.newImagePathA = context.gphotoAAdapter.getFullTargetPath();
 		} else if (event.g2p5 == context.gphotoB) {
-			
+
 			context.gphotoBAdapter.setTargetFile(project.projectDirectory + "/raw", project.projectCode);
 			context.gphotoBAdapter.setFullTargetPath(ic);
 			context.moveFile(event.content, context.gphotoBAdapter.getFullTargetPath());
@@ -624,7 +623,7 @@ public class ManuCapture_v1_1 extends PApplet {
 					float newPageNum = project.selectedItem.pagNum;
 
 					Item newItem = initNewItem(project.selectedItem.type, newPageNum);
-					
+
 					newItem.loadThumbnails();
 					project.replaceItem(project.selectedItemIndex, newItem);
 					context.clearPaths();
@@ -655,8 +654,7 @@ public class ManuCapture_v1_1 extends PApplet {
 		int start = projectDirectory.length() + 1;
 		int end = newImagePath.length();
 		if (end < start) {
-			println("Error en los "
-					+ " " + newImagePath + " \n" + projectDirectory);
+			println("Error en los " + " " + newImagePath + " \n" + projectDirectory);
 		} else {
 			relNewImagePathA = newImagePath.substring(start, end);
 		}
@@ -670,7 +668,7 @@ public class ManuCapture_v1_1 extends PApplet {
 		} else {
 			newPageNum = (int) project.items.get(project.selectedItemIndex).pagNum + 1;
 		}
-	
+
 		Item newItem = initNewItem(type, newPageNum);
 		newItem.saveMetadata();
 		newItem.loadThumbnails();
@@ -680,19 +678,21 @@ public class ManuCapture_v1_1 extends PApplet {
 	}
 
 	private Item initNewItem(String type, float newPageNum) {
-		
+
 		if (project.projectDirectory.equals("")) {
 			context.clearPaths();
 		}
-		
+
 		String relNewImagePathA = "";
 		if (!context.newImagePathA.equals("")) {
-//			relNewImagePathA = getNewPathImage(project.projectDirectory, context.newImagePathA);
+			// relNewImagePathA = getNewPathImage(project.projectDirectory,
+			// context.newImagePathA);
 			relNewImagePathA = context.newImagePathA.substring(project.projectDirectory.length());
 		}
 		String relNewImagePathB = "";
 		if (!context.newImagePathB.equals(""))
-//			relNewImagePathB = getNewPathImage(project.projectDirectory, context.newImagePathB);
+			// relNewImagePathB = getNewPathImage(project.projectDirectory,
+			// context.newImagePathB);
 			relNewImagePathB = context.newImagePathB.substring(project.projectDirectory.length());
 
 		Item newItem = new Item(context, relNewImagePathA, relNewImagePathB, newPageNum, "", type);
@@ -815,7 +815,7 @@ public class ManuCapture_v1_1 extends PApplet {
 		project.selectedItemIndex = -1;
 		project.thumbnailsLoaded = true;
 		context.init();
-		
+
 		saveLastSessionData();
 
 	}
@@ -836,14 +836,14 @@ public class ManuCapture_v1_1 extends PApplet {
 	}
 
 	/*
-	 * ========================================================= ==== WARNING
-	 * === ========================================================= The code in
-	 * this tab has been generated from the GUI form designer and care should be
-	 * taken when editing this file. Only add/edit code inside the event
-	 * handlers i.e. only use lines between the matching comment tags. e.g.
+	 * ========================================================= ==== WARNING ===
+	 * ========================================================= The code in this
+	 * tab has been generated from the GUI form designer and care should be taken
+	 * when editing this file. Only add/edit code inside the event handlers i.e.
+	 * only use lines between the matching comment tags. e.g.
 	 * 
-	 * void myBtnEvents(GButton button) { //_CODE_:button1:12356: // It is safe
-	 * to enter your event code here } //_CODE_:button1:12356:
+	 * void myBtnEvents(GButton button) { //_CODE_:button1:12356: // It is safe to
+	 * enter your event code here } //_CODE_:button1:12356:
 	 * 
 	 * Do not rename this tab!
 	 * =========================================================
@@ -983,7 +983,7 @@ public class ManuCapture_v1_1 extends PApplet {
 		gui.camera_A_inactive_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
 		context.cameraActiveA = true;
 		context.gphotoA.setActive(true);
-		if(context.gphotoA.captureRunnable instanceof TetheredMockCaptureRunnable) {
+		if (context.gphotoA.captureRunnable instanceof TetheredMockCaptureRunnable) {
 			context.gphotoA.active = true;
 		}
 	} // _CODE_:camera_A_active_button:906773:
@@ -1012,7 +1012,7 @@ public class ManuCapture_v1_1 extends PApplet {
 		gui.camera_B_inactive_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
 		context.cameraActiveB = true;
 		context.gphotoB.setActive(true);
-		if(context.gphotoB.captureRunnable instanceof TetheredMockCaptureRunnable) {
+		if (context.gphotoB.captureRunnable instanceof TetheredMockCaptureRunnable) {
 			context.gphotoB.active = true;
 		}
 
@@ -1078,8 +1078,8 @@ public class ManuCapture_v1_1 extends PApplet {
 
 		/*
 		 * GraphicsEnvironment environment =
-		 * GraphicsEnvironment.getLocalGraphicsEnvironment(); GraphicsDevice
-		 * devices[] = environment.getScreenDevices();
+		 * GraphicsEnvironment.getLocalGraphicsEnvironment(); GraphicsDevice devices[] =
+		 * environment.getScreenDevices();
 		 * 
 		 * if(devices.length>1 ){ //we have a 2nd display/projector
 		 * 
