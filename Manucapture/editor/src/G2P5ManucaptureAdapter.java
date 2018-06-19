@@ -22,12 +22,13 @@ public class G2P5ManucaptureAdapter implements G2P5Listener {
 	G2P5 g2p5;
 
 	protected String id;
-	
+
 	String exposure = "unknown";
 
 	public ManuCapture_v1_1 manuCapture;
-	
+
 	boolean focus = false;
+	boolean mirrorUp = false;
 
 	/*
 	 * public synchronized boolean captureTethered(boolean on) { if(active){
@@ -54,11 +55,21 @@ public class G2P5ManucaptureAdapter implements G2P5Listener {
 			manuCapture.newPhotoEvent(event, "" + ic);
 		} else if (event.eventID == G2P5Event.EVENT_EXPOSURE) {
 			exposure = event.content;
-		}else if (event.eventID == G2P5Event.EVENT_FOCUS) {
+		} else if (event.eventID == G2P5Event.EVENT_FOCUS) {
 			System.out.println(event.content);
 			focus = true;
-		}else if (event.eventID == G2P5Event.EVENT_NO_FOCUS) {
+		} else if (event.eventID == G2P5Event.EVENT_NO_FOCUS) {
 			System.out.println(event.content);
+			focus = false;
+		} else if (event.eventID == G2P5Event.EVENT_BUTTON) {
+			System.out.println(event.content);
+			int bid = Integer.parseInt(event.content.trim());
+			if (bid % 1024 == 8) {
+				mirrorUp = true;
+			}
+			if (bid % 1024 == 1) {
+				mirrorUp = false;
+			}
 			focus = false;
 		}
 

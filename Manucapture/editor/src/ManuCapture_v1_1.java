@@ -399,14 +399,16 @@ public class ManuCapture_v1_1 extends PApplet {
 		// datos de cámara
 
 		fill(255);
-		text("exposure: " + context.gphotoAAdapter.exposure, marginLeftViewerRight+5, 40);
-		text("focus: ", marginLeftViewerRight+5, 55);
-		if (!context.gphotoAAdapter.focus) {
+		text("exposure: " + context.gphotoBAdapter.exposure, marginLeftViewerRight+75, 40);
+		text("focusing: ", marginLeftViewerRight+300, 40);
+		text(context.gphotoBAdapter.g2p5.id, 840, 40);
+		text("mirroUp "+context.gphotoBAdapter.mirrorUp, marginLeftViewerRight+75, 60);
+		if (context.gphotoBAdapter.focus) {
 			fill(255,0,0);
 		}else {
 			fill(0,255,0);
 		}
-		ellipse(marginLeftViewerRight+50, 50,15,15);
+		ellipse(marginLeftViewerRight+370, 35,15,15);
 	}
 
 	private void drawRight() {
@@ -438,14 +440,17 @@ public class ManuCapture_v1_1 extends PApplet {
 		}
 		// datos de cámara
 		fill(255);
-		text("exposure: " + context.gphotoBAdapter.exposure, 590, 40);
-		text("focus: ", 590, 55);
-		if (!context.gphotoBAdapter.focus) {
+		text("exposure: " + context.gphotoAAdapter.exposure, 650, 40);
+		
+		text(" focusing: ", 890, 40);
+		text("mirroUp "+context.gphotoAAdapter.mirrorUp, 650, 60);
+		text(context.gphotoAAdapter.g2p5.id, 840, 40);
+		if (context.gphotoAAdapter.focus) {
 			fill(255,0,0);
 		}else {
-			fill(255);
+			fill(0,255,0);
 		}
-		ellipse(640, 50,15,15);
+		ellipse(960, 35,15,15);
 
 	}
 

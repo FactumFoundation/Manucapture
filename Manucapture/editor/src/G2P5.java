@@ -44,7 +44,7 @@ public class G2P5 {
 
 	List<G2P5Event> events = new ArrayList<>();
 
-	boolean mock = true;
+	boolean mock = false;
 
 	public G2P5() {
 
@@ -270,7 +270,7 @@ public class G2P5 {
 		} else if (line.contains("Button")) {
 			// UNKNOWN Button 1032
 			int index = line.indexOf("Button");
-			String cad = line.substring(index, line.length());
+			String cad = line.substring(index+6, line.length());
 			invokeEventButton(cad);
 
 		} else if (line.contains("OLCInfo")) {
