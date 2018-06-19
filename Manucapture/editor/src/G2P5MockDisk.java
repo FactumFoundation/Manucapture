@@ -21,7 +21,6 @@ public class G2P5MockDisk extends G2P5 {
 		this.context = parent.context;
 	}
 
-	@Override
 	public boolean capture() {
 		String fullPath = homeDirectory;
 

@@ -130,25 +130,6 @@ public class G2P5 {
 		return actionCode;
 	}
 
-	public boolean capture() {
-
-		setAction(CAMERA_CAPTURE);
-
-		if (active) {
-			if (tethering) {
-				killAllProcessByName(id + ".cr2");
-				try {
-					Thread.sleep(100);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-
-		}
-
-		return false;
-	}
 
 	public String[] getParameters() {
 		killAllProcessByName(id + ".cr2");

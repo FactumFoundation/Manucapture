@@ -21,8 +21,7 @@ void setup() {
   pinMode(camPin_2, OUTPUT);
   Serial.begin(9600);
 
-  digitalWrite(camPin_1,HIGH);
-  digitalWrite(camPin_2,HIGH);
+  releaseCameraButton();
 
 }
 
@@ -30,8 +29,6 @@ void loop() {
   
   // put your main code here, to run repeatedly:
   footSwitchValue = digitalRead(footSwitchPin);
-
-
   if(state == IDLE_STATE) {
     if(prevFootSwitchValue==HIGH && footSwitchValue==LOW){
       state = DETECTING_ON_STATE;
@@ -47,12 +44,7 @@ void loop() {
       state = IDLE_STATE;
     }
   } else if(state == TRIGGERING_STATE) {
-      digitalWrite(camPin_1,LOW);
-      delay(400);
-      digitalWrite(camPin_1,HIGH);
-      digitalWrite(camPin_2,LOW);
-      delay(400);
-      digitalWrite(camPin_2,HIGH);
+      pedalPressedEvent();
       state = DETECTING_OFF_STATE;
       footSwitchCounter = 0;
   } else if(state == DETECTING_OFF_STATE) {
@@ -67,4 +59,85 @@ void loop() {
 
   prevFootSwitchValue = footSwitchValue;
 
+ serialEvent(); //call the function
+
 }
+
+
+void pedalPressedEvent(){
+    Serial.print('F');
+}
+
+void serialEvent() { 
+   while (Serial.available() > 0) {
+    char message = Serial.read();
+      if ( message == 'P') {
+        pressCameraButton();
+      } else if (message == 'R'){
+        releaseCameraButton();
+      } else if (message == 'S') {
+        shutter(); 
+      } else if (message == 'W') {
+        releaseCameraButton();
+        delay(400);
+        shutter(); 
+      } else if (message == 'Y') {
+        releaseCamera_2();
+        releaseCamera_1();
+        delay(400);
+        shutter_1(); 
+      } else if (message == 'Z') {
+        releaseCamera_2();
+        releaseCamera_1();
+        delay(400);
+        shutter_2(); 
+      } 
+   }
+}
+
+
+void pressCameraButton(){
+  digitalWrite(camPin_2,LOW);
+  digitalWrite(camPin_1,LOW);
+}
+
+void releaseCameraButton(){
+  digitalWrite(camPin_1,HIGH);
+  digitalWrite(camPin_2,HIGH); 
+}
+
+void shutter(){
+  digitalWrite(camPin_2,LOW);
+  digitalWrite(camPin_1,LOW);
+  delay(300);
+  digitalWrite(camPin_1,HIGH);
+  digitalWrite(camPin_2,HIGH); 
+}
+
+void releaseCamera_1(){
+  digitalWrite(camPin_1,HIGH);
+
+}
+
+void releaseCamera_2(){
+  digitalWrite(camPin_2,HIGH);
+
+}
+
+void shutter_1(){
+  digitalWrite(camPin_1,LOW);
+  delay(300);
+  digitalWrite(camPin_1,HIGH);
+}
+
+void shutter_2(){
+  digitalWrite(camPin_2,LOW);
+  delay(300);
+  digitalWrite(camPin_2,HIGH);
+}
+
+
+
+
+
+

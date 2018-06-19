@@ -10,6 +10,7 @@ import java.util.List;
 
 import g4p_controls.G4P;
 import netP5.NetAddress;
+import oscP5.OscMessage;
 import oscP5.OscP5;
 import processing.core.PApplet;
 import processing.core.PImage;
@@ -27,7 +28,7 @@ public class ManuCaptureContext {
 
 	G2P5ManucaptureAdapter gphotoAAdapter;
 	G2P5ManucaptureAdapter gphotoBAdapter;
-	
+
 	G2P5ManucaptureView viewA;
 	G2P5ManucaptureView viewB;
 
@@ -53,6 +54,9 @@ public class ManuCaptureContext {
 	int wImageViewerSize = 1000;
 	int hImageViewerSize = 667;
 
+	float scaleA = 1;
+	float scaleB = 1;
+
 	// width resolution for viewer
 	public int viewerWidthResolution = 3000;
 
@@ -67,6 +71,8 @@ public class ManuCaptureContext {
 
 	String lastImagePathA = "";
 	String lastImagePathB = "";
+
+	public NetAddress arduinoDriverLocation;
 
 	public G2P5ManucaptureAdapter createG2P5(String serial, String name) {
 		G2P5 g2p5 = G2P5.create(parent.homeDirectory(), serial, name);
@@ -280,11 +286,104 @@ public class ManuCaptureContext {
 
 		gphotoA.listener = gphotoAAdapter;
 		gphotoB.listener = gphotoBAdapter;
+		
+		releaseCameras();
 	}
 
+	public static int CAMERAS_IDLE = 0;
+	public static int CAMERAS_FOCUSSING = 1;
+	public static int CAMERAS_MIRROR_UP = 2;
+
+	int captureState = CAMERAS_IDLE;
+	int counterEvent = 0;
+	
+	long lastCaptureMillis  =0;
+
 	public void capture() {
-		gphotoA.capture();
-		gphotoB.capture();
+		// Init capture secuence
+		if(captureState == CAMERAS_IDLE){
+			captureState = CAMERAS_FOCUSSING;
+			pressCameras();
+			lastCaptureMillis = parent.millis();			
+		}
+	}
+	
+	public void processCamerasEvent(G2P5Event event){
+		
+	}
+
+	public void camerasStateMachineLoop() {
+
+		if (captureState == CAMERAS_FOCUSSING) {
+			if (gphotoAAdapter.mirrorUp && gphotoBAdapter.mirrorUp) {
+				releaseAndShutterCameras();
+				captureState = CAMERAS_MIRROR_UP;
+			} else {
+				if(parent.millis() - lastCaptureMillis > 5000){
+					if (!gphotoAAdapter.mirrorUp && !gphotoBAdapter.mirrorUp) {
+						releaseCameras();
+					} else if(!gphotoAAdapter.mirrorUp && gphotoBAdapter.mirrorUp){
+						resetCamerasFailingA();
+					} else if(gphotoAAdapter.mirrorUp && !gphotoBAdapter.mirrorUp){
+						resetCamerasFailingB();
+					}
+					captureState = CAMERAS_IDLE;
+				}
+			}
+		}
+		if (captureState == CAMERAS_MIRROR_UP) {
+			if (!gphotoAAdapter.mirrorUp && !gphotoBAdapter.mirrorUp) {
+				captureState = CAMERAS_IDLE;
+			}
+		}
+
+	}
+
+	public void pressCameras() {
+
+		OscMessage myMessage = new OscMessage("/shutterAction");
+		myMessage.add('P');
+		oscP5.send(myMessage, arduinoDriverLocation);
+
+	}
+
+	public void releaseCameras() {
+
+		OscMessage myMessage = new OscMessage("/shutterAction");
+		myMessage.add('R');
+		oscP5.send(myMessage, arduinoDriverLocation);
+
+	}
+	
+	public void releaseAndShutterCameras() {
+
+		OscMessage myMessage = new OscMessage("/shutterAction");
+		myMessage.add('W');
+		oscP5.send(myMessage, arduinoDriverLocation);
+
+	}
+
+	public void clickCamera() {
+
+		OscMessage myMessage = new OscMessage("/shutterAction");
+		myMessage.add('S');
+		oscP5.send(myMessage, arduinoDriverLocation);
+	}
+	
+	public void resetCamerasFailingA(){
+	
+		OscMessage myMessage = new OscMessage("/shutterAction");
+		myMessage.add('Y');
+		oscP5.send(myMessage, arduinoDriverLocation);
+		
+	}
+	
+	public void resetCamerasFailingB(){
+		
+		OscMessage myMessage = new OscMessage("/shutterAction");
+		myMessage.add('Z');
+		oscP5.send(myMessage, arduinoDriverLocation);
+		
 	}
 
 	// G4P code for message dialogs

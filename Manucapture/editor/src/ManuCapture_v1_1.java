@@ -13,41 +13,45 @@ import g4p_controls.GCScheme;
 import g4p_controls.GEvent;
 import g4p_controls.GTextField;
 import netP5.NetAddress;
+import oscP5.OscMessage;
 import oscP5.OscP5;
 import processing.core.PApplet;
 import processing.core.PGraphics;
 import processing.core.PImage;
 import processing.core.PVector;
 import processing.data.XML;
+import processing.event.MouseEvent;
 
 public class ManuCapture_v1_1 extends PApplet {
 
 	/*
 	 * ManuCapture.pde A Visual tool for recording books using DSLR Cameras
 	 * 
-	 * This source file is part of the ManuCapture software For the latest info, see
-	 * http://www.factumfoundation.org/pag/235/Digitisation-of-oriental-
+	 * This source file is part of the ManuCapture software For the latest info,
+	 * see http://www.factumfoundation.org/pag/235/Digitisation-of-oriental-
 	 * manuscripts-in-Daghestan
 	 * 
-	 * Copyright (c) 2016-2018 Jorge Cano and Enrique Esteban in Factum Foundation
+	 * Copyright (c) 2016-2018 Jorge Cano and Enrique Esteban in Factum
+	 * Foundation
 	 * 
-	 * This program is free software; you can redistribute it and/or modify it under
-	 * the terms of the GNU General Public License as published by the Free Software
-	 * Foundation; either version 2 of the License, or (at your option) any later
-	 * version.
+	 * This program is free software; you can redistribute it and/or modify it
+	 * under the terms of the GNU General Public License as published by the
+	 * Free Software Foundation; either version 2 of the License, or (at your
+	 * option) any later version.
 	 * 
-	 * This program is distributed in the hope that it will be useful, but WITHOUT
-	 * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-	 * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
-	 * details.
+	 * This program is distributed in the hope that it will be useful, but
+	 * WITHOUT ANY WARRANTY; without even the implied warranty of
+	 * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
+	 * Public License for more details.
 	 * 
-	 * You should have received a copy of the GNU General Public License along with
-	 * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
-	 * Place, Suite 330, Boston, MA 02111-1307 USA
+	 * You should have received a copy of the GNU General Public License along
+	 * with this program; if not, write to the Free Software Foundation, Inc.,
+	 * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 	 */
 
 	int receivePort = 3334;
 	int sendPort = 3333;
+	int arduinoDriverPort = 13000;
 
 	String baseDirectory = "";
 
@@ -157,6 +161,11 @@ public class ManuCapture_v1_1 extends PApplet {
 
 		System.out.println("camera A rotation" + rotA);
 		System.out.println("camera B rotation" + rotB);
+		context.oscP5 = new OscP5(this, receivePort);
+		context.viewerLocation = new NetAddress("127.0.0.1", sendPort);
+		context.arduinoDriverLocation = new NetAddress("127.0.0.1", arduinoDriverPort);
+
+		
 
 		if (mock) {
 			context.gphotoA = G2P5MockDisk.create(this, context.serialCameraA, "A");
@@ -184,8 +193,6 @@ public class ManuCapture_v1_1 extends PApplet {
 		itemsViewport.setup(context);
 		textMode(context.parent.MODEL);
 
-		context.oscP5 = new OscP5(this, receivePort);
-		context.viewerLocation = new NetAddress("127.0.0.1", sendPort);
 
 		background(backgroundColor);
 
@@ -196,6 +203,8 @@ public class ManuCapture_v1_1 extends PApplet {
 	public void draw() {
 
 		background(75);
+		
+		context.camerasStateMachineLoop();
 
 		if (liveViewActive == 1) {
 
@@ -317,7 +326,7 @@ public class ManuCapture_v1_1 extends PApplet {
 		stroke(255);
 
 		fill(255);
-		text("state" + state + "\n " + "stateChart " + chartState + "\n " + frameRate, 250, 10);
+		text("contextstate "+context.captureState+" state" + state + "\n " + "stateChart " + chartState + "\n " + frameRate, 250, 10);
 
 		fill(255, 0, 0);
 
@@ -379,7 +388,8 @@ public class ManuCapture_v1_1 extends PApplet {
 			pushMatrix();
 			translate(marginLeftViewerRight, marginTopViewer);
 
-			drawImagePreview(project.selectedItem.mImageLeft, lastPressedL, marginLeftViewerRight, context.pointsRight);
+			drawImagePreview(project.selectedItem.mImageLeft, lastPressedL, marginLeftViewerRight, context.pointsRight,
+					context.scaleA);
 			fill(255);
 			textSize(14);
 			text(project.selectedItem.mImageLeft.imagePath, 0, 0);
@@ -399,16 +409,16 @@ public class ManuCapture_v1_1 extends PApplet {
 		// datos de cámara
 
 		fill(255);
-		text("exposure: " + context.gphotoBAdapter.exposure, marginLeftViewerRight+75, 40);
-		text("focusing: ", marginLeftViewerRight+300, 40);
+		text("exposure: " + context.gphotoBAdapter.exposure, marginLeftViewerRight + 75, 40);
+		text("focusing: ", marginLeftViewerRight + 300, 40);
 		text(context.gphotoBAdapter.g2p5.id, 840, 40);
-		text("mirroUp "+context.gphotoBAdapter.mirrorUp, marginLeftViewerRight+75, 60);
+		text("mirroUp " + context.gphotoBAdapter.mirrorUp, marginLeftViewerRight + 75, 60);
 		if (context.gphotoBAdapter.focus) {
-			fill(255,0,0);
-		}else {
-			fill(0,255,0);
+			fill(255, 0, 0);
+		} else {
+			fill(0, 255, 0);
 		}
-		ellipse(marginLeftViewerRight+370, 35,15,15);
+		ellipse(marginLeftViewerRight + 370, 35, 15, 15);
 	}
 
 	private void drawRight() {
@@ -419,7 +429,8 @@ public class ManuCapture_v1_1 extends PApplet {
 			translate(marginLeftViewerLeft, marginTopViewer);
 			imageMode(CORNER);
 
-			drawImagePreview(project.selectedItem.mImageRight, lastPressedR, marginLeftViewerLeft, context.pointsLeft);
+			drawImagePreview(project.selectedItem.mImageRight, lastPressedR, marginLeftViewerLeft, context.pointsLeft,
+					context.scaleB);
 
 			fill(255);
 			textSize(14);
@@ -441,20 +452,21 @@ public class ManuCapture_v1_1 extends PApplet {
 		// datos de cámara
 		fill(255);
 		text("exposure: " + context.gphotoAAdapter.exposure, 650, 40);
-		
+
 		text(" focusing: ", 890, 40);
-		text("mirroUp "+context.gphotoAAdapter.mirrorUp, 650, 60);
+		text("mirroUp " + context.gphotoAAdapter.mirrorUp, 650, 60);
 		text(context.gphotoAAdapter.g2p5.id, 840, 40);
 		if (context.gphotoAAdapter.focus) {
-			fill(255,0,0);
-		}else {
-			fill(0,255,0);
+			fill(255, 0, 0);
+		} else {
+			fill(0, 255, 0);
 		}
-		ellipse(960, 35,15,15);
+		ellipse(960, 35, 15, 15);
 
 	}
 
-	private void drawImagePreview(MImage img, PVector lastPressedR, int marginLeftViewer, List<HotArea> areas) {
+	private void drawImagePreview(MImage img, PVector lastPressedR, int marginLeftViewer, List<HotArea> areas,
+			float scale) {
 		if (lastPressedR != null) {
 			// pimero quiero saber pos en la imagen
 			float imgScale = img.imgPreview.width / (float) context.hImageViewerSize;
@@ -462,8 +474,8 @@ public class ManuCapture_v1_1 extends PApplet {
 
 			PVector virtualPosScaled = PVector.mult(virtualPos, imgScale);
 
-			int portviewSizeX = (int) (context.hImageViewerSize);
-			int portviewSizeY = (int) (context.wImageViewerSize);
+			int portviewSizeX = (int) ((context.hImageViewerSize) / scale);
+			int portviewSizeY = (int) ((context.wImageViewerSize) / scale);
 
 			int portviewStartX = (int) (virtualPosScaled.x - portviewSizeX / 2);
 			int portviewStartY = (int) (virtualPosScaled.y - portviewSizeY / 2);
@@ -499,7 +511,8 @@ public class ManuCapture_v1_1 extends PApplet {
 		itemsViewport.mouseMoved();
 
 		if (hotAreaSelected != null) {
-			// hotAreaSelected.pos = hotAreaSelected.pos.add(mouseX -
+			// hotAreaSelected.pos = hotAreafloat scaleA =
+			// 1;Selected.pos.add(mouseX -
 			// dmouseX,mouseY
 			// -dmouseY);
 			hotAreaSelected.setRealPosition(mouseX, mouseY);
@@ -598,6 +611,30 @@ public class ManuCapture_v1_1 extends PApplet {
 		}
 	}
 
+	public void mouseWheel(MouseEvent event) {
+		float e = event.getCount();
+		println(e);
+
+		if (mouseX > marginLeftViewerRight && mouseX < marginLeftViewerRight + context.hImageViewerSize) {
+			if (mouseY > 20 && mouseY < 20 + context.wImageViewerSize) {
+				context.scaleA -= e / 10;
+
+				context.scaleA = max(context.scaleA, 1);
+				context.scaleA = min(context.scaleA, 4);
+			}
+		}
+
+		if (mouseX > 580 && mouseX < 580 + context.hImageViewerSize) {
+			if (mouseY > 20 && mouseY < 20 + context.wImageViewerSize) {
+				context.scaleB -= e / 10;
+				context.scaleB = max(context.scaleB, 1);
+				context.scaleB = min(context.scaleB, 4);
+			}
+
+		}
+
+	}
+
 	public void mouseDragged() {
 
 		itemsViewport.mouseDragged();
@@ -678,7 +715,8 @@ public class ManuCapture_v1_1 extends PApplet {
 		}
 	}
 
-	// private String getNewPathImage(String projectDirectory, String newImagePath)
+	// private String getNewPathImage(String projectDirectory, String
+	// newImagePath)
 	// {
 	// String relNewImagePathA = null;
 	// int start = projectDirectory.length() + 1;
@@ -867,14 +905,14 @@ public class ManuCapture_v1_1 extends PApplet {
 	}
 
 	/*
-	 * ========================================================= ==== WARNING ===
-	 * ========================================================= The code in this
-	 * tab has been generated from the GUI form designer and care should be taken
-	 * when editing this file. Only add/edit code inside the event handlers i.e.
-	 * only use lines between the matching comment tags. e.g.
+	 * ========================================================= ==== WARNING
+	 * === ========================================================= The code in
+	 * this tab has been generated from the GUI form designer and care should be
+	 * taken when editing this file. Only add/edit code inside the event
+	 * handlers i.e. only use lines between the matching comment tags. e.g.
 	 * 
-	 * void myBtnEvents(GButton button) { //_CODE_:button1:12356: // It is safe to
-	 * enter your event code here } //_CODE_:button1:12356:
+	 * void myBtnEvents(GButton button) { //_CODE_:button1:12356: // It is safe
+	 * to enter your event code here } //_CODE_:button1:12356:
 	 * 
 	 * Do not rename this tab!
 	 * =========================================================
@@ -1102,6 +1140,19 @@ public class ManuCapture_v1_1 extends PApplet {
 	// public void loadLeftPreview() {
 	// project.loadLeftPreview();
 	// }
+	
+	public void oscEvent(OscMessage theOscMessage) {
+		  /* print the address pattern and the typetag of the received OscMessage */
+		  print("### received an osc message.");
+		  print(" addrpattern: "+theOscMessage.addrPattern());
+		  println(" typetag: "+theOscMessage.typetag());
+		  
+		  context.capture();
+		 
+	}
+	
+	
+	
 
 	static public void main(String[] passedArgs) {
 
@@ -1109,8 +1160,8 @@ public class ManuCapture_v1_1 extends PApplet {
 
 		/*
 		 * GraphicsEnvironment environment =
-		 * GraphicsEnvironment.getLocalGraphicsEnvironment(); GraphicsDevice devices[] =
-		 * environment.getScreenDevices();
+		 * GraphicsEnvironment.getLocalGraphicsEnvironment(); GraphicsDevice
+		 * devices[] = environment.getScreenDevices();
 		 * 
 		 * if(devices.length>1 ){ //we have a 2nd display/projector
 		 * 

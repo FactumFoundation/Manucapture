@@ -58,8 +58,12 @@ public class Item {
 	}
 
 	public void loadMetadata() {
-		this.mImageLeft.loadMetadata();
-		this.mImageRight.loadMetadata();
+		try {
+			this.mImageLeft.loadMetadata();
+			this.mImageRight.loadMetadata();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 
 	}
 
