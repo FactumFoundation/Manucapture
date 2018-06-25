@@ -186,7 +186,8 @@ public class ManuCapture_v1_1 extends PApplet {
 		G4P.setCursor(ARROW);
 
 		context.gui = new GUI();
-		context.gui.createGUI(this);
+		context.gui.createGUI(context);
+//		context.gui.createGroup2Controls();
 		context.gui.customGUI();
 
 		itemsViewport = new ItemsViewport();
@@ -328,6 +329,12 @@ public class ManuCapture_v1_1 extends PApplet {
 		fill(255);
 		text("contextstate "+context.captureState+" state" + state + "\n " + "stateChart " + chartState + "\n " + frameRate, 250, 10);
 
+		pushStyle();
+		textSize(32);
+		text("Project "+context.project.projectName,300,100);
+		text("Code "+context.project.projectCode,300,135);
+		popStyle();
+		textSize(16);
 		fill(255, 0, 0);
 
 		if (liveViewActive == 0) {
@@ -1108,12 +1115,19 @@ public class ManuCapture_v1_1 extends PApplet {
 		}
 
 	} // _CODE_:load_button:841968:
+	
+	public void edit_click(GButton source, GEvent event) { // _CODE_:load_button:841968:
+		context.gui.createGroup2Controls();
+
+	} // _CODE_:load_button:841968:
 
 	public void new_button_click(GButton source, GEvent event) { // _CODE_:new_button:324180:
 		String projectFolderPath = G4P.selectFolder("Select the project folder");
 		if (projectFolderPath != null) {
 			project.thumbnailsLoaded = false;
+			context.gui.createGroup2Controls();
 			createProject(projectFolderPath);
+			
 		}
 	} // _CODE_:new_button:324180:
 
