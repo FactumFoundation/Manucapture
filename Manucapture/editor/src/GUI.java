@@ -4,6 +4,7 @@ import g4p_controls.G4P;
 import g4p_controls.GAlign;
 import g4p_controls.GButton;
 import g4p_controls.GCScheme;
+import g4p_controls.GGroup;
 import g4p_controls.GImageButton;
 import g4p_controls.GImageToggleButton;
 import g4p_controls.GLabel;
@@ -48,6 +49,7 @@ public class GUI {
 	public GButton parameters_button;
 	public GButton load_button;
 	public GButton edit_button;
+	public GButton close_button;
 	public GButton new_button;
 	public GTextField page_search_text;
 	public GLabel page_search_label;
@@ -66,6 +68,8 @@ public class GUI {
 	ManuCaptureContext context;
 	ManuCapture_v1_1 parent;
 
+	GGroup grpWin;
+
 	public GUI() {
 	}
 
@@ -75,6 +79,8 @@ public class GUI {
 		this.parent = context.parent;
 		this.context = context;
 		GUI gui = this;
+
+		grpWin = new GGroup(parent);
 
 		gui.first_page_button = new GButton(parent, 11, 90, 122, 24);
 		gui.first_page_button.setText("FIRST PAGE");
@@ -140,7 +146,8 @@ public class GUI {
 		// gui.subpage_shutter_button = new GButton(parent, 386, 547, 122, 24);
 		// gui.subpage_shutter_button.setText("SUBPAGE");
 		// gui.subpage_shutter_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
-		// gui.subpage_shutter_button.addEventHandler(parent, "subpage_shutter_click");
+		// gui.subpage_shutter_button.addEventHandler(parent,
+		// "subpage_shutter_click");
 		gui.calibration_shutter_button = new GButton(parent, 386, 577, 122, 24);
 		gui.calibration_shutter_button.setText("CALIBRATION");
 		gui.calibration_shutter_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
@@ -177,7 +184,7 @@ public class GUI {
 		gui.parameters_button.setText("PARAMETERS");
 		gui.parameters_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
 		gui.parameters_button.addEventHandler(parent, "parameters_click");
-		gui.load_button = new GButton(parent, 11, 11, 80, 24);
+		gui.load_button = new GButton(parent, -111, 11, 80, 24);
 		gui.load_button.setText("LOAD");
 		gui.load_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
 		gui.load_button.addEventHandler(parent, "load_click");
@@ -185,7 +192,13 @@ public class GUI {
 		gui.edit_button.setText("EDIT");
 		gui.edit_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
 		gui.edit_button.addEventHandler(parent, "edit_click");
-		gui.new_button = new GButton(parent, 99, 11, 122, 24);
+		
+		gui.close_button = new GButton(parent, 289, 11, 80, 24);
+		gui.close_button.setText("CLOSE");
+		gui.close_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
+		gui.close_button.addEventHandler(parent, "close_click");
+		
+		gui.new_button = new GButton(parent, -199, 11, 122, 24);
 		gui.new_button.setText("NEW PROJECT");
 		gui.new_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
 		gui.new_button.addEventHandler(parent, "new_button_click");
@@ -202,6 +215,18 @@ public class GUI {
 		gui.liveView_button.setText("LIVEVIEW");
 		gui.liveView_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
 		gui.liveView_button.addEventHandler(parent, "liveView_button_click");
+
+		grpWin.addControls(first_page_button, last_page_button, page_info_label, page_comments_label);
+		grpWin.addControls(number_label, shutter_control_label, camera_config_label, camera_A_label, camera_B_label);
+		grpWin.addControls(page_comments_text, page_num_text, normal_shutter_button, repeat_shutter_button);
+		grpWin.addControls(calibration_shutter_button, trigger_button, camera_A_connected_button,
+				camera_A_active_button);
+		grpWin.addControls(camera_A_inactive_button, camera_B_connected_button, camera_B_active_button,
+				camera_B_inactive_button);
+		grpWin.addControls(parameters_button, load_button, edit_button, new_button, page_search_text, page_search_label,
+				liveView_button);
+		
+		grpWin.addControls(close_button);
 	}
 
 	// Use this method to add additional statements
@@ -230,14 +255,16 @@ public class GUI {
 
 	public void createGroup2Controls() {
 		window = GWindow.getWindow(parent, "Window created by G4P", 0, 0, 480, 430, PApplet.JAVA2D);
-		window.addDrawHandler(this, "drawWin");
+		// window.addDrawHandler(this, "drawWin");
+		// window.addOnCloseHandler(parent, "close_popup_project_window");
 		// grp2_a = new GImageToggleButton(window, 20, 50);
 		// String[] imgs = new String[] { "data/tjoff.jpg", "data/tjover.jpg",
 		// "data/tjdown.jpg" };
 		// grp2_e = new GImageButton(window, 250, 50, imgs, "data/tjmask.png");
 		// grp2_c = new GPanel(window, 70, 50, 174, 80, "Tab bar text");
 		// grp2_c.setText("Tab bar text");
-		// grp2_textArea = new GTextArea(window, 4, 23, 164, 50, G4P.SCROLLBARS_NONE);
+		// grp2_textArea = new GTextArea(window, 4, 23, 164, 50,
+		// G4P.SCROLLBARS_NONE);
 		// grp2_textArea.setPromptText("Why not enter some text?");
 		// grp2_c.addControl(grp2_textArea);
 		// grp2_d = new GLabel(window, 70, 140, 170, 61);
@@ -246,6 +273,7 @@ public class GUI {
 		// grp2_d.setTextBold();
 		grp2_b = new GButton(window, 20, 300, 90, 30);
 		grp2_b.setText("OK!");
+		grp2_b.addEventHandler(parent, "close_popup_project");
 
 		name_text = new GTextField(window, 80, 106, 200, 20, G4P.SCROLLBARS_NONE);
 		name_text.setLocalColorScheme(GCScheme.CYAN_SCHEME);

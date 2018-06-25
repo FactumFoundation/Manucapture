@@ -12,7 +12,10 @@ import g4p_controls.GButton;
 import g4p_controls.GCScheme;
 import g4p_controls.GEvent;
 import g4p_controls.GTextField;
+import g4p_controls.GWinData;
+import g4p_controls.GWindow;
 import netP5.NetAddress;
+import netP5.StringUtils;
 import oscP5.OscMessage;
 import oscP5.OscP5;
 import processing.core.PApplet;
@@ -99,6 +102,11 @@ public class ManuCapture_v1_1 extends PApplet {
 
 	boolean loadData = true;
 
+	private static int STATE_APP_NO_PROJECT = 0;
+	private static int STATE_APP_PROJECT = 1;
+
+	int stateApp = STATE_APP_NO_PROJECT;
+
 	public void setup() {
 
 		System.setOut(new TracingPrintStream(System.out));
@@ -165,8 +173,6 @@ public class ManuCapture_v1_1 extends PApplet {
 		context.viewerLocation = new NetAddress("127.0.0.1", sendPort);
 		context.arduinoDriverLocation = new NetAddress("127.0.0.1", arduinoDriverPort);
 
-		
-
 		if (mock) {
 			context.gphotoA = G2P5MockDisk.create(this, context.serialCameraA, "A");
 			context.gphotoAAdapter.setTargetFile(homeDirectory(), "test");
@@ -187,13 +193,12 @@ public class ManuCapture_v1_1 extends PApplet {
 
 		context.gui = new GUI();
 		context.gui.createGUI(context);
-//		context.gui.createGroup2Controls();
+		// context.gui.createGroup2Controls();
 		context.gui.customGUI();
 
 		itemsViewport = new ItemsViewport();
 		itemsViewport.setup(context);
 		textMode(context.parent.MODEL);
-
 
 		background(backgroundColor);
 
@@ -204,7 +209,53 @@ public class ManuCapture_v1_1 extends PApplet {
 	public void draw() {
 
 		background(75);
-		
+
+		if (stateApp == STATE_APP_NO_PROJECT) {
+			// MOSTRAR CARGAR O NUEVO
+			context.gui.grpWin.setVisible(1, false);
+			// ellipse(width/2,500,1000,1000);
+			textAlign(CENTER);
+			fill(255);
+			ellipse(width / 2 - width / 4, 500, 200, 200);
+			fill(0);
+			text("NEW PROJECT", width / 2 - width / 4, 500);
+
+			fill(255);
+			ellipse(width / 2, 500, 200, 200);
+			fill(0);
+			text("LOAD PREVIOUS", width / 2, 500);
+
+			fill(255);
+			ellipse(width / 2 + width / 4, 500, 200, 200);
+			fill(0);
+			text("LOAD PROJECT", width / 2 + width / 4, 500);
+
+			if (mousePressed) {
+				PVector m = new PVector(mouseX, mouseY);
+				float dist = m.dist(new PVector(width / 2, 500));
+				if (dist < 100) {
+					loadLastSessionData();
+				}
+
+				dist = m.dist(new PVector(width / 2 + width / 4, 500));
+				if (dist < 100) {
+					load_click(null, null);
+				}
+
+				dist = m.dist(new PVector(width / 2 - width / 4, 500));
+				if (dist < 100) {
+					new_button_click(null, null);
+				}
+			}
+
+		} else {
+			context.gui.grpWin.setVisible(1, true);
+			drawInittializedApp();
+		}
+
+	}
+
+	private void drawInittializedApp() {
 		context.camerasStateMachineLoop();
 
 		if (liveViewActive == 1) {
@@ -326,13 +377,16 @@ public class ManuCapture_v1_1 extends PApplet {
 
 		stroke(255);
 
+		
 		fill(255);
-		text("contextstate "+context.captureState+" state" + state + "\n " + "stateChart " + chartState + "\n " + frameRate, 250, 10);
+		text("contextstate " + context.captureState + " state" + state + "\n " + "stateChart " + chartState + "\n "
+				+ frameRate, 250, 10);
 
+		textAlign(LEFT);
 		pushStyle();
 		textSize(32);
-		text("Project "+context.project.projectName,300,100);
-		text("Code "+context.project.projectCode,300,135);
+		text("Project " + context.project.projectName, 300, 100);
+		text("Code " + context.project.projectCode, 300, 135);
 		popStyle();
 		textSize(16);
 		fill(255, 0, 0);
@@ -384,7 +438,6 @@ public class ManuCapture_v1_1 extends PApplet {
 			popMatrix();
 
 		}
-
 	}
 
 	private void drawLeft() {
@@ -620,7 +673,7 @@ public class ManuCapture_v1_1 extends PApplet {
 
 	public void mouseWheel(MouseEvent event) {
 		float e = event.getCount();
-		println(e);
+		// println(e);
 
 		if (mouseX > marginLeftViewerRight && mouseX < marginLeftViewerRight + context.hImageViewerSize) {
 			if (mouseY > 20 && mouseY < 20 + context.wImageViewerSize) {
@@ -804,6 +857,8 @@ public class ManuCapture_v1_1 extends PApplet {
 					context.cameraActiveB = false;
 
 				project.forceSelectedItem(project.selectedItemIndex, false);
+			} else {
+//				new_button_click(null, null);
 			}
 		} catch (Exception e) {
 			context._println("lastSession.xml not found");
@@ -904,6 +959,7 @@ public class ManuCapture_v1_1 extends PApplet {
 		project.forceSelectedItem(project.items.size(), false);
 		saveLastSessionData();
 		project.removeUnusedImages();
+		stateApp = STATE_APP_PROJECT; 
 	}
 
 	public String homeDirectory() {
@@ -1017,6 +1073,42 @@ public class ManuCapture_v1_1 extends PApplet {
 	// gui.calibration_shutter_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
 	// } // _CODE_:subpage_shutter_button:295319:
 
+	public void close_popup_project_window(GWindow window) {
+		close_popup_project(null, null);
+	}
+
+	public void mouse_popUp(PApplet applet, GWinData windata) {
+		println("holle2" + windata);
+	}
+
+	public void mouse_popUp(PApplet applet, GWinData windata, MouseEvent ouseevent) {
+		println("holl1e" + ouseevent.getAction());
+	}
+
+	public void close_popup_project(GButton source, GEvent event) {
+		// context.gui.window.close();
+
+		boolean someError = false;
+		if (StringUtils.isEmpty(context.project.projectName)) {
+			someError = true;
+		}
+
+		if (StringUtils.isEmpty(context.project.projectCode)) {
+			someError = true;
+		}
+
+		if (!someError) {
+			context.gui.window.forceClose();
+			stateApp = STATE_APP_PROJECT; 
+			context.project.saveProjectXML();
+		} else {
+			// showwhat error
+
+		}
+
+		println("close window edit project data");
+	}
+
 	public void calibration_shutter_click(GButton source, GEvent event) { // _CODE_:calibration_shutter_button:835827:
 
 		// if (state == CAPTURING) {
@@ -1115,19 +1207,26 @@ public class ManuCapture_v1_1 extends PApplet {
 		}
 
 	} // _CODE_:load_button:841968:
-	
+
 	public void edit_click(GButton source, GEvent event) { // _CODE_:load_button:841968:
 		context.gui.createGroup2Controls();
 
 	} // _CODE_:load_button:841968:
+	
+	public void close_click(GButton source, GEvent event) { // _CODE_:load_button:841968:
+		stateApp = STATE_APP_NO_PROJECT;
+
+	} // _CODE_:load_button:841968:
+	
+	
 
 	public void new_button_click(GButton source, GEvent event) { // _CODE_:new_button:324180:
-		String projectFolderPath = G4P.selectFolder("Select the project folder");
+		String projectFolderPath = G4P.selectFolder("Select the project folder for NEW PROJECT");
 		if (projectFolderPath != null) {
 			project.thumbnailsLoaded = false;
 			context.gui.createGroup2Controls();
 			createProject(projectFolderPath);
-			
+
 		}
 	} // _CODE_:new_button:324180:
 
@@ -1154,19 +1253,18 @@ public class ManuCapture_v1_1 extends PApplet {
 	// public void loadLeftPreview() {
 	// project.loadLeftPreview();
 	// }
-	
+
 	public void oscEvent(OscMessage theOscMessage) {
-		  /* print the address pattern and the typetag of the received OscMessage */
-		  print("### received an osc message.");
-		  print(" addrpattern: "+theOscMessage.addrPattern());
-		  println(" typetag: "+theOscMessage.typetag());
-		  
-		  context.capture();
-		 
+		/*
+		 * print the address pattern and the typetag of the received OscMessage
+		 */
+		print("### received an osc message.");
+		print(" addrpattern: " + theOscMessage.addrPattern());
+		println(" typetag: " + theOscMessage.typetag());
+
+		context.capture();
+
 	}
-	
-	
-	
 
 	static public void main(String[] passedArgs) {
 

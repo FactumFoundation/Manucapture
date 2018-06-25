@@ -44,7 +44,7 @@ public class G2P5 {
 
 	List<G2P5Event> events = new ArrayList<>();
 
-	boolean mock = false;
+	boolean mock = true;
 
 	public G2P5() {
 
