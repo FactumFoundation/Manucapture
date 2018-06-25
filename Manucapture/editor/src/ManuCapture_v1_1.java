@@ -30,26 +30,25 @@ public class ManuCapture_v1_1 extends PApplet {
 	/*
 	 * ManuCapture.pde A Visual tool for recording books using DSLR Cameras
 	 * 
-	 * This source file is part of the ManuCapture software For the latest info,
-	 * see http://www.factumfoundation.org/pag/235/Digitisation-of-oriental-
+	 * This source file is part of the ManuCapture software For the latest info, see
+	 * http://www.factumfoundation.org/pag/235/Digitisation-of-oriental-
 	 * manuscripts-in-Daghestan
 	 * 
-	 * Copyright (c) 2016-2018 Jorge Cano and Enrique Esteban in Factum
-	 * Foundation
+	 * Copyright (c) 2016-2018 Jorge Cano and Enrique Esteban in Factum Foundation
 	 * 
-	 * This program is free software; you can redistribute it and/or modify it
-	 * under the terms of the GNU General Public License as published by the
-	 * Free Software Foundation; either version 2 of the License, or (at your
-	 * option) any later version.
+	 * This program is free software; you can redistribute it and/or modify it under
+	 * the terms of the GNU General Public License as published by the Free Software
+	 * Foundation; either version 2 of the License, or (at your option) any later
+	 * version.
 	 * 
-	 * This program is distributed in the hope that it will be useful, but
-	 * WITHOUT ANY WARRANTY; without even the implied warranty of
-	 * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
-	 * Public License for more details.
+	 * This program is distributed in the hope that it will be useful, but WITHOUT
+	 * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+	 * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+	 * details.
 	 * 
-	 * You should have received a copy of the GNU General Public License along
-	 * with this program; if not, write to the Free Software Foundation, Inc.,
-	 * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+	 * You should have received a copy of the GNU General Public License along with
+	 * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
+	 * Place, Suite 330, Boston, MA 02111-1307 USA
 	 */
 
 	int receivePort = 3334;
@@ -215,6 +214,11 @@ public class ManuCapture_v1_1 extends PApplet {
 			context.gui.grpWin.setVisible(1, false);
 			// ellipse(width/2,500,1000,1000);
 			textAlign(CENTER);
+			
+			fill(255);
+			textSize(32);
+			text("MANUCAPTURE by Factum", width / 2, 250);
+			textSize(20);
 			fill(255);
 			ellipse(width / 2 - width / 4, 500, 200, 200);
 			fill(0);
@@ -377,16 +381,16 @@ public class ManuCapture_v1_1 extends PApplet {
 
 		stroke(255);
 
-		
 		fill(255);
 		text("contextstate " + context.captureState + " state" + state + "\n " + "stateChart " + chartState + "\n "
 				+ frameRate, 250, 10);
 
 		textAlign(LEFT);
 		pushStyle();
-		textSize(32);
-		text("Project " + context.project.projectName, 300, 100);
-		text("Code " + context.project.projectCode, 300, 135);
+		textSize(24);
+		text("Project " + context.project.projectName, 10, 25);
+		textSize(18);
+		text("Code " + context.project.projectCode, 10, 50);
 		popStyle();
 		textSize(16);
 		fill(255, 0, 0);
@@ -833,38 +837,41 @@ public class ManuCapture_v1_1 extends PApplet {
 		String value;
 		try {
 			XML lastSessionData = loadXML("lastSession.xml");
-			int reply = G4P.selectOption(this, "Load previous session?", "", G4P.PLAIN, G4P.YES_NO);
-			if (reply == 0) {
-				// TODO: Load project here
-				File projectFile = new File(lastSessionData.getChild("Project").getContent());
-				if (projectFile.exists())
-					loadProject(projectFile.getPath());
-				else
-					println("Error loading the project: Project file doesn't exist");
+			// int reply = G4P.selectOption(this, "Load previous session?", "", G4P.PLAIN,
+			// G4P.YES_NO);
+			// if (reply == 0) {
 
-				project.selectedItemIndex = new Integer(lastSessionData.getChild("Current_Item").getContent());
+			// TODO: Load project here
+			File projectFile = new File(lastSessionData.getChild("Project").getContent());
+			if (projectFile.exists())
+				loadProject(projectFile.getPath());
+			else
+				println("Error loading the project: Project file doesn't exist");
 
-				value = lastSessionData.getChild("Camera_A_Active").getContent();
-				if (value.equals("1"))
-					context.cameraActiveA = true;
-				else
-					context.cameraActiveA = false;
+			project.selectedItemIndex = new Integer(lastSessionData.getChild("Current_Item").getContent());
 
-				value = lastSessionData.getChild("Camera_B_Active").getContent();
-				if (value.equals("1"))
-					context.cameraActiveB = true;
-				else
-					context.cameraActiveB = false;
+			value = lastSessionData.getChild("Camera_A_Active").getContent();
+			if (value.equals("1"))
+				context.cameraActiveA = true;
+			else
+				context.cameraActiveA = false;
 
-				project.forceSelectedItem(project.selectedItemIndex, false);
-			} else {
-//				new_button_click(null, null);
-			}
+			value = lastSessionData.getChild("Camera_B_Active").getContent();
+			if (value.equals("1"))
+				context.cameraActiveB = true;
+			else
+				context.cameraActiveB = false;
+
+			project.forceSelectedItem(project.selectedItemIndex, false);
+			// } else {
+			//// new_button_click(null, null);
+			// }
 		} catch (Exception e) {
 			context._println("lastSession.xml not found");
 			// txtLog.insertText("Error reconstructing last session: check the
 			// integrity of your session folder ");
 			e.printStackTrace();
+			G4P.showMessage(this, "Can't load project", "", G4P.WARNING);
 		}
 	}
 
@@ -959,7 +966,7 @@ public class ManuCapture_v1_1 extends PApplet {
 		project.forceSelectedItem(project.items.size(), false);
 		saveLastSessionData();
 		project.removeUnusedImages();
-		stateApp = STATE_APP_PROJECT; 
+		stateApp = STATE_APP_PROJECT;
 	}
 
 	public String homeDirectory() {
@@ -968,14 +975,14 @@ public class ManuCapture_v1_1 extends PApplet {
 	}
 
 	/*
-	 * ========================================================= ==== WARNING
-	 * === ========================================================= The code in
-	 * this tab has been generated from the GUI form designer and care should be
-	 * taken when editing this file. Only add/edit code inside the event
-	 * handlers i.e. only use lines between the matching comment tags. e.g.
+	 * ========================================================= ==== WARNING ===
+	 * ========================================================= The code in this
+	 * tab has been generated from the GUI form designer and care should be taken
+	 * when editing this file. Only add/edit code inside the event handlers i.e.
+	 * only use lines between the matching comment tags. e.g.
 	 * 
-	 * void myBtnEvents(GButton button) { //_CODE_:button1:12356: // It is safe
-	 * to enter your event code here } //_CODE_:button1:12356:
+	 * void myBtnEvents(GButton button) { //_CODE_:button1:12356: // It is safe to
+	 * enter your event code here } //_CODE_:button1:12356:
 	 * 
 	 * Do not rename this tab!
 	 * =========================================================
@@ -1099,7 +1106,7 @@ public class ManuCapture_v1_1 extends PApplet {
 
 		if (!someError) {
 			context.gui.window.forceClose();
-			stateApp = STATE_APP_PROJECT; 
+			stateApp = STATE_APP_PROJECT;
 			context.project.saveProjectXML();
 		} else {
 			// showwhat error
@@ -1212,13 +1219,11 @@ public class ManuCapture_v1_1 extends PApplet {
 		context.gui.createGroup2Controls();
 
 	} // _CODE_:load_button:841968:
-	
+
 	public void close_click(GButton source, GEvent event) { // _CODE_:load_button:841968:
 		stateApp = STATE_APP_NO_PROJECT;
 
 	} // _CODE_:load_button:841968:
-	
-	
 
 	public void new_button_click(GButton source, GEvent event) { // _CODE_:new_button:324180:
 		String projectFolderPath = G4P.selectFolder("Select the project folder for NEW PROJECT");
@@ -1272,8 +1277,8 @@ public class ManuCapture_v1_1 extends PApplet {
 
 		/*
 		 * GraphicsEnvironment environment =
-		 * GraphicsEnvironment.getLocalGraphicsEnvironment(); GraphicsDevice
-		 * devices[] = environment.getScreenDevices();
+		 * GraphicsEnvironment.getLocalGraphicsEnvironment(); GraphicsDevice devices[] =
+		 * environment.getScreenDevices();
 		 * 
 		 * if(devices.length>1 ){ //we have a 2nd display/projector
 		 * 
