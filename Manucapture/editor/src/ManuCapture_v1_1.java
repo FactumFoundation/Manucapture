@@ -202,7 +202,7 @@ public class ManuCapture_v1_1 extends PApplet {
 		background(backgroundColor);
 
 		frameRate(25);
-
+		context.gui.grpAll.setVisible(0, false);
 	}
 
 	public void draw() {
@@ -211,13 +211,15 @@ public class ManuCapture_v1_1 extends PApplet {
 
 		if (stateApp == STATE_APP_NO_PROJECT) {
 			// MOSTRAR CARGAR O NUEVO
-			context.gui.grpWin.setVisible(1, false);
+			context.gui.grpAll.setVisible(1, false);
 			// ellipse(width/2,500,1000,1000);
 			textAlign(CENTER);
 			
 			fill(255);
 			textSize(32);
-			text("MANUCAPTURE by Factum", width / 2, 250);
+			text("MANUCAPTURE", width / 2, 250);
+			textSize(18);
+			text("Factum Foundation Version 2.0", width / 2, height-30);
 			textSize(20);
 			fill(255);
 			ellipse(width / 2 - width / 4, 500, 200, 200);
@@ -239,6 +241,7 @@ public class ManuCapture_v1_1 extends PApplet {
 				float dist = m.dist(new PVector(width / 2, 500));
 				if (dist < 100) {
 					loadLastSessionData();
+					
 				}
 
 				dist = m.dist(new PVector(width / 2 + width / 4, 500));
@@ -253,7 +256,7 @@ public class ManuCapture_v1_1 extends PApplet {
 			}
 
 		} else {
-			context.gui.grpWin.setVisible(1, true);
+//			context.gui.grpAll.setVisible(1, true);
 			drawInittializedApp();
 		}
 
@@ -306,8 +309,6 @@ public class ManuCapture_v1_1 extends PApplet {
 				liveViewActive = -1;
 			}
 		}
-
-		// ellipse(marginLeftViewerRight, marginTopViewer, 125, 125);
 
 		if (loadData) {
 			thread("loadLastSessionData");
@@ -371,6 +372,7 @@ public class ManuCapture_v1_1 extends PApplet {
 				stroke(255);
 				line(areaPos1.x, areaPos1.y, areaPos2.x, areaPos2.y);
 			}
+		
 		if (lastPressedL == null)
 			for (int i = 1; i <= context.pointsRight.size(); i++) {
 				PVector areaPos1 = context.pointsRight.get(i - 1).getRealPosition();
@@ -863,6 +865,8 @@ public class ManuCapture_v1_1 extends PApplet {
 				context.cameraActiveB = false;
 
 			project.forceSelectedItem(project.selectedItemIndex, false);
+			
+			context.gui.grpAll.setVisible(1, true);
 			// } else {
 			//// new_button_click(null, null);
 			// }
@@ -967,6 +971,7 @@ public class ManuCapture_v1_1 extends PApplet {
 		saveLastSessionData();
 		project.removeUnusedImages();
 		stateApp = STATE_APP_PROJECT;
+		context.gui.grpAll.setVisible(1, true);
 	}
 
 	public String homeDirectory() {
@@ -1105,12 +1110,15 @@ public class ManuCapture_v1_1 extends PApplet {
 		}
 
 		if (!someError) {
-			context.gui.window.forceClose();
 			stateApp = STATE_APP_PROJECT;
+			context.gui.grpAll.setVisible(1,true);
+			context.gui.grpProject.setVisible(1,false);
 			context.project.saveProjectXML();
+			
+			
 		} else {
 			// showwhat error
-
+			G4P.showMessage(this, "Missing name or code", "", G4P.WARNING);
 		}
 
 		println("close window edit project data");
@@ -1216,7 +1224,8 @@ public class ManuCapture_v1_1 extends PApplet {
 	} // _CODE_:load_button:841968:
 
 	public void edit_click(GButton source, GEvent event) { // _CODE_:load_button:841968:
-		context.gui.createGroup2Controls();
+		context.gui.grpProject.setVisible(1,true);
+		context.gui.grpAll.setVisible(1,false);
 
 	} // _CODE_:load_button:841968:
 
@@ -1229,7 +1238,7 @@ public class ManuCapture_v1_1 extends PApplet {
 		String projectFolderPath = G4P.selectFolder("Select the project folder for NEW PROJECT");
 		if (projectFolderPath != null) {
 			project.thumbnailsLoaded = false;
-			context.gui.createGroup2Controls();
+			context.gui.grpProject.setVisible(1,true);
 			createProject(projectFolderPath);
 
 		}

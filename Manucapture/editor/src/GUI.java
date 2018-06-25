@@ -57,7 +57,6 @@ public class GUI {
 
 	// Group 2 controls
 	GWindow window;
-	GLabel lblGroup2Controls;
 	GImageToggleButton grp2_a;
 	GButton grp2_b;
 	GPanel grp2_c;
@@ -68,7 +67,8 @@ public class GUI {
 	ManuCaptureContext context;
 	ManuCapture_v1_1 parent;
 
-	GGroup grpWin;
+	GGroup grpAll;
+	GGroup grpProject;
 
 	public GUI() {
 	}
@@ -80,7 +80,8 @@ public class GUI {
 		this.context = context;
 		GUI gui = this;
 
-		grpWin = new GGroup(parent);
+		grpAll = new GGroup(parent);
+		grpProject = new GGroup(parent);
 
 		gui.first_page_button = new GButton(parent, 11, 90, 122, 24);
 		gui.first_page_button.setText("FIRST PAGE");
@@ -192,12 +193,12 @@ public class GUI {
 		gui.edit_button.setText("EDIT");
 		gui.edit_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
 		gui.edit_button.addEventHandler(parent, "edit_click");
-		
+
 		gui.close_button = new GButton(parent, 289, 11, 80, 24);
 		gui.close_button.setText("CLOSE");
 		gui.close_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
 		gui.close_button.addEventHandler(parent, "close_click");
-		
+
 		gui.new_button = new GButton(parent, -199, 11, 122, 24);
 		gui.new_button.setText("NEW PROJECT");
 		gui.new_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
@@ -216,17 +217,20 @@ public class GUI {
 		gui.liveView_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
 		gui.liveView_button.addEventHandler(parent, "liveView_button_click");
 
-		grpWin.addControls(first_page_button, last_page_button, page_info_label, page_comments_label);
-		grpWin.addControls(number_label, shutter_control_label, camera_config_label, camera_A_label, camera_B_label);
-		grpWin.addControls(page_comments_text, page_num_text, normal_shutter_button, repeat_shutter_button);
-		grpWin.addControls(calibration_shutter_button, trigger_button, camera_A_connected_button,
+		grpAll.addControls(first_page_button, last_page_button, page_info_label, page_comments_label);
+		grpAll.addControls(number_label, shutter_control_label, camera_config_label, camera_A_label, camera_B_label);
+		grpAll.addControls(page_comments_text, page_num_text, normal_shutter_button, repeat_shutter_button);
+		grpAll.addControls(calibration_shutter_button, trigger_button, camera_A_connected_button,
 				camera_A_active_button);
-		grpWin.addControls(camera_A_inactive_button, camera_B_connected_button, camera_B_active_button,
+		grpAll.addControls(camera_A_inactive_button, camera_B_connected_button, camera_B_active_button,
 				camera_B_inactive_button);
-		grpWin.addControls(parameters_button, load_button, edit_button, new_button, page_search_text, page_search_label,
+		grpAll.addControls(parameters_button, load_button, edit_button, new_button, page_search_text, page_search_label,
 				liveView_button);
+
+		grpAll.addControls(close_button);
 		
-		grpWin.addControls(close_button);
+		createGroup2Controls();
+
 	}
 
 	// Use this method to add additional statements
@@ -253,8 +257,7 @@ public class GUI {
 
 	}
 
-	public void createGroup2Controls() {
-		window = GWindow.getWindow(parent, "Window created by G4P", 0, 0, 480, 430, PApplet.JAVA2D);
+	private void createGroup2Controls() {
 		// window.addDrawHandler(this, "drawWin");
 		// window.addOnCloseHandler(parent, "close_popup_project_window");
 		// grp2_a = new GImageToggleButton(window, 20, 50);
@@ -271,62 +274,58 @@ public class GUI {
 		// grp2_d.setIcon("ghost2.png", 1, GAlign.RIGHT, GAlign.MIDDLE);
 		// grp2_d.setText("Casperov");
 		// grp2_d.setTextBold();
-		grp2_b = new GButton(window, 20, 300, 90, 30);
+		grp2_b = new GButton(parent, 20, 300, 90, 30);
 		grp2_b.setText("OK!");
 		grp2_b.addEventHandler(parent, "close_popup_project");
 
-		name_text = new GTextField(window, 80, 106, 200, 20, G4P.SCROLLBARS_NONE);
+		name_text = new GTextField(parent, 80, 106, 200, 20, G4P.SCROLLBARS_NONE);
 		name_text.setLocalColorScheme(GCScheme.CYAN_SCHEME);
 		name_text.setOpaque(true);
 		name_text.addEventHandler(parent, "name_text_change");
 		name_text.setText(context.project.projectName);
-		project_info = new GLabel(window, 00, 56, 132, 24);
+		project_info = new GLabel(parent, 00, 56, 132, 24);
 		project_info.setText("PROJECT INFO");
 		project_info.setTextBold();
 		project_info.setLocalColorScheme(GCScheme.CYAN_SCHEME);
 		project_info.setOpaque(true);
-		name = new GLabel(window, 02, 106, 80, 20);
+		name = new GLabel(parent, 02, 106, 80, 20);
 		name.setText("Name:");
 		name.setTextBold();
 		name.setLocalColorScheme(GCScheme.CYAN_SCHEME);
 		name.setOpaque(true);
-		code_label = new GLabel(window, 02, 130, 80, 20);
+		code_label = new GLabel(parent, 02, 130, 80, 20);
 		code_label.setText("Code:");
 		code_label.setTextBold();
 		code_label.setLocalColorScheme(GCScheme.CYAN_SCHEME);
 		code_label.setOpaque(true);
-		code_text = new GTextField(window, 80, 130, 200, 20, G4P.SCROLLBARS_NONE);
+		code_text = new GTextField(parent, 80, 130, 200, 20, G4P.SCROLLBARS_NONE);
 		code_text.setLocalColorScheme(GCScheme.CYAN_SCHEME);
 		code_text.setOpaque(true);
 		code_text.setText(context.project.projectCode);
 		code_text.addEventHandler(parent, "code_text_change");
-		author_label = new GLabel(window, 02, 154, 80, 20);
+		author_label = new GLabel(parent, 02, 154, 80, 20);
 		author_label.setText("Author:");
 		author_label.setTextBold();
 		author_label.setLocalColorScheme(GCScheme.CYAN_SCHEME);
 		author_label.setOpaque(true);
 
-		author_text = new GTextField(window, 80, 154, 200, 20, G4P.SCROLLBARS_NONE);
+		author_text = new GTextField(parent, 80, 154, 200, 20, G4P.SCROLLBARS_NONE);
 		author_text.setLocalColorScheme(GCScheme.CYAN_SCHEME);
 		author_text.setOpaque(true);
 		author_text.setText(context.project.projectAuthor);
 		author_text.addEventHandler(parent, "author_text_change");
 
-		project_comments_text = new GTextField(window, 80, 178, 200, 80, G4P.SCROLLBARS_NONE);
+		project_comments_text = new GTextField(parent, 80, 178, 200, 80, G4P.SCROLLBARS_NONE);
 		project_comments_text.setLocalColorScheme(GCScheme.CYAN_SCHEME);
 		project_comments_text.setOpaque(true);
 		project_comments_text.setText(context.project.projectComment);
 		project_comments_text.addEventHandler(parent, "project_comments_change");
 
-		project_comments_label = new GLabel(window, 02, 178, 80, 20);
+		project_comments_label = new GLabel(parent, 02, 178, 80, 20);
 		project_comments_label.setText("Comments:");
 		project_comments_label.setTextBold();
 		project_comments_label.setLocalColorScheme(GCScheme.CYAN_SCHEME);
 		project_comments_label.setOpaque(true);
-
-		lblGroup2Controls = new GLabel(window, 20, 20, 440, 20);
-		lblGroup2Controls.setText("GROUP 2 CONTROLS");
-		lblGroup2Controls.setTextBold();
 
 		Font font = new Font("Verdana", Font.BOLD, 10);
 		name.setFont(font);
@@ -336,6 +335,10 @@ public class GUI {
 
 		Font sectionFont = new Font("Verdana", Font.BOLD, 12);
 		project_info.setFont(sectionFont);
+
+		grpProject.addControls(grp2_b, name_text, project_info, name, code_label, code_text, author_label);
+		grpProject.addControls(author_text, project_comments_text, project_comments_label);
+		grpProject.setVisible(0, false);
 	}
 
 }
