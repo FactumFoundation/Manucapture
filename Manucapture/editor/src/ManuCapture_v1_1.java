@@ -156,7 +156,7 @@ public class ManuCapture_v1_1 extends PApplet {
 		XML serialXML = loadXML("cameraSerials.xml");
 		context.serialCameraA = serialXML.getChild("Camera_A").getContent();
 		context.serialCameraB = serialXML.getChild("Camera_B").getContent();
-		
+
 		context.serialXMLA = serialXML.getChild("Camera_A");
 		context.serialXMLB = serialXML.getChild("Camera_B");
 
@@ -217,12 +217,12 @@ public class ManuCapture_v1_1 extends PApplet {
 			context.gui.grpAll.setVisible(1, false);
 			// ellipse(width/2,500,1000,1000);
 			textAlign(CENTER);
-			
+
 			fill(255);
 			textSize(32);
 			text("MANUCAPTURE", width / 2, 250);
 			textSize(18);
-			text("Factum Foundation Version 2.0", width / 2, height-30);
+			text("Factum Foundation Version 2.0", width / 2, height - 30);
 			textSize(20);
 			fill(255);
 			ellipse(width / 2 - width / 4, 500, 200, 200);
@@ -244,7 +244,7 @@ public class ManuCapture_v1_1 extends PApplet {
 				float dist = m.dist(new PVector(width / 2, 500));
 				if (dist < 100) {
 					loadLastSessionData();
-					
+
 				}
 
 				dist = m.dist(new PVector(width / 2 + width / 4, 500));
@@ -259,7 +259,7 @@ public class ManuCapture_v1_1 extends PApplet {
 			}
 
 		} else {
-//			context.gui.grpAll.setVisible(1, true);
+			// context.gui.grpAll.setVisible(1, true);
 			drawInittializedApp();
 		}
 
@@ -375,7 +375,7 @@ public class ManuCapture_v1_1 extends PApplet {
 				stroke(255);
 				line(areaPos1.x, areaPos1.y, areaPos2.x, areaPos2.y);
 			}
-		
+
 		if (lastPressedL == null)
 			for (int i = 1; i <= context.pointsRight.size(); i++) {
 				PVector areaPos1 = context.pointsRight.get(i - 1).getRealPosition();
@@ -868,7 +868,7 @@ public class ManuCapture_v1_1 extends PApplet {
 				context.cameraActiveB = false;
 
 			project.forceSelectedItem(project.selectedItemIndex, false);
-			
+
 			context.gui.grpAll.setVisible(1, true);
 			// } else {
 			//// new_button_click(null, null);
@@ -930,15 +930,15 @@ public class ManuCapture_v1_1 extends PApplet {
 		}
 		XML projectDataXML = loadXML("project_template.xml");
 		project.loadProjectMetadata(projectDataXML);
-		
+
 		project.rotationA = context.rotationA;
 		project.rotationB = context.rotationB;
-		
+
 		project.serialA = context.serialCameraA;
 		project.serialB = context.serialCameraB;
-		
+
 		saveXML(projectDataXML, projectFolderPath + "/project.xml");
-		
+
 		File thumbnailsFolder = new File(projectFolderPath + "/thumbnails");
 		if (!thumbnailsFolder.exists()) {
 			if (thumbnailsFolder.mkdir()) {
@@ -967,9 +967,7 @@ public class ManuCapture_v1_1 extends PApplet {
 		project.projectFilePath = projectFolderPath + "/project.xml";
 		project.selectedItemIndex = -1;
 		project.thumbnailsLoaded = true;
-		
-		
-		
+
 		context.init();
 
 		saveLastSessionData();
@@ -978,6 +976,31 @@ public class ManuCapture_v1_1 extends PApplet {
 
 	public synchronized void loadProject(String projectPath) {
 		project.loadProjectMethod(projectPath);
+		String errors = "";
+		if (project.rotationA != context.rotationA) {
+
+			errors += "Rotation A in serials has changed " + project.rotationA + "->" + context.rotationA+"\n";
+
+		}
+
+		if (project.rotationB != context.rotationB) {
+
+			errors += "Rotation B in serials has changed " + project.rotationB + "->" + context.rotationB+"\n";
+		}
+
+		if (!project.serialA.equals(context.serialCameraA)) {
+			errors += "Serial A in serials has changed " + project.serialA + "->" + context.serialCameraA+"\n";
+		}
+
+		if (!project.serialB.equals(context.serialCameraB)) {
+			errors += "Serial B in serials has changed " + project.serialB + "->" + context.serialCameraB+"\n";
+
+		}
+		
+		if(!errors.equals("")) {
+			G4P.showMessage(this, errors, "", G4P.WARNING);	
+		}
+
 		initSelectedItem = true;
 		context.init();
 		G2P5Manager.setImageCount(project.items.size());
@@ -1125,11 +1148,10 @@ public class ManuCapture_v1_1 extends PApplet {
 
 		if (!someError) {
 			stateApp = STATE_APP_PROJECT;
-			context.gui.grpAll.setVisible(1,true);
-			context.gui.grpProject.setVisible(1,false);
+			context.gui.grpAll.setVisible(1, true);
+			context.gui.grpProject.setVisible(1, false);
 			context.project.saveProjectXML();
-			
-			
+
 		} else {
 			// showwhat error
 			G4P.showMessage(this, "Missing name or code", "", G4P.WARNING);
@@ -1238,8 +1260,8 @@ public class ManuCapture_v1_1 extends PApplet {
 	} // _CODE_:load_button:841968:
 
 	public void edit_click(GButton source, GEvent event) { // _CODE_:load_button:841968:
-		context.gui.grpProject.setVisible(1,true);
-		context.gui.grpAll.setVisible(1,false);
+		context.gui.grpProject.setVisible(1, true);
+		context.gui.grpAll.setVisible(1, false);
 
 	} // _CODE_:load_button:841968:
 
@@ -1252,7 +1274,7 @@ public class ManuCapture_v1_1 extends PApplet {
 		String projectFolderPath = G4P.selectFolder("Select the project folder for NEW PROJECT");
 		if (projectFolderPath != null) {
 			project.thumbnailsLoaded = false;
-			context.gui.grpProject.setVisible(1,true);
+			context.gui.grpProject.setVisible(1, true);
 			createProject(projectFolderPath);
 
 		}
