@@ -14,6 +14,7 @@ import oscP5.OscMessage;
 import oscP5.OscP5;
 import processing.core.PApplet;
 import processing.core.PImage;
+import processing.data.XML;
 
 public class ManuCaptureContext {
 
@@ -45,8 +46,8 @@ public class ManuCaptureContext {
 
 	String appPath = "/home/factum/git/book_scanner/bookScanner/Manucapture";
 
-	int rotA = 270;
-	int rotB = 90;
+	int rotationA = 270;
+	int rotationB = 90;
 
 	List<HotArea> pointsLeft = new ArrayList<>();
 	List<HotArea> pointsRight = new ArrayList<>();
@@ -65,6 +66,9 @@ public class ManuCaptureContext {
 
 	String serialCameraA;
 	String serialCameraB;
+	
+	XML serialXMLA;
+	XML serialXMLB;
 
 	String newImagePathA = "";
 	String newImagePathB = "";

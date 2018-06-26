@@ -156,15 +156,18 @@ public class ManuCapture_v1_1 extends PApplet {
 		XML serialXML = loadXML("cameraSerials.xml");
 		context.serialCameraA = serialXML.getChild("Camera_A").getContent();
 		context.serialCameraB = serialXML.getChild("Camera_B").getContent();
+		
+		context.serialXMLA = serialXML.getChild("Camera_A");
+		context.serialXMLB = serialXML.getChild("Camera_B");
 
 		String rotA = serialXML.getChild("Camera_A").getString("rotation");
 		String rotB = serialXML.getChild("Camera_B").getString("rotation");
 
 		if (rotA != null)
-			context.rotA = Integer.parseInt(rotA);
+			context.rotationA = Integer.parseInt(rotA);
 
 		if (rotB != null)
-			context.rotB = Integer.parseInt(rotB);
+			context.rotationB = Integer.parseInt(rotB);
 
 		System.out.println("camera A rotation" + rotA);
 		System.out.println("camera B rotation" + rotB);
@@ -927,7 +930,15 @@ public class ManuCapture_v1_1 extends PApplet {
 		}
 		XML projectDataXML = loadXML("project_template.xml");
 		project.loadProjectMetadata(projectDataXML);
+		
+		project.rotationA = context.rotationA;
+		project.rotationB = context.rotationB;
+		
+		project.serialA = context.serialCameraA;
+		project.serialB = context.serialCameraB;
+		
 		saveXML(projectDataXML, projectFolderPath + "/project.xml");
+		
 		File thumbnailsFolder = new File(projectFolderPath + "/thumbnails");
 		if (!thumbnailsFolder.exists()) {
 			if (thumbnailsFolder.mkdir()) {
@@ -956,6 +967,9 @@ public class ManuCapture_v1_1 extends PApplet {
 		project.projectFilePath = projectFolderPath + "/project.xml";
 		project.selectedItemIndex = -1;
 		project.thumbnailsLoaded = true;
+		
+		
+		
 		context.init();
 
 		saveLastSessionData();

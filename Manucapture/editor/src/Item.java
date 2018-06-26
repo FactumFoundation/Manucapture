@@ -31,8 +31,8 @@ public class Item {
 
 		this.context = context;
 
-		mImageLeft.rotation = context.rotB;
-		mImageRight.rotation = context.rotA;
+		mImageLeft.rotation = context.rotationB;
+		mImageRight.rotation = context.rotationA;
 
 		mImageLeft.g2p5Adapter = context.gphotoBAdapter;
 		mImageRight.g2p5Adapter = context.gphotoAAdapter;

@@ -31,6 +31,12 @@ public class Project {
 	String targetDirectory = "";
 	String uploaded = "";
 	String source;
+	
+	String serialA;
+	String serialB;
+	
+	int rotationA;
+	int rotationB;
 
 	ArrayList<Item> items = new ArrayList<Item>();
 
@@ -68,6 +74,7 @@ public class Project {
 		projectFilePath = projectPath;
 		XML projectDataXML = context.parent.loadXML(projectPath);
 		loadProjectMetadata(projectDataXML);
+		loadProjectSerials(projectDataXML);
 		XML[] itemsXML = projectDataXML.getChild("items").getChildren("item");
 		for (int i = 0; i < itemsXML.length; i++) {
 			try {
@@ -131,6 +138,16 @@ public class Project {
 
 	}
 
+	public void loadProjectSerials(XML projectDataXML) {
+		XML serialsXML = projectDataXML.getChild("serials");
+		XML a= serialsXML.getChild("A");
+		serialA = a.getContent();
+		serialB = serialsXML.getChild("B").getContent();
+		
+		rotationA = serialsXML.getChild("A").getInt("rotation");
+		rotationB = serialsXML.getChild("B").getInt("rotation");
+	}
+	
 	public void loadProjectMetadata(XML projectDataXML) {
 
 		projectName = projectDataXML.getChild("metadata").getChild("name").getContent();
@@ -198,7 +215,21 @@ public class Project {
 			metadataXML.addChild(uploadedXML);
 
 			projectXML.addChild(metadataXML);
-
+			
+			XML serialsXML = new XML("serials");
+			
+			XML AXML = new XML("A");
+			AXML.setContent(serialA);
+			AXML.setInt("rotation",rotationA);
+			serialsXML.addChild(AXML);
+			
+			XML BXML = new XML("B");
+			BXML.setContent(serialB);
+			BXML.setInt("rotation",rotationB);
+			serialsXML.addChild(BXML);
+			
+			projectXML.addChild(serialsXML);
+			
 			XML itemsXML = new XML("items");
 			for (int i = 0; i < items.size(); i++) {
 				Item item = items.get(i);
