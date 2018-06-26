@@ -106,6 +106,8 @@ public class ManuCapture_v1_1 extends PApplet {
 
 	int stateApp = STATE_APP_NO_PROJECT;
 
+	boolean loading = false;
+
 	public void setup() {
 
 		System.setOut(new TracingPrintStream(System.out));
@@ -218,42 +220,55 @@ public class ManuCapture_v1_1 extends PApplet {
 			// ellipse(width/2,500,1000,1000);
 			textAlign(CENTER);
 
+			PVector m = new PVector(mouseX, mouseY);
+			float dist = m.dist(new PVector(width / 2, 500));
+			float dist1 = m.dist(new PVector(width / 2 + width / 4, 500));
+			float dist2 = m.dist(new PVector(width / 2 - width / 4, 500));
+
 			fill(255);
 			textSize(32);
 			text("MANUCAPTURE", width / 2, 250);
 			textSize(18);
 			text("Factum Foundation Version 2.0", width / 2, height - 30);
 			textSize(20);
-			fill(255);
+
+			if (dist2 < 100)
+				fill(100);
+			else
+				fill(255);
+
 			ellipse(width / 2 - width / 4, 500, 200, 200);
 			fill(0);
 			text("NEW PROJECT", width / 2 - width / 4, 500);
 
-			fill(255);
+			if (dist < 100)
+				fill(100);
+			else
+				fill(255);
+
 			ellipse(width / 2, 500, 200, 200);
 			fill(0);
 			text("LOAD PREVIOUS", width / 2, 500);
 
-			fill(255);
+			if (dist1 < 100)
+				fill(100);
+			else
+				fill(255);
 			ellipse(width / 2 + width / 4, 500, 200, 200);
 			fill(0);
 			text("LOAD PROJECT", width / 2 + width / 4, 500);
 
-			if (mousePressed) {
-				PVector m = new PVector(mouseX, mouseY);
-				float dist = m.dist(new PVector(width / 2, 500));
+			if (mousePressed && !loading) {
 				if (dist < 100) {
-					loadLastSessionData();
-
+					loading = true;
+					context.gui.grpAll.setVisible(1, true);
+					thread("loadLastSessionData");
 				}
-
-				dist = m.dist(new PVector(width / 2 + width / 4, 500));
-				if (dist < 100) {
-					load_click(null, null);
+				if (dist1 < 100) {
+					loading = true;
+					thread("load_click");
 				}
-
-				dist = m.dist(new PVector(width / 2 - width / 4, 500));
-				if (dist < 100) {
+				if (dist2 < 100) {
 					new_button_click(null, null);
 				}
 			}
@@ -263,6 +278,16 @@ public class ManuCapture_v1_1 extends PApplet {
 			drawInittializedApp();
 		}
 
+		fill(255);
+		text("contextstate " + context.captureState + " state" + state + "\n " + "stateChart " + chartState + "\n "
+				+ frameRate, 250, 10);
+
+		if (loading) {
+			fill(0, 100);
+			rect(0, 0, width, height);
+			fill(255,0,0);
+			text("LOADING...", width / 2, height / 3);
+		}
 	}
 
 	private void drawInittializedApp() {
@@ -385,10 +410,6 @@ public class ManuCapture_v1_1 extends PApplet {
 			}
 
 		stroke(255);
-
-		fill(255);
-		text("contextstate " + context.captureState + " state" + state + "\n " + "stateChart " + chartState + "\n "
-				+ frameRate, 250, 10);
 
 		textAlign(LEFT);
 		pushStyle();
@@ -870,6 +891,8 @@ public class ManuCapture_v1_1 extends PApplet {
 			project.forceSelectedItem(project.selectedItemIndex, false);
 
 			context.gui.grpAll.setVisible(1, true);
+			
+			loading = false;
 			// } else {
 			//// new_button_click(null, null);
 			// }
@@ -879,6 +902,7 @@ public class ManuCapture_v1_1 extends PApplet {
 			// integrity of your session folder ");
 			e.printStackTrace();
 			G4P.showMessage(this, "Can't load project", "", G4P.WARNING);
+			loading = false;
 		}
 	}
 
@@ -979,26 +1003,26 @@ public class ManuCapture_v1_1 extends PApplet {
 		String errors = "";
 		if (project.rotationA != context.rotationA) {
 
-			errors += "Rotation A in serials has changed " + project.rotationA + "->" + context.rotationA+"\n";
+			errors += "Rotation A in serials has changed " + project.rotationA + "->" + context.rotationA + "\n";
 
 		}
 
 		if (project.rotationB != context.rotationB) {
 
-			errors += "Rotation B in serials has changed " + project.rotationB + "->" + context.rotationB+"\n";
+			errors += "Rotation B in serials has changed " + project.rotationB + "->" + context.rotationB + "\n";
 		}
 
 		if (!project.serialA.equals(context.serialCameraA)) {
-			errors += "Serial A in serials has changed " + project.serialA + "->" + context.serialCameraA+"\n";
+			errors += "Serial A in serials has changed " + project.serialA + "->" + context.serialCameraA + "\n";
 		}
 
 		if (!project.serialB.equals(context.serialCameraB)) {
-			errors += "Serial B in serials has changed " + project.serialB + "->" + context.serialCameraB+"\n";
+			errors += "Serial B in serials has changed " + project.serialB + "->" + context.serialCameraB + "\n";
 
 		}
-		
-		if(!errors.equals("")) {
-			G4P.showMessage(this, errors, "", G4P.WARNING);	
+
+		if (!errors.equals("")) {
+			G4P.showMessage(this, errors, "", G4P.WARNING);
 		}
 
 		initSelectedItem = true;
@@ -1252,12 +1276,22 @@ public class ManuCapture_v1_1 extends PApplet {
 	} // _CODE_:parameters_button:465510:
 
 	public void load_click(GButton source, GEvent event) { // _CODE_:load_button:841968:
+		load_click();
+
+	} // _CODE_:load_button:841968:
+	
+	public void load_click() { // _CODE_:load_button:841968:
 		String documentFileName = G4P.selectInput("Load XML");
 		if (documentFileName != null) {
+			loading = true;
 			loadProject(documentFileName);
+			loading = false;
+		}else {
+			loading = false;
 		}
 
 	} // _CODE_:load_button:841968:
+
 
 	public void edit_click(GButton source, GEvent event) { // _CODE_:load_button:841968:
 		context.gui.grpProject.setVisible(1, true);
