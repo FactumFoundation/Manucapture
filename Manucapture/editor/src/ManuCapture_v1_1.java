@@ -30,25 +30,26 @@ public class ManuCapture_v1_1 extends PApplet {
 	/*
 	 * ManuCapture.pde A Visual tool for recording books using DSLR Cameras
 	 * 
-	 * This source file is part of the ManuCapture software For the latest info, see
-	 * http://www.factumfoundation.org/pag/235/Digitisation-of-oriental-
+	 * This source file is part of the ManuCapture software For the latest info,
+	 * see http://www.factumfoundation.org/pag/235/Digitisation-of-oriental-
 	 * manuscripts-in-Daghestan
 	 * 
-	 * Copyright (c) 2016-2018 Jorge Cano and Enrique Esteban in Factum Foundation
+	 * Copyright (c) 2016-2018 Jorge Cano and Enrique Esteban in Factum
+	 * Foundation
 	 * 
-	 * This program is free software; you can redistribute it and/or modify it under
-	 * the terms of the GNU General Public License as published by the Free Software
-	 * Foundation; either version 2 of the License, or (at your option) any later
-	 * version.
+	 * This program is free software; you can redistribute it and/or modify it
+	 * under the terms of the GNU General Public License as published by the
+	 * Free Software Foundation; either version 2 of the License, or (at your
+	 * option) any later version.
 	 * 
-	 * This program is distributed in the hope that it will be useful, but WITHOUT
-	 * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-	 * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
-	 * details.
+	 * This program is distributed in the hope that it will be useful, but
+	 * WITHOUT ANY WARRANTY; without even the implied warranty of
+	 * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
+	 * Public License for more details.
 	 * 
-	 * You should have received a copy of the GNU General Public License along with
-	 * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
-	 * Place, Suite 330, Boston, MA 02111-1307 USA
+	 * You should have received a copy of the GNU General Public License along
+	 * with this program; if not, write to the Free Software Foundation, Inc.,
+	 * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 	 */
 
 	int receivePort = 3334;
@@ -285,7 +286,7 @@ public class ManuCapture_v1_1 extends PApplet {
 		if (loading) {
 			fill(0, 100);
 			rect(0, 0, width, height);
-			fill(255,0,0);
+			fill(255, 0, 0);
 			text("LOADING...", width / 2, height / 3);
 		}
 	}
@@ -863,7 +864,8 @@ public class ManuCapture_v1_1 extends PApplet {
 		String value;
 		try {
 			XML lastSessionData = loadXML("lastSession.xml");
-			// int reply = G4P.selectOption(this, "Load previous session?", "", G4P.PLAIN,
+			// int reply = G4P.selectOption(this, "Load previous session?", "",
+			// G4P.PLAIN,
 			// G4P.YES_NO);
 			// if (reply == 0) {
 
@@ -891,7 +893,7 @@ public class ManuCapture_v1_1 extends PApplet {
 			project.forceSelectedItem(project.selectedItemIndex, false);
 
 			context.gui.grpAll.setVisible(1, true);
-			
+
 			loading = false;
 			// } else {
 			//// new_button_click(null, null);
@@ -1041,14 +1043,14 @@ public class ManuCapture_v1_1 extends PApplet {
 	}
 
 	/*
-	 * ========================================================= ==== WARNING ===
-	 * ========================================================= The code in this
-	 * tab has been generated from the GUI form designer and care should be taken
-	 * when editing this file. Only add/edit code inside the event handlers i.e.
-	 * only use lines between the matching comment tags. e.g.
+	 * ========================================================= ==== WARNING
+	 * === ========================================================= The code in
+	 * this tab has been generated from the GUI form designer and care should be
+	 * taken when editing this file. Only add/edit code inside the event
+	 * handlers i.e. only use lines between the matching comment tags. e.g.
 	 * 
-	 * void myBtnEvents(GButton button) { //_CODE_:button1:12356: // It is safe to
-	 * enter your event code here } //_CODE_:button1:12356:
+	 * void myBtnEvents(GButton button) { //_CODE_:button1:12356: // It is safe
+	 * to enter your event code here } //_CODE_:button1:12356:
 	 * 
 	 * Do not rename this tab!
 	 * =========================================================
@@ -1203,7 +1205,7 @@ public class ManuCapture_v1_1 extends PApplet {
 		println("SHUTTER TRIGGERED");
 		context.capture();
 		context.clearPaths();
-	
+
 	} // _CODE_:trigger_button:381491:
 
 	public void camera_A_connected_click(GButton source, GEvent event) { // _CODE_:camera_A_connected_button:265149:
@@ -1249,6 +1251,7 @@ public class ManuCapture_v1_1 extends PApplet {
 		gui.camera_B_inactive_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
 		context.cameraActiveB = true;
 		context.gphotoB.setActive(true);
+
 		if (context.gphotoB.captureRunnable instanceof TetheredMockCaptureRunnable) {
 			context.gphotoB.active = true;
 		}
@@ -1273,19 +1276,18 @@ public class ManuCapture_v1_1 extends PApplet {
 		load_click();
 
 	} // _CODE_:load_button:841968:
-	
+
 	public void load_click() { // _CODE_:load_button:841968:
 		String documentFileName = G4P.selectInput("Load XML");
 		if (documentFileName != null) {
 			loading = true;
 			loadProject(documentFileName);
 			loading = false;
-		}else {
+		} else {
 			loading = false;
 		}
 
 	} // _CODE_:load_button:841968:
-
 
 	public void edit_click(GButton source, GEvent event) { // _CODE_:load_button:841968:
 		context.gui.grpProject.setVisible(1, true);
@@ -1350,8 +1352,8 @@ public class ManuCapture_v1_1 extends PApplet {
 
 		/*
 		 * GraphicsEnvironment environment =
-		 * GraphicsEnvironment.getLocalGraphicsEnvironment(); GraphicsDevice devices[] =
-		 * environment.getScreenDevices();
+		 * GraphicsEnvironment.getLocalGraphicsEnvironment(); GraphicsDevice
+		 * devices[] = environment.getScreenDevices();
 		 * 
 		 * if(devices.length>1 ){ //we have a 2nd display/projector
 		 * 

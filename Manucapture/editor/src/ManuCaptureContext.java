@@ -66,7 +66,7 @@ public class ManuCaptureContext {
 
 	String serialCameraA;
 	String serialCameraB;
-	
+
 	XML serialXMLA;
 	XML serialXMLB;
 
@@ -99,18 +99,18 @@ public class ManuCaptureContext {
 	}
 
 	public void deleteAllFiles(String targetFilePath, String suf) {
-//		parent.println("delete all " + suf + "files " + targetFilePath);
+		// parent.println("delete all " + suf + "files " + targetFilePath);
 		File storageDir = new File(targetFilePath);
 
 		if (!storageDir.exists()) {
-			storageDir.mkdirs(); 
+			storageDir.mkdirs();
 		}
 
 		for (File tempFile : storageDir.listFiles()) {
 			if (tempFile.getName().endsWith(suf))
 				tempFile.delete();
 		}
-//		parent.println("end delete all " + suf + "files " + targetFilePath);
+		// parent.println("end delete all " + suf + "files " + targetFilePath);
 	}
 
 	public void clearPaths() {
@@ -290,33 +290,42 @@ public class ManuCaptureContext {
 
 		gphotoA.listener = gphotoAAdapter;
 		gphotoB.listener = gphotoBAdapter;
-		
+
 		releaseCameras();
 	}
 
+	public static int CAMERAS_INACTIVE = -1;
 	public static int CAMERAS_IDLE = 0;
 	public static int CAMERAS_FOCUSSING = 1;
 	public static int CAMERAS_MIRROR_UP = 2;
 
-	int captureState = CAMERAS_IDLE;
+	int captureState = CAMERAS_INACTIVE;
 	int counterEvent = 0;
-	
-	long lastCaptureMillis  =0;
+
+	long lastCaptureMillis = 0;
 
 	public void capture() {
 		// Init capture secuence
-		if(captureState == CAMERAS_IDLE){
+		if (captureState == CAMERAS_IDLE) {
 			captureState = CAMERAS_FOCUSSING;
 			pressCameras();
-			lastCaptureMillis = parent.millis();			
+			lastCaptureMillis = parent.millis();
+		} else {
+			if (captureState == CAMERAS_INACTIVE) {
+				G4P.showMessage(parent, "Can't Trigger, cameras are not active", "", G4P.WARNING);
+			}
 		}
 	}
-	
-	public void processCamerasEvent(G2P5Event event){
-		
+
+	public void processCamerasEvent(G2P5Event event) {
+
 	}
 
 	public void camerasStateMachineLoop() {
+
+		if (captureState == CAMERAS_INACTIVE && gphotoA.active && gphotoB.active) {
+			captureState = CAMERAS_IDLE;
+		}
 
 		if (captureState == CAMERAS_FOCUSSING) {
 			if (gphotoAAdapter.mirrorUp && gphotoBAdapter.mirrorUp) {
@@ -326,17 +335,17 @@ public class ManuCaptureContext {
 					parent.chartState++;
 					if (parent.chartState == 3) {
 						parent.state = parent.CAPTURING;
-						parent.normal_shutter_click1(null,null);
+						parent.normal_shutter_click1(null, null);
 					}
 				}
 			} else {
-				if(parent.millis() - lastCaptureMillis > 5000){
+				if (parent.millis() - lastCaptureMillis > 5000) {
 					parent.println("Lsa dos cámaras no están dispuestas a poner el mirror en up");
 					if (!gphotoAAdapter.mirrorUp && !gphotoBAdapter.mirrorUp) {
 						releaseCameras();
-					} else if(!gphotoAAdapter.mirrorUp && gphotoBAdapter.mirrorUp){
+					} else if (!gphotoAAdapter.mirrorUp && gphotoBAdapter.mirrorUp) {
 						resetCamerasFailingA();
-					} else if(gphotoAAdapter.mirrorUp && !gphotoBAdapter.mirrorUp){
+					} else if (gphotoAAdapter.mirrorUp && !gphotoBAdapter.mirrorUp) {
 						resetCamerasFailingB();
 					}
 					captureState = CAMERAS_IDLE;
@@ -366,7 +375,7 @@ public class ManuCaptureContext {
 		oscP5.send(myMessage, arduinoDriverLocation);
 
 	}
-	
+
 	public void releaseAndShutterCameras() {
 
 		OscMessage myMessage = new OscMessage("/shutterAction");
@@ -381,21 +390,21 @@ public class ManuCaptureContext {
 		myMessage.add('S');
 		oscP5.send(myMessage, arduinoDriverLocation);
 	}
-	
-	public void resetCamerasFailingA(){
-	
+
+	public void resetCamerasFailingA() {
+
 		OscMessage myMessage = new OscMessage("/shutterAction");
 		myMessage.add('Y');
 		oscP5.send(myMessage, arduinoDriverLocation);
-		
+
 	}
-	
-	public void resetCamerasFailingB(){
-		
+
+	public void resetCamerasFailingB() {
+
 		OscMessage myMessage = new OscMessage("/shutterAction");
 		myMessage.add('Z');
 		oscP5.send(myMessage, arduinoDriverLocation);
-		
+
 	}
 
 	// G4P code for message dialogs
