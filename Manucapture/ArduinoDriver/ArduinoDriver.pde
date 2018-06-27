@@ -59,6 +59,8 @@ void serialEvent(Serial myPort) {
     OscMessage myMessage = new OscMessage("/footswitchPressed");
     myMessage.add("");
     oscP5.send(myMessage, myRemoteLocation);
+  }else{
+   println("caracter no manejado desde arduino"+(char)inByte); 
   }
 }
 
