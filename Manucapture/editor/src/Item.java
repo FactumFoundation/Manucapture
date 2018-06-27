@@ -64,11 +64,9 @@ public class Item {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
 	}
 
 	public void saveMetadata() {
-
 		this.mImageLeft.saveMetadata();
 		this.mImageRight.saveMetadata();
 	}
@@ -83,19 +81,8 @@ public class Item {
 
 	void loadPreviews(String projectDirectory, String leftImagePath, String rightImagePath) {
 
-		long startMillis = context.parent.millis();
-
-		System.out.println("start preview");
-
-		// nextRightImagePath = rightImagePath;
 		loadRightPreview(projectDirectory, rightImagePath);
-		System.out.println("end preview left");
-		// nextLeftImagePath = leftImagePath;
 		loadLeftPreview(projectDirectory, leftImagePath);
-
-		System.out.println("end preview rigth");
-
-		long endMillis = context.parent.millis();
 	}
 
 }

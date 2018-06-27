@@ -17,37 +17,44 @@ public class MImage {
 	String imagePath;
 	String thumbPath;
 
+	String imagePreview;
+
 	PImage imgThumb;
 	PImage imgPreview;
 	ManuCaptureContext context;
 
 	List<HotArea> mesh = new ArrayList<>();
-	
+
 	int thumbMargin = 6;
 
 	int rotation;
 
 	long timestamp = -1;
-	
+
 	String lastLeftImagePath = "";
 	String lastRightImagePath = "";
-	
+
 	G2P5ManucaptureAdapter g2p5Adapter;
-	
+
 	void remove() {
 		// imagePath = "";
 		// thumbPath = "";
 		imgThumb = null;
 		mesh = new ArrayList<>();
-		String pathI = context.project.projectDirectory + "/" + imagePath;
+		String pathI = context.project.projectDirectory + "" + imagePath;
 		if (pathI != null && new File(pathI).exists())
 			new File(pathI).delete();
+
 		String pathT = thumbPath;
 		if (pathT != null && new File(pathT).exists())
 			new File(pathT).delete();
 
 		if (getXmpPath() != null && new File(getXmpPath()).exists())
 			new File(getXmpPath()).delete();
+
+		if (imagePreview != null && new File(imagePreview).exists()){
+			boolean deleted = new File(imagePreview).delete();
+		}
 
 		// PReview
 	}
@@ -88,7 +95,6 @@ public class MImage {
 			}
 		}
 	}
-
 
 	public PImage generateThumbnail(ManuCaptureContext context, File rawImgFile) {
 
@@ -171,9 +177,11 @@ public class MImage {
 			context.deleteAllFiles(previewFolder, ".jpg");
 
 			String previewFile = nextRightImagePath.replace(".cr2", ".jpg").replace("/raw/", "/previews/");
-
+			imagePreview = previewFile;
+			
 			if (new File(previewFile).exists()) {
 				img = context.parent.loadImage(previewFile);
+				
 			} else {
 
 				File itemImgRight = new File(nextRightImagePath);
@@ -192,12 +200,9 @@ public class MImage {
 					e.printStackTrace();
 				}
 
-				// command = "convert " + previewFullPath + " -resize 1000x667 "
-				// +
-				// resizedImageFullPath;
 				command = context.appPath + "/epeg-master/src/bin/epeg -w " + context.viewerWidthResolution
 						+ " -p -q 100 " + previewFullPath + " " + resizedImageFullPath.replace(".jpg", "-rot.jpg");
-				System.out.println("end command exiv2, start resize " + command);
+				
 				try {
 					Process process = Runtime.getRuntime().exec(command);
 					InputStream error = process.getErrorStream();
@@ -239,12 +244,12 @@ public class MImage {
 					// Paths.get(resizedImageFullPath),
 					// StandardCopyOption.REPLACE_EXISTING);
 					img = context.parent.loadImage(resizedImageFullPath);
+					imagePreview = previewFile;
 					context.renderRight = true;
 					System.out.println("end loadimage, FINISH loadRightPreview " + resizedImageFullPath);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
-
 			}
 		}
 
@@ -253,8 +258,8 @@ public class MImage {
 	}
 
 	public void saveMetadata() {
-		
-		if(imagePath == null || imagePath.equals("")) {
+
+		if (imagePath == null || imagePath.equals("")) {
 			return;
 		}
 
@@ -283,7 +288,7 @@ public class MImage {
 	}
 
 	private String getXmpPath() {
-		return context.project.projectDirectory +(imagePath).replace(".cr2", ".xmp");
+		return context.project.projectDirectory + (imagePath).replace(".cr2", ".xmp");
 	}
 
 	public String getAbsolutePath() {
@@ -327,6 +332,5 @@ public class MImage {
 
 		}
 	}
-
 
 }

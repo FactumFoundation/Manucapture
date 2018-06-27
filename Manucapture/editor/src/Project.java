@@ -388,13 +388,13 @@ public class Project {
 			String leftImagePath = "";
 			String rightImagePath = "";
 			if (selectedItem.mImageRight.imagePath != null && selectedItem.mImageRight.imagePath.length() != 0) {
-				rightImagePath = projectDirectory + "/" + selectedItem.mImageRight.imagePath;
+				rightImagePath = projectDirectory + "" + selectedItem.mImageRight.imagePath;
 				myMessage.add(rightImagePath);
 			} else {
 				myMessage.add("");
 			}
 			if (selectedItem.mImageLeft.imagePath != null && (selectedItem.mImageLeft.imagePath.length() != 0)) {
-				leftImagePath = projectDirectory + "/" + selectedItem.mImageLeft.imagePath;
+				leftImagePath = projectDirectory + "" + selectedItem.mImageLeft.imagePath;
 				myMessage.add(leftImagePath);
 			} else {
 				myMessage.add("");
@@ -409,8 +409,8 @@ public class Project {
 
 			context.gui.page_comments_text.setText(selectedItem.comment);
 			context.gui.page_num_text.setText(String.valueOf(selectedItem.pagNum));
-			context.gphotoAAdapter.setTargetFile(projectDirectory + "/raw", projectCode);
-			context.gphotoBAdapter.setTargetFile(projectDirectory + "/raw", projectCode);
+			context.gphotoAAdapter.setTargetFile(projectDirectory + "raw", projectCode);
+			context.gphotoBAdapter.setTargetFile(projectDirectory + "raw", projectCode);
 
 			selectedItem.loadMetadata();
 

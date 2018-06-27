@@ -1203,13 +1203,7 @@ public class ManuCapture_v1_1 extends PApplet {
 		println("SHUTTER TRIGGERED");
 		context.capture();
 		context.clearPaths();
-		if (state == CHART) {
-			chartState++;
-			if (chartState == 3) {
-				state = CAPTURING;
-				normal_shutter_click1(source, event);
-			}
-		}
+	
 	} // _CODE_:trigger_button:381491:
 
 	public void camera_A_connected_click(GButton source, GEvent event) { // _CODE_:camera_A_connected_button:265149:

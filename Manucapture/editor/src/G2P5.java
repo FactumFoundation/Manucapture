@@ -3,14 +3,10 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
 import processing.core.*;
-import processing.data.*;
-import processing.event.*;
-import processing.opengl.*;
 
 /**
  * Camera console wrapper
@@ -44,7 +40,7 @@ public class G2P5 {
 
 	List<G2P5Event> events = new ArrayList<>();
 
-	boolean mock = true;
+	boolean mock = false;
 
 	public G2P5() {
 

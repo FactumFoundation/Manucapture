@@ -84,7 +84,7 @@ public class ManuCaptureContext {
 		adapter.g2p5 = g2p5;
 		adapter.manuCapture = parent;
 		// TODO check if is null if not project created
-		adapter.setTargetFile(parent.project.projectDirectory + "/raw", parent.project.projectName);
+		adapter.setTargetFile(parent.project.projectDirectory + "raw", parent.project.projectName);
 		return adapter;
 	}
 
@@ -99,18 +99,18 @@ public class ManuCaptureContext {
 	}
 
 	public void deleteAllFiles(String targetFilePath, String suf) {
-		parent.println("delete all " + suf + "files " + targetFilePath);
+//		parent.println("delete all " + suf + "files " + targetFilePath);
 		File storageDir = new File(targetFilePath);
 
 		if (!storageDir.exists()) {
-			storageDir.mkdirs();
+			storageDir.mkdirs(); 
 		}
 
 		for (File tempFile : storageDir.listFiles()) {
 			if (tempFile.getName().endsWith(suf))
 				tempFile.delete();
 		}
-		parent.println("end delete all " + suf + "files " + targetFilePath);
+//		parent.println("end delete all " + suf + "files " + targetFilePath);
 	}
 
 	public void clearPaths() {
@@ -322,8 +322,16 @@ public class ManuCaptureContext {
 			if (gphotoAAdapter.mirrorUp && gphotoBAdapter.mirrorUp) {
 				releaseAndShutterCameras();
 				captureState = CAMERAS_MIRROR_UP;
+				if (parent.state == parent.CHART) {
+					parent.chartState++;
+					if (parent.chartState == 3) {
+						parent.state = parent.CAPTURING;
+						parent.normal_shutter_click1(null,null);
+					}
+				}
 			} else {
 				if(parent.millis() - lastCaptureMillis > 5000){
+					parent.println("Lsa dos cámaras no están dispuestas a poner el mirror en up");
 					if (!gphotoAAdapter.mirrorUp && !gphotoBAdapter.mirrorUp) {
 						releaseCameras();
 					} else if(!gphotoAAdapter.mirrorUp && gphotoBAdapter.mirrorUp){
