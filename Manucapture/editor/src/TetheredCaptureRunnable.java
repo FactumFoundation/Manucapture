@@ -18,7 +18,7 @@ public class TetheredCaptureRunnable implements Runnable{
 
 		String fullPath = g2p5.getFilePath();
 		String commandToRun = "stdbuf -oL  gphoto2 --capture-tethered --port " + g2p5.port + " --force-overwrite --filename " + fullPath;
-//		PApplet.println(commandToRun);
+		PApplet.println(commandToRun);
 
 		try {
 			String[] commands = new String[] { "/bin/sh", "-c", commandToRun };
