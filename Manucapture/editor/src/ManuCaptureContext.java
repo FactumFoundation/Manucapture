@@ -331,13 +331,8 @@ public class ManuCaptureContext {
 			if (gphotoAAdapter.mirrorUp && gphotoBAdapter.mirrorUp) {
 				releaseAndShutterCameras();
 				captureState = CAMERAS_MIRROR_UP;
-				if (parent.state == parent.CHART) {
-					parent.chartState++;
-					if (parent.chartState == 3) {
-						parent.state = parent.CAPTURING;
-						parent.normal_shutter_click1(null, null);
-					}
-				}
+//				if (parent.state == parent.CHART) {
+//				}
 			} else {
 				if (parent.millis() - lastCaptureMillis > 5000) {
 					parent.println("Lsa dos cámaras no están dispuestas a poner el mirror en up");

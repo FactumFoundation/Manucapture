@@ -520,6 +520,7 @@ public class Project {
 
 	public synchronized void replaceItem(int index, Item newItem) {
 		if (index >= 0 && index < items.size()) {
+			
 			if (newItem.mImageLeft.imagePath.equals("")) {
 				newItem.mImageLeft.imagePath = items.get(index).mImageLeft.imagePath;
 				newItem.loadThumbnails();

@@ -82,11 +82,12 @@ public class ManuCapture_v1_1 extends PApplet {
 	boolean mock = false;
 
 	// Chart identification
-	public static int CAPTURING = 0;
-	public static int CHART = 1;
+	public static int STATE_CAPTURING = 0;
+	public static int STATE_CHART = 1;
 
-	int state = CAPTURING;
-	int chartState = 0;
+	int cameraState = STATE_CAPTURING;
+
+	int chartStateMachine = 0;
 	// *********************
 
 	int guideHeight_1 = 200;
@@ -280,8 +281,8 @@ public class ManuCapture_v1_1 extends PApplet {
 		}
 
 		fill(255);
-		text("contextstate " + context.captureState + " state" + state + "\n " + "stateChart " + chartState + "\n "
-				+ frameRate, 250, 10);
+		text("contextstate " + context.captureState + " state" + cameraState + "\n " + "stateChart " + chartStateMachine
+				+ "\n " + frameRate, 250, 10);
 
 		if (loading) {
 			fill(0, 100);
@@ -438,21 +439,23 @@ public class ManuCapture_v1_1 extends PApplet {
 
 		// rect(marginLeftViewerLeft, marginTopViewer, 100, 100);
 
-		if (state == CHART) {
+		if (cameraState == STATE_CHART) {
 			pushMatrix();
 			pushStyle();
 
-			if (chartState == 0) {
-				textAlign(CENTER);
-				fill(255, 0, 0, 100);
-				rect(marginLeftViewerLeft, 0, context.hImageViewerSize * 2, context.wImageViewerSize);
-				fill(255);
-				textSize(24);
-				text("CALIBRATING, PLEASE CAPTURE \n THIS BACKGROUND \nWITHOUT ANY DOCUMENT", marginLeftViewerRight,
-						200);
+			if (chartStateMachine == 0) {
+				// textAlign(CENTER);
+				// fill(255, 0, 0, 100);
+				// rect(marginLeftViewerLeft, 0, context.hImageViewerSize * 2,
+				// context.wImageViewerSize);
+				// fill(255);
+				// textSize(24);
+				// text("CALIBRATING, PLEASE CAPTURE \n THIS BACKGROUND
+				// \nWITHOUT ANY DOCUMENT", marginLeftViewerRight,
+				// 200);
 			} else {
 				textAlign(CENTER);
-				if (chartState == 2) {
+				if (chartStateMachine == 2) {
 					translate(marginLeftViewerLeft, 0);
 				} else {
 					translate(marginLeftViewerRight, 0);
@@ -789,18 +792,26 @@ public class ManuCapture_v1_1 extends PApplet {
 			} else if (shutterMode == CALIB_SHUTTER) {
 				println("Calib shutter");
 
-				if (chartState < 2) {
-					doNormalShutter(Item.TYPE_BACKGROUND);
-				} else if (chartState < 2) {
+				// if (chartState < 2) {
+				// doNormalShutter(Item.TYPE_BACKGROUND);
+				// } else
+				//
+				if (chartStateMachine == 1) {
 					// we do background and first photo normally
 					doNormalShutter(Item.TYPE_CHART);
+					chartStateMachine++;
 				} else {
 					float newPageNum = project.selectedItem.pagNum;
 
 					Item newItem = initNewItem(Item.TYPE_CHART, newPageNum);
+					newItem.mImageLeft.imagePath = "";
 					newItem.loadThumbnails();
 					project.replaceItem(project.selectedItemIndex, newItem);
 					context.clearPaths();
+					chartStateMachine++;
+					cameraState = STATE_CAPTURING;
+					normal_shutter_click1(null, null);
+
 				}
 			}
 		}
@@ -1196,8 +1207,8 @@ public class ManuCapture_v1_1 extends PApplet {
 		gui.repeat_shutter_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
 		gui.calibration_shutter_button.setLocalColorScheme(GCScheme.ORANGE_SCHEME);
 
-		state = CHART;
-		chartState = 0;
+		cameraState = STATE_CHART;
+		chartStateMachine = 1;
 		// }
 	} // _CODE_:calibration_shutter_button:835827:
 
