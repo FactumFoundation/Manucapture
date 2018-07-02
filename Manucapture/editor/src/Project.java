@@ -523,6 +523,7 @@ public class Project {
 			
 			//si viene vacío rellenenamos con el item anterior
 			if (newItem.mImageLeft.imagePath.equals("")) {
+				
 				newItem.mImageLeft.imagePath = items.get(index).mImageLeft.imagePath;
 				newItem.loadThumbnails();
 			}else{

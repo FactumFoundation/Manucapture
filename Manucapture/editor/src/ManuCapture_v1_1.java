@@ -326,10 +326,12 @@ public class ManuCapture_v1_1 extends PApplet {
 				}
 
 				if (!context.gphotoA.isConnected()) {
-					context.gphotoAAdapter = context.createG2P5(context.serialCameraA, "A");
+//					context.gphotoAAdapter = context.createG2P5(context.serialCameraA, "A");
+					camera_A_active_button_click(null, null);
 				}
 				if (!context.gphotoB.isConnected()) {
-					context.gphotoBAdapter = context.createG2P5(context.serialCameraB, "B");
+//					context.gphotoBAdapter = context.createG2P5(context.serialCameraB, "B");
+					camera_B_active_click(null, null);
 				}
 
 				context.gphotoAAdapter.setTargetFile(project.projectDirectory + "/raw", project.projectCode);
@@ -1041,7 +1043,7 @@ public class ManuCapture_v1_1 extends PApplet {
 
 		initSelectedItem = true;
 		context.init();
-		G2P5Manager.setImageCount(project.items.size());
+//		G2P5Manager.setImageCount(project.items.size());
 		project.forceSelectedItem(project.items.size(), false);
 		saveLastSessionData();
 		project.removeUnusedImages();
