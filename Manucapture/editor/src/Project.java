@@ -521,14 +521,26 @@ public class Project {
 	public synchronized void replaceItem(int index, Item newItem) {
 		if (index >= 0 && index < items.size()) {
 			
+			//si viene vacío rellenenamos con el item anterior
 			if (newItem.mImageLeft.imagePath.equals("")) {
 				newItem.mImageLeft.imagePath = items.get(index).mImageLeft.imagePath;
 				newItem.loadThumbnails();
+			}else{
+				//sino borramos el anterior
+				items.get(index).mImageLeft.remove();
 			}
+			
+			
+			
 			if (newItem.mImageRight.imagePath.equals("")) {
 				newItem.mImageRight.imagePath = items.get(index).mImageRight.imagePath;
 				newItem.loadThumbnails();
+			}else{
+				//sino borramos el anterior
+				items.get(index).mImageRight.remove();
 			}
+			
+			
 			items.remove(index);
 			items.add(index, newItem);
 			selectedItemIndex = PApplet.min(index + 1, items.size());

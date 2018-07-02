@@ -804,6 +804,7 @@ public class ManuCapture_v1_1 extends PApplet {
 					float newPageNum = project.selectedItem.pagNum;
 
 					Item newItem = initNewItem(Item.TYPE_CHART, newPageNum);
+					newItem.mImageLeft.remove();
 					newItem.mImageLeft.imagePath = "";
 					newItem.loadThumbnails();
 					project.replaceItem(project.selectedItemIndex, newItem);
