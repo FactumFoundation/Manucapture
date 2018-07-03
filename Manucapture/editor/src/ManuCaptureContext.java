@@ -38,6 +38,8 @@ public class ManuCaptureContext {
 	GUI gui;
 
 	NetAddress viewerLocation;
+	
+	GUIController guiController;
 
 	Project project;
 

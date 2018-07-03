@@ -61,14 +61,14 @@ public class ManuCapture_v1_1 extends PApplet {
 	PApplet parent;
 
 	Project project = null;
-
+	
 	boolean initSelectedItem = false;
 
-	int shutterMode = 0;
-	int NORMAL_SHUTTER = 0;
-	int REPEAT_SHUTTER = 1;
+	static int shutterMode = 0;
+	static int NORMAL_SHUTTER = 0;
+	static int REPEAT_SHUTTER = 1;
 	// int SUBPAGE_SHUTTER = 2;
-	int CALIB_SHUTTER = 3;
+	static int CALIB_SHUTTER = 3;
 
 	int backgroundColor = 0xff000C12;
 
@@ -103,8 +103,8 @@ public class ManuCapture_v1_1 extends PApplet {
 
 	boolean loadData = true;
 
-	private static int STATE_APP_NO_PROJECT = 0;
-	private static int STATE_APP_PROJECT = 1;
+	public static int STATE_APP_NO_PROJECT = 0;
+	public static int STATE_APP_PROJECT = 1;
 
 	int stateApp = STATE_APP_NO_PROJECT;
 
@@ -118,6 +118,7 @@ public class ManuCapture_v1_1 extends PApplet {
 		context.thumbnail = new RawFile();
 		context.parent = this;
 		context.gui = new GUI();
+		context.guiController = new GUIController(context);
 		context.appPath = sketchPath() + "/..";
 
 		int size = 50;
@@ -271,7 +272,7 @@ public class ManuCapture_v1_1 extends PApplet {
 					thread("load_click");
 				}
 				if (dist2 < 100) {
-					new_button_click(null, null);
+					context.guiController.new_button_click(null, null);
 				}
 			}
 
@@ -327,11 +328,11 @@ public class ManuCapture_v1_1 extends PApplet {
 
 				if (!context.gphotoA.isConnected()) {
 //					context.gphotoAAdapter = context.createG2P5(context.serialCameraA, "A");
-					camera_A_active_button_click(null, null);
+					context.guiController.camera_A_active_button_click(null, null);
 				}
 				if (!context.gphotoB.isConnected()) {
 //					context.gphotoBAdapter = context.createG2P5(context.serialCameraB, "B");
-					camera_B_active_click(null, null);
+					context.guiController.camera_B_active_click(null, null);
 				}
 
 				context.gphotoAAdapter.setTargetFile(project.projectDirectory + "/raw", project.projectCode);
@@ -813,7 +814,7 @@ public class ManuCapture_v1_1 extends PApplet {
 					context.clearPaths();
 					chartStateMachine++;
 					cameraState = STATE_CAPTURING;
-					normal_shutter_click1(null, null);
+					context.guiController.normal_shutter_click1(null, null);
 
 				}
 			}
@@ -1056,284 +1057,6 @@ public class ManuCapture_v1_1 extends PApplet {
 		return pathApp;
 	}
 
-	/*
-	 * ========================================================= ==== WARNING
-	 * === ========================================================= The code in
-	 * this tab has been generated from the GUI form designer and care should be
-	 * taken when editing this file. Only add/edit code inside the event
-	 * handlers i.e. only use lines between the matching comment tags. e.g.
-	 * 
-	 * void myBtnEvents(GButton button) { //_CODE_:button1:12356: // It is safe
-	 * to enter your event code here } //_CODE_:button1:12356:
-	 * 
-	 * Do not rename this tab!
-	 * =========================================================
-	 */
-
-	public void first_page_button_click(GButton source, GEvent event) { // _CODE_:first_page_button:431616:
-		println("SHUTTER CONTROL SET NOTMAL MODE");
-	} // _CODE_:first_page_button:431616:
-
-	public void last_page_button_click(GButton source, GEvent event) { // _CODE_:last_page_button:647539:
-		println("button2 - GButton >> GEvent." + event + " @ " + millis());
-
-	} // _CODE_:last_page_button:647539:
-
-	public void name_text_change(GTextField source, GEvent event) { // _CODE_:name_text:702135:
-		project.projectName = source.getText();
-		if (event.toString() == "ENTERED" && !project.projectDirectory.equals("")) {
-			project.saveProjectXML();
-		}
-	} // _CODE_:name_text:702135:
-
-	public void code_text_change(GTextField source, GEvent event) { // _CODE_:code_text:779005:
-		project.projectCode = source.getText();
-		if (event.toString() == "ENTERED" && !project.projectDirectory.equals("")) {
-			project.saveProjectXML();
-		}
-	} // _CODE_:code_text:779005:
-
-	public void author_text_change(GTextField source, GEvent event) { // _CODE_:author_text:873016:
-		project.projectAuthor = source.getText();
-		if (event.toString() == "ENTERED" && !project.projectDirectory.equals("")) {
-			project.saveProjectXML();
-		}
-	} // _CODE_:author_text:873016:
-
-	public void project_comments_change(GTextField source, GEvent event) { // _CODE_:project_comments_text:337734:
-		project.projectComment = source.getText();
-		println();
-		if (event.toString() == "ENTERED" && !project.projectDirectory.equals("")) {
-			project.saveProjectXML();
-		}
-
-	} // _CODE_:project_comments_text:337734:
-
-	public void page_comments_text_change(GTextField source, GEvent event) { // _CODE_:page_comments_text:397499:
-		if (project.selectedItem != null) {
-			project.selectedItem.comment = source.getText();
-		}
-		if (event.toString() == "ENTERED" && !project.projectDirectory.equals("")) {
-			project.saveProjectXML();
-		}
-	} // _CODE_:page_comments_text:397499:
-
-	public void page_num_text_change(GTextField source, GEvent event) { // _CODE_:textfield1:363899:
-		if (event.toString() == "ENTERED" && !project.projectDirectory.equals("")) {
-			try {
-				float pageNumber = Float.parseFloat(source.getText());
-				int itemIndex = project.findItemIndexByPagNum(pageNumber);
-				if (itemIndex != -1) {
-					project.forceSelectedItem(itemIndex, true);
-				}
-				project.saveProjectXML();
-			} catch (NumberFormatException ex) {
-				println("wrong page number");
-			}
-		}
-
-	} // _CODE_:textfield1:363899:
-
-	public void normal_shutter_click1(GButton source, GEvent event) { // _CODE_:normal_shutter_button:563899:
-		println("SHUTTER CONTROL SET NORMAL MODE!!!!!");
-		shutterMode = NORMAL_SHUTTER;
-		GUI gui = context.gui;
-		gui.normal_shutter_button.setLocalColorScheme(GCScheme.ORANGE_SCHEME);
-		gui.repeat_shutter_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
-		gui.calibration_shutter_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
-	} // _CODE_:normal_shutter_button:563899:
-
-	public void repeat_shutter_click(GButton source, GEvent event) { // _CODE_:repeat_shutter_button:591981:
-		println("SHUTTER CONTROL SET REPEAT MODE");
-		shutterMode = REPEAT_SHUTTER;
-		GUI gui = context.gui;
-		gui.normal_shutter_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
-		gui.repeat_shutter_button.setLocalColorScheme(GCScheme.ORANGE_SCHEME);
-		gui.calibration_shutter_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
-	} // _CODE_:repeat_shutter_button:591981:
-
-	// public void subpage_shutter_click(GButton source, GEvent event) { //
-	// _CODE_:subpage_shutter_button:295319:
-	// println("SHUTTER CONTROL SET SUBPAGE MODE");
-	// shutterMode = SUBPAGE_SHUTTER;
-	// GUI gui = context.gui;
-	// gui.normal_shutter_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
-	// gui.repeat_shutter_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
-	// gui.calibration_shutter_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
-	// } // _CODE_:subpage_shutter_button:295319:
-
-	public void close_popup_project_window(GWindow window) {
-		close_popup_project(null, null);
-	}
-
-	public void mouse_popUp(PApplet applet, GWinData windata) {
-		println("holle2" + windata);
-	}
-
-	public void mouse_popUp(PApplet applet, GWinData windata, MouseEvent ouseevent) {
-		println("holl1e" + ouseevent.getAction());
-	}
-
-	public void close_popup_project(GButton source, GEvent event) {
-		// context.gui.window.close();
-
-		boolean someError = false;
-		if (StringUtils.isEmpty(context.project.projectName)) {
-			someError = true;
-		}
-
-		if (StringUtils.isEmpty(context.project.projectCode)) {
-			someError = true;
-		}
-
-		if (!someError) {
-			stateApp = STATE_APP_PROJECT;
-			context.gui.grpAll.setVisible(1, true);
-			context.gui.grpProject.setVisible(1, false);
-			context.project.saveProjectXML();
-
-		} else {
-			// showwhat error
-			G4P.showMessage(this, "Missing name or code", "", G4P.WARNING);
-		}
-
-		println("close window edit project data");
-	}
-
-	public void calibration_shutter_click(GButton source, GEvent event) { // _CODE_:calibration_shutter_button:835827:
-
-		// if (state == CAPTURING) {
-		println("SHUTTER CONTROL SET CALIBRATION MODE");
-		shutterMode = CALIB_SHUTTER;
-		GUI gui = context.gui;
-		gui.normal_shutter_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
-		gui.repeat_shutter_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
-		gui.calibration_shutter_button.setLocalColorScheme(GCScheme.ORANGE_SCHEME);
-
-		cameraState = STATE_CHART;
-		chartStateMachine = 1;
-		// }
-	} // _CODE_:calibration_shutter_button:835827:
-
-	public void trigger_button_click(GButton source, GEvent event) { // _CODE_:trigger_button:381491:
-		println("SHUTTER TRIGGERED");
-		context.capture();
-		context.clearPaths();
-
-	} // _CODE_:trigger_button:381491:
-
-	public void camera_A_connected_click(GButton source, GEvent event) { // _CODE_:camera_A_connected_button:265149:
-		println("button1 - GButton >> GEvent." + event + " @ " + millis());
-		if (!context.gphotoA.isConnected()) {
-			context.gphotoAAdapter = context.createG2P5(context.serialCameraA, "A");
-		}
-	} // _CODE_:camera_A_connected_button:265149:
-
-	public void camera_A_active_button_click(GButton source, GEvent event) { // _CODE_:camera_A_active_button:906773:
-		println("camera_A_active_button - GButton >> GEvent." + event + " @ " + millis());
-		GUI gui = context.gui;
-		gui.camera_A_active_button.setLocalColorScheme(GCScheme.ORANGE_SCHEME);
-		gui.camera_A_inactive_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
-		context.cameraActiveA = true;
-		context.gphotoA.setActive(true);
-		if (context.gphotoA.captureRunnable instanceof TetheredMockCaptureRunnable) {
-			context.gphotoA.active = true;
-		}
-	} // _CODE_:camera_A_active_button:906773:
-
-	public void camera_A_inactive_button_click(GButton source, GEvent event) { // _CODE_:camera_A_inactive_button:493860:
-		println("inactive_camera_A_button - GButton >> GEvent." + event + " @ " + millis());
-		GUI gui = context.gui;
-		gui.camera_A_active_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
-		gui.camera_A_inactive_button.setLocalColorScheme(GCScheme.ORANGE_SCHEME);
-		context.cameraActiveA = false;
-		context.gphotoA.setActive(false);
-
-	} // _CODE_:camera_A_inactive_button:493860:
-
-	public void camera_B_connected_click(GButton source, GEvent event) { // _CODE_:camera_B_connected_button:564189:
-		println("camera_B_connected_button - GButton >> GEvent." + event + " @ " + millis());
-		if (!context.gphotoB.isConnected()) {
-			context.gphotoBAdapter = context.createG2P5(context.serialCameraB, "B");
-		}
-	} // _CODE_:camera_B_connected_button:564189:
-
-	public void camera_B_active_click(GButton source, GEvent event) { // _CODE_:camera_B_active_button:640605:
-		println("camera_B_active_button - GButton >> GEvent." + event + " @ " + millis());
-		GUI gui = context.gui;
-		gui.camera_B_active_button.setLocalColorScheme(GCScheme.ORANGE_SCHEME);
-		gui.camera_B_inactive_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
-		context.cameraActiveB = true;
-		context.gphotoB.setActive(true);
-
-		if (context.gphotoB.captureRunnable instanceof TetheredMockCaptureRunnable) {
-			context.gphotoB.active = true;
-		}
-
-	} // _CODE_:camera_B_active_button:640605:
-
-	public void camera_B_inactive_click(GButton source, GEvent event) { // _CODE_:camera_B_inactive_button:780199:
-		println("camera_B_inactive_button - GButton >> GEvent." + event + " @ " + millis());
-		GUI gui = context.gui;
-		gui.camera_B_active_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
-		gui.camera_B_inactive_button.setLocalColorScheme(GCScheme.ORANGE_SCHEME);
-		context.cameraActiveB = false;
-		context.gphotoB.setActive(false);
-
-	} // _CODE_:camera_B_inactive_button:780199:
-
-	public void parameters_click(GButton source, GEvent event) { // _CODE_:parameters_button:465510:
-		println("parameters_button - GButton >> GEvent." + event + " @ " + millis());
-	} // _CODE_:parameters_button:465510:
-
-	public void load_click(GButton source, GEvent event) { // _CODE_:load_button:841968:
-		load_click();
-
-	} // _CODE_:load_button:841968:
-
-	public void load_click() { // _CODE_:load_button:841968:
-		String documentFileName = G4P.selectInput("Load XML");
-		if (documentFileName != null) {
-			loading = true;
-			loadProject(documentFileName);
-			loading = false;
-		} else {
-			loading = false;
-		}
-
-	} // _CODE_:load_button:841968:
-
-	public void edit_click(GButton source, GEvent event) { // _CODE_:load_button:841968:
-		context.gui.grpProject.setVisible(1, true);
-		context.gui.grpAll.setVisible(1, false);
-
-	} // _CODE_:load_button:841968:
-
-	public void close_click(GButton source, GEvent event) { // _CODE_:load_button:841968:
-		stateApp = STATE_APP_NO_PROJECT;
-
-	} // _CODE_:load_button:841968:
-
-	public void new_button_click(GButton source, GEvent event) { // _CODE_:new_button:324180:
-		String projectFolderPath = G4P.selectFolder("Select the project folder for NEW PROJECT");
-		if (projectFolderPath != null) {
-			project.thumbnailsLoaded = false;
-			context.gui.grpProject.setVisible(1, true);
-			createProject(projectFolderPath);
-
-		}
-	} // _CODE_:new_button:324180:
-
-	public void page_search_text_change(GTextField source, GEvent event) { // _CODE_:page_search_text:741750:
-		println("textfield2 - GTextField >> GEvent." + event + " @ " + millis());
-	} // _CODE_:page_search_text:741750:
-
-	public void liveView_button_click(GButton source, GEvent event) { // _CODE_:export_button:581416:
-		// println("export_button - GButton >> GEvent." + event + " @ " +
-		// millis());
-		liveViewActive = 0;
-
-	} // _CODE_:export_button:581416:
 
 	public void settings() {
 		// size(595, 1030);
