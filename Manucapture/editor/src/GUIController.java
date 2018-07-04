@@ -267,6 +267,7 @@ public class GUIController {
 	public void edit_click(GButton source, GEvent event) { // _CODE_:load_button:841968:
 		context.gui.grpProject.setVisible(1, true);
 		context.gui.grpAll.setVisible(1, false);
+		
 
 	} // _CODE_:load_button:841968:
 

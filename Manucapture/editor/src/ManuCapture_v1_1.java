@@ -291,6 +291,15 @@ public class ManuCapture_v1_1 extends PApplet {
 			fill(255, 0, 0);
 			text("LOADING...", width / 2, height / 3);
 		}
+		
+		if (context.gui.grpProject.isVisible()) {
+			fill(0, 100);
+			rect(0, 0, width, height);
+			fill(255, 0, 0);
+//			text("LOADING...", width / 2, height / 3);
+		}
+		
+		
 	}
 
 	private void drawInittializedApp() {
