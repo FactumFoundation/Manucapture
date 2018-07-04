@@ -276,80 +276,87 @@ public class GUI {
 		// grp2_c.addControl(grp2_textArea);
 		// grp2_d = new GLabel(window, 70, 140, 170, 61);
 		// grp2_d.setIcon("ghost2.png", 1, GAlign.RIGHT, GAlign.MIDDLE);
-		// grp2_d.setText("Casperov");
+		// grp2_d.setText("Casperov"); - 250
 		// grp2_d.setTextBold();
-		grp2_b = new GButton(parent, context.parent.width, 500, 200, 200);
+		grp2_b = new GButton(parent, context.parent.width/2 - 250, 500, 300, 130);
 		grp2_b.setText("OK!");
 		grp2_b.addEventHandler(guiController, "close_popup_project");
 
-		int fieldW = 400;
+		int fieldW = 500;
 		int fieldH = 40;
 		
-		int labelX = context.parent.width/4;
+		int labelX = context.parent.width/3;
 		int labelY = 40;
 		
 		int labelW = 200;
 		int labelH = 40;
 		
 		int fieldX = labelX + labelW + 10;
-		int fieldY = 40;
+		int fieldY = 140;
 		
 		
-		name_text = new GTextField(parent, fieldX , 106, fieldW, fieldH, G4P.SCROLLBARS_NONE);
+		name_text = new GTextField(parent, fieldX , 106+fieldY, fieldW, fieldH, G4P.SCROLLBARS_NONE);
 		name_text.setLocalColorScheme(GCScheme.CYAN_SCHEME);
 		name_text.setOpaque(true);
 		name_text.addEventHandler(guiController, "name_text_change");
 		name_text.setText(context.project.projectName);
-		project_info = new GLabel(parent, labelX, 56, 132, labelH);
+		project_info = new GLabel(parent, labelX + labelW/2, fieldY, fieldW, labelH);
 		project_info.setText("PROJECT INFO");
 		project_info.setTextBold();
 		project_info.setLocalColorScheme(GCScheme.CYAN_SCHEME);
 		project_info.setOpaque(true);
 		
-		name = new GLabel(parent,labelX, 106, labelW , labelH);
+		name = new GLabel(parent,labelX, 106+fieldY, labelW , labelH);
 		name.setText("Name:");
 		name.setTextBold();
 		name.setLocalColorScheme(GCScheme.CYAN_SCHEME);
 		name.setOpaque(true);
-		code_label = new GLabel(parent,labelX, 156, labelW , labelH);
+		code_label = new GLabel(parent,labelX, 156+fieldY, labelW , labelH);
 		code_label.setText("Code:");
 		code_label.setTextBold();
 		code_label.setLocalColorScheme(GCScheme.CYAN_SCHEME);
 		code_label.setOpaque(true);
-		code_text = new GTextField(parent, fieldX , 156, fieldW, fieldH, G4P.SCROLLBARS_NONE);
+		code_text = new GTextField(parent, fieldX , 156+fieldY, fieldW, fieldH, G4P.SCROLLBARS_NONE);
 		code_text.setLocalColorScheme(GCScheme.CYAN_SCHEME);
 		code_text.setOpaque(true);
 		code_text.setText(context.project.projectCode);
 		code_text.addEventHandler(guiController, "code_text_change");
-		author_label = new GLabel(parent,labelX, 206, labelW , labelH);
+		author_label = new GLabel(parent,labelX, 206+fieldY, labelW , labelH);
 		author_label.setText("Author:");
 		author_label.setTextBold();
 		author_label.setLocalColorScheme(GCScheme.CYAN_SCHEME);
 		author_label.setOpaque(true);
 
-		author_text = new GTextField(parent, fieldX , 206, fieldW, fieldH, G4P.SCROLLBARS_NONE);
+		author_text = new GTextField(parent, fieldX , 206+fieldY, fieldW, fieldH, G4P.SCROLLBARS_NONE);
 		author_text.setLocalColorScheme(GCScheme.CYAN_SCHEME);
 		author_text.setOpaque(true);
 		author_text.setText(context.project.projectAuthor);
 		author_text.addEventHandler(guiController, "author_text_change");
 
-		project_comments_text = new GTextField(parent, fieldX , 256, fieldW, fieldH, G4P.SCROLLBARS_NONE);
+		project_comments_text = new GTextField(parent, fieldX , 256+fieldY, fieldW, fieldH, G4P.SCROLLBARS_NONE);
 		project_comments_text.setLocalColorScheme(GCScheme.CYAN_SCHEME);
 		project_comments_text.setOpaque(true);
 		project_comments_text.setText(context.project.projectComment);
 		project_comments_text.addEventHandler(guiController, "project_comments_change");
 
-		project_comments_label = new GLabel(parent,labelX, 256, labelW, labelH);
+		project_comments_label = new GLabel(parent,labelX, 256+fieldY, labelW, labelH);
 		project_comments_label.setText("Comments:");
 		project_comments_label.setTextBold();
 		project_comments_label.setLocalColorScheme(GCScheme.CYAN_SCHEME);
 		project_comments_label.setOpaque(true);
 
-		Font font = new Font("Verdana", Font.BOLD, 15);
+		Font font = new Font("Verdana", Font.BOLD, 25);
 		name.setFont(font);
 		code_label.setFont(font);
 		author_label.setFont(font);
 		project_comments_label.setFont(font);
+		
+		project_comments_text.setFont(font);
+		author_text.setFont(font);
+		code_text.setFont(font);
+		name_text.setFont(font);
+		
+		grp2_b.setFont(font);
 
 		Font sectionFont = new Font("Verdana", Font.BOLD, 18);
 		project_info.setFont(sectionFont);
