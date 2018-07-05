@@ -300,8 +300,8 @@ public class GUI {
 		name_text.setOpaque(true);
 		name_text.addEventHandler(guiController, "name_text_change");
 		name_text.setText(context.project.projectName);
-		project_info = new GLabel(parent, labelX + labelW/2, fieldY, fieldW, labelH);
-		project_info.setText("PROJECT INFO");
+		project_info = new GLabel(parent, labelX - labelW/2, fieldY, fieldW*2, labelH);
+		project_info.setText("PROJECT INFO ");
 		project_info.setTextBold();
 		project_info.setLocalColorScheme(GCScheme.CYAN_SCHEME);
 		project_info.setOpaque(true);

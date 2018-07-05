@@ -31,10 +31,10 @@ public class Project {
 	String targetDirectory = "";
 	String uploaded = "";
 	String source;
-	
+
 	String serialA;
 	String serialB;
-	
+
 	int rotationA;
 	int rotationB;
 
@@ -140,18 +140,20 @@ public class Project {
 
 	public void loadProjectSerials(XML projectDataXML) {
 		XML serialsXML = projectDataXML.getChild("serials");
-		XML a= serialsXML.getChild("A");
+		XML a = serialsXML.getChild("A");
 		serialA = a.getContent();
 		serialB = serialsXML.getChild("B").getContent();
-		
+
 		rotationA = serialsXML.getChild("A").getInt("rotation");
 		rotationB = serialsXML.getChild("B").getInt("rotation");
 	}
-	
+
 	public void loadProjectMetadata(XML projectDataXML) {
 
 		projectName = projectDataXML.getChild("metadata").getChild("name").getContent();
 		context.gui.name_text.setText(projectName);
+		context.gui.project_info.setText("PROJECT INFO " + context.project.projectFilePath);
+
 		projectComment = projectDataXML.getChild("metadata").getChild("comment").getContent();
 		context.gui.project_comments_text.setText(projectComment);
 		projectCode = projectDataXML.getChild("metadata").getChild("code").getContent();
@@ -215,21 +217,21 @@ public class Project {
 			metadataXML.addChild(uploadedXML);
 
 			projectXML.addChild(metadataXML);
-			
+
 			XML serialsXML = new XML("serials");
-			
+
 			XML AXML = new XML("A");
 			AXML.setContent(serialA);
-			AXML.setInt("rotation",rotationA);
+			AXML.setInt("rotation", rotationA);
 			serialsXML.addChild(AXML);
-			
+
 			XML BXML = new XML("B");
 			BXML.setContent(serialB);
-			BXML.setInt("rotation",rotationB);
+			BXML.setInt("rotation", rotationB);
 			serialsXML.addChild(BXML);
-			
+
 			projectXML.addChild(serialsXML);
-			
+
 			XML itemsXML = new XML("items");
 			for (int i = 0; i < items.size(); i++) {
 				Item item = items.get(i);
@@ -520,28 +522,25 @@ public class Project {
 
 	public synchronized void replaceItem(int index, Item newItem) {
 		if (index >= 0 && index < items.size()) {
-			
-			//si viene vacío rellenenamos con el item anterior
+
+			// si viene vacío rellenenamos con el item anterior
 			if (newItem.mImageLeft.imagePath.equals("")) {
-				
+
 				newItem.mImageLeft.imagePath = items.get(index).mImageLeft.imagePath;
 				newItem.loadThumbnails();
-			}else{
-				//sino borramos el anterior
+			} else {
+				// sino borramos el anterior
 				items.get(index).mImageLeft.remove();
 			}
-			
-			
-			
+
 			if (newItem.mImageRight.imagePath.equals("")) {
 				newItem.mImageRight.imagePath = items.get(index).mImageRight.imagePath;
 				newItem.loadThumbnails();
-			}else{
-				//sino borramos el anterior
+			} else {
+				// sino borramos el anterior
 				items.get(index).mImageRight.remove();
 			}
-			
-			
+
 			items.remove(index);
 			items.add(index, newItem);
 			selectedItemIndex = PApplet.min(index + 1, items.size());

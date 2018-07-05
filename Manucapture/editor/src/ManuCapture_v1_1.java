@@ -280,13 +280,13 @@ public class ManuCapture_v1_1 extends PApplet {
 			// context.gui.grpAll.setVisible(1, true);
 			drawInittializedApp();
 			if (context.gui.grpProject.isVisible()) {
-//				rect(0, 0, width, height);
+				// rect(0, 0, width, height);
 			}
 		}
 
 		fill(255);
 		text("contextstate " + context.captureState + " state" + cameraState + "\n " + "stateChart " + chartStateMachine
-				+ "\n " + frameRate+context.gui.grpProject.isVisible(), 250, 10);
+				+ "\n " + frameRate + context.gui.grpProject.isVisible(), 250, 10);
 
 		if (loading) {
 			fill(0, 100);
@@ -660,15 +660,17 @@ public class ManuCapture_v1_1 extends PApplet {
 			}
 
 			if (hotAreaSelected == null) {
-				if (hotAreaSelected == null) {
+				if (hotAreaSelected == null && project != null && project.selectedItem != null) {
 					if (mouseButton == LEFT) {
-						if (!editingProject && lastPressedL == null && project.selectedItem.mImageLeft.imgPreview != null) {
+						if (!editingProject && lastPressedL == null && project.selectedItem.mImageLeft != null
+								&& project.selectedItem.mImageLeft.imgPreview != null) {
 							updateZoomLeft();
 						}
 						// else
 						// lastPressedL = null;
 
-						if (!editingProject && lastPressedR == null  && project.selectedItem.mImageRight.imgPreview != null)
+						if (!editingProject && lastPressedR == null && project.selectedItem.mImageRight != null
+								&& project.selectedItem.mImageRight.imgPreview != null)
 							updateZoomRight();
 						// else
 						// lastPressedR = null;
