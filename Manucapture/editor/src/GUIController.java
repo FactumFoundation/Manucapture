@@ -151,6 +151,7 @@ public class GUIController {
 			context.parent.stateApp = ManuCapture_v1_1.STATE_APP_PROJECT;
 			context.gui.grpAll.setVisible(1, true);
 			context.gui.grpProject.setVisible(1, false);
+			context.parent.editingProject = false;
 			context.project.saveProjectXML();
 
 		} else {
@@ -267,6 +268,7 @@ public class GUIController {
 	public void edit_click(GButton source, GEvent event) { // _CODE_:load_button:841968:
 		context.gui.grpProject.setVisible(1, true);
 		context.gui.grpAll.setVisible(1, false);
+		context.parent.editingProject = true;
 		
 
 	} // _CODE_:load_button:841968:
@@ -281,6 +283,7 @@ public class GUIController {
 		if (projectFolderPath != null) {
 			context.project.thumbnailsLoaded = false;
 			context.gui.grpProject.setVisible(1, true);
+			context.parent.editingProject = true;
 			context.parent.createProject(projectFolderPath);
 
 		}
