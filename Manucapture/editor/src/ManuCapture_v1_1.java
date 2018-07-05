@@ -662,13 +662,13 @@ public class ManuCapture_v1_1 extends PApplet {
 			if (hotAreaSelected == null) {
 				if (hotAreaSelected == null) {
 					if (mouseButton == LEFT) {
-						if (lastPressedL == null && project.selectedItem.mImageLeft.imgPreview != null) {
+						if (!editingProject && lastPressedL == null && project.selectedItem.mImageLeft.imgPreview != null) {
 							updateZoomLeft();
 						}
 						// else
 						// lastPressedL = null;
 
-						if (lastPressedR == null  && project.selectedItem.mImageRight.imgPreview != null)
+						if (!editingProject && lastPressedR == null  && project.selectedItem.mImageRight.imgPreview != null)
 							updateZoomRight();
 						// else
 						// lastPressedR = null;
