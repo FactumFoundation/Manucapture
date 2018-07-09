@@ -413,4 +413,8 @@ public class ManuCaptureContext {
 		G4P.showMessage(parent, message, title, type);
 	}
 
+	public boolean isAllMirrorsReady() {
+		return gphotoAAdapter.mirrorUp && gphotoBAdapter.mirrorUp;
+	}
+
 }

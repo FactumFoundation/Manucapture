@@ -499,6 +499,13 @@ public class ManuCapture_v1_1 extends PApplet {
 			popMatrix();
 
 		}
+		
+		//trigger button color
+		if(context.isAllMirrorsReady()) {
+			context.gui.trigger_button.setLocalColorScheme(GCScheme.GREEN_SCHEME);
+		}else {
+			context.gui.trigger_button.setLocalColorScheme(GCScheme.RED_SCHEME);
+		}
 	}
 
 	private void drawLeft() {
