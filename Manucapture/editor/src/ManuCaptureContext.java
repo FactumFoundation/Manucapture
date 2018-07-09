@@ -61,7 +61,7 @@ public class ManuCaptureContext {
 	float scaleB = 1;
 
 	// width resolution for viewer
-	public int viewerWidthResolution = 3000;
+	public int viewerWidthResolution = 1000;
 
 	boolean cameraActiveA = false;
 	boolean cameraActiveB = false;

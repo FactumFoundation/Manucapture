@@ -301,7 +301,10 @@ public class ManuCapture_v1_1 extends PApplet {
 			fill(255, 0, 0);
 			// text("LOADING...", width / 2, height / 3);
 		}
-
+	}
+	
+	public void load_click() { // _CODE_:load_button:841968:
+		context.guiController.load_click();
 	}
 
 	private void drawInittializedApp() {

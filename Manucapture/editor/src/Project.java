@@ -97,34 +97,10 @@ public class Project {
 		File projectFile = new File(projectPath);
 		projectDirectory = projectFile.getParent();
 
-		File thumbnailsFolder = new File(projectDirectory + "/thumbnails");
-		if (!thumbnailsFolder.exists()) {
-			context.parent.println("creating thumbnails folder"+thumbnailsFolder.getPath());
-			if (thumbnailsFolder.mkdir()) {
-				try {
-					Runtime.getRuntime().exec("chmod -R ugo+rw " + thumbnailsFolder.getPath());
-				} catch (Exception e) {
-					context.parent.println("Couldn't create thumbnail directory permisions");
-				}
-			} else {
-				context.parent.println("Failed to create thumbnail directory!");
-			}
-		}
-		
-
-		File previewsFolder = new File(projectDirectory + "/previews");
-		if (!previewsFolder.exists()) {
-			context.parent.println("creating previews folder "+previewsFolder.getPath());
-			if (previewsFolder.mkdir()) {
-				try {
-					Runtime.getRuntime().exec("chmod -R ugo+rw " + previewsFolder.getPath());
-				} catch (Exception e) {
-					context.parent.println("Couldn't create previews directory permisions");
-				}
-			} else {
-				context.parent.println("Failed to create previews directory!");
-			}
-		}
+		createFolder(projectDirectory + "/thumbnails");
+		createFolder(projectDirectory + "/previews");
+		createFolder(projectDirectory + "/preview_left");
+		createFolder(projectDirectory + "/preview_right");
 
 //		File projectDirectoryFile = new File(projectDirectory);
 		for (int i = 0; i < items.size(); i++) {
@@ -139,6 +115,22 @@ public class Project {
 		}
 		thumbnailsLoaded = true;
 
+	}
+
+	private void createFolder(String previewsFolderPath) {
+		File newFolder = new File(previewsFolderPath);
+		if (!newFolder.exists()) {
+			context.parent.println("creating previews folder "+newFolder.getPath());
+			if (newFolder.mkdir()) {
+				try {
+					Runtime.getRuntime().exec("chmod -R ugo+rw " + newFolder.getPath());
+				} catch (Exception e) {
+					context.parent.println("Couldn't create previews directory permisions");
+				}
+			} else {
+				context.parent.println("Failed to create "+previewsFolderPath+" directory!");
+			}
+		}
 	}
 
 	public void loadProjectSerials(XML projectDataXML) {
@@ -544,6 +536,9 @@ public class Project {
 				items.get(index).mImageRight.remove();
 			}
 
+			newItem.mImageLeft.mesh = items.get(index).mImageLeft.mesh;
+			newItem.mImageRight.mesh = items.get(index).mImageRight.mesh;
+			
 			items.remove(index);
 			items.add(index, newItem);
 			selectedItemIndex = PApplet.min(index + 1, items.size());
