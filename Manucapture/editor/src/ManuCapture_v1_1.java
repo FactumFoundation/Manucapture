@@ -285,7 +285,7 @@ public class ManuCapture_v1_1 extends PApplet {
 		}
 
 		fill(255);
-		text("contextstate " + context.captureState + " state" + cameraState + "\n " + "stateChart " + chartStateMachine
+		text("contextstate " + context.captureState + " state" + cameraState + "\n " + "\nstateChart " + chartStateMachine
 				+ "\n " + frameRate + context.gui.grpProject.isVisible(), 250, 10);
 
 		if (loading) {
@@ -467,19 +467,28 @@ public class ManuCapture_v1_1 extends PApplet {
 				// text("CALIBRATING, PLEASE CAPTURE \n THIS BACKGROUND
 				// \nWITHOUT ANY DOCUMENT", marginLeftViewerRight,
 				// 200);
-			} else {
+			} else if (chartStateMachine == 1 || chartStateMachine == 2) {
 				textAlign(CENTER);
+
 				if (chartStateMachine == 2) {
 					translate(marginLeftViewerLeft, 0);
 				} else {
 					translate(marginLeftViewerRight, 0);
 				}
 
+
 				fill(255, 0, 0, 100);
 				rect(0, 0, context.hImageViewerSize, context.wImageViewerSize);
 				fill(255);
 				textSize(24);
 				text("CALIBRATING, PLEASE CAPTURE  THIS CAMERA", context.hImageViewerSize / 2, 200);
+			} else {
+				translate(marginLeftViewerLeft, 0);
+				textSize(24);
+				fill(255);
+				text("CROP POINTS, PLEASE DRAG POINTS TO COVER ALL DE MANUSCRIPT", context.hImageViewerSize / 2-1, 200-1);
+				fill(255,0,0);
+				text("CROP POINTS, PLEASE DRAG POINTS TO COVER ALL DE MANUSCRIPT", context.hImageViewerSize / 2, 200);
 			}
 
 			popStyle();
@@ -498,6 +507,15 @@ public class ManuCapture_v1_1 extends PApplet {
 
 			drawImagePreview(project.selectedItem.mImageLeft, lastPressedL, marginLeftViewerRight, context.pointsRight,
 					context.scaleA);
+			
+			if (chartStateMachine == 3) {
+				pushStyle();
+				tint(255,125);
+				image(context.lastLeftPreview, 0, 0, context.hImageViewerSize, context.wImageViewerSize, 0, 0,
+						context.lastLeftPreview.width, context.lastLeftPreview.height);
+				popStyle();
+			}
+
 			fill(255);
 			textSize(14);
 			text(project.selectedItem.mImageLeft.imagePath, 0, 0);
@@ -539,6 +557,14 @@ public class ManuCapture_v1_1 extends PApplet {
 
 			drawImagePreview(project.selectedItem.mImageRight, lastPressedR, marginLeftViewerLeft, context.pointsLeft,
 					context.scaleB);
+
+			if (chartStateMachine == 3 && context.lastRightPreview != null) {
+				pushStyle();
+				tint(255,125);
+				image(context.lastRightPreview, 0, 0, context.hImageViewerSize, context.wImageViewerSize, 0, 0,
+						context.lastRightPreview.width, context.lastRightPreview.height);
+				popStyle();
+			}
 
 			fill(255);
 			textSize(14);
@@ -610,6 +636,7 @@ public class ManuCapture_v1_1 extends PApplet {
 
 			image(img.imgPreview, 0, 0, context.hImageViewerSize, context.wImageViewerSize, 0, 0, img.imgPreview.width,
 					img.imgPreview.height);
+
 		}
 
 	}
@@ -817,20 +844,27 @@ public class ManuCapture_v1_1 extends PApplet {
 					// we do background and first photo normally
 					doNormalShutter(Item.TYPE_CHART);
 					chartStateMachine++;
-				} else {
+				} else if (chartStateMachine == 2) {
+					
 					float newPageNum = project.selectedItem.pagNum;
 
 					Item newItem = initNewItem(Item.TYPE_CHART, newPageNum);
+					context.lastLeftPreview = project.selectedItem.mImageLeft.imgPreview;
+					context.lastRightPreview = project.selectedItem.mImageRight.imgPreview;
 					newItem.mImageLeft.remove();
 					newItem.mImageLeft.imagePath = "";
 					newItem.loadThumbnails();
+
 					project.replaceItem(project.selectedItemIndex, newItem);
 					context.clearPaths();
+					
 					chartStateMachine++;
+				} else {
 					cameraState = STATE_CAPTURING;
 					context.guiController.normal_shutter_click1(null, null);
-
 				}
+				
+				
 			}
 		}
 	}

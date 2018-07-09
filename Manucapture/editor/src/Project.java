@@ -520,7 +520,7 @@ public class Project {
 		}
 	}
 
-	public synchronized void replaceItem(int index, Item newItem) {
+	public void replaceItem(int index, Item newItem) {
 		if (index >= 0 && index < items.size()) {
 
 			// si viene vacío rellenenamos con el item anterior

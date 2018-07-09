@@ -79,6 +79,9 @@ public class ManuCaptureContext {
 	String lastImagePathB = "";
 
 	public NetAddress arduinoDriverLocation;
+	
+	PImage lastLeftPreview = null;
+	PImage lastRightPreview = null;
 
 	public G2P5ManucaptureAdapter createG2P5(String serial, String name) {
 		G2P5 g2p5 = G2P5.create(parent.homeDirectory(), serial, name);
