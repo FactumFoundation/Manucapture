@@ -12,21 +12,21 @@ import processing.event.MouseEvent;
 public class GUIController {
 
 	ManuCaptureContext context;
-	
-	public GUIController( ManuCaptureContext context) {
+
+	public GUIController(ManuCaptureContext context) {
 		super();
 		this.context = context;
 	}
 
 	/*
-	 * ========================================================= ==== WARNING
-	 * === ========================================================= The code in
-	 * this tab has been generated from the GUI form designer and care should be
-	 * taken when editing this file. Only add/edit code inside the event
-	 * handlers i.e. only use lines between the matching comment tags. e.g.
+	 * ========================================================= ==== WARNING ===
+	 * ========================================================= The code in this
+	 * tab has been generated from the GUI form designer and care should be taken
+	 * when editing this file. Only add/edit code inside the event handlers i.e.
+	 * only use lines between the matching comment tags. e.g.
 	 * 
-	 * void myBtnEvents(GButton button) { //_CODE_:button1:12356: // It is safe
-	 * to enter your event code here } //_CODE_:button1:12356:
+	 * void myBtnEvents(GButton button) { //_CODE_:button1:12356: // It is safe to
+	 * enter your event code here } //_CODE_:button1:12356:
 	 * 
 	 * Do not rename this tab!
 	 * =========================================================
@@ -180,8 +180,12 @@ public class GUIController {
 
 	public void trigger_button_click(GButton source, GEvent event) { // _CODE_:trigger_button:381491:
 		PApplet.println("SHUTTER TRIGGERED");
-		context.capture();
-		context.clearPaths();
+		if (context.isAllMirrorsReady()) {
+			context.capture();
+			context.clearPaths();
+		} else {
+			G4P.showMessage(context.parent, "Mirrors are not ready", "", G4P.WARNING);
+		}
 
 	} // _CODE_:trigger_button:381491:
 
@@ -270,7 +274,6 @@ public class GUIController {
 		context.gui.grpProject.setVisible(1, true);
 		context.gui.grpAll.setVisible(1, false);
 		context.parent.editingProject = true;
-		
 
 	} // _CODE_:load_button:841968:
 
