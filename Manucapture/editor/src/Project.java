@@ -99,6 +99,7 @@ public class Project {
 
 		File thumbnailsFolder = new File(projectDirectory + "/thumbnails");
 		if (!thumbnailsFolder.exists()) {
+			context.parent.println("creating thumbnails folder"+thumbnailsFolder.getPath());
 			if (thumbnailsFolder.mkdir()) {
 				try {
 					Runtime.getRuntime().exec("chmod -R ugo+rw " + thumbnailsFolder.getPath());
@@ -109,9 +110,11 @@ public class Project {
 				context.parent.println("Failed to create thumbnail directory!");
 			}
 		}
+		
 
 		File previewsFolder = new File(projectDirectory + "/previews");
 		if (!previewsFolder.exists()) {
+			context.parent.println("creating previews folder "+previewsFolder.getPath());
 			if (previewsFolder.mkdir()) {
 				try {
 					Runtime.getRuntime().exec("chmod -R ugo+rw " + previewsFolder.getPath());
@@ -123,7 +126,7 @@ public class Project {
 			}
 		}
 
-		File projectDirectoryFile = new File(projectDirectory);
+//		File projectDirectoryFile = new File(projectDirectory);
 		for (int i = 0; i < items.size(); i++) {
 			Item item = items.get(i);
 			item.loadThumbnails();

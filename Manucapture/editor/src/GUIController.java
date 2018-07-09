@@ -286,7 +286,7 @@ public class GUIController {
 			context.gui.grpProject.setVisible(1, true);
 			context.parent.editingProject = true;
 			context.parent.createProject(projectFolderPath);
-
+			context.gui.project_info.setText("PROJECT INFO " + context.project.projectFilePath);
 		}
 	} // _CODE_:new_button:324180:
 
