@@ -196,7 +196,7 @@ public class ItemsViewport {
 									viewPortRelativeHeight + marginY);
 
 							itemsViewPort.noTint();
-							if (item.type == Item.TYPE_CHART)
+							if (item.type != null && item.type.equals(Item.TYPE_CHART))
 								itemsViewPort.image(chartItemIcon,
 										itemsViewPort.width - scrollBarWidth - marginInfo - removeIconSize,
 										viewPortRelativeHeight + marginY * 4, 20, 20);
