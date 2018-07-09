@@ -64,9 +64,13 @@ public class HotArea {
 		canvas.line(pos.x-threshold/2, pos.y,pos.x+threshold/2, pos.y);
 		canvas.line(pos.x, pos.y-threshold/2,pos.x
 				, pos.y+threshold/2);
-		canvas.fill(255,0,0);
 		canvas.textAlign(PApplet.LEFT);
+
+		canvas.fill(255,0,0);
 		canvas.text(""+id,pos.x-15, pos.y-5);
+		
+		canvas.fill(255);
+		canvas.text(""+id,pos.x-14, pos.y-5);
 		
 	}
 }

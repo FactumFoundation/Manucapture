@@ -100,6 +100,7 @@ public class GUIController {
 		PApplet.println("SHUTTER CONTROL SET NORMAL MODE!!!!!");
 		context.parent.shutterMode = ManuCapture_v1_1.NORMAL_SHUTTER;
 		GUI gui = context.gui;
+		context.parent.chartStateMachine = 0;
 		gui.normal_shutter_button.setLocalColorScheme(GCScheme.ORANGE_SCHEME);
 		gui.repeat_shutter_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
 		gui.calibration_shutter_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);

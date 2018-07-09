@@ -63,7 +63,7 @@ public class ManuCapture_v1_1 extends PApplet {
 
 	boolean initSelectedItem = false;
 
-	static int shutterMode = 0;
+	 int shutterMode = 0;
 	static int NORMAL_SHUTTER = 0;
 	static int REPEAT_SHUTTER = 1;
 	// int SUBPAGE_SHUTTER = 2;
@@ -413,7 +413,7 @@ public class ManuCapture_v1_1 extends PApplet {
 			for (int i = 1; i <= context.pointsLeft.size(); i++) {
 				PVector areaPos1 = context.pointsLeft.get(i - 1).getRealPosition();
 				PVector areaPos2 = context.pointsLeft.get(i % context.pointsLeft.size()).getRealPosition();
-				stroke(255);
+				stroke(255,0,0);
 				line(areaPos1.x, areaPos1.y, areaPos2.x, areaPos2.y);
 			}
 
@@ -421,7 +421,7 @@ public class ManuCapture_v1_1 extends PApplet {
 			for (int i = 1; i <= context.pointsRight.size(); i++) {
 				PVector areaPos1 = context.pointsRight.get(i - 1).getRealPosition();
 				PVector areaPos2 = context.pointsRight.get(i % context.pointsRight.size()).getRealPosition();
-				stroke(255);
+				stroke(255,0,0);
 				line(areaPos1.x, areaPos1.y, areaPos2.x, areaPos2.y);
 			}
 
@@ -484,10 +484,14 @@ public class ManuCapture_v1_1 extends PApplet {
 				text("CALIBRATING, PLEASE CAPTURE  THIS CAMERA", context.hImageViewerSize / 2, 200);
 			} else {
 				translate(marginLeftViewerLeft, 0);
+				fill(255, 0, 255, 0);
+				rect(0, 0, context.hImageViewerSize, context.wImageViewerSize);
+				rect(context.hImageViewerSize, 0, context.hImageViewerSize, context.wImageViewerSize);
 				textSize(24);
-				fill(255);
+				fill(255,255,0);
 				text("CROP POINTS, PLEASE DRAG POINTS TO COVER ALL DE MANUSCRIPT", context.hImageViewerSize / 2-1, 200-1);
-				fill(255,0,0);
+				
+				fill(255);
 				text("CROP POINTS, PLEASE DRAG POINTS TO COVER ALL DE MANUSCRIPT", context.hImageViewerSize / 2, 200);
 			}
 
@@ -520,6 +524,10 @@ public class ManuCapture_v1_1 extends PApplet {
 			textSize(14);
 			text(project.selectedItem.mImageLeft.imagePath, 0, 0);
 			popMatrix();
+			stroke(255,0,0);
+			if(chartStateMachine == 3) {
+				stroke(map(sin(100+millis()*0.01f),-1,1,0,255),0,0);
+			}
 			if (lastPressedL == null)
 				for (HotArea area : context.pointsRight) {
 					area.draw(g);
@@ -571,7 +579,10 @@ public class ManuCapture_v1_1 extends PApplet {
 			text(project.selectedItem.mImageRight.imagePath, 0, 0);
 
 			popMatrix();
-			fill(0, 255, 0, 100);
+			stroke(255,0,0);
+			if(chartStateMachine == 3) {
+				stroke(map(sin(millis()*0.01f),-1,1,0,255),0,0);
+			}
 			if (lastPressedR == null)
 				for (HotArea area : context.pointsLeft) {
 					area.draw(g);
@@ -860,7 +871,7 @@ public class ManuCapture_v1_1 extends PApplet {
 					
 					chartStateMachine++;
 				} else {
-					cameraState = STATE_CAPTURING;
+					
 					context.guiController.normal_shutter_click1(null, null);
 				}
 				
