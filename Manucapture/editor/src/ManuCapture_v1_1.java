@@ -214,6 +214,94 @@ public class ManuCapture_v1_1 extends PApplet {
 		context.gui.grpAll.setVisible(0, false);
 	}
 
+
+	public void newPhotoEvent(G2P5Event event, String ic) {
+
+		if (project.projectName == null || project.projectName.equals("")) {
+			context.handleMessageDialog("Error", "Can't capture photos without project name", G4P.ERROR);
+			return;
+		}
+
+		println("New photo Event!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!", event.content);
+		if (event.g2p5 == context.gphotoA) {
+			context.gphotoAAdapter.setTargetFile(project.projectDirectory + "/raw", project.projectCode);
+			context.gphotoAAdapter.setFullTargetPath(ic);
+			context.moveFile(event.content, context.gphotoAAdapter.getFullTargetPath());
+			context.newImagePathA = context.gphotoAAdapter.getFullTargetPath();
+		} else if (event.g2p5 == context.gphotoB) {
+
+			context.gphotoBAdapter.setTargetFile(project.projectDirectory + "/raw", project.projectCode);
+			context.gphotoBAdapter.setFullTargetPath(ic);
+			context.moveFile(event.content, context.gphotoBAdapter.getFullTargetPath());
+			context.newImagePathB = context.gphotoBAdapter.getFullTargetPath();
+		}
+
+		if ((context.gphotoA.isConnected() && context.gphotoB.isConnected()
+				&& (!context.newImagePathA.equals("") && !context.newImagePathB.equals("")))
+				|| (context.gphotoA.isConnected() && !context.gphotoB.isConnected()
+						&& !context.newImagePathA.equals(""))
+				|| (!context.gphotoA.isConnected() && context.gphotoB.isConnected()
+						&& !context.newImagePathB.equals(""))) {
+			// delay(3000);
+			if (shutterMode == NORMAL_SHUTTER) {
+
+				doNormalShutter(Item.TYPE_ITEM);
+
+			} else if (shutterMode == REPEAT_SHUTTER) {
+				if (project.items.size() > 0) {
+					float newPageNum = project.selectedItem.pagNum;
+
+					Item newItem = initNewItem(project.selectedItem.type, newPageNum);
+
+					newItem.loadThumbnails();
+					project.replaceItem(project.selectedItemIndex, newItem);
+					context.clearPaths();
+				}
+
+			} else if (shutterMode == CALIB_SHUTTER) {
+				println("Calib shutter");
+
+				// if (chartState < 2) {
+				// doNormalShutter(Item.TYPE_BACKGROUND);
+				// } else
+				//
+				if (chartStateMachine == 1) {
+					// we do background and first photo normally
+					doNormalShutter(Item.TYPE_CHART);
+
+					context.lastRightPreview = project.selectedItem.mImageRight.imgPreview;
+					context.lastLeftPreview = project.selectedItem.mImageLeft.imgPreview;
+					chartStateMachine++;
+				} else if (chartStateMachine == 2) {
+
+					float newPageNum = project.selectedItem.pagNum;
+
+					newItem = initNewItem(Item.TYPE_CHART, newPageNum);
+
+					newItem.loadLeftPreview(context.project.projectDirectory, context.project.projectDirectory + newItem.mImageLeft.imagePath);
+					
+					context.lastLeftPreview = newItem.mImageLeft.imgPreview;
+					
+//					 newItem.mImageLeft.remove();
+					 newItem.mImageLeft.imagePath = "";
+					 newItem.loadThumbnails();
+
+					 project.replaceItem(project.selectedItemIndex, newItem);
+					context.clearPaths();
+
+					chartStateMachine++;
+				} else {
+
+					context.guiController.normal_shutter_click1(null, null);
+				}
+
+			}
+		}
+	}
+
+	Item newItem;
+
+	
 	public void draw() {
 
 		background(75);
@@ -302,6 +390,13 @@ public class ManuCapture_v1_1 extends PApplet {
 			fill(255, 0, 0);
 			// text("LOADING...", width / 2, height / 3);
 		}
+
+//		if (context.lastLeftPreview != null )
+//			image(context.lastLeftPreview, 200, 10, 200, 200);
+
+//		if (newItem != null && newItem.mImageLeft != null && newItem.mImageLeft.imgPreview != null) {
+//			image(newItem.mImageLeft.imgPreview, 400, 10, 200, 200);
+//		}
 	}
 
 	public void load_click() { // _CODE_:load_button:841968:
@@ -542,7 +637,8 @@ public class ManuCapture_v1_1 extends PApplet {
 			drawImagePreview(project.selectedItem.mImageLeft, lastPressedL, marginLeftViewerRight, context.pointsRight,
 					context.scaleA);
 
-			if (chartStateMachine == 3) {
+			// pintamos en blending la imagen de calibración para puntos de crop
+			if (chartStateMachine == 3 && context.lastLeftPreview!= null) {
 				pushStyle();
 				tint(255, 125);
 				image(context.lastLeftPreview, 0, 0, context.hImageViewerSize, context.wImageViewerSize, 0, 0,
@@ -829,84 +925,6 @@ public class ManuCapture_v1_1 extends PApplet {
 		itemsViewport.mouseReleased();
 		// hotAreaSelected = null;
 
-	}
-
-	public void newPhotoEvent(G2P5Event event, String ic) {
-
-		if (project.projectName == null || project.projectName.equals("")) {
-			context.handleMessageDialog("Error", "Can't capture photos without project name", G4P.ERROR);
-			return;
-		}
-
-		println("New photo Event!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!", event.content);
-		if (event.g2p5 == context.gphotoA) {
-			context.gphotoAAdapter.setTargetFile(project.projectDirectory + "/raw", project.projectCode);
-			context.gphotoAAdapter.setFullTargetPath(ic);
-			context.moveFile(event.content, context.gphotoAAdapter.getFullTargetPath());
-			context.newImagePathA = context.gphotoAAdapter.getFullTargetPath();
-		} else if (event.g2p5 == context.gphotoB) {
-
-			context.gphotoBAdapter.setTargetFile(project.projectDirectory + "/raw", project.projectCode);
-			context.gphotoBAdapter.setFullTargetPath(ic);
-			context.moveFile(event.content, context.gphotoBAdapter.getFullTargetPath());
-			context.newImagePathB = context.gphotoBAdapter.getFullTargetPath();
-		}
-
-		if ((context.gphotoA.isConnected() && context.gphotoB.isConnected()
-				&& (!context.newImagePathA.equals("") && !context.newImagePathB.equals("")))
-				|| (context.gphotoA.isConnected() && !context.gphotoB.isConnected()
-						&& !context.newImagePathA.equals(""))
-				|| (!context.gphotoA.isConnected() && context.gphotoB.isConnected()
-						&& !context.newImagePathB.equals(""))) {
-			// delay(3000);
-			if (shutterMode == NORMAL_SHUTTER) {
-
-				doNormalShutter(Item.TYPE_ITEM);
-
-			} else if (shutterMode == REPEAT_SHUTTER) {
-				if (project.items.size() > 0) {
-					float newPageNum = project.selectedItem.pagNum;
-
-					Item newItem = initNewItem(project.selectedItem.type, newPageNum);
-
-					newItem.loadThumbnails();
-					project.replaceItem(project.selectedItemIndex, newItem);
-					context.clearPaths();
-				}
-
-			} else if (shutterMode == CALIB_SHUTTER) {
-				println("Calib shutter");
-
-				// if (chartState < 2) {
-				// doNormalShutter(Item.TYPE_BACKGROUND);
-				// } else
-				//
-				if (chartStateMachine == 1) {
-					// we do background and first photo normally
-					doNormalShutter(Item.TYPE_CHART);
-					chartStateMachine++;
-				} else if (chartStateMachine == 2) {
-
-					float newPageNum = project.selectedItem.pagNum;
-
-					Item newItem = initNewItem(Item.TYPE_CHART, newPageNum);
-					context.lastLeftPreview = project.selectedItem.mImageLeft.imgPreview;
-					context.lastRightPreview = project.selectedItem.mImageRight.imgPreview;
-					newItem.mImageLeft.remove();
-					newItem.mImageLeft.imagePath = "";
-					newItem.loadThumbnails();
-
-					project.replaceItem(project.selectedItemIndex, newItem);
-					context.clearPaths();
-
-					chartStateMachine++;
-				} else {
-
-					context.guiController.normal_shutter_click1(null, null);
-				}
-
-			}
-		}
 	}
 
 	// private String getNewPathImage(String projectDirectory, String
