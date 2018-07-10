@@ -692,7 +692,7 @@ void ofApp::setup(){
     // Wait to port names sended from mainApp (JAVA)
     // check for waiting messages
 
-    /*
+
     while(true){
         // get the next message
         ofxOscMessage m;
@@ -704,7 +704,7 @@ void ofApp::setup(){
             break;
         }
     }
-    */
+
 
     init_cameras_with_serial_numbers();
     start_preview();
