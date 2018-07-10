@@ -110,6 +110,8 @@ public class ManuCapture_v1_1 extends PApplet {
 
 	boolean loading = false;
 	boolean editingProject = false;
+	
+	PImage cameraIcon;
 
 	public void setup() {
 
@@ -208,6 +210,8 @@ public class ManuCapture_v1_1 extends PApplet {
 		itemsViewport.setup(context);
 		textMode(context.parent.MODEL);
 
+		cameraIcon = loadImage("cameraIcon.png");
+		
 		background(backgroundColor);
 
 		frameRate(25);
@@ -242,6 +246,7 @@ public class ManuCapture_v1_1 extends PApplet {
 						&& !context.newImagePathA.equals(""))
 				|| (!context.gphotoA.isConnected() && context.gphotoB.isConnected()
 						&& !context.newImagePathB.equals(""))) {
+			
 			// delay(3000);
 			if (shutterMode == NORMAL_SHUTTER) {
 
@@ -636,7 +641,19 @@ public class ManuCapture_v1_1 extends PApplet {
 
 			drawImagePreview(project.selectedItem.mImageLeft, lastPressedL, marginLeftViewerRight, context.pointsRight,
 					context.scaleA);
-
+			
+			if (context.gphotoBAdapter.cameraWaitingForPicture)
+			{
+				pushStyle();
+				noStroke();
+				fill(80);
+				rect(0, 20, context.hImageViewerSize, context.wImageViewerSize);
+				imageMode(CENTER);
+				image(cameraIcon,context.hImageViewerSize/2,context.wImageViewerSize/2,256,256);
+				imageMode(CORNER);
+				popStyle();
+			}
+			
 			// pintamos en blending la imagen de calibración para puntos de crop
 			if (chartStateMachine == 3 && context.lastLeftPreview!= null) {
 				pushStyle();
@@ -673,6 +690,7 @@ public class ManuCapture_v1_1 extends PApplet {
 		text("focusing: ", marginLeftViewerRight + 300, 40);
 		text(context.gphotoBAdapter.g2p5.id, 840, 40);
 		text("mirroUp " + context.gphotoBAdapter.mirrorUp, marginLeftViewerRight + 75, 60);
+		
 		if (context.gphotoBAdapter.focus) {
 			fill(255, 0, 0);
 		} else {
@@ -691,7 +709,19 @@ public class ManuCapture_v1_1 extends PApplet {
 
 			drawImagePreview(project.selectedItem.mImageRight, lastPressedR, marginLeftViewerLeft, context.pointsLeft,
 					context.scaleB);
-
+			
+			if (context.gphotoAAdapter.cameraWaitingForPicture)
+			{
+				pushStyle();
+				noStroke();
+				fill(80);
+				rect(0, 20, context.hImageViewerSize, context.wImageViewerSize);
+				imageMode(CENTER);
+				image(cameraIcon,context.hImageViewerSize/2,context.wImageViewerSize/2,256,256);
+				imageMode(CORNER);
+				popStyle();
+			}
+			
 			if (chartStateMachine == 3 && context.lastRightPreview != null) {
 				pushStyle();
 				tint(255, 125);

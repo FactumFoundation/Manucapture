@@ -30,6 +30,7 @@ public class G2P5ManucaptureAdapter implements G2P5Listener {
 	boolean focus = false;
 	boolean mirrorUp = false;
 
+	boolean cameraWaitingForPicture = false;
 	/*
 	 * public synchronized boolean captureTethered(boolean on) { if(active){
 	 * if(!on){ killAllProcessByName(id+".cr2"); } else { t = new
@@ -53,6 +54,7 @@ public class G2P5ManucaptureAdapter implements G2P5Listener {
 			//
 			int ic = G2P5Manager.addImageCount();
 			manuCapture.newPhotoEvent(event, "" + ic);
+			cameraWaitingForPicture = false;
 		} else if (event.eventID == G2P5Event.EVENT_EXPOSURE) {
 			exposure = event.content;
 		} else if (event.eventID == G2P5Event.EVENT_FOCUS) {
@@ -69,6 +71,7 @@ public class G2P5ManucaptureAdapter implements G2P5Listener {
 			}
 			if (bid % 1024 == 1) {
 				mirrorUp = false;
+				cameraWaitingForPicture = false;
 			}
 			focus = false;
 		}

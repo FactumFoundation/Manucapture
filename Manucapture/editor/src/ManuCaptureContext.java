@@ -82,7 +82,19 @@ public class ManuCaptureContext {
 	
 	PImage lastLeftPreview = null;
 	PImage lastRightPreview = null;
+	
 
+	
+	public static int CAMERAS_INACTIVE = -1;
+	public static int CAMERAS_IDLE = 0;
+	public static int CAMERAS_FOCUSSING = 1;
+	public static int CAMERAS_MIRROR_UP = 2;
+
+	int captureState = CAMERAS_INACTIVE;
+	int counterEvent = 0;
+
+	long lastCaptureMillis = 0;
+	
 	public G2P5ManucaptureAdapter createG2P5(String serial, String name) {
 		G2P5 g2p5 = G2P5.create(parent.homeDirectory(), serial, name);
 		G2P5ManucaptureAdapter adapter = new G2P5ManucaptureAdapter();
@@ -299,15 +311,7 @@ public class ManuCaptureContext {
 		releaseCameras();
 	}
 
-	public static int CAMERAS_INACTIVE = -1;
-	public static int CAMERAS_IDLE = 0;
-	public static int CAMERAS_FOCUSSING = 1;
-	public static int CAMERAS_MIRROR_UP = 2;
 
-	int captureState = CAMERAS_INACTIVE;
-	int counterEvent = 0;
-
-	long lastCaptureMillis = 0;
 
 	public void capture() {
 		// Init capture secuence
@@ -315,11 +319,15 @@ public class ManuCaptureContext {
 			captureState = CAMERAS_FOCUSSING;
 			pressCameras();
 			lastCaptureMillis = parent.millis();
+			gphotoAAdapter.cameraWaitingForPicture = true;
+			gphotoBAdapter.cameraWaitingForPicture = true;
 		} else {
 			if (captureState == CAMERAS_INACTIVE) {
 				G4P.showMessage(parent, "Can't Trigger, cameras are not active", "", G4P.WARNING);
 			}
 		}
+		
+		
 	}
 
 	public void processCamerasEvent(G2P5Event event) {
