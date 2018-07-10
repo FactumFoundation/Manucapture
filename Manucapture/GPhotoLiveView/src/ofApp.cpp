@@ -463,6 +463,7 @@ int ofApp::init_cameras(){
     liveBufferBack = (ofBuffer**) calloc (sizeof(ofBuffer*),cameraCount);
     livePixels = (ofPixels** ) calloc (sizeof(ofPixels*),cameraCount);
     liveTexture = (ofTexture** ) calloc (sizeof(ofTexture*),cameraCount);
+
     for (i = 0; i < cameraCount; i++) {
         gp_list_get_name  (list, i, &name);
         gp_list_get_value (list, i, &value);
@@ -479,6 +480,58 @@ int ofApp::init_cameras(){
     }
 }
 
+
+int ofApp::init_cameras_with_serial_numbers(){
+
+    CameraList	*list;
+    int		ret, i;
+    const char	*name, *value;
+
+    canoncontext = sample_create_context ();
+
+    /* Detect all the cameras that can be autodetected... */
+    ret = gp_list_new (&list);
+    if (ret < GP_OK) return 1;
+    cameraCount = sample_autodetect (list, canoncontext);
+    if (cameraCount < GP_OK) {
+        printf("No cameras detected.\n");
+        return 1;
+    }
+
+    /* Now open all cameras we autodected for usage */
+    printf("Number of cameras: %d\n", cameraCount);
+    cams = (Camera **) calloc (sizeof (Camera*),cameraCount);
+    liveBufferMiddle = (FixedQueue<ofBuffer*>*) calloc (sizeof(FixedQueue<ofBuffer*>),cameraCount);
+    liveBufferFront = (ofBuffer**) calloc (sizeof(ofBuffer*),cameraCount);
+    liveBufferBack = (ofBuffer**) calloc (sizeof(ofBuffer*),cameraCount);
+    livePixels = (ofPixels** ) calloc (sizeof(ofPixels*),cameraCount);
+    liveTexture = (ofTexture** ) calloc (sizeof(ofTexture*),cameraCount);
+
+    // Open first camera (LEFT)
+    ret = sample_open_camera (&cams[0], name_left, value_left, canoncontext);
+    if (ret < GP_OK) fprintf(stderr,"Camera %s on port %s failed to open\n", name_left, value_left);
+    liveBufferMiddle[0].resize(OFX_EDSDK_BUFFER_SIZE);
+    for(int j = 0; j < liveBufferMiddle[0].maxSize(); j++) {
+        liveBufferMiddle[0][j] = new ofBuffer();
+    }
+    liveBufferFront[0] = new ofBuffer();
+    liveBufferBack[0] = new ofBuffer();
+    livePixels[0] = new ofPixels();
+    liveTexture[0] = new ofTexture();
+
+    // Open secoind camera (RIGHT)
+    ret = sample_open_camera (&cams[1], name_right, value_right, canoncontext);
+    if (ret < GP_OK) fprintf(stderr,"Camera %s on port %s failed to open\n", name_right, value_right);
+    liveBufferMiddle[1].resize(OFX_EDSDK_BUFFER_SIZE);
+    for(int j = 0; j < liveBufferMiddle[1].maxSize(); j++) {
+        liveBufferMiddle[1][j] = new ofBuffer();
+    }
+    liveBufferFront[1] = new ofBuffer();
+    liveBufferBack[1] = new ofBuffer();
+    livePixels[1] = new ofPixels();
+    liveTexture[1] = new ofTexture();
+
+}
 
 int ofApp::start_preview(){
 
@@ -504,6 +557,7 @@ int ofApp::start_preview(){
 
     return 0;
 }
+
 
 int ofApp::stop_preview(){
     for (int i = 0; i < cameraCount; i++) {
@@ -615,6 +669,8 @@ int ofApp::canon_preview(){
 
 void ofApp::setup(){
 
+
+    cout << "Starting app " << endl;
     ofSetWindowTitle("ManuCaptureViewer");
     ofSetWindowShape(1285,960);
     ofBackground(50,50,50);
@@ -628,10 +684,36 @@ void ofApp::setup(){
     urlFont.load("verdana.ttf", 12, true, true);
     camIDFont.load("verdana.ttf", 36, true, true);
 
-    init_cameras();
-    start_preview();
+    name_left = "Canon EOS 700D";
+    value_left = "usb:002,011";
+    name_right = "Canon EOS 700D";
+    value_right = "usb:002,014";
 
-     patternImage.load("images/pattern.png");
+    // Wait to port names sended from mainApp (JAVA)
+    // check for waiting messages
+
+    /*
+    while(true){
+        // get the next message
+        ofxOscMessage m;
+        receiver.getNextMessage(m);
+        if(m.getAddress() == "/cameraPorts"){
+            cout << "message received" << endl;
+            value_left = (char*)m.getArgAsString(0).c_str();
+            value_right = (char*)m.getArgAsString(1).c_str();
+            break;
+        }
+    }
+    */
+
+    init_cameras_with_serial_numbers();
+    start_preview();
+    //start_preview_with_serial_numbers();
+
+    patternImage.load("images/pattern.png");
+
+    ofSetWindowPosition(300, 30);
+    ofSetWindowShape(1285,960);
 
 }
 
@@ -640,10 +722,6 @@ void ofApp::setup(){
 void ofApp::update(){
 
     frameCounter.update();
-    if(frameCounter.getNumFrames()<20){
-      ofSetWindowPosition(ofGetScreenWidth()-ofGetWidth()-3, 0);
-     ofSetWindowShape(1285,960);
-    }
 
     // check for waiting messages
     while(receiver.hasWaitingMessages()){

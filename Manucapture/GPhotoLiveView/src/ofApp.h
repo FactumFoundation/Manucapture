@@ -48,7 +48,13 @@ public:
     ofTrueTypeFont	urlFont;
     ofTrueTypeFont	camIDFont;
 
+    char* name_left;
+    char* value_left;
+    char* name_right;
+    char* value_right;
+
     int init_cameras();
+    int init_cameras_with_serial_numbers();
     int canon_preview();
     int start_preview();
     int stop_preview();
@@ -73,4 +79,5 @@ public:
     GPContext *canoncontext;
 
     ofImage patternImage;
+
 };

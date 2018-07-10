@@ -11,7 +11,6 @@ import java.util.List;
 import org.apache.commons.io.FilenameUtils;
 
 import g4p_controls.G4P;
-import oscP5.OscMessage;
 import processing.core.PApplet;
 import processing.core.PImage;
 import processing.data.XML;
@@ -102,7 +101,7 @@ public class Project {
 		createFolder(projectDirectory + "/preview_left");
 		createFolder(projectDirectory + "/preview_right");
 
-//		File projectDirectoryFile = new File(projectDirectory);
+		// File projectDirectoryFile = new File(projectDirectory);
 		for (int i = 0; i < items.size(); i++) {
 			Item item = items.get(i);
 			item.loadThumbnails();
@@ -120,7 +119,7 @@ public class Project {
 	private void createFolder(String previewsFolderPath) {
 		File newFolder = new File(previewsFolderPath);
 		if (!newFolder.exists()) {
-			context.parent.println("creating previews folder "+newFolder.getPath());
+			context.parent.println("creating previews folder " + newFolder.getPath());
 			if (newFolder.mkdir()) {
 				try {
 					Runtime.getRuntime().exec("chmod -R ugo+rw " + newFolder.getPath());
@@ -128,7 +127,7 @@ public class Project {
 					context.parent.println("Couldn't create previews directory permisions");
 				}
 			} else {
-				context.parent.println("Failed to create "+previewsFolderPath+" directory!");
+				context.parent.println("Failed to create " + previewsFolderPath + " directory!");
 			}
 		}
 	}
@@ -381,26 +380,27 @@ public class Project {
 		if (index >= 0 && index < items.size()) {
 
 			selectedItem = items.get(index);
-			OscMessage myMessage = new OscMessage("/load/item");
+			// OscMessage myMessage = new OscMessage("/load/item");
 			String leftImagePath = "";
 			String rightImagePath = "";
 			if (selectedItem.mImageRight.imagePath != null && selectedItem.mImageRight.imagePath.length() != 0) {
 				rightImagePath = projectDirectory + "" + selectedItem.mImageRight.imagePath;
-				myMessage.add(rightImagePath);
-			} else {
-				myMessage.add("");
+				// myMessage.add(rightImagePath);
 			}
+			// else {
+			// myMessage.add("");
+			// }
 			if (selectedItem.mImageLeft.imagePath != null && (selectedItem.mImageLeft.imagePath.length() != 0)) {
 				leftImagePath = projectDirectory + "" + selectedItem.mImageLeft.imagePath;
-				myMessage.add(leftImagePath);
-			} else {
-				myMessage.add("");
+				// myMessage.add(leftImagePath);
+				// } else {
+				// myMessage.add("");
 			}
 
 			context.parent.println("send the message to viewer");
 
 			// View message for viewer
-			context.oscP5.send(myMessage, context.viewerLocation);
+			// context.oscP5.send(myMessage, context.viewerLocation);
 			// Now we do the preview on app
 			selectedItem.loadPreviews(projectDirectory, leftImagePath, rightImagePath);
 
@@ -431,10 +431,11 @@ public class Project {
 			}
 		}
 		/*
-		 * } else { if (index < items.size() - 1) { for (int i = index; i < items.size()
-		 * - 1; i++) { if ((int) items.get(i).pagNum == (int) pageNum) { if
-		 * (items.get(i).pagNum - (int) items.get(i).pagNum > pageNum - (int) pageNum) {
-		 * float newPageNum = PApplet.round((items.get(i).pagNum - 0.1f) * 10) / 10.0f;
+		 * } else { if (index < items.size() - 1) { for (int i = index; i <
+		 * items.size() - 1; i++) { if ((int) items.get(i).pagNum == (int)
+		 * pageNum) { if (items.get(i).pagNum - (int) items.get(i).pagNum >
+		 * pageNum - (int) pageNum) { float newPageNum =
+		 * PApplet.round((items.get(i).pagNum - 0.1f) * 10) / 10.0f;
 		 * items.get(i).pagNum = newPageNum; } }
 		 * 
 		 * } } }
@@ -538,7 +539,7 @@ public class Project {
 
 			newItem.mImageLeft.mesh = items.get(index).mImageLeft.mesh;
 			newItem.mImageRight.mesh = items.get(index).mImageRight.mesh;
-			
+
 			items.remove(index);
 			items.add(index, newItem);
 			selectedItemIndex = PApplet.min(index + 1, items.size());
