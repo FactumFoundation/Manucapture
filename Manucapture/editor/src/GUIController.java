@@ -33,11 +33,15 @@ public class GUIController {
 	 */
 
 	public void first_page_button_click(GButton source, GEvent event) { // _CODE_:first_page_button:431616:
-		PApplet.println("SHUTTER CONTROL SET NOTMAL MODE");
+//		PApplet.println("SHUTTER CONTROL SET NOTMAL MODE");
+		context.project.forceSelectedItem(0,false);
+		context.parent.itemsViewport.forceSelectedItem(0, false);
 	} // _CODE_:first_page_button:431616:
 
 	public void last_page_button_click(GButton source, GEvent event) { // _CODE_:last_page_button:647539:
-		PApplet.println("button2 - GButton >> GEvent." + event + " @ " + context.parent.millis());
+//		PApplet.println("button2 - GButton >> GEvent." + event + " @ " + context.parent.millis());
+		context.project.forceSelectedItem(context.project.items.size()-1,false);
+		context.parent.itemsViewport.forceSelectedItem(context.project.items.size()-1, false);
 
 	} // _CODE_:last_page_button:647539:
 

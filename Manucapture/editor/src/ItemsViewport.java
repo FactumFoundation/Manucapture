@@ -91,6 +91,7 @@ public class ItemsViewport {
 		itemsViewPort.beginDraw();
 		itemsViewPort.background(0);
 		itemsViewPort.noStroke();
+		//Barra de desplazamiento
 		itemsViewPort.fill(scrollBarColor);
 		itemsViewPort.rect(itemsViewPort.width - scrollBarWidth, 0, scrollBarWidth, itemsViewPort.height);
 		if (scrollHandleState == SCROLL_HANDLE_IDLE) {
