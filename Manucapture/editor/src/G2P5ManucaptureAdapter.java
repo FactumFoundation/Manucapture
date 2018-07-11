@@ -30,7 +30,6 @@ public class G2P5ManucaptureAdapter implements G2P5Listener {
 	boolean focus = false;
 	boolean mirrorUp = false;
 
-	boolean cameraWaitingForPicture = false;
 	/*
 	 * public synchronized boolean captureTethered(boolean on) { if(active){
 	 * if(!on){ killAllProcessByName(id+".cr2"); } else { t = new
@@ -48,13 +47,12 @@ public class G2P5ManucaptureAdapter implements G2P5Listener {
 
 	public void newEvent(G2P5Event event) {
 
-		System.out.println();
 
 		if (event.eventID == G2P5Event.NEW_PHOTO) {
 			//
 			int ic = G2P5Manager.addImageCount();
 			manuCapture.newPhotoEvent(event, "" + ic);
-			cameraWaitingForPicture = false;
+			mirrorUp = false;
 		} else if (event.eventID == G2P5Event.EVENT_EXPOSURE) {
 			exposure = event.content;
 		} else if (event.eventID == G2P5Event.EVENT_FOCUS) {
@@ -67,13 +65,19 @@ public class G2P5ManucaptureAdapter implements G2P5Listener {
 			System.out.println(event.content);
 			int bid = Integer.parseInt(event.content.trim());
 			if (bid % 1024 == 8) {
-				mirrorUp = true;
 			}
 			if (bid % 1024 == 1) {
-				mirrorUp = false;
-				cameraWaitingForPicture = false;
 			}
-			focus = false;
+		}else if (event.eventID == G2P5Event.EVENT_MASK) {
+			System.out.println(event.content);
+			// It seems that mask 983 means "mirror up" after focus 
+			if (event.content.trim().endsWith("3")){// || event.content.trim().equals("bc3")) {
+				mirrorUp = true;
+			} // Detects 
+//			if (event.content.trim().equals("900") || event.content.trim().equals("b00")) {
+//				mirrorUp = false;
+//				
+//			}
 		}
 
 	}

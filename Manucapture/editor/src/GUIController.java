@@ -290,6 +290,7 @@ public class GUIController {
 		String projectFolderPath = G4P.selectFolder("Select the project folder for NEW PROJECT");
 		if (projectFolderPath != null) {
 			context.project.thumbnailsLoaded = false;
+			context.project.selectedItem = null;
 			context.gui.grpProject.setVisible(1, true);
 			context.parent.editingProject = true;
 			context.parent.createProject(projectFolderPath);

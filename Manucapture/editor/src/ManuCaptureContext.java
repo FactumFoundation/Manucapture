@@ -65,6 +65,11 @@ public class ManuCaptureContext {
 
 	boolean cameraActiveA = false;
 	boolean cameraActiveB = false;
+	
+
+	boolean cameraAProcessingNewPhoto = false;
+	boolean cameraBProcessingNewPhoto = false;
+	
 
 	String serialCameraA;
 	String serialCameraB;
@@ -89,6 +94,7 @@ public class ManuCaptureContext {
 	public static int CAMERAS_IDLE = 0;
 	public static int CAMERAS_FOCUSSING = 1;
 	public static int CAMERAS_MIRROR_UP = 2;
+	public static int CAMERAS_PROCESSING = 3;
 
 	int captureState = CAMERAS_INACTIVE;
 	int counterEvent = 0;
@@ -319,8 +325,7 @@ public class ManuCaptureContext {
 			captureState = CAMERAS_FOCUSSING;
 			pressCameras();
 			lastCaptureMillis = parent.millis();
-			gphotoAAdapter.cameraWaitingForPicture = true;
-			gphotoBAdapter.cameraWaitingForPicture = true;
+			
 		} else {
 			if (captureState == CAMERAS_INACTIVE) {
 				G4P.showMessage(parent, "Can't Trigger, cameras are not active", "", G4P.WARNING);
@@ -351,10 +356,15 @@ public class ManuCaptureContext {
 					parent.println("Lsa dos cámaras no están dispuestas a poner el mirror en up");
 					if (!gphotoAAdapter.mirrorUp && !gphotoBAdapter.mirrorUp) {
 						releaseCameras();
+						G4P.showMessage(parent, "Camera A And B Fails", "", G4P.WARNING);
 					} else if (!gphotoAAdapter.mirrorUp && gphotoBAdapter.mirrorUp) {
 						resetCamerasFailingA();
+						newImagePathA = "";
+						G4P.showMessage(parent, "Camera A Fails", "", G4P.WARNING);
 					} else if (gphotoAAdapter.mirrorUp && !gphotoBAdapter.mirrorUp) {
 						resetCamerasFailingB();
+						newImagePathB = "";
+						G4P.showMessage(parent, "Camera B Fails", "", G4P.WARNING);
 					}
 					captureState = CAMERAS_IDLE;
 				}
@@ -362,7 +372,13 @@ public class ManuCaptureContext {
 		}
 		if (captureState == CAMERAS_MIRROR_UP) {
 			if (!gphotoAAdapter.mirrorUp && !gphotoBAdapter.mirrorUp) {
-				captureState = CAMERAS_IDLE;
+				captureState = CAMERAS_PROCESSING;
+			}
+		}
+		
+		if (captureState == CAMERAS_PROCESSING) {
+			if (!gphotoAAdapter.mirrorUp && !gphotoBAdapter.mirrorUp) {
+//				captureState = CAMERAS_PROCESSING;
 			}
 		}
 

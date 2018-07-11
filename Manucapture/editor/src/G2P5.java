@@ -175,7 +175,7 @@ public class G2P5 {
 
 	private void sendEvent(G2P5Event event) {
 
-		System.out.println("NEW EVENT " + id + " " + event.eventCode + " " + event.content);
+		ManuCapture_v1_1.println("NEW EVENT " + id + " " + event.eventCode + " " + event.content);
 
 		event.g2p5 = this;
 
@@ -231,8 +231,8 @@ public class G2P5 {
 	}
 
 	public void processLogLine(String line) {
-
-		System.out.println(line);
+//		ifthis.id.equals("A")
+//		System.out.println(line);
 		if (line.contains("Camera")) {
 			int index = line.indexOf("Camera");
 			String cad = line.substring(index, line.length());
