@@ -402,7 +402,7 @@ public class ManuCapture_v1_1 extends PApplet {
 				+ chartStateMachine + "\n " + frameRate + context.gui.grpProject.isVisible(), 250, 10);
 
 		if (loading) {
-			fill(0, 100);
+			fill(0, 200);
 			rect(0, 0, width, height);
 			fill(255, 0, 0);
 			text("LOADING...", width / 2, height / 3);
@@ -584,7 +584,7 @@ public class ManuCapture_v1_1 extends PApplet {
 		fill(255, 0, 0);
 
 		if (liveViewActive == 0) {
-			fill(100, 100);
+			fill(0, 200);
 			rect(0, 0, width, height);
 			textSize(32);
 			fill(255, 0, 0);
