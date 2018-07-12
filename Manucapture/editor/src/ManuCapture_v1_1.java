@@ -227,38 +227,45 @@ public class ManuCapture_v1_1 extends PApplet {
 
 		println("New photo Event!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!", event.content);
 		if (event.g2p5 == context.gphotoA) {
-			context.gphotoAAdapter.setTargetFile(project.projectDirectory + "/raw", project.projectCode);
-			context.gphotoAAdapter.setFullTargetPath(ic);
-			context.moveFile(event.content, context.gphotoAAdapter.getFullTargetPath());
-			context.newImagePathA = context.gphotoAAdapter.getFullTargetPath();
+			if (context.ignoreNextPhotoA) {
+				parent.println("Ignoring A");
+				context.ignoreNextPhotoA = false;
+			} else {
+				context.gphotoAAdapter.setTargetFile(project.projectDirectory + "/raw", project.projectCode);
+				context.gphotoAAdapter.setFullTargetPath(ic);
+				context.moveFile(event.content, context.gphotoAAdapter.getFullTargetPath());
+				context.newImagePathA = context.gphotoAAdapter.getFullTargetPath();
+			}
 		} else if (event.g2p5 == context.gphotoB) {
-
-			context.gphotoBAdapter.setTargetFile(project.projectDirectory + "/raw", project.projectCode);
-			context.gphotoBAdapter.setFullTargetPath(ic);
-			context.moveFile(event.content, context.gphotoBAdapter.getFullTargetPath());
-			context.newImagePathB = context.gphotoBAdapter.getFullTargetPath();
+			if (context.ignoreNextPhotoB) {
+				parent.println("Ignoring B");
+				context.ignoreNextPhotoB = false;
+			} else {
+				context.gphotoBAdapter.setTargetFile(project.projectDirectory + "/raw", project.projectCode);
+				context.gphotoBAdapter.setFullTargetPath(ic);
+				context.moveFile(event.content, context.gphotoBAdapter.getFullTargetPath());
+				context.newImagePathB = context.gphotoBAdapter.getFullTargetPath();
+			}
 		}
 
-		
 		if ((context.gphotoA.isConnected() && context.gphotoB.isConnected()
 				&& (!context.newImagePathA.equals("") && !context.newImagePathB.equals("")))
-				//this allows use only one camera if the other is inactive
+				// this allows use only one camera if the other is inactive
 				|| (context.gphotoA.isConnected() && !context.gphotoB.isConnected()
 						&& !context.newImagePathA.equals(""))
-				//this allows use only one camera if the other is inactive
+				// this allows use only one camera if the other is inactive
 				|| (!context.gphotoA.isConnected() && context.gphotoB.isConnected()
 						&& !context.newImagePathB.equals(""))) {
-//		if(context.captureState == ManuCaptureContext.CAMERAS_PROCESSING){
+			// if(context.captureState ==
+			// ManuCaptureContext.CAMERAS_PROCESSING){
 
-			
 			// context.cameraAProcessingNewPhoto = true;
 			// context.cameraBProcessingNewPhoto = true;
 			// delay(3000);
 			if (shutterMode == NORMAL_SHUTTER) {
 
 				doNormalShutter(Item.TYPE_ITEM);
-				context.captureState = ManuCaptureContext.CAMERAS_IDLE;
-				
+
 			} else if (shutterMode == REPEAT_SHUTTER) {
 				if (project.items.size() > 0) {
 					float newPageNum = project.selectedItem.pagNum;
@@ -268,9 +275,9 @@ public class ManuCapture_v1_1 extends PApplet {
 					newItem.loadThumbnails();
 					project.replaceItem(project.selectedItemIndex, newItem);
 					context.clearPaths();
-					
+
 				}
-				
+
 			} else if (shutterMode == CALIB_SHUTTER) {
 				println("Calib shutter");
 
@@ -313,8 +320,7 @@ public class ManuCapture_v1_1 extends PApplet {
 			context.captureState = ManuCaptureContext.CAMERAS_IDLE;
 			// context.cameraAProcessingNewPhoto = false;
 			// context.cameraBProcessingNewPhoto = false;
-			
-			
+
 		}
 	}
 
@@ -653,6 +659,8 @@ public class ManuCapture_v1_1 extends PApplet {
 
 	private void drawLeft() {
 
+		
+		
 		if (project.selectedItem != null && project.selectedItem.mImageLeft.imgPreview != null) {
 
 			pushStyle();
@@ -662,23 +670,7 @@ public class ManuCapture_v1_1 extends PApplet {
 			drawImagePreview(project.selectedItem.mImageLeft, lastPressedL, marginLeftViewerRight, context.pointsRight,
 					context.scaleA);
 
-			if (context.captureState == ManuCaptureContext.CAMERAS_FOCUSSING
-					|| context.captureState == ManuCaptureContext.CAMERAS_MIRROR_UP || context.captureState == ManuCaptureContext.CAMERAS_PROCESSING) {
-				pushStyle();
-				noStroke();
-				if (context.captureState == ManuCaptureContext.CAMERAS_FOCUSSING) {
-					fill(80);
-				} else if(context.captureState == ManuCaptureContext.CAMERAS_MIRROR_UP) {
-					fill(200);
-				} else if(context.captureState == ManuCaptureContext.CAMERAS_PROCESSING) {
-					fill(0,200,0);
-				}
-				rect(0, 20, context.hImageViewerSize, context.wImageViewerSize);
-				imageMode(CENTER);
-				image(cameraIcon, context.hImageViewerSize / 2, context.wImageViewerSize / 2, 256, 256);
-				imageMode(CORNER);
-				popStyle();
-			}
+
 
 			// pintamos en blending la imagen de calibración para puntos de crop
 			if (chartStateMachine == 3 && context.lastLeftPreview != null) {
@@ -701,7 +693,6 @@ public class ManuCapture_v1_1 extends PApplet {
 				for (HotArea area : context.pointsRight) {
 					area.draw(g);
 				}
-
 			popStyle();
 		} else {
 			stroke(255);
@@ -710,8 +701,8 @@ public class ManuCapture_v1_1 extends PApplet {
 		}
 
 		// datos de cámara
-		fill(255,0,0);
-		//fill(255);
+		fill(255, 0, 0);
+		// fill(255);
 		text("exposure: " + context.gphotoBAdapter.exposure, marginLeftViewerRight + 75, 40);
 		text("focusing: ", marginLeftViewerRight + 300, 40);
 		text(context.gphotoBAdapter.g2p5.id, 840, 40);
@@ -723,10 +714,38 @@ public class ManuCapture_v1_1 extends PApplet {
 			fill(0, 255, 0);
 		}
 		ellipse(marginLeftViewerRight + 370, 35, 15, 15);
+		
+		if (context.captureState == ManuCaptureContext.CAMERAS_FOCUSSING
+				|| context.captureState == ManuCaptureContext.CAMERAS_MIRROR_UP
+				|| context.captureState == ManuCaptureContext.CAMERAS_PROCESSING) {
+			pushStyle();
+			pushMatrix();
+			translate(marginLeftViewerRight, marginTopViewer);
+			pushStyle();
+			noStroke();
+			int alpha = 150;
+			if (context.captureState == ManuCaptureContext.CAMERAS_FOCUSSING) {
+				fill(40,alpha);
+			} else if (context.captureState == ManuCaptureContext.CAMERAS_MIRROR_UP) {
+				fill(120,alpha);
+			} else if (context.captureState == ManuCaptureContext.CAMERAS_PROCESSING) {
+				fill(0,50,0,alpha);
+			}
+			rect(0, 0, context.hImageViewerSize, context.wImageViewerSize);
+			imageMode(CENTER);
+			image(cameraIcon, context.hImageViewerSize / 2, context.wImageViewerSize / 2, 256, 256);
+			imageMode(CORNER);
+			popMatrix();
+			popStyle();
+		}
+		
 	}
 
 	private void drawRight() {
 
+		
+
+		
 		if (project.selectedItem != null && project.selectedItem.mImageRight.imgPreview != null) {
 			pushStyle();
 			pushMatrix();
@@ -738,22 +757,6 @@ public class ManuCapture_v1_1 extends PApplet {
 
 			// if (context.gphotoAAdapter.cameraWaitingForPicture ||
 			// context.cameraAProcessingNewPhoto) {
-			if (context.captureState == ManuCaptureContext.CAMERAS_FOCUSSING
-					|| context.captureState == ManuCaptureContext.CAMERAS_MIRROR_UP || context.captureState == ManuCaptureContext.CAMERAS_PROCESSING) {
-				pushStyle();
-				noStroke();
-				if (context.captureState == ManuCaptureContext.CAMERAS_FOCUSSING) {
-					fill(80);
-				} else if(context.captureState == ManuCaptureContext.CAMERAS_MIRROR_UP) {
-					fill(200);
-				} else if(context.captureState == ManuCaptureContext.CAMERAS_PROCESSING) {
-					fill(0,200,0);
-				}				rect(0, 20, context.hImageViewerSize, context.wImageViewerSize);
-				imageMode(CENTER);
-				image(cameraIcon, context.hImageViewerSize / 2, context.wImageViewerSize / 2, 256, 256);
-				imageMode(CORNER);
-				popStyle();
-			}
 
 			if (chartStateMachine == 3 && context.lastRightPreview != null) {
 				pushStyle();
@@ -763,7 +766,7 @@ public class ManuCapture_v1_1 extends PApplet {
 				popStyle();
 			}
 
-			fill(255,0,0);
+			fill(255, 0, 0);
 			textSize(14);
 			text(project.selectedItem.mImageRight.imagePath, 0, 0);
 
@@ -784,7 +787,7 @@ public class ManuCapture_v1_1 extends PApplet {
 			rect(580, 20, context.hImageViewerSize, context.wImageViewerSize);
 		}
 		// datos de cámara
-		fill(255,0,0);
+		fill(255, 0, 0);
 		text("exposure: " + context.gphotoAAdapter.exposure, 650, 40);
 
 		text(" focusing: ", 890, 40);
@@ -796,6 +799,31 @@ public class ManuCapture_v1_1 extends PApplet {
 			fill(0, 255, 0);
 		}
 		ellipse(960, 35, 15, 15);
+		
+		if (context.captureState == ManuCaptureContext.CAMERAS_FOCUSSING
+				|| context.captureState == ManuCaptureContext.CAMERAS_MIRROR_UP
+				|| context.captureState == ManuCaptureContext.CAMERAS_PROCESSING) {
+			pushStyle();
+			pushMatrix();
+			translate(marginLeftViewerLeft, marginTopViewer);
+
+			noStroke();
+			int alpha = 150;
+			if (context.captureState == ManuCaptureContext.CAMERAS_FOCUSSING) {
+				fill(40,alpha);
+			} else if (context.captureState == ManuCaptureContext.CAMERAS_MIRROR_UP) {
+				fill(120,alpha);
+			} else if (context.captureState == ManuCaptureContext.CAMERAS_PROCESSING) {
+				fill(0,50,0,alpha);
+			}
+			rect(0, 0, context.hImageViewerSize, context.wImageViewerSize);
+			imageMode(CENTER);
+			image(cameraIcon, context.hImageViewerSize / 2, context.wImageViewerSize / 2, 256, 256);
+			imageMode(CORNER);
+			
+			popMatrix();
+			popStyle();
+		}
 
 	}
 

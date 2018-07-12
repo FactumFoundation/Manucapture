@@ -74,10 +74,9 @@ public class G2P5ManucaptureAdapter implements G2P5Listener {
 			if (event.content.trim().endsWith("3")){// || event.content.trim().equals("bc3")) {
 				mirrorUp = true;
 			} // Detects 
-//			if (event.content.trim().equals("900") || event.content.trim().equals("b00")) {
-//				mirrorUp = false;
-//				
-//			}
+			if (event.content.trim().endsWith("00")) {
+				mirrorUp = false;				
+			}
 		}
 
 	}

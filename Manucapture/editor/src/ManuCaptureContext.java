@@ -100,6 +100,9 @@ public class ManuCaptureContext {
 	int counterEvent = 0;
 
 	long lastCaptureMillis = 0;
+
+	public boolean ignoreNextPhotoA = false;
+	public boolean ignoreNextPhotoB = false;
 	
 	public G2P5ManucaptureAdapter createG2P5(String serial, String name) {
 		G2P5 g2p5 = G2P5.create(parent.homeDirectory(), serial, name);
@@ -344,11 +347,10 @@ public class ManuCaptureContext {
 		if (captureState == CAMERAS_INACTIVE && gphotoA.active && gphotoB.active) {
 			captureState = CAMERAS_IDLE;
 		}
-
-		if (captureState == CAMERAS_FOCUSSING) {
+		else if (captureState == CAMERAS_FOCUSSING) {
 			if (gphotoAAdapter.mirrorUp && gphotoBAdapter.mirrorUp) {
 				releaseAndShutterCameras();
-				captureState = CAMERAS_MIRROR_UP;
+				captureState = CAMERAS_MIRROR_UP;	
 //				if (parent.state == parent.CHART) {
 //				}
 			} else {
@@ -359,24 +361,25 @@ public class ManuCaptureContext {
 						G4P.showMessage(parent, "Camera A And B Fails", "", G4P.WARNING);
 					} else if (!gphotoAAdapter.mirrorUp && gphotoBAdapter.mirrorUp) {
 						resetCamerasFailingA();
-						newImagePathA = "";
+						ignoreNextPhotoB= true;		
 						G4P.showMessage(parent, "Camera A Fails", "", G4P.WARNING);
 					} else if (gphotoAAdapter.mirrorUp && !gphotoBAdapter.mirrorUp) {
 						resetCamerasFailingB();
-						newImagePathB = "";
+						ignoreNextPhotoA = true;
 						G4P.showMessage(parent, "Camera B Fails", "", G4P.WARNING);
 					}
 					captureState = CAMERAS_IDLE;
 				}
 			}
 		}
-		if (captureState == CAMERAS_MIRROR_UP) {
+		else if (captureState == CAMERAS_MIRROR_UP) {
 			if (!gphotoAAdapter.mirrorUp && !gphotoBAdapter.mirrorUp) {
 				captureState = CAMERAS_PROCESSING;
 			}
+			
 		}
 		
-		if (captureState == CAMERAS_PROCESSING) {
+		else if (captureState == CAMERAS_PROCESSING) {
 			if (!gphotoAAdapter.mirrorUp && !gphotoBAdapter.mirrorUp) {
 //				captureState = CAMERAS_PROCESSING;
 			}
@@ -402,6 +405,7 @@ public class ManuCaptureContext {
 
 	public void releaseAndShutterCameras() {
 
+		parent.println("shutter cameras");
 		OscMessage myMessage = new OscMessage("/shutterAction");
 		myMessage.add('W');
 		oscP5.send(myMessage, arduinoDriverLocation);
