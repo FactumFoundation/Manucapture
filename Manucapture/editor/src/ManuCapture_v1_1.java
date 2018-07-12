@@ -659,8 +659,6 @@ public class ManuCapture_v1_1 extends PApplet {
 
 	private void drawLeft() {
 
-		
-		
 		if (project.selectedItem != null && project.selectedItem.mImageLeft.imgPreview != null) {
 
 			pushStyle();
@@ -669,8 +667,6 @@ public class ManuCapture_v1_1 extends PApplet {
 
 			drawImagePreview(project.selectedItem.mImageLeft, lastPressedL, marginLeftViewerRight, context.pointsRight,
 					context.scaleA);
-
-
 
 			// pintamos en blending la imagen de calibración para puntos de crop
 			if (chartStateMachine == 3 && context.lastLeftPreview != null) {
@@ -714,7 +710,7 @@ public class ManuCapture_v1_1 extends PApplet {
 			fill(0, 255, 0);
 		}
 		ellipse(marginLeftViewerRight + 370, 35, 15, 15);
-		
+
 		if (context.captureState == ManuCaptureContext.CAMERAS_FOCUSSING
 				|| context.captureState == ManuCaptureContext.CAMERAS_MIRROR_UP
 				|| context.captureState == ManuCaptureContext.CAMERAS_PROCESSING) {
@@ -725,11 +721,11 @@ public class ManuCapture_v1_1 extends PApplet {
 			noStroke();
 			int alpha = 150;
 			if (context.captureState == ManuCaptureContext.CAMERAS_FOCUSSING) {
-				fill(40,alpha);
+				fill(40, alpha);
 			} else if (context.captureState == ManuCaptureContext.CAMERAS_MIRROR_UP) {
-				fill(120,alpha);
+				fill(120, alpha);
 			} else if (context.captureState == ManuCaptureContext.CAMERAS_PROCESSING) {
-				fill(0,50,0,alpha);
+				fill(0, 50, 0, alpha);
 			}
 			rect(0, 0, context.hImageViewerSize, context.wImageViewerSize);
 			imageMode(CENTER);
@@ -738,14 +734,11 @@ public class ManuCapture_v1_1 extends PApplet {
 			popMatrix();
 			popStyle();
 		}
-		
+
 	}
 
 	private void drawRight() {
 
-		
-
-		
 		if (project.selectedItem != null && project.selectedItem.mImageRight.imgPreview != null) {
 			pushStyle();
 			pushMatrix();
@@ -799,7 +792,7 @@ public class ManuCapture_v1_1 extends PApplet {
 			fill(0, 255, 0);
 		}
 		ellipse(960, 35, 15, 15);
-		
+
 		if (context.captureState == ManuCaptureContext.CAMERAS_FOCUSSING
 				|| context.captureState == ManuCaptureContext.CAMERAS_MIRROR_UP
 				|| context.captureState == ManuCaptureContext.CAMERAS_PROCESSING) {
@@ -810,17 +803,17 @@ public class ManuCapture_v1_1 extends PApplet {
 			noStroke();
 			int alpha = 150;
 			if (context.captureState == ManuCaptureContext.CAMERAS_FOCUSSING) {
-				fill(40,alpha);
+				fill(40, alpha);
 			} else if (context.captureState == ManuCaptureContext.CAMERAS_MIRROR_UP) {
-				fill(120,alpha);
+				fill(120, alpha);
 			} else if (context.captureState == ManuCaptureContext.CAMERAS_PROCESSING) {
-				fill(0,50,0,alpha);
+				fill(0, 50, 0, alpha);
 			}
 			rect(0, 0, context.hImageViewerSize, context.wImageViewerSize);
 			imageMode(CENTER);
 			image(cameraIcon, context.hImageViewerSize / 2, context.wImageViewerSize / 2, 256, 256);
 			imageMode(CORNER);
-			
+
 			popMatrix();
 			popStyle();
 		}
@@ -999,6 +992,12 @@ public class ManuCapture_v1_1 extends PApplet {
 
 		}
 
+	}
+
+	public void keyPressed() {
+		if (key == ' ') {
+			context.guiController.trigger_button_click(null, null);
+		}
 	}
 
 	public void mouseDragged() {
