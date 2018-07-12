@@ -2,6 +2,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.Calendar;
 
 import processing.core.PApplet;
 
@@ -30,6 +31,8 @@ public class G2P5ManucaptureAdapter implements G2P5Listener {
 	boolean focus = false;
 	boolean mirrorUp = false;
 
+	long lastEvent = 0;
+
 	/*
 	 * public synchronized boolean captureTethered(boolean on) { if(active){
 	 * if(!on){ killAllProcessByName(id+".cr2"); } else { t = new
@@ -47,6 +50,7 @@ public class G2P5ManucaptureAdapter implements G2P5Listener {
 
 	public void newEvent(G2P5Event event) {
 
+		lastEvent = manuCapture.millis();
 
 		if (event.eventID == G2P5Event.NEW_PHOTO) {
 			//
@@ -68,14 +72,14 @@ public class G2P5ManucaptureAdapter implements G2P5Listener {
 			}
 			if (bid % 1024 == 1) {
 			}
-		}else if (event.eventID == G2P5Event.EVENT_MASK) {
+		} else if (event.eventID == G2P5Event.EVENT_MASK) {
 			System.out.println(event.content);
-			// It seems that mask 983 means "mirror up" after focus 
-			if (event.content.trim().endsWith("3")){// || event.content.trim().equals("bc3")) {
+			// It seems that mask 983 means "mirror up" after focus
+			if (event.content.trim().endsWith("3")) {// || event.content.trim().equals("bc3")) {
 				mirrorUp = true;
-			} // Detects 
+			} // Detects
 			if (event.content.trim().endsWith("00")) {
-				mirrorUp = false;				
+				mirrorUp = false;
 			}
 		}
 
