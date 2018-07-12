@@ -295,6 +295,7 @@ public class GUIController {
 			context.parent.editingProject = true;
 			context.parent.createProject(projectFolderPath);
 			context.gui.project_info.setText("PROJECT INFO " + context.project.projectFilePath);
+			calibration_shutter_click(null, null);
 		}
 	} // _CODE_:new_button:324180:
 
