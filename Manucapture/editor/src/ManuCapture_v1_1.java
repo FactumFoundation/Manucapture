@@ -871,7 +871,14 @@ public class ManuCapture_v1_1 extends PApplet {
 			// 1;Selected.pos.add(mouseX -
 			// dmouseX,mouseY
 			// -dmouseY);
-			hotAreaSelected.setRealPosition(mouseX, mouseY);
+			if (hotAreaSelected.name.startsWith("L")) {
+				if (isMouseInsideRight())
+					hotAreaSelected.setRealPosition(mouseX, mouseY);
+			}
+			if (hotAreaSelected.name.startsWith("R")) {
+				if (isMouseInsideLeft())
+					hotAreaSelected.setRealPosition(mouseX, mouseY);
+			}
 			project.selectedItem.mImageLeft.mesh = context.copyMesh(context.pointsLeft);
 			project.selectedItem.mImageRight.mesh = context.copyMesh(context.pointsRight);
 		}
@@ -938,23 +945,20 @@ public class ManuCapture_v1_1 extends PApplet {
 		println("mouseX:" + mouseX + " mouseY:" + mouseY);
 	}
 
-	private void updateZoomLeft() {
-		// lastPressedR = null;
+	private boolean isMouseInsideLeft() {
+
 		if (mouseY > marginTopViewer && mouseY < height) {
 			// Estamos en y
-
 			if (mouseX > marginLeftViewerRight) {
-				lastPressedL = new PVector(mouseX, mouseY);
-			} else {
-
+				return true;
 			}
-		} else {
 
 		}
+		return false;
 	}
 
-	private void updateZoomRight() {
-		// lastPressedR = null;
+	private boolean isMouseInsideRight() {
+
 		if (mouseY > marginTopViewer && mouseY < height) {
 			// Estamos en y
 			if (mouseX > marginLeftViewerLeft && mouseX < marginLeftViewerRight) {
@@ -962,12 +966,23 @@ public class ManuCapture_v1_1 extends PApplet {
 				if (mouseX > marginLeftViewerRight) {
 
 				} else {
-					lastPressedR = new PVector(mouseX, mouseY);
+					return true;
 				}
-			} else {
-
 			}
 		}
+		return false;
+	}
+
+	private void updateZoomLeft() {
+		// lastPressedR = null;
+		if (isMouseInsideLeft())
+			lastPressedL = new PVector(mouseX, mouseY);
+	}
+
+	private void updateZoomRight() {
+		// lastPressedR = null;
+		if (isMouseInsideRight())
+			lastPressedR = new PVector(mouseX, mouseY);
 	}
 
 	public void mouseWheel(MouseEvent event) {
