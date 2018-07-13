@@ -265,6 +265,7 @@ public class GUIController {
 	public void load_click() { // _CODE_:load_button:841968:
 		String documentFileName = G4P.selectInput("Load XML");
 		if (documentFileName != null) {
+			context.project.selectedItem = null;
 			context.parent.loading = true;
 			context.parent.loadProject(documentFileName);
 			context.parent.loading = false;

@@ -69,9 +69,20 @@ public class GUI {
 
 	GGroup grpAll;
 	GGroup grpProject;
-	
+
 	GUIController guiController;
+
+	GImageButton btnTrigger;
 	
+	GImageButton btnTriggerNormal;
+	GImageButton btnTriggerRepeat;
+	GImageButton btnTriggerChartColor;
+	
+	GImageButton btnConnectedA;
+	GImageButton btnConnectedB;
+	
+	
+
 	public GUI() {
 	}
 
@@ -94,7 +105,7 @@ public class GUI {
 		last_page_button.setText("LAST PAGE");
 		last_page_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
 		last_page_button.addEventHandler(guiController, "last_page_button_click");
-		
+
 		page_info_label = new GLabel(parent, 300, 276, 80, 20);
 		page_info_label.setText("PAGE INFO");
 		page_info_label.setTextBold();
@@ -232,7 +243,28 @@ public class GUI {
 				liveView_button);
 
 		grpAll.addControls(close_button);
+
+		String[] files;
+		files = new String[] { "btn_trigger.png", "btn_trigger.png", "btn_trigger.png" };
+		btnTrigger = new GImageButton(parent, parent.marginLeftViewerRight - 100, parent.height - 200, files);
+		grpAll.addControls(btnTrigger);
 		
+		files = new String[] { "btn_normal.png", "btn_normal.png", "btn_normal.png" };
+		btnTriggerNormal = new GImageButton(parent, parent.marginLeftViewerRight - 100, parent.height - 200, files);
+		grpAll.addControls(btnTriggerNormal);
+		
+		files = new String[] { "btn_trigger.png", "btn_trigger.png", "btn_trigger.png" };
+		btnTriggerChartColor = new GImageButton(parent, parent.marginLeftViewerRight - 100, parent.height - 200, files);
+		grpAll.addControls(btnTriggerChartColor);
+
+		files = new String[] { "btn_connected.png", "btn_connected.png", "btn_connected.png" };
+		btnConnectedA = new GImageButton(parent, parent.marginLeftViewerLeft, 30, files);
+		grpAll.addControls(btnConnectedA);
+
+		files = new String[] { "btn_connected.png", "btn_connected.png", "btn_connected.png" };
+		btnConnectedB = new GImageButton(parent, parent.marginLeftViewerRight, 30, files);
+		grpAll.addControls(btnConnectedB);
+
 		createGroup2Controls();
 
 	}
@@ -278,68 +310,67 @@ public class GUI {
 		// grp2_d.setIcon("ghost2.png", 1, GAlign.RIGHT, GAlign.MIDDLE);
 		// grp2_d.setText("Casperov"); - 250
 		// grp2_d.setTextBold();
-		grp2_b = new GButton(parent, context.parent.width/2 - 250, 500, 300, 130);
+		grp2_b = new GButton(parent, context.parent.width / 2 - 250, 500, 300, 130);
 		grp2_b.setText("OK!");
 		grp2_b.addEventHandler(guiController, "close_popup_project");
 
 		int fieldW = 500;
 		int fieldH = 40;
-		
-		int labelX = context.parent.width/3;
+
+		int labelX = context.parent.width / 3;
 		int labelY = 40;
-		
+
 		int labelW = 200;
 		int labelH = 40;
-		
+
 		int fieldX = labelX + labelW + 10;
 		int fieldY = 140;
-		
-		
-		name_text = new GTextField(parent, fieldX , 106+fieldY, fieldW, fieldH, G4P.SCROLLBARS_NONE);
+
+		name_text = new GTextField(parent, fieldX, 106 + fieldY, fieldW, fieldH, G4P.SCROLLBARS_NONE);
 		name_text.setLocalColorScheme(GCScheme.CYAN_SCHEME);
 		name_text.setOpaque(true);
 		name_text.addEventHandler(guiController, "name_text_change");
 		name_text.setText(context.project.projectName);
-		project_info = new GLabel(parent, labelX - labelW/2, fieldY, fieldW*2, labelH);
+		project_info = new GLabel(parent, labelX - labelW / 2, fieldY, fieldW * 2, labelH);
 		project_info.setText("PROJECT INFO ");
 		project_info.setTextBold();
 		project_info.setLocalColorScheme(GCScheme.CYAN_SCHEME);
 		project_info.setOpaque(true);
-		
-		name = new GLabel(parent,labelX, 106+fieldY, labelW , labelH);
+
+		name = new GLabel(parent, labelX, 106 + fieldY, labelW, labelH);
 		name.setText("Name:");
 		name.setTextBold();
 		name.setLocalColorScheme(GCScheme.CYAN_SCHEME);
 		name.setOpaque(true);
-		code_label = new GLabel(parent,labelX, 156+fieldY, labelW , labelH);
+		code_label = new GLabel(parent, labelX, 156 + fieldY, labelW, labelH);
 		code_label.setText("Code:");
 		code_label.setTextBold();
 		code_label.setLocalColorScheme(GCScheme.CYAN_SCHEME);
 		code_label.setOpaque(true);
-		code_text = new GTextField(parent, fieldX , 156+fieldY, fieldW, fieldH, G4P.SCROLLBARS_NONE);
+		code_text = new GTextField(parent, fieldX, 156 + fieldY, fieldW, fieldH, G4P.SCROLLBARS_NONE);
 		code_text.setLocalColorScheme(GCScheme.CYAN_SCHEME);
 		code_text.setOpaque(true);
 		code_text.setText(context.project.projectCode);
 		code_text.addEventHandler(guiController, "code_text_change");
-		author_label = new GLabel(parent,labelX, 206+fieldY, labelW , labelH);
+		author_label = new GLabel(parent, labelX, 206 + fieldY, labelW, labelH);
 		author_label.setText("Author:");
 		author_label.setTextBold();
 		author_label.setLocalColorScheme(GCScheme.CYAN_SCHEME);
 		author_label.setOpaque(true);
 
-		author_text = new GTextField(parent, fieldX , 206+fieldY, fieldW, fieldH, G4P.SCROLLBARS_NONE);
+		author_text = new GTextField(parent, fieldX, 206 + fieldY, fieldW, fieldH, G4P.SCROLLBARS_NONE);
 		author_text.setLocalColorScheme(GCScheme.CYAN_SCHEME);
 		author_text.setOpaque(true);
 		author_text.setText(context.project.projectAuthor);
 		author_text.addEventHandler(guiController, "author_text_change");
 
-		project_comments_text = new GTextField(parent, fieldX , 256+fieldY, fieldW, fieldH, G4P.SCROLLBARS_NONE);
+		project_comments_text = new GTextField(parent, fieldX, 256 + fieldY, fieldW, fieldH, G4P.SCROLLBARS_NONE);
 		project_comments_text.setLocalColorScheme(GCScheme.CYAN_SCHEME);
 		project_comments_text.setOpaque(true);
 		project_comments_text.setText(context.project.projectComment);
 		project_comments_text.addEventHandler(guiController, "project_comments_change");
 
-		project_comments_label = new GLabel(parent,labelX, 256+fieldY, labelW, labelH);
+		project_comments_label = new GLabel(parent, labelX, 256 + fieldY, labelW, labelH);
 		project_comments_label.setText("Comments:");
 		project_comments_label.setTextBold();
 		project_comments_label.setLocalColorScheme(GCScheme.CYAN_SCHEME);
@@ -350,12 +381,12 @@ public class GUI {
 		code_label.setFont(font);
 		author_label.setFont(font);
 		project_comments_label.setFont(font);
-		
+
 		project_comments_text.setFont(font);
 		author_text.setFont(font);
 		code_text.setFont(font);
 		name_text.setFont(font);
-		
+
 		grp2_b.setFont(font);
 
 		Font sectionFont = new Font("Verdana", Font.BOLD, 18);

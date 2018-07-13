@@ -482,4 +482,8 @@ public class ManuCaptureContext {
 		return !gphotoAAdapter.mirrorUp && !gphotoBAdapter.mirrorUp;
 	}
 
+	public void clearPreviews() {
+		
+	}
+
 }

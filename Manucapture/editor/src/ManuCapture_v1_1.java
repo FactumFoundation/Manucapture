@@ -11,6 +11,7 @@ import g4p_controls.G4P;
 import g4p_controls.GButton;
 import g4p_controls.GCScheme;
 import g4p_controls.GEvent;
+import g4p_controls.GImageButton;
 import g4p_controls.GTextField;
 import g4p_controls.GWinData;
 import g4p_controls.GWindow;
@@ -112,7 +113,7 @@ public class ManuCapture_v1_1 extends PApplet {
 	boolean editingProject = false;
 
 	PImage cameraIcon;
-
+	
 	public void setup() {
 
 		System.setOut(new TracingPrintStream(System.out));
@@ -875,10 +876,6 @@ public class ManuCapture_v1_1 extends PApplet {
 				if (isMouseInsideRight())
 					hotAreaSelected.setRealPosition(mouseX, mouseY);
 			}
-			if (hotAreaSelected.name.startsWith("R")) {
-				if (isMouseInsideLeft())
-					hotAreaSelected.setRealPosition(mouseX, mouseY);
-			}
 			project.selectedItem.mImageLeft.mesh = context.copyMesh(context.pointsLeft);
 			project.selectedItem.mImageRight.mesh = context.copyMesh(context.pointsRight);
 		}
@@ -1268,6 +1265,23 @@ public class ManuCapture_v1_1 extends PApplet {
 		return pathApp;
 	}
 
+	public void handleButtonEvents(GImageButton button, GEvent event) {
+		if (button == context.gui.btnTrigger)
+			context.guiController.trigger_button_click(null, null);
+		
+		if (button == context.gui.btnTriggerNormal){
+			context.guiController.normal_shutter_click1(null, null);
+		}
+		
+		if (button == context.gui.btnConnectedA){
+			context.guiController.camera_A_active_button_click(null, null);
+		}
+		
+		if (button == context.gui.btnConnectedB){
+			context.guiController.camera_B_active_click(null, null);
+		}
+	}
+	
 	public void settings() {
 		// size(595, 1030);
 		size(1920, 1030, P2D);
