@@ -94,10 +94,10 @@ public class ManuCapture_v1_1 extends PApplet {
 	int guideHeight_1 = 200;
 	int guideHeight_2 = 600;
 
-	int marginTopViewer = 20;
-	int marginLeftViewerRight = 1250;
-	int marginLeftViewerLeft = 583;
-
+	int marginTopViewer =40;
+	int marginLeftViewerRight = 1170;
+	int marginLeftViewerLeft = 400;
+	
 	ItemsViewport itemsViewport;
 
 	HotArea hotAreaSelected = null;
@@ -329,6 +329,10 @@ public class ManuCapture_v1_1 extends PApplet {
 
 	public void draw() {
 
+		
+		
+		
+		
 		background(75);
 
 		if (stateApp == STATE_APP_NO_PROJECT) {
@@ -391,6 +395,8 @@ public class ManuCapture_v1_1 extends PApplet {
 			}
 
 		} else {
+			
+			
 			// context.gui.grpAll.setVisible(1, true);
 			drawInittializedApp();
 			if (context.gui.grpProject.isVisible()) {
@@ -1174,8 +1180,8 @@ public class ManuCapture_v1_1 extends PApplet {
 	public synchronized void createProject(String projectFolderPath) {
 		if (!project.projectFilePath.equals("")) {
 			project.closeProject();
-			context.gui.page_comments_text.setText("");
-			context.gui.page_num_text.setText("0");
+//			context.gui.page_comments_text.setText("");
+//			context.gui.page_num_text.setText("0");
 
 		}
 		XML projectDataXML = loadXML("project_template.xml");
@@ -1284,7 +1290,8 @@ public class ManuCapture_v1_1 extends PApplet {
 	
 	public void settings() {
 		// size(595, 1030);
-		size(1920, 1030, P2D);
+//		size(1920, 1030, P2D);
+		fullScreen(P2D);
 	}
 
 	// public void loadRightPreview() {
@@ -1327,7 +1334,7 @@ public class ManuCapture_v1_1 extends PApplet {
 		 */
 
 		try {
-			String[] appletArgs = new String[] { "ManuCapture_v1_1", location };
+			String[] appletArgs = new String[] { "ManuCapture_v1_1","--present", location };
 			if (passedArgs != null) {
 				PApplet.main(concat(appletArgs, passedArgs));
 			} else {

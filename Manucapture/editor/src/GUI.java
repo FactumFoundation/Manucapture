@@ -73,15 +73,13 @@ public class GUI {
 	GUIController guiController;
 
 	GImageButton btnTrigger;
-	
+
 	GImageButton btnTriggerNormal;
 	GImageButton btnTriggerRepeat;
 	GImageButton btnTriggerChartColor;
-	
+
 	GImageButton btnConnectedA;
 	GImageButton btnConnectedB;
-	
-	
 
 	public GUI() {
 	}
@@ -111,16 +109,19 @@ public class GUI {
 		page_info_label.setTextBold();
 		page_info_label.setLocalColorScheme(GCScheme.CYAN_SCHEME);
 		page_info_label.setOpaque(true);
+		page_info_label.setVisible(false);
 		page_comments_label = new GLabel(parent, 302, 326, 80, 20);
 		page_comments_label.setText("Comments:");
 		page_comments_label.setTextBold();
 		page_comments_label.setLocalColorScheme(GCScheme.CYAN_SCHEME);
 		page_comments_label.setOpaque(true);
+		page_comments_label.setVisible(false);
 		number_label = new GLabel(parent, 302, 410, 80, 20);
 		number_label.setText("Number:");
 		number_label.setTextBold();
 		number_label.setLocalColorScheme(GCScheme.CYAN_SCHEME);
 		number_label.setOpaque(true);
+		number_label.setVisible(false);
 		shutter_control_label = new GLabel(parent, 300, 450, 200, 24);
 		shutter_control_label.setText("SHUTTER CONTROL:");
 		shutter_control_label.setTextBold();
@@ -147,10 +148,12 @@ public class GUI {
 		page_comments_text.setLocalColorScheme(GCScheme.CYAN_SCHEME);
 		page_comments_text.setOpaque(true);
 		page_comments_text.addEventHandler(guiController, "page_comments_text_change");
+		page_comments_text.setVisible(false);
 		page_num_text = new GTextField(parent, 380, 410, 200, 20, G4P.SCROLLBARS_NONE);
 		page_num_text.setLocalColorScheme(GCScheme.CYAN_SCHEME);
 		page_num_text.setOpaque(true);
 		page_num_text.addEventHandler(guiController, "page_num_text_change");
+		page_num_text.setVisible(false);
 		normal_shutter_button = new GButton(parent, 386, 488, 122, 24);
 		normal_shutter_button.setText("NORMAL");
 		normal_shutter_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
@@ -222,39 +225,46 @@ public class GUI {
 		page_search_text.setLocalColorScheme(GCScheme.CYAN_SCHEME);
 		page_search_text.setOpaque(true);
 		page_search_text.addEventHandler(guiController, "page_search_text_change");
+		page_search_text.setVisible(false);
 		page_search_label = new GLabel(parent, 10, 57, 80, 20);
 		page_search_label.setText("Page search:");
 		page_search_label.setTextBold();
 		page_search_label.setLocalColorScheme(GCScheme.CYAN_SCHEME);
 		page_search_label.setOpaque(true);
+		page_search_label.setVisible(false);
 		liveView_button = new GButton(parent, 490, 11, 80, 24);
 		liveView_button.setText("LIVEVIEW");
 		liveView_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
 		liveView_button.addEventHandler(guiController, "liveView_button_click");
 
-		grpAll.addControls(first_page_button, last_page_button, page_info_label, page_comments_label);
-		grpAll.addControls(number_label, shutter_control_label, camera_config_label, camera_A_label, camera_B_label);
-		grpAll.addControls(page_comments_text, page_num_text, normal_shutter_button, repeat_shutter_button);
+		grpAll.addControls(first_page_button, last_page_button);//, page_info_label, page_comments_label,number_label,);
+		grpAll.addControls( shutter_control_label, camera_config_label, camera_A_label, camera_B_label);
+		grpAll.addControls(/*page_comments_text, page_num_text, */normal_shutter_button, repeat_shutter_button);
 		grpAll.addControls(calibration_shutter_button, trigger_button, camera_A_connected_button,
 				camera_A_active_button);
 		grpAll.addControls(camera_A_inactive_button, camera_B_connected_button, camera_B_active_button,
 				camera_B_inactive_button);
-		grpAll.addControls(parameters_button, load_button, edit_button, new_button, page_search_text, page_search_label,
-				liveView_button);
+		grpAll.addControls(parameters_button, load_button, edit_button, new_button,
+				/* page_search_text, page_search_label, */ liveView_button);
 
 		grpAll.addControls(close_button);
 
 		String[] files;
 		files = new String[] { "btn_trigger.png", "btn_trigger.png", "btn_trigger.png" };
-		btnTrigger = new GImageButton(parent, parent.marginLeftViewerRight - 100, parent.height - 200, files);
+		btnTrigger = new GImageButton(parent, parent.marginLeftViewerRight - 170, parent.height - 250, files);
 		grpAll.addControls(btnTrigger);
-		
+
 		files = new String[] { "btn_normal.png", "btn_normal.png", "btn_normal.png" };
-		btnTriggerNormal = new GImageButton(parent, parent.marginLeftViewerRight - 100, parent.height - 200, files);
+		btnTriggerNormal = new GImageButton(parent, parent.marginLeftViewerRight + 50, parent.height - 170, files);
 		grpAll.addControls(btnTriggerNormal);
-		
-		files = new String[] { "btn_trigger.png", "btn_trigger.png", "btn_trigger.png" };
-		btnTriggerChartColor = new GImageButton(parent, parent.marginLeftViewerRight - 100, parent.height - 200, files);
+
+		files = new String[] { "btn_repeat.png", "btn_repeat.png", "btn_repeat.png" };
+		btnTriggerRepeat = new GImageButton(parent, parent.marginLeftViewerRight + 50, parent.height - 170, files);
+		grpAll.addControls(btnTriggerRepeat);
+		btnTriggerRepeat.setVisible(false);
+
+		files = new String[] { "btn_calibrate.png", "btn_calibrate.png", "btn_calibrate.png" };
+		btnTriggerChartColor = new GImageButton(parent, parent.marginLeftViewerRight - 310, parent.height - 170, files);
 		grpAll.addControls(btnTriggerChartColor);
 
 		files = new String[] { "btn_connected.png", "btn_connected.png", "btn_connected.png" };

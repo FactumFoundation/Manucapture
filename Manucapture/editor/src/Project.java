@@ -404,8 +404,8 @@ public class Project {
 			// Now we do the preview on app
 			selectedItem.loadPreviews(projectDirectory, leftImagePath, rightImagePath);
 
-			context.gui.page_comments_text.setText(selectedItem.comment);
-			context.gui.page_num_text.setText(String.valueOf(selectedItem.pagNum));
+//			context.gui.page_comments_text.setText(selectedItem.comment);
+//			context.gui.page_num_text.setText(String.valueOf(selectedItem.pagNum));
 			context.gphotoAAdapter.setTargetFile(projectDirectory + "raw", projectCode);
 			context.gphotoBAdapter.setTargetFile(projectDirectory + "raw", projectCode);
 
