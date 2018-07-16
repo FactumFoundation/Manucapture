@@ -386,8 +386,10 @@ public class ManuCapture_v1_1 extends PApplet {
 			if (mousePressed && !loading) {
 				if (dist < 100) {
 					loading = true;
-					context.gui.grpAll.setVisible(1, true);
+					context.gui.grpAll.setVisible(0, true);
+
 					thread("loadLastSessionData");
+
 				}
 				if (dist1 < 100) {
 					loading = true;
@@ -604,11 +606,11 @@ public class ManuCapture_v1_1 extends PApplet {
 			text("LIVEVIEW MODE ENABLED", width / 2 - 100, height / 2);
 			liveViewActive++;
 		} else if (liveViewActive == -1) {
-//			context.gui.context.gui.liveView_button.setEnabled(true);
-//			context.gui.liveView_button.setVisible(true);
+			// context.gui.context.gui.liveView_button.setEnabled(true);
+			// context.gui.liveView_button.setVisible(true);
 			context.gui.context.gui.btnLiveView.setEnabled(true);
 			context.gui.btnLiveView.setVisible(true);
-			
+
 		}
 
 		// stroke(0,0,255);
@@ -617,6 +619,14 @@ public class ManuCapture_v1_1 extends PApplet {
 		// line(0,guideHeight_2,width,guideHeight_2);
 
 		// rect(marginLeftViewerLeft, marginTopViewer, 100, 100);
+
+		if (shutterMode == NORMAL_SHUTTER && context.gui.btnTriggerRepeat.isVisible()) {
+			context.gui.btnTriggerRepeat.setVisible(false);
+		}
+
+		if (shutterMode == REPEAT_SHUTTER && context.gui.btnTriggerNormal.isVisible()) {
+			context.gui.btnTriggerNormal.setVisible(false);
+		}
 
 		if (cameraState == STATE_CHART) {
 			pushMatrix();
@@ -694,17 +704,21 @@ public class ManuCapture_v1_1 extends PApplet {
 			}
 
 			fill(255);
-			textSize(14);
-			text(project.selectedItem.mImageLeft.imagePath, 0, 0);
+			textSize(24);
+			text(project.selectedItem.mImageLeft.imagePath, 200, -10);
 			popMatrix();
 			stroke(255, 0, 0);
 			if (chartStateMachine == 3) {
 				stroke(map(sin(100 + millis() * 0.01f), -1, 1, 0, 255), 0, 0);
 			}
-			if (lastPressedL == null)
+
+			if (lastPressedL == null) {
 				for (HotArea area : context.pointsRight) {
-					area.draw(g);
+					if (chartStateMachine == 3)
+						area.draw(g);
 				}
+			}
+
 			popStyle();
 		} else {
 			stroke(255);
@@ -714,6 +728,8 @@ public class ManuCapture_v1_1 extends PApplet {
 
 		// datos de cámara
 		fill(255, 0, 0);
+		pushMatrix();
+		translate(0, 1015);
 		// fill(255);
 		text("exposure: " + context.gphotoBAdapter.exposure, marginLeftViewerRight + 75, 40);
 		text("focusing: ", marginLeftViewerRight + 300, 40);
@@ -726,7 +742,7 @@ public class ManuCapture_v1_1 extends PApplet {
 			fill(0, 255, 0);
 		}
 		ellipse(marginLeftViewerRight + 370, 35, 15, 15);
-
+		popMatrix();
 		if (context.captureState == ManuCaptureContext.CAMERAS_FOCUSSING
 				|| context.captureState == ManuCaptureContext.CAMERAS_MIRROR_UP
 				|| context.captureState == ManuCaptureContext.CAMERAS_PROCESSING) {
@@ -775,9 +791,9 @@ public class ManuCapture_v1_1 extends PApplet {
 				popStyle();
 			}
 
-			fill(255, 0, 0);
-			textSize(14);
-			text(project.selectedItem.mImageRight.imagePath, 0, 0);
+			fill(255);
+			textSize(24);
+			text(project.selectedItem.mImageRight.imagePath, 200, -10);
 
 			popMatrix();
 			stroke(255, 0, 0);
@@ -786,7 +802,8 @@ public class ManuCapture_v1_1 extends PApplet {
 			}
 			if (lastPressedR == null)
 				for (HotArea area : context.pointsLeft) {
-					area.draw(g);
+					if (chartStateMachine == 3)
+						area.draw(g);
 				}
 
 			popStyle();
@@ -797,6 +814,8 @@ public class ManuCapture_v1_1 extends PApplet {
 		}
 		// datos de cámara
 		fill(255, 0, 0);
+		pushMatrix();
+		translate(0, 1015);
 		text("exposure: " + context.gphotoAAdapter.exposure, 650, 40);
 
 		text(" focusing: ", 890, 40);
@@ -808,6 +827,7 @@ public class ManuCapture_v1_1 extends PApplet {
 			fill(0, 255, 0);
 		}
 		ellipse(960, 35, 15, 15);
+		popMatrix();
 
 		if (context.captureState == ManuCaptureContext.CAMERAS_FOCUSSING
 				|| context.captureState == ManuCaptureContext.CAMERAS_MIRROR_UP
@@ -911,7 +931,7 @@ public class ManuCapture_v1_1 extends PApplet {
 
 		itemsViewport.mousePressed();
 
-		if (hotAreaSelected == null) {
+		if (hotAreaSelected == null && chartStateMachine == 3) {
 			for (HotArea area : context.pointsLeft) {
 				if (area.isInArea(mouseX, mouseY)) {
 					hotAreaSelected = area;
@@ -1099,6 +1119,8 @@ public class ManuCapture_v1_1 extends PApplet {
 
 	public void loadLastSessionData() {
 
+		context.guiController.normal_shutter_click1(null, null);
+		
 		String value;
 		try {
 			XML lastSessionData = loadXML("lastSession.xml");
@@ -1145,6 +1167,7 @@ public class ManuCapture_v1_1 extends PApplet {
 			G4P.showMessage(this, "Can't load project", "", G4P.WARNING);
 			loading = false;
 		}
+
 	}
 
 	public void saveLastSessionData() {

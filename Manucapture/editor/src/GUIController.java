@@ -274,6 +274,7 @@ public class GUIController {
 			context.parent.loading = true;
 			context.parent.loadProject(documentFileName);
 			context.parent.loading = false;
+			normal_shutter_click1(null, null);
 		} else {
 			context.parent.loading = false;
 		}
