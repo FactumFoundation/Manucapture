@@ -81,6 +81,8 @@ public class GUI {
 	GImageButton btnConnectedA;
 	GImageButton btnConnectedB;
 
+	GImageButton btnLiveView;
+
 	public GUI() {
 	}
 
@@ -127,23 +129,27 @@ public class GUI {
 		shutter_control_label.setTextBold();
 		shutter_control_label.setLocalColorScheme(GCScheme.CYAN_SCHEME);
 		shutter_control_label.setOpaque(true);
+		shutter_control_label.setVisible(false);
 		camera_config_label = new GLabel(parent, 300, 684, 200, 20);
 		camera_config_label.setText("CAMERA CONFIGURATION:");
 		camera_config_label.setTextBold();
 		camera_config_label.setLocalColorScheme(GCScheme.CYAN_SCHEME);
 		camera_config_label.setOpaque(true);
+		camera_config_label.setVisible(false);
 		camera_A_label = new GLabel(parent, 407, 719, 80, 20);
 		camera_A_label.setTextAlign(GAlign.CENTER, GAlign.MIDDLE);
 		camera_A_label.setText("CAMERA A");
 		camera_A_label.setTextBold();
 		camera_A_label.setLocalColorScheme(GCScheme.CYAN_SCHEME);
 		camera_A_label.setOpaque(true);
+		camera_A_label.setVisible(false);
 		camera_B_label = new GLabel(parent, 407, 852, 80, 20);
 		camera_B_label.setTextAlign(GAlign.CENTER, GAlign.MIDDLE);
 		camera_B_label.setText("CAMERA B");
 		camera_B_label.setTextBold();
 		camera_B_label.setLocalColorScheme(GCScheme.CYAN_SCHEME);
 		camera_B_label.setOpaque(true);
+		camera_B_label.setVisible(false);
 		page_comments_text = new GTextField(parent, 380, 326, 200, 80, G4P.SCROLLBARS_NONE);
 		page_comments_text.setLocalColorScheme(GCScheme.CYAN_SCHEME);
 		page_comments_text.setOpaque(true);
@@ -158,10 +164,12 @@ public class GUI {
 		normal_shutter_button.setText("NORMAL");
 		normal_shutter_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
 		normal_shutter_button.addEventHandler(guiController, "normal_shutter_click1");
+		normal_shutter_button.setVisible(false);
 		repeat_shutter_button = new GButton(parent, 386, 517, 122, 24);
 		repeat_shutter_button.setText("REPEAT");
 		repeat_shutter_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
 		repeat_shutter_button.addEventHandler(guiController, "repeat_shutter_click");
+		repeat_shutter_button.setVisible(false);
 		// subpage_shutter_button = new GButton(parent, 386, 547, 122, 24);
 		// subpage_shutter_button.setText("SUBPAGE");
 		// subpage_shutter_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
@@ -171,34 +179,43 @@ public class GUI {
 		calibration_shutter_button.setText("CALIBRATION");
 		calibration_shutter_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
 		calibration_shutter_button.addEventHandler(guiController, "calibration_shutter_click");
+		calibration_shutter_button.setVisible(false);
 		trigger_button = new GButton(parent, 386, 619, 122, 48);
 		trigger_button.setText("TRIGGER");
 		trigger_button.setLocalColorScheme(GCScheme.PURPLE_SCHEME);
 		trigger_button.addEventHandler(guiController, "trigger_button_click");
+		trigger_button.setVisible(false);
 		camera_A_connected_button = new GButton(parent, 386, 746, 122, 24);
 		camera_A_connected_button.setText("DISCONNECTED");
 		camera_A_connected_button.setLocalColorScheme(GCScheme.RED_SCHEME);
 		camera_A_connected_button.addEventHandler(guiController, "camera_A_connected_click");
+		camera_A_connected_button.setVisible(false);
+		camera_A_connected_button.setVisible(false);
 		camera_A_active_button = new GButton(parent, 385, 779, 122, 24);
 		camera_A_active_button.setText("ACTIVE");
 		camera_A_active_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
 		camera_A_active_button.addEventHandler(guiController, "camera_A_active_button_click");
+		camera_A_active_button.setVisible(false);
 		camera_A_inactive_button = new GButton(parent, 386, 809, 122, 24);
 		camera_A_inactive_button.setText("INACTIVE");
 		camera_A_inactive_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
 		camera_A_inactive_button.addEventHandler(guiController, "camera_A_inactive_button_click");
+		camera_A_inactive_button.setVisible(false);
 		camera_B_connected_button = new GButton(parent, 386, 879, 122, 24);
 		camera_B_connected_button.setText("DISCONNECTED");
 		camera_B_connected_button.setLocalColorScheme(GCScheme.RED_SCHEME);
 		camera_B_connected_button.addEventHandler(guiController, "camera_B_connected_click");
+		camera_B_connected_button.setVisible(false);
 		camera_B_active_button = new GButton(parent, 386, 915, 122, 24);
 		camera_B_active_button.setText("ACTIVE");
 		camera_B_active_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
 		camera_B_active_button.addEventHandler(guiController, "camera_B_active_click");
+		camera_B_active_button.setVisible(false);
 		camera_B_inactive_button = new GButton(parent, 386, 945, 122, 24);
 		camera_B_inactive_button.setText("INACTIVE");
 		camera_B_inactive_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
 		camera_B_inactive_button.addEventHandler(guiController, "camera_B_inactive_click");
+		camera_B_inactive_button.setVisible(false);
 		parameters_button = new GButton(parent, 386, 994, 122, 24);
 		parameters_button.setText("PARAMETERS");
 		parameters_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
@@ -236,16 +253,20 @@ public class GUI {
 		liveView_button.setText("LIVEVIEW");
 		liveView_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
 		liveView_button.addEventHandler(guiController, "liveView_button_click");
-
-		grpAll.addControls(first_page_button, last_page_button);//, page_info_label, page_comments_label,number_label,);
-		grpAll.addControls( shutter_control_label, camera_config_label, camera_A_label, camera_B_label);
-		grpAll.addControls(/*page_comments_text, page_num_text, */normal_shutter_button, repeat_shutter_button);
-		grpAll.addControls(calibration_shutter_button, trigger_button, camera_A_connected_button,
-				camera_A_active_button);
-		grpAll.addControls(camera_A_inactive_button, camera_B_connected_button, camera_B_active_button,
-				camera_B_inactive_button);
-		grpAll.addControls(parameters_button, load_button, edit_button, new_button,
-				/* page_search_text, page_search_label, */ liveView_button);
+		liveView_button.setVisible(false);
+		grpAll.addControls(first_page_button, last_page_button);// , page_info_label,
+																// page_comments_label,number_label,);
+		// grpAll.addControls( shutter_control_label, camera_config_label,
+		// camera_A_label, camera_B_label);
+//		grpAll.addControls(/* page_comments_text, page_num_text, */normal_shutter_button, repeat_shutter_button);
+		// grpAll.addControls(calibration_shutter_button, trigger_button,
+		// camera_A_connected_button,
+		// camera_A_active_button);
+		// grpAll.addControls(camera_A_inactive_button, camera_B_connected_button,
+		// camera_B_active_button,
+		// camera_B_inactive_button);
+		grpAll.addControls(parameters_button, load_button, edit_button,
+				new_button);/* page_search_text, page_search_label, liveView_button */
 
 		grpAll.addControls(close_button);
 
@@ -253,6 +274,10 @@ public class GUI {
 		files = new String[] { "btn_trigger.png", "btn_trigger.png", "btn_trigger.png" };
 		btnTrigger = new GImageButton(parent, parent.marginLeftViewerRight - 170, parent.height - 250, files);
 		grpAll.addControls(btnTrigger);
+
+		files = new String[] { "btn_live_view.png", "btn_live_view.png", "btn_live_view.png" };
+		btnLiveView = new GImageButton(parent, parent.marginLeftViewerRight - 170, 0, files);
+		grpAll.addControls(btnLiveView);
 
 		files = new String[] { "btn_normal.png", "btn_normal.png", "btn_normal.png" };
 		btnTriggerNormal = new GImageButton(parent, parent.marginLeftViewerRight + 50, parent.height - 170, files);

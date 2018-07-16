@@ -108,6 +108,8 @@ public class GUIController {
 		gui.normal_shutter_button.setLocalColorScheme(GCScheme.ORANGE_SCHEME);
 		gui.repeat_shutter_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
 		gui.calibration_shutter_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
+		context.gui.btnTriggerNormal.setVisible(true);
+		context.gui.btnTriggerRepeat.setVisible(false);
 	} // _CODE_:normal_shutter_button:563899:
 
 	public void repeat_shutter_click(GButton source, GEvent event) { // _CODE_:repeat_shutter_button:591981:
@@ -117,6 +119,9 @@ public class GUIController {
 		gui.normal_shutter_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
 		gui.repeat_shutter_button.setLocalColorScheme(GCScheme.ORANGE_SCHEME);
 		gui.calibration_shutter_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
+		context.gui.btnTriggerNormal.setVisible(false);
+		context.gui.btnTriggerRepeat.setVisible(true);
+
 	} // _CODE_:repeat_shutter_button:591981:
 
 	// public void subpage_shutter_click(GButton source, GEvent event) { //
@@ -311,8 +316,12 @@ public class GUIController {
 		context.parent.liveViewActive = 0;
 
 		context.parent.liveViewActive = 0;
-		context.gui.liveView_button.setEnabled(false);
-		context.gui.liveView_button.setVisible(false);
+//		context.gui.liveView_button.setEnabled(false);
+//		context.gui.liveView_button.setVisible(false);
+		
+		context.gui.btnLiveView.setEnabled(false);
+		context.gui.btnLiveView.setVisible(false);
+
 
 	} // _CODE_:export_button:581416:
 

@@ -31,26 +31,25 @@ public class ManuCapture_v1_1 extends PApplet {
 	/*
 	 * ManuCapture.pde A Visual tool for recording books using DSLR Cameras
 	 * 
-	 * This source file is part of the ManuCapture software For the latest info,
-	 * see http://www.factumfoundation.org/pag/235/Digitisation-of-oriental-
+	 * This source file is part of the ManuCapture software For the latest info, see
+	 * http://www.factumfoundation.org/pag/235/Digitisation-of-oriental-
 	 * manuscripts-in-Daghestan
 	 * 
-	 * Copyright (c) 2016-2018 Jorge Cano and Enrique Esteban in Factum
-	 * Foundation
+	 * Copyright (c) 2016-2018 Jorge Cano and Enrique Esteban in Factum Foundation
 	 * 
-	 * This program is free software; you can redistribute it and/or modify it
-	 * under the terms of the GNU General Public License as published by the
-	 * Free Software Foundation; either version 2 of the License, or (at your
-	 * option) any later version.
+	 * This program is free software; you can redistribute it and/or modify it under
+	 * the terms of the GNU General Public License as published by the Free Software
+	 * Foundation; either version 2 of the License, or (at your option) any later
+	 * version.
 	 * 
-	 * This program is distributed in the hope that it will be useful, but
-	 * WITHOUT ANY WARRANTY; without even the implied warranty of
-	 * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
-	 * Public License for more details.
+	 * This program is distributed in the hope that it will be useful, but WITHOUT
+	 * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+	 * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+	 * details.
 	 * 
-	 * You should have received a copy of the GNU General Public License along
-	 * with this program; if not, write to the Free Software Foundation, Inc.,
-	 * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+	 * You should have received a copy of the GNU General Public License along with
+	 * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
+	 * Place, Suite 330, Boston, MA 02111-1307 USA
 	 */
 
 	int receivePort = 3334;
@@ -94,10 +93,10 @@ public class ManuCapture_v1_1 extends PApplet {
 	int guideHeight_1 = 200;
 	int guideHeight_2 = 600;
 
-	int marginTopViewer =40;
+	int marginTopViewer = 40;
 	int marginLeftViewerRight = 1170;
 	int marginLeftViewerLeft = 400;
-	
+
 	ItemsViewport itemsViewport;
 
 	HotArea hotAreaSelected = null;
@@ -113,7 +112,7 @@ public class ManuCapture_v1_1 extends PApplet {
 	boolean editingProject = false;
 
 	PImage cameraIcon;
-	
+
 	public void setup() {
 
 		System.setOut(new TracingPrintStream(System.out));
@@ -329,10 +328,15 @@ public class ManuCapture_v1_1 extends PApplet {
 
 	public void draw() {
 
-		
-		
-		
-		
+		context.gui.btnLiveView.setAlpha(200);
+		context.gui.btnTrigger.setAlpha(220);
+		context.gui.btnTriggerChartColor.setAlpha(180);
+		context.gui.btnTriggerNormal.setAlpha(180);
+		context.gui.btnTriggerRepeat.setAlpha(180);
+		context.gui.btnConnectedB.setAlpha(180);
+		context.gui.btnConnectedA.setAlpha(180);
+		context.gui.btnConnectedB.moveTo(marginLeftViewerRight + context.hImageViewerSize - 280, 30);
+
 		background(75);
 
 		if (stateApp == STATE_APP_NO_PROJECT) {
@@ -395,13 +399,17 @@ public class ManuCapture_v1_1 extends PApplet {
 			}
 
 		} else {
-			
-			
+
 			// context.gui.grpAll.setVisible(1, true);
 			drawInittializedApp();
 			if (context.gui.grpProject.isVisible()) {
 				// rect(0, 0, width, height);
 			}
+
+			fill(255);
+			textAlign(CENTER);
+			textSize(18);
+			text("Factum Foundation Version 2.0", width / 2, height - 10);
 		}
 
 		fill(255);
@@ -461,10 +469,8 @@ public class ManuCapture_v1_1 extends PApplet {
 							"The cameras was not detected, please connect, turn on and restart de application", "",
 							G4P.WARNING);
 				} else {
-					myMessage.add(context.gphotoA
-							.getPort()); /* add an int to the osc message */
-					myMessage.add(context.gphotoB
-							.getPort()); /* add an int to the osc message */
+					myMessage.add(context.gphotoA.getPort()); /* add an int to the osc message */
+					myMessage.add(context.gphotoB.getPort()); /* add an int to the osc message */
 					context.oscP5.send(myMessage, context.viewerLocation);
 
 					process.waitFor();
@@ -519,7 +525,7 @@ public class ManuCapture_v1_1 extends PApplet {
 
 		// + background(backgroundColor);
 		fill(backgroundColor);
-		rect(0, 0, 200, 200);
+		// rect(0, 0, 200, 200);
 
 		// CAMERA STATE SECTION
 		// ///////////////////////////////////////////////////////
@@ -598,8 +604,11 @@ public class ManuCapture_v1_1 extends PApplet {
 			text("LIVEVIEW MODE ENABLED", width / 2 - 100, height / 2);
 			liveViewActive++;
 		} else if (liveViewActive == -1) {
-			context.gui.context.gui.liveView_button.setEnabled(true);
-			context.gui.liveView_button.setVisible(true);
+//			context.gui.context.gui.liveView_button.setEnabled(true);
+//			context.gui.liveView_button.setVisible(true);
+			context.gui.context.gui.btnLiveView.setEnabled(true);
+			context.gui.btnLiveView.setVisible(true);
+			
 		}
 
 		// stroke(0,0,255);
@@ -1180,8 +1189,8 @@ public class ManuCapture_v1_1 extends PApplet {
 	public synchronized void createProject(String projectFolderPath) {
 		if (!project.projectFilePath.equals("")) {
 			project.closeProject();
-//			context.gui.page_comments_text.setText("");
-//			context.gui.page_num_text.setText("0");
+			// context.gui.page_comments_text.setText("");
+			// context.gui.page_num_text.setText("0");
 
 		}
 		XML projectDataXML = loadXML("project_template.xml");
@@ -1271,26 +1280,49 @@ public class ManuCapture_v1_1 extends PApplet {
 		return pathApp;
 	}
 
+	private void noZoom() {
+		lastPressedL = null;
+		lastPressedR = null;
+	}
+
 	public void handleButtonEvents(GImageButton button, GEvent event) {
-		if (button == context.gui.btnTrigger)
+		if (button == context.gui.btnTrigger) {
 			context.guiController.trigger_button_click(null, null);
-		
-		if (button == context.gui.btnTriggerNormal){
+		}
+
+		if (button == context.gui.btnTriggerRepeat) {
 			context.guiController.normal_shutter_click1(null, null);
+			noZoom();
 		}
-		
-		if (button == context.gui.btnConnectedA){
+
+		if (button == context.gui.btnTriggerNormal) {
+			context.guiController.repeat_shutter_click(null, null);
+			noZoom();
+		}
+
+		if (button == context.gui.btnTriggerChartColor) {
+			context.guiController.calibration_shutter_click(null, null);
+			noZoom();
+		}
+
+		if (button == context.gui.btnLiveView) {
+			context.guiController.liveView_button_click(null, null);
+		}
+
+		if (button == context.gui.btnConnectedA) {
 			context.guiController.camera_A_active_button_click(null, null);
+			noZoom();
 		}
-		
-		if (button == context.gui.btnConnectedB){
+
+		if (button == context.gui.btnConnectedB) {
 			context.guiController.camera_B_active_click(null, null);
+			noZoom();
 		}
 	}
-	
+
 	public void settings() {
 		// size(595, 1030);
-//		size(1920, 1030, P2D);
+		// size(1920, 1030, P2D);
 		fullScreen(P2D);
 	}
 
@@ -1320,8 +1352,8 @@ public class ManuCapture_v1_1 extends PApplet {
 
 		/*
 		 * GraphicsEnvironment environment =
-		 * GraphicsEnvironment.getLocalGraphicsEnvironment(); GraphicsDevice
-		 * devices[] = environment.getScreenDevices();
+		 * GraphicsEnvironment.getLocalGraphicsEnvironment(); GraphicsDevice devices[] =
+		 * environment.getScreenDevices();
 		 * 
 		 * if(devices.length>1 ){ //we have a 2nd display/projector
 		 * 
@@ -1334,7 +1366,7 @@ public class ManuCapture_v1_1 extends PApplet {
 		 */
 
 		try {
-			String[] appletArgs = new String[] { "ManuCapture_v1_1","--present", location };
+			String[] appletArgs = new String[] { "ManuCapture_v1_1", "--present", location };
 			if (passedArgs != null) {
 				PApplet.main(concat(appletArgs, passedArgs));
 			} else {
