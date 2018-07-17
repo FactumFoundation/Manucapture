@@ -178,6 +178,11 @@ public class ManuCapture_v1_1 extends PApplet {
 		if (rotB != null)
 			context.rotationB = Integer.parseInt(rotB);
 
+		context.gui = new GUI();
+		context.gui.createGUI(context);
+		// context.gui.createGroup2Controls();
+		context.gui.customGUI();
+
 		System.out.println("camera A rotation" + rotA);
 		System.out.println("camera B rotation" + rotB);
 		context.oscP5 = new OscP5(this, receivePort);
@@ -201,11 +206,6 @@ public class ManuCapture_v1_1 extends PApplet {
 		G4P.messagesEnabled(false);
 		G4P.setGlobalColorScheme(GCScheme.YELLOW_SCHEME);
 		G4P.setCursor(ARROW);
-
-		context.gui = new GUI();
-		context.gui.createGUI(context);
-		// context.gui.createGroup2Controls();
-		context.gui.customGUI();
 
 		itemsViewport = new ItemsViewport();
 		itemsViewport.setup(context);
@@ -449,7 +449,11 @@ public class ManuCapture_v1_1 extends PApplet {
 
 	private void drawInittializedApp() {
 		context.camerasStateMachineLoop();
+//		
+//		context.gui.context.gui.btnEdit.moveTo(148,0);
+//		context.gui.context.gui.btnClose.moveTo(-15,0);
 
+		
 		if (liveViewActive == 1) {
 
 			context.gphotoA.setActive(false);
@@ -930,6 +934,11 @@ public class ManuCapture_v1_1 extends PApplet {
 				if (isMouseInsideRight())
 					hotAreaSelected.setRealPosition(mouseX, mouseY);
 			}
+			
+			if (hotAreaSelected.name.startsWith("R")) {
+				if (isMouseInsideLeft())
+					hotAreaSelected.setRealPosition(mouseX, mouseY);
+			}
 			project.selectedItem.mImageLeft.mesh = context.copyMesh(context.pointsLeft);
 			project.selectedItem.mImageRight.mesh = context.copyMesh(context.pointsRight);
 		}
@@ -1000,9 +1009,9 @@ public class ManuCapture_v1_1 extends PApplet {
 
 	private boolean isMouseInsideLeft() {
 
-		if (mouseY > marginTopViewer && mouseY < height) {
+		if (mouseY > marginTopViewer && mouseY < height-marginTopViewer) {
 			// Estamos en y
-			if (mouseX > marginLeftViewerRight) {
+			if (mouseX > marginLeftViewerRight && mouseX < marginLeftViewerRight + context.hImageViewerSize) {
 				return true;
 			}
 
@@ -1012,9 +1021,9 @@ public class ManuCapture_v1_1 extends PApplet {
 
 	private boolean isMouseInsideRight() {
 
-		if (mouseY > marginTopViewer && mouseY < height) {
+		if (mouseY > marginTopViewer && mouseY < height - marginTopViewer) {
 			// Estamos en y
-			if (mouseX > marginLeftViewerLeft && mouseX < marginLeftViewerRight) {
+			if (mouseX > marginLeftViewerLeft && mouseX < marginLeftViewerLeft + context.hImageViewerSize) {
 
 				if (mouseX > marginLeftViewerRight) {
 
@@ -1028,13 +1037,13 @@ public class ManuCapture_v1_1 extends PApplet {
 
 	private void updateZoomLeft() {
 		// lastPressedR = null;
-		if (isMouseInsideLeft())
+		if (isMouseInsideLeft()  && chartStateMachine != 3)
 			lastPressedL = new PVector(mouseX, mouseY);
 	}
 
 	private void updateZoomRight() {
 		// lastPressedR = null;
-		if (isMouseInsideRight())
+		if (isMouseInsideRight() && chartStateMachine != 3)
 			lastPressedR = new PVector(mouseX, mouseY);
 	}
 
@@ -1160,16 +1169,18 @@ public class ManuCapture_v1_1 extends PApplet {
 			project.selectedItemIndex = new Integer(lastSessionData.getChild("Current_Item").getContent());
 
 			value = lastSessionData.getChild("Camera_A_Active").getContent();
-			if (value.equals("1"))
-				context.cameraActiveA = true;
-			else
-				context.cameraActiveA = false;
+			if (value.equals("1") && !context.cameraActiveA)
+				context.guiController.camera_A_active_button_click(null, null);
+			// context.cameraActiveA = true;
+			// else
+			// context.cameraActiveA = false;
 
 			value = lastSessionData.getChild("Camera_B_Active").getContent();
-			if (value.equals("1"))
-				context.cameraActiveB = true;
-			else
-				context.cameraActiveB = false;
+			if (value.equals("1") && !context.cameraActiveB)
+				context.guiController.camera_B_active_click(null, null);
+			// context.cameraActiveB = true;
+			// else
+			// context.cameraActiveB = false;
 
 			project.forceSelectedItem(project.selectedItemIndex, false);
 
@@ -1330,9 +1341,6 @@ public class ManuCapture_v1_1 extends PApplet {
 	}
 
 	public void handleButtonEvents(GImageButton button, GEvent event) {
-		if (button == context.gui.btnTrigger) {
-			context.guiController.trigger_button_click(null, null);
-		}
 
 		if (button == context.gui.btnTriggerRepeat) {
 			context.guiController.normal_shutter_click1(null, null);
@@ -1344,23 +1352,53 @@ public class ManuCapture_v1_1 extends PApplet {
 			noZoom();
 		}
 
-		if (button == context.gui.btnTriggerChartColor) {
-			context.guiController.calibration_shutter_click(null, null);
-			noZoom();
-		}
+		if (chartStateMachine != 3) {
 
-		if (button == context.gui.btnLiveView) {
-			context.guiController.liveView_button_click(null, null);
-		}
+			if (button == context.gui.btnTrigger) {
+				context.guiController.trigger_button_click(null, null);
+			}
 
-		if (button == context.gui.btnConnectedA) {
-			context.guiController.camera_A_active_button_click(null, null);
-			noZoom();
-		}
+			if (button == context.gui.btnTriggerChartColor) {
+				context.guiController.calibration_shutter_click(null, null);
+				noZoom();
+			}
 
-		if (button == context.gui.btnConnectedB) {
-			context.guiController.camera_B_active_click(null, null);
-			noZoom();
+			if (button == context.gui.btnLiveView) {
+				context.guiController.liveView_button_click(null, null);
+			}
+			
+			if (button == context.gui.btnClose) {
+				context.guiController.close_click(null, null);
+			}
+			
+			if (button == context.gui.btnEdit) {
+				context.guiController.edit_click(null, null);
+			}
+			
+			if (button == context.gui.btnFirstPage) {
+				context.guiController.first_page_button_click(null, null);
+			}
+			
+			if (button == context.gui.btnLastPage) {
+				context.guiController.last_page_button_click(null, null);
+			}
+
+			if (button == context.gui.btnConnectedA) {
+				if (!context.cameraActiveA)
+					context.guiController.camera_A_active_button_click(null, null);
+				else
+					context.guiController.camera_A_inactive_button_click(null, null);
+				noZoom();
+			}
+
+			if (button == context.gui.btnConnectedB) {
+				if (!context.cameraActiveB)
+					context.guiController.camera_B_active_click(null, null);
+				else
+					context.guiController.camera_B_inactive_click(null, null);
+				noZoom();
+			}
+
 		}
 	}
 

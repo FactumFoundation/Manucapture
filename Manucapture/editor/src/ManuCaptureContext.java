@@ -317,6 +317,17 @@ public class ManuCaptureContext {
 
 		gphotoA.listener = gphotoAAdapter;
 		gphotoB.listener = gphotoBAdapter;
+		
+		captureState = CAMERAS_IDLE;
+		
+		
+//		if(!cameraActiveA){
+//			guiController.camera_A_active_button_click(null, null);
+//		}
+//		
+//		if(!cameraActiveB){
+//			guiController.camera_B_active_click(null, null);
+//		}
 
 		// releaseCameras();
 	}

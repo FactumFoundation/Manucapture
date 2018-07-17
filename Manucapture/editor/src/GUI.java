@@ -80,6 +80,12 @@ public class GUI {
 
 	GImageButton btnConnectedA;
 	GImageButton btnConnectedB;
+	
+	GImageButton btnEdit;
+	GImageButton btnClose;
+
+	GImageButton btnFirstPage;
+	GImageButton btnLastPage;
 
 	GImageButton btnLiveView;
 
@@ -101,11 +107,12 @@ public class GUI {
 		first_page_button.setText("FIRST PAGE");
 		first_page_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
 		first_page_button.addEventHandler(guiController, "first_page_button_click");
+		first_page_button.setVisible(false);
 		last_page_button = new GButton(parent, 141, 90, 122, 24);
 		last_page_button.setText("LAST PAGE");
 		last_page_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
 		last_page_button.addEventHandler(guiController, "last_page_button_click");
-
+		last_page_button.setVisible(false);
 		page_info_label = new GLabel(parent, 300, 276, 80, 20);
 		page_info_label.setText("PAGE INFO");
 		page_info_label.setTextBold();
@@ -220,6 +227,7 @@ public class GUI {
 		parameters_button.setText("PARAMETERS");
 		parameters_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
 		parameters_button.addEventHandler(guiController, "parameters_click");
+		parameters_button.setVisible(false);
 		load_button = new GButton(parent, -111, 11, 80, 24);
 		load_button.setText("LOAD");
 		load_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
@@ -228,12 +236,14 @@ public class GUI {
 		edit_button.setText("EDIT");
 		edit_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
 		edit_button.addEventHandler(guiController, "edit_click");
-
+		edit_button.setVisible(false);
+		
 		close_button = new GButton(parent, 289, 11, 80, 24);
 		close_button.setText("CLOSE");
 		close_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
 		close_button.addEventHandler(guiController, "close_click");
-
+		close_button.setVisible(false);
+		
 		new_button = new GButton(parent, -199, 11, 122, 24);
 		new_button.setText("NEW PROJECT");
 		new_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
@@ -254,7 +264,7 @@ public class GUI {
 		liveView_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
 		liveView_button.addEventHandler(guiController, "liveView_button_click");
 		liveView_button.setVisible(false);
-		grpAll.addControls(first_page_button, last_page_button);// , page_info_label,
+//		grpAll.addControls(first_page_button, last_page_button);// , page_info_label,
 																// page_comments_label,number_label,);
 		// grpAll.addControls( shutter_control_label, camera_config_label,
 		// camera_A_label, camera_B_label);
@@ -265,10 +275,10 @@ public class GUI {
 		// grpAll.addControls(camera_A_inactive_button, camera_B_connected_button,
 		// camera_B_active_button,
 		// camera_B_inactive_button);
-		grpAll.addControls(parameters_button, load_button, edit_button,
-				new_button);/* page_search_text, page_search_label, liveView_button */
+		grpAll.addControls( load_button, 
+				new_button);/* page_search_text, page_search_label, liveView_button edit_button,parameters_button,*/
 
-		grpAll.addControls(close_button);
+//		grpAll.addControls(close_button);
 
 		String[] files;
 		files = new String[] { "btn_trigger.png", "btn_trigger.png", "btn_trigger.png" };
@@ -276,7 +286,7 @@ public class GUI {
 		grpAll.addControls(btnTrigger);
 
 		files = new String[] { "btn_live_view.png", "btn_live_view.png", "btn_live_view.png" };
-		btnLiveView = new GImageButton(parent, parent.marginLeftViewerRight - 170, 0, files);
+		btnLiveView = new GImageButton(parent, parent.marginLeftViewerRight - 130, 0, files);
 		grpAll.addControls(btnLiveView);
 
 		files = new String[] { "btn_normal.png", "btn_normal.png", "btn_normal.png" };
@@ -299,7 +309,23 @@ public class GUI {
 		files = new String[] { "btn_connected.png", "btn_connected.png", "btn_connected.png" };
 		btnConnectedB = new GImageButton(parent, parent.marginLeftViewerRight, 30, files);
 		grpAll.addControls(btnConnectedB);
-
+		
+		files = new String[] { "btn_edit.png", "btn_edit.png", "btn_edit.png" };
+		btnEdit = new GImageButton(parent, 148,0, files);
+		grpAll.addControls(btnEdit);
+		
+		files = new String[] { "btn_close.png", "btn_close.png", "btn_close.png" };
+		btnClose = new GImageButton(parent, -15,0, files);
+		grpAll.addControls(btnClose);
+		
+		files = new String[] { "btn_first_page.png", "btn_first_page.png", "btn_first_page.png" };
+		btnFirstPage = new GImageButton(parent,-2,1010, files);
+		grpAll.addControls(btnFirstPage);
+		
+		files = new String[] { "btn_last_page.png", "btn_last_page.png", "btn_last_page.png" };
+		btnLastPage = new GImageButton(parent,127,1010, files);
+		grpAll.addControls(btnLastPage);
+		
 		createGroup2Controls();
 
 	}
