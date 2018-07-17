@@ -318,7 +318,7 @@ public class ManuCaptureContext {
 		gphotoA.listener = gphotoAAdapter;
 		gphotoB.listener = gphotoBAdapter;
 
-		releaseCameras();
+		// releaseCameras();
 	}
 
 	public void capture() {
@@ -345,19 +345,19 @@ public class ManuCaptureContext {
 		boolean failedA = false;
 		boolean failedB = false;
 
-		if (lastCameraAAction > 0 && lastCameraAAction > gphotoAAdapter.lastEvent + MAX_TIME_TO_EVENT) {
-			// we have a failing state, pulse lost
-			resetCamerasFailingB();
-			ignoreNextPhotoA = true;
-			lastCameraAAction = -1;
+		if (lastCameraAAction > 0 && gphotoAAdapter.lastEvent > lastCameraAAction +  MAX_TIME_TO_EVENT) {
+			// // we have a failing state, pulse lost
+			// resetCamerasFailingB();
+			// ignoreNextPhotoA = true;
+			// lastCameraAAction = -1;
 			failedA = true;
 		}
-
-		if (lastCameraBAction > 0 && lastCameraBAction > gphotoBAdapter.lastEvent + MAX_TIME_TO_EVENT) {
-			// we have a failing state, pulse lost
-			resetCamerasFailingA();
-			ignoreNextPhotoB = true;
-			lastCameraBAction = -1;
+		//
+		if (lastCameraBAction > 0 && gphotoBAdapter.lastEvent > lastCameraBAction  + MAX_TIME_TO_EVENT) {
+			// // we have a failing state, pulse lost
+			// resetCamerasFailingA();
+			// ignoreNextPhotoB = true;
+			// lastCameraBAction = -1;
 			failedB = true;
 		}
 
@@ -365,9 +365,19 @@ public class ManuCaptureContext {
 			captureState = CAMERAS_IDLE;
 		} else if (captureState == CAMERAS_FOCUSSING) {
 			// @TODO failedA and failedB
-			// if(failedA){
-			// return to idle state
-			// }
+			if (failedA) {
+				// resetCamerasFailingB();
+				// ignoreNextPhotoA = true;
+				// lastCameraAAction = -1;
+				G4P.showMessage(parent, "Camera A Fails, no event after action", "", G4P.WARNING);
+			}
+
+			if (failedB) {
+				// resetCamerasFailingA();
+				// ignoreNextPhotoB = true;
+				// lastCameraBAction = -1;
+				G4P.showMessage(parent, "Camera B Fails, no event after action", "", G4P.WARNING);
+			}
 			if (gphotoAAdapter.mirrorUp && gphotoBAdapter.mirrorUp) {
 				releaseAndShutterCameras();
 				captureState = CAMERAS_MIRROR_UP;
@@ -483,7 +493,7 @@ public class ManuCaptureContext {
 	}
 
 	public void clearPreviews() {
-		
+
 	}
 
 }

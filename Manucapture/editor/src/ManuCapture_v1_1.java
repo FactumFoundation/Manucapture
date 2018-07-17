@@ -31,25 +31,26 @@ public class ManuCapture_v1_1 extends PApplet {
 	/*
 	 * ManuCapture.pde A Visual tool for recording books using DSLR Cameras
 	 * 
-	 * This source file is part of the ManuCapture software For the latest info, see
-	 * http://www.factumfoundation.org/pag/235/Digitisation-of-oriental-
+	 * This source file is part of the ManuCapture software For the latest info,
+	 * see http://www.factumfoundation.org/pag/235/Digitisation-of-oriental-
 	 * manuscripts-in-Daghestan
 	 * 
-	 * Copyright (c) 2016-2018 Jorge Cano and Enrique Esteban in Factum Foundation
+	 * Copyright (c) 2016-2018 Jorge Cano and Enrique Esteban in Factum
+	 * Foundation
 	 * 
-	 * This program is free software; you can redistribute it and/or modify it under
-	 * the terms of the GNU General Public License as published by the Free Software
-	 * Foundation; either version 2 of the License, or (at your option) any later
-	 * version.
+	 * This program is free software; you can redistribute it and/or modify it
+	 * under the terms of the GNU General Public License as published by the
+	 * Free Software Foundation; either version 2 of the License, or (at your
+	 * option) any later version.
 	 * 
-	 * This program is distributed in the hope that it will be useful, but WITHOUT
-	 * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-	 * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
-	 * details.
+	 * This program is distributed in the hope that it will be useful, but
+	 * WITHOUT ANY WARRANTY; without even the implied warranty of
+	 * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
+	 * Public License for more details.
 	 * 
-	 * You should have received a copy of the GNU General Public License along with
-	 * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
-	 * Place, Suite 330, Boston, MA 02111-1307 USA
+	 * You should have received a copy of the GNU General Public License along
+	 * with this program; if not, write to the Free Software Foundation, Inc.,
+	 * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 	 */
 
 	int receivePort = 3334;
@@ -334,6 +335,7 @@ public class ManuCapture_v1_1 extends PApplet {
 		context.gui.btnTriggerNormal.setAlpha(180);
 		context.gui.btnTriggerRepeat.setAlpha(180);
 		context.gui.btnConnectedB.setAlpha(180);
+
 		context.gui.btnConnectedA.setAlpha(180);
 		context.gui.btnConnectedB.moveTo(marginLeftViewerRight + context.hImageViewerSize - 280, 30);
 
@@ -471,8 +473,10 @@ public class ManuCapture_v1_1 extends PApplet {
 							"The cameras was not detected, please connect, turn on and restart de application", "",
 							G4P.WARNING);
 				} else {
-					myMessage.add(context.gphotoA.getPort()); /* add an int to the osc message */
-					myMessage.add(context.gphotoB.getPort()); /* add an int to the osc message */
+					myMessage.add(context.gphotoA
+							.getPort()); /* add an int to the osc message */
+					myMessage.add(context.gphotoB
+							.getPort()); /* add an int to the osc message */
 					context.oscP5.send(myMessage, context.viewerLocation);
 
 					process.waitFor();
@@ -727,14 +731,21 @@ public class ManuCapture_v1_1 extends PApplet {
 		}
 
 		// datos de cámara
-		fill(255, 0, 0);
+		if (!context.cameraActiveB) {
+			fill(255, 0, 0);
+		} else {
+			fill(0, 255, 0);
+		}
 		pushMatrix();
+		ellipse(marginLeftViewerRight + 440, 78, 30, 30);
 		translate(0, 1015);
 		// fill(255);
 		text("exposure: " + context.gphotoBAdapter.exposure, marginLeftViewerRight + 75, 40);
 		text("focusing: ", marginLeftViewerRight + 300, 40);
 		text(context.gphotoBAdapter.g2p5.id, 840, 40);
 		text("mirroUp " + context.gphotoBAdapter.mirrorUp, marginLeftViewerRight + 75, 60);
+
+		fill(0, 200, 0);
 
 		if (context.gphotoBAdapter.focus) {
 			fill(255, 0, 0);
@@ -813,8 +824,16 @@ public class ManuCapture_v1_1 extends PApplet {
 			rect(580, 20, context.hImageViewerSize, context.wImageViewerSize);
 		}
 		// datos de cámara
-		fill(255, 0, 0);
 		pushMatrix();
+		if (!context.cameraActiveA) {
+			fill(255, 0, 0);
+		} else {
+			fill(0, 255, 0);
+		}
+		ellipse(marginLeftViewerLeft + 230, 78, 30, 30);
+
+		fill(255, 0, 0);
+
 		translate(0, 1015);
 		text("exposure: " + context.gphotoAAdapter.exposure, 650, 40);
 
@@ -931,18 +950,20 @@ public class ManuCapture_v1_1 extends PApplet {
 
 		itemsViewport.mousePressed();
 
-		if (hotAreaSelected == null && chartStateMachine == 3) {
-			for (HotArea area : context.pointsLeft) {
-				if (area.isInArea(mouseX, mouseY)) {
-					hotAreaSelected = area;
-					break;
+		if (hotAreaSelected == null) {
+			if (chartStateMachine == 3) {
+				for (HotArea area : context.pointsLeft) {
+					if (area.isInArea(mouseX, mouseY)) {
+						hotAreaSelected = area;
+						break;
+					}
 				}
-			}
 
-			for (HotArea area : context.pointsRight) {
-				if (area.isInArea(mouseX, mouseY)) {
-					hotAreaSelected = area;
-					break;
+				for (HotArea area : context.pointsRight) {
+					if (area.isInArea(mouseX, mouseY)) {
+						hotAreaSelected = area;
+						break;
+					}
 				}
 			}
 
@@ -1120,7 +1141,7 @@ public class ManuCapture_v1_1 extends PApplet {
 	public void loadLastSessionData() {
 
 		context.guiController.normal_shutter_click1(null, null);
-		
+
 		String value;
 		try {
 			XML lastSessionData = loadXML("lastSession.xml");
@@ -1371,12 +1392,12 @@ public class ManuCapture_v1_1 extends PApplet {
 
 	static public void main(String[] passedArgs) {
 
-		String location = "--location=0,0";
+		// String location = "--location=0,0";
 
 		/*
 		 * GraphicsEnvironment environment =
-		 * GraphicsEnvironment.getLocalGraphicsEnvironment(); GraphicsDevice devices[] =
-		 * environment.getScreenDevices();
+		 * GraphicsEnvironment.getLocalGraphicsEnvironment(); GraphicsDevice
+		 * devices[] = environment.getScreenDevices();
 		 * 
 		 * if(devices.length>1 ){ //we have a 2nd display/projector
 		 * 
@@ -1389,7 +1410,9 @@ public class ManuCapture_v1_1 extends PApplet {
 		 */
 
 		try {
-			String[] appletArgs = new String[] { "ManuCapture_v1_1", "--present", location };
+			String[] appletArgs = new String[] { "ManuCapture_v1_1", "--present" };// ,
+																					// location
+																					// };
 			if (passedArgs != null) {
 				PApplet.main(concat(appletArgs, passedArgs));
 			} else {
