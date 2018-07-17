@@ -282,24 +282,24 @@ public class GUI {
 
 		String[] files;
 		files = new String[] { "btn_trigger.png", "btn_trigger.png", "btn_trigger.png" };
-		btnTrigger = new GImageButton(parent, parent.marginLeftViewerRight - 170, parent.height - 250, files);
+		btnTrigger = new GImageButton(parent, parent.marginLeftViewerRight - 170, parent.height - 200, files);
 		grpAll.addControls(btnTrigger);
 
 		files = new String[] { "btn_live_view.png", "btn_live_view.png", "btn_live_view.png" };
-		btnLiveView = new GImageButton(parent, parent.marginLeftViewerRight - 130, 0, files);
+		btnLiveView = new GImageButton(parent, parent.marginLeftViewerRight - 130, 680, files);
 		grpAll.addControls(btnLiveView);
 
 		files = new String[] { "btn_normal.png", "btn_normal.png", "btn_normal.png" };
-		btnTriggerNormal = new GImageButton(parent, parent.marginLeftViewerRight + 50, parent.height - 170, files);
+		btnTriggerNormal = new GImageButton(parent, parent.marginLeftViewerRight + 50, parent.height - 120, files);
 		grpAll.addControls(btnTriggerNormal);
 
 		files = new String[] { "btn_repeat.png", "btn_repeat.png", "btn_repeat.png" };
-		btnTriggerRepeat = new GImageButton(parent, parent.marginLeftViewerRight + 50, parent.height - 170, files);
+		btnTriggerRepeat = new GImageButton(parent, parent.marginLeftViewerRight + 50, parent.height - 120, files);
 		grpAll.addControls(btnTriggerRepeat);
 		btnTriggerRepeat.setVisible(false);
 
 		files = new String[] { "btn_calibrate.png", "btn_calibrate.png", "btn_calibrate.png" };
-		btnTriggerChartColor = new GImageButton(parent, parent.marginLeftViewerRight - 310, parent.height - 170, files);
+		btnTriggerChartColor = new GImageButton(parent, parent.marginLeftViewerRight - 310, parent.height - 120, files);
 		grpAll.addControls(btnTriggerChartColor);
 
 		files = new String[] { "btn_connected.png", "btn_connected.png", "btn_connected.png" };
@@ -311,19 +311,19 @@ public class GUI {
 		grpAll.addControls(btnConnectedB);
 		
 		files = new String[] { "btn_edit.png", "btn_edit.png", "btn_edit.png" };
-		btnEdit = new GImageButton(parent, 148,0, files);
+		btnEdit = new GImageButton(parent, 148 +30,70, files);
 		grpAll.addControls(btnEdit);
 		
 		files = new String[] { "btn_close.png", "btn_close.png", "btn_close.png" };
-		btnClose = new GImageButton(parent, -15,0, files);
+		btnClose = new GImageButton(parent, -15 + 30,70, files);
 		grpAll.addControls(btnClose);
 		
 		files = new String[] { "btn_first_page.png", "btn_first_page.png", "btn_first_page.png" };
-		btnFirstPage = new GImageButton(parent,-2,1010, files);
+		btnFirstPage = new GImageButton(parent,-2 +30,1010, files);
 		grpAll.addControls(btnFirstPage);
 		
 		files = new String[] { "btn_last_page.png", "btn_last_page.png", "btn_last_page.png" };
-		btnLastPage = new GImageButton(parent,127,1010, files);
+		btnLastPage = new GImageButton(parent,127+30,1010, files);
 		grpAll.addControls(btnLastPage);
 		
 		createGroup2Controls();

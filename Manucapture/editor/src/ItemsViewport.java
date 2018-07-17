@@ -32,7 +32,7 @@ public class ItemsViewport {
 	int removeIconSize = 20;
 	int overItemColor = 0xff4B4949;
 
-	int itemListViewPortX = 5;
+	int itemListViewPortX = 35;
 	int itemListViewPortY = 120;
 	int itemListViewPortWidth = 285;
 	int itemListViewPortHeight = 900;

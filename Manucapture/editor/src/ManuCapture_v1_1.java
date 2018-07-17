@@ -337,7 +337,7 @@ public class ManuCapture_v1_1 extends PApplet {
 		context.gui.btnConnectedB.setAlpha(180);
 
 		context.gui.btnConnectedA.setAlpha(180);
-		context.gui.btnConnectedB.moveTo(marginLeftViewerRight + context.hImageViewerSize - 280, 30);
+//		context.gui.btnConnectedB.moveTo(marginLeftViewerRight + context.hImageViewerSize - 280, 30);
 
 		background(75);
 
@@ -345,7 +345,7 @@ public class ManuCapture_v1_1 extends PApplet {
 			// MOSTRAR CARGAR O NUEVO
 			context.gui.grpAll.setVisible(1, false);
 			// ellipse(width/2,500,1000,1000);
-			textAlign(CENTER);
+			textAlign(CENTER,CENTER);
 
 			PVector m = new PVector(mouseX, mouseY);
 			float dist = m.dist(new PVector(width / 2, 500));
@@ -413,12 +413,12 @@ public class ManuCapture_v1_1 extends PApplet {
 			fill(255);
 			textAlign(CENTER);
 			textSize(18);
-			text("Factum Foundation Version 2.0", width / 2, height - 10);
+//			text("Factum Foundation Version 2.0", width / 2, height - 10);
 		}
 
 		fill(255);
-		text("contextstate " + context.captureState + " state" + cameraState + "\n " + "\nstateChart "
-				+ chartStateMachine + "\n " + frameRate + context.gui.grpProject.isVisible(), 250, 10);
+//		text("contextstate " + context.captureState + " state" + cameraState + "\n " + "\nstateChart "
+//				+ chartStateMachine + "\n " + frameRate + context.gui.grpProject.isVisible(), 350, height-10);
 
 		if (loading) {
 			fill(0, 200);
@@ -449,11 +449,10 @@ public class ManuCapture_v1_1 extends PApplet {
 
 	private void drawInittializedApp() {
 		context.camerasStateMachineLoop();
-//		
-//		context.gui.context.gui.btnEdit.moveTo(148,0);
-//		context.gui.context.gui.btnClose.moveTo(-15,0);
+//		//
+//		 context.gui.context.gui.btnLiveView.moveTo(marginLeftViewerRight - 130, 693);
+//		 context.gui.context.gui.btnTrigger.moveTo(marginLeftViewerRight - 170, height - 250);
 
-		
 		if (liveViewActive == 1) {
 
 			context.gphotoA.setActive(false);
@@ -599,9 +598,10 @@ public class ManuCapture_v1_1 extends PApplet {
 		textAlign(LEFT);
 		pushStyle();
 		textSize(24);
-		text("Project " + context.project.projectName, 10, 25);
+		fill(255);
+		text("Project " + context.project.projectName, 40, 35);
 		textSize(18);
-		text("Code " + context.project.projectCode, 10, 50);
+		text("Code " + context.project.projectCode, 40, 65);
 		popStyle();
 		textSize(16);
 		fill(255, 0, 0);
@@ -713,7 +713,7 @@ public class ManuCapture_v1_1 extends PApplet {
 
 			fill(255);
 			textSize(24);
-			text(project.selectedItem.mImageLeft.imagePath, 200, -10);
+			text(project.selectedItem.mImageLeft.imagePath, 130, -10);
 			popMatrix();
 			stroke(255, 0, 0);
 			if (chartStateMachine == 3) {
@@ -740,24 +740,25 @@ public class ManuCapture_v1_1 extends PApplet {
 		} else {
 			fill(0, 255, 0);
 		}
-		pushMatrix();
-		ellipse(marginLeftViewerRight + 440, 78, 30, 30);
-		translate(0, 1015);
-		// fill(255);
-		text("exposure: " + context.gphotoBAdapter.exposure, marginLeftViewerRight + 75, 40);
-		text("focusing: ", marginLeftViewerRight + 300, 40);
-		text(context.gphotoBAdapter.g2p5.id, 840, 40);
-		text("mirroUp " + context.gphotoBAdapter.mirrorUp, marginLeftViewerRight + 75, 60);
-
-		fill(0, 200, 0);
-
-		if (context.gphotoBAdapter.focus) {
-			fill(255, 0, 0);
-		} else {
-			fill(0, 255, 0);
-		}
-		ellipse(marginLeftViewerRight + 370, 35, 15, 15);
-		popMatrix();
+		ellipse(marginLeftViewerRight + 225, 78, 30, 30);
+//		pushMatrix();
+//		
+//		translate(0, 1015);
+//		// fill(255);
+//		text("exposure: " + context.gphotoBAdapter.exposure, marginLeftViewerRight + 75, 40);
+//		text("focusing: ", marginLeftViewerRight + 300, 40);
+//		text(context.gphotoBAdapter.g2p5.id, 840, 40);
+//		text("mirroUp " + context.gphotoBAdapter.mirrorUp, marginLeftViewerRight + 75, 60);
+//
+//		fill(0, 200, 0);
+//
+//		if (context.gphotoBAdapter.focus) {
+//			fill(255, 0, 0);
+//		} else {
+//			fill(0, 255, 0);
+//		}
+//		ellipse(marginLeftViewerRight + 370, 35, 15, 15);
+//		popMatrix();
 		if (context.captureState == ManuCaptureContext.CAMERAS_FOCUSSING
 				|| context.captureState == ManuCaptureContext.CAMERAS_MIRROR_UP
 				|| context.captureState == ManuCaptureContext.CAMERAS_PROCESSING) {
@@ -808,7 +809,7 @@ public class ManuCapture_v1_1 extends PApplet {
 
 			fill(255);
 			textSize(24);
-			text(project.selectedItem.mImageRight.imagePath, 200, -10);
+			text(project.selectedItem.mImageRight.imagePath, 130, -10);
 
 			popMatrix();
 			stroke(255, 0, 0);
@@ -828,29 +829,29 @@ public class ManuCapture_v1_1 extends PApplet {
 			rect(580, 20, context.hImageViewerSize, context.wImageViewerSize);
 		}
 		// datos de cámara
-		pushMatrix();
+	
 		if (!context.cameraActiveA) {
 			fill(255, 0, 0);
 		} else {
 			fill(0, 255, 0);
 		}
-		ellipse(marginLeftViewerLeft + 230, 78, 30, 30);
+		ellipse(marginLeftViewerLeft + 227, 78, 30, 30);
 
 		fill(255, 0, 0);
-
-		translate(0, 1015);
-		text("exposure: " + context.gphotoAAdapter.exposure, 650, 40);
-
-		text(" focusing: ", 890, 40);
-		text("mirroUp " + context.gphotoAAdapter.mirrorUp, 650, 60);
-		text(context.gphotoAAdapter.g2p5.id, 840, 40);
-		if (context.gphotoAAdapter.focus) {
-			fill(255, 0, 0);
-		} else {
-			fill(0, 255, 0);
-		}
-		ellipse(960, 35, 15, 15);
-		popMatrix();
+//		pushMatrix();
+//		translate(0, 1015);
+//		text("exposure: " + context.gphotoAAdapter.exposure, 650, 40);
+//
+//		text(" focusing: ", 890, 40);
+//		text("mirroUp " + context.gphotoAAdapter.mirrorUp, 650, 60);
+//		text(context.gphotoAAdapter.g2p5.id, 840, 40);
+//		if (context.gphotoAAdapter.focus) {
+//			fill(255, 0, 0);
+//		} else {
+//			fill(0, 255, 0);
+//		}
+//		ellipse(960, 35, 15, 15);
+//		popMatrix();
 
 		if (context.captureState == ManuCaptureContext.CAMERAS_FOCUSSING
 				|| context.captureState == ManuCaptureContext.CAMERAS_MIRROR_UP
@@ -934,7 +935,7 @@ public class ManuCapture_v1_1 extends PApplet {
 				if (isMouseInsideRight())
 					hotAreaSelected.setRealPosition(mouseX, mouseY);
 			}
-			
+
 			if (hotAreaSelected.name.startsWith("R")) {
 				if (isMouseInsideLeft())
 					hotAreaSelected.setRealPosition(mouseX, mouseY);
@@ -1009,7 +1010,7 @@ public class ManuCapture_v1_1 extends PApplet {
 
 	private boolean isMouseInsideLeft() {
 
-		if (mouseY > marginTopViewer && mouseY < height-marginTopViewer) {
+		if (mouseY > marginTopViewer && mouseY < height - marginTopViewer) {
 			// Estamos en y
 			if (mouseX > marginLeftViewerRight && mouseX < marginLeftViewerRight + context.hImageViewerSize) {
 				return true;
@@ -1037,7 +1038,7 @@ public class ManuCapture_v1_1 extends PApplet {
 
 	private void updateZoomLeft() {
 		// lastPressedR = null;
-		if (isMouseInsideLeft()  && chartStateMachine != 3)
+		if (isMouseInsideLeft() && chartStateMachine != 3)
 			lastPressedL = new PVector(mouseX, mouseY);
 	}
 
@@ -1199,7 +1200,6 @@ public class ManuCapture_v1_1 extends PApplet {
 			G4P.showMessage(this, "Can't load project", "", G4P.WARNING);
 			loading = false;
 		}
-
 	}
 
 	public void saveLastSessionData() {
@@ -1366,19 +1366,19 @@ public class ManuCapture_v1_1 extends PApplet {
 			if (button == context.gui.btnLiveView) {
 				context.guiController.liveView_button_click(null, null);
 			}
-			
+
 			if (button == context.gui.btnClose) {
 				context.guiController.close_click(null, null);
 			}
-			
+
 			if (button == context.gui.btnEdit) {
 				context.guiController.edit_click(null, null);
 			}
-			
+
 			if (button == context.gui.btnFirstPage) {
 				context.guiController.first_page_button_click(null, null);
 			}
-			
+
 			if (button == context.gui.btnLastPage) {
 				context.guiController.last_page_button_click(null, null);
 			}
@@ -1404,8 +1404,8 @@ public class ManuCapture_v1_1 extends PApplet {
 
 	public void settings() {
 		// size(595, 1030);
-		// size(1920, 1030, P2D);
-		fullScreen(P2D);
+		 size(1920, 1080, P2D);
+//		fullScreen(P2D);
 	}
 
 	// public void loadRightPreview() {
