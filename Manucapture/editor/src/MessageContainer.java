@@ -33,8 +33,8 @@ public class MessageContainer {
 		content.put("sw.noeventB", "Camera B Fails, no event after action");
 
 		content.put("sw.fails", "Camera A And B Fails");
-		content.put("sw.failsA", "Camera A");
-		content.put("sw.failsB", "Camera B");
+		content.put("sw.failsA", "Camera A Fails");
+		content.put("sw.failsB", "Camera B Fails");
 
 		content.put("sw.", "");
 

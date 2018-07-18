@@ -17,6 +17,16 @@ import processing.core.PImage;
 import processing.data.XML;
 
 public class ManuCaptureContext {
+	
+	//size view on screen
+	int wImageViewerSize = 1000;
+	int hImageViewerSize = 667;
+	
+	//width size of the preview 
+	public int viewerWidthResolution = 2000;
+	
+	//max time waitting from send action to camera and receive event
+	static public int MAX_TIME_TO_EVENT = 3000;
 
 	PrintWriter logOutput;
 
@@ -54,14 +64,11 @@ public class ManuCaptureContext {
 	List<HotArea> pointsLeft = new ArrayList<>();
 	List<HotArea> pointsRight = new ArrayList<>();
 
-	int wImageViewerSize = 1000;
-	int hImageViewerSize = 667;
-
 	float scaleA = 1;
 	float scaleB = 1;
 
 	// width resolution for viewer
-	public int viewerWidthResolution = 2000;
+	
 
 	boolean cameraActiveA = false;
 	boolean cameraActiveB = false;
@@ -102,8 +109,6 @@ public class ManuCaptureContext {
 
 	long lastCameraAAction = 0;
 	long lastCameraBAction = 0;
-
-	static public int MAX_TIME_TO_EVENT = 3000;
 
 	MessageContainer messageContainer;
 

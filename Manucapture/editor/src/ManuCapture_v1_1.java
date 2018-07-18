@@ -665,15 +665,15 @@ public class ManuCapture_v1_1 extends PApplet {
 				}
 
 				fill(255, 0, 0, 100);
-				rect(0, 0, context.hImageViewerSize, context.wImageViewerSize);
+				rect(0, marginTopViewer, context.hImageViewerSize, context.wImageViewerSize);
 				fill(255);
 				textSize(24);
 				text(context.msg("sw.calibration1"), context.hImageViewerSize / 2, 200);
 			} else {
 				translate(marginLeftViewerLeft, 0);
 				fill(255, 0, 255, 0);
-				rect(0, 0, context.hImageViewerSize, context.wImageViewerSize);
-				rect(context.hImageViewerSize, 0, context.hImageViewerSize, context.wImageViewerSize);
+//				rect(0, 0, context.hImageViewerSize, context.wImageViewerSize);
+//				rect(context.hImageViewerSize, 0, context.hImageViewerSize, context.wImageViewerSize);
 				textSize(24);
 				fill(255, 255, 0);
 				String cad = context.msg("sw.calibration2");
@@ -690,10 +690,15 @@ public class ManuCapture_v1_1 extends PApplet {
 
 		// trigger button color
 		if (context.isAllMirrorsReady()) {
-			context.gui.trigger_button.setLocalColorScheme(GCScheme.GREEN_SCHEME);
+//			context.gui.trigger_button.setLocalColorScheme(GCScheme.GREEN_SCHEME);
+			
+			fill(0,255,0);
 		} else {
-			context.gui.trigger_button.setLocalColorScheme(GCScheme.RED_SCHEME);
+			fill(255,0,0);
+//			context.gui.trigger_button.setLocalColorScheme(GCScheme.RED_SCHEME);
 		}
+		
+		ellipse(1120,938,50,50);
 	}
 
 	private void drawLeft() {
@@ -1177,14 +1182,14 @@ public class ManuCapture_v1_1 extends PApplet {
 			project.selectedItemIndex = new Integer(lastSessionData.getChild("Current_Item").getContent());
 
 			value = lastSessionData.getChild("Camera_A_Active").getContent();
-			if (value.equals("1") && !context.cameraActiveA)
+			if (value.equals("1") && !context.gphotoA.isConnected())
 				context.guiController.camera_A_active_button_click(null, null);
 			// context.cameraActiveA = true;
 			// else
 			// context.cameraActiveA = false;
 
 			value = lastSessionData.getChild("Camera_B_Active").getContent();
-			if (value.equals("1") && !context.cameraActiveB)
+			if (value.equals("1") && !context.gphotoB.isConnected())
 				context.guiController.camera_B_active_click(null, null);
 			// context.cameraActiveB = true;
 			// else
@@ -1195,6 +1200,8 @@ public class ManuCapture_v1_1 extends PApplet {
 			context.gui.grpAll.setVisible(1, true);
 
 			loading = false;
+			
+			noZoom();
 
 			// } else {
 			//// new_button_click(null, null);
@@ -1453,7 +1460,20 @@ public class ManuCapture_v1_1 extends PApplet {
 		 * 
 		 * }
 		 */
-
+		try {
+			String[] appletArgs = new String[] { "ArduinoDriver", "" };// ,
+																					// location
+																					// };
+			if (passedArgs != null) {
+				PApplet.main(concat(appletArgs, passedArgs));
+			} else {
+				PApplet.main(appletArgs);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.out.println("End of programmm");
+		}
+		
 		try {
 			String[] appletArgs = new String[] { "ManuCapture_v1_1", "--present" };// ,
 																					// location
@@ -1467,6 +1487,8 @@ public class ManuCapture_v1_1 extends PApplet {
 			e.printStackTrace();
 			System.out.println("End of programmm");
 		}
+		
+		
 
 	}
 
