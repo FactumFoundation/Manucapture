@@ -105,6 +105,8 @@ public class ManuCaptureContext {
 
 	static public int MAX_TIME_TO_EVENT = 3000;
 
+	MessageContainer messageContainer;
+
 	public G2P5ManucaptureAdapter createG2P5(String serial, String name) {
 		G2P5 g2p5 = G2P5.create(parent.homeDirectory(), serial, name);
 		G2P5ManucaptureAdapter adapter = new G2P5ManucaptureAdapter();
@@ -317,17 +319,16 @@ public class ManuCaptureContext {
 
 		gphotoA.listener = gphotoAAdapter;
 		gphotoB.listener = gphotoBAdapter;
-		
+
 		captureState = CAMERAS_IDLE;
-		
-		
-//		if(!cameraActiveA){
-//			guiController.camera_A_active_button_click(null, null);
-//		}
-//		
-//		if(!cameraActiveB){
-//			guiController.camera_B_active_click(null, null);
-//		}
+
+		// if(!cameraActiveA){
+		// guiController.camera_A_active_button_click(null, null);
+		// }
+		//
+		// if(!cameraActiveB){
+		// guiController.camera_B_active_click(null, null);
+		// }
 
 		// releaseCameras();
 	}
@@ -335,13 +336,17 @@ public class ManuCaptureContext {
 	public void capture() {
 		// Init capture secuence
 		if (captureState == CAMERAS_IDLE) {
-			captureState = CAMERAS_FOCUSSING;
-			pressCameras();
-			lastCaptureMillis = parent.millis();
+			if (gphotoA.isConnected() && gphotoB.isConnected()) {
+				captureState = CAMERAS_FOCUSSING;
+				pressCameras();
+				lastCaptureMillis = parent.millis();
+			}else{
+				G4P.showMessage(parent, messageContainer.getText("sw.notconnected"), "", G4P.WARNING);
+			}
 
 		} else {
 			if (captureState == CAMERAS_INACTIVE) {
-				G4P.showMessage(parent, "Can't Trigger, cameras are not active", "", G4P.WARNING);
+				G4P.showMessage(parent, messageContainer.getText("sw.notready"), "", G4P.WARNING);
 			}
 		}
 
@@ -356,7 +361,7 @@ public class ManuCaptureContext {
 		boolean failedA = false;
 		boolean failedB = false;
 
-		if (lastCameraAAction > 0 && gphotoAAdapter.lastEvent > lastCameraAAction +  MAX_TIME_TO_EVENT) {
+		if (lastCameraAAction > 0 && gphotoAAdapter.lastEvent > lastCameraAAction + MAX_TIME_TO_EVENT) {
 			// // we have a failing state, pulse lost
 			// resetCamerasFailingB();
 			// ignoreNextPhotoA = true;
@@ -364,7 +369,7 @@ public class ManuCaptureContext {
 			failedA = true;
 		}
 		//
-		if (lastCameraBAction > 0 && gphotoBAdapter.lastEvent > lastCameraBAction  + MAX_TIME_TO_EVENT) {
+		if (lastCameraBAction > 0 && gphotoBAdapter.lastEvent > lastCameraBAction + MAX_TIME_TO_EVENT) {
 			// // we have a failing state, pulse lost
 			// resetCamerasFailingA();
 			// ignoreNextPhotoB = true;
@@ -380,14 +385,14 @@ public class ManuCaptureContext {
 				// resetCamerasFailingB();
 				// ignoreNextPhotoA = true;
 				// lastCameraAAction = -1;
-				G4P.showMessage(parent, "Camera A Fails, no event after action", "", G4P.WARNING);
+				G4P.showMessage(parent, messageContainer.getText("sw.noeventA"), "", G4P.WARNING);
 			}
 
 			if (failedB) {
 				// resetCamerasFailingA();
 				// ignoreNextPhotoB = true;
 				// lastCameraBAction = -1;
-				G4P.showMessage(parent, "Camera B Fails, no event after action", "", G4P.WARNING);
+				G4P.showMessage(parent, messageContainer.getText("sw.noeventB"), "", G4P.WARNING);
 			}
 			if (gphotoAAdapter.mirrorUp && gphotoBAdapter.mirrorUp) {
 				releaseAndShutterCameras();
@@ -399,15 +404,15 @@ public class ManuCaptureContext {
 					parent.println("Lsa dos cámaras no están dispuestas a poner el mirror en up");
 					if (!gphotoAAdapter.mirrorUp && !gphotoBAdapter.mirrorUp) {
 						releaseCameras();
-						G4P.showMessage(parent, "Camera A And B Fails", "", G4P.WARNING);
+						G4P.showMessage(parent, messageContainer.getText("sw.fails"), "", G4P.WARNING);
 					} else if (!gphotoAAdapter.mirrorUp && gphotoBAdapter.mirrorUp) {
 						resetCamerasFailingA();
 						ignoreNextPhotoB = true;
-						G4P.showMessage(parent, "Camera A Fails", "", G4P.WARNING);
+						G4P.showMessage(parent, messageContainer.getText("sw.failsA"), "", G4P.WARNING);
 					} else if (gphotoAAdapter.mirrorUp && !gphotoBAdapter.mirrorUp) {
 						resetCamerasFailingB();
 						ignoreNextPhotoA = true;
-						G4P.showMessage(parent, "Camera B Fails", "", G4P.WARNING);
+						G4P.showMessage(parent, messageContainer.getText("sw.failsB"), "", G4P.WARNING);
 					}
 					captureState = CAMERAS_IDLE;
 				}
@@ -505,6 +510,10 @@ public class ManuCaptureContext {
 
 	public void clearPreviews() {
 
+	}
+
+	public String msg(String key) {
+		return messageContainer.getText(key);
 	}
 
 }

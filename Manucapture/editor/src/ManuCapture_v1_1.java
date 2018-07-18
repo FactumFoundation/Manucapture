@@ -124,6 +124,8 @@ public class ManuCapture_v1_1 extends PApplet {
 		context.gui = new GUI();
 		context.guiController = new GUIController(context);
 		context.appPath = sketchPath() + "/..";
+		context.messageContainer = new MessageContainer();
+		context.messageContainer.init();
 
 		int size = 50;
 
@@ -337,7 +339,8 @@ public class ManuCapture_v1_1 extends PApplet {
 		context.gui.btnConnectedB.setAlpha(180);
 
 		context.gui.btnConnectedA.setAlpha(180);
-//		context.gui.btnConnectedB.moveTo(marginLeftViewerRight + context.hImageViewerSize - 280, 30);
+		// context.gui.btnConnectedB.moveTo(marginLeftViewerRight +
+		// context.hImageViewerSize - 280, 30);
 
 		background(75);
 
@@ -345,7 +348,7 @@ public class ManuCapture_v1_1 extends PApplet {
 			// MOSTRAR CARGAR O NUEVO
 			context.gui.grpAll.setVisible(1, false);
 			// ellipse(width/2,500,1000,1000);
-			textAlign(CENTER,CENTER);
+			textAlign(CENTER, CENTER);
 
 			PVector m = new PVector(mouseX, mouseY);
 			float dist = m.dist(new PVector(width / 2, 500));
@@ -354,9 +357,9 @@ public class ManuCapture_v1_1 extends PApplet {
 
 			fill(255);
 			textSize(32);
-			text("MANUCAPTURE", width / 2, 250);
+			text(context.msg("sw.name"), width / 2, 250);
 			textSize(18);
-			text("Factum Foundation Version 2.0", width / 2, height - 30);
+			text(context.msg("factum.name") + " " + context.msg("sw.version"), width / 2, height - 30);
 			textSize(20);
 
 			if (dist2 < 100)
@@ -366,7 +369,7 @@ public class ManuCapture_v1_1 extends PApplet {
 
 			ellipse(width / 2 - width / 4, 500, 200, 200);
 			fill(0);
-			text("NEW PROJECT", width / 2 - width / 4, 500);
+			text(context.msg("sw.newproject"), width / 2 - width / 4, 500);
 
 			if (dist < 100)
 				fill(100);
@@ -375,7 +378,7 @@ public class ManuCapture_v1_1 extends PApplet {
 
 			ellipse(width / 2, 500, 200, 200);
 			fill(0);
-			text("LOAD PREVIOUS", width / 2, 500);
+			text(context.msg("sw.lastproject"), width / 2, 500);
 
 			if (dist1 < 100)
 				fill(100);
@@ -383,7 +386,7 @@ public class ManuCapture_v1_1 extends PApplet {
 				fill(255);
 			ellipse(width / 2 + width / 4, 500, 200, 200);
 			fill(0);
-			text("LOAD PROJECT", width / 2 + width / 4, 500);
+			text(context.msg("sw.openproject"), width / 2 + width / 4, 500);
 
 			if (mousePressed && !loading) {
 				if (dist < 100) {
@@ -413,12 +416,14 @@ public class ManuCapture_v1_1 extends PApplet {
 			fill(255);
 			textAlign(CENTER);
 			textSize(18);
-//			text("Factum Foundation Version 2.0", width / 2, height - 10);
+			// text("Factum Foundation Version 2.0", width / 2, height - 10);
 		}
 
 		fill(255);
-//		text("contextstate " + context.captureState + " state" + cameraState + "\n " + "\nstateChart "
-//				+ chartStateMachine + "\n " + frameRate + context.gui.grpProject.isVisible(), 350, height-10);
+		// text("contextstate " + context.captureState + " state" + cameraState
+		// + "\n " + "\nstateChart "
+		// + chartStateMachine + "\n " + frameRate +
+		// context.gui.grpProject.isVisible(), 350, height-10);
 
 		if (loading) {
 			fill(0, 200);
@@ -449,9 +454,11 @@ public class ManuCapture_v1_1 extends PApplet {
 
 	private void drawInittializedApp() {
 		context.camerasStateMachineLoop();
-//		//
-//		 context.gui.context.gui.btnLiveView.moveTo(marginLeftViewerRight - 130, 693);
-//		 context.gui.context.gui.btnTrigger.moveTo(marginLeftViewerRight - 170, height - 250);
+		// //
+		// context.gui.context.gui.btnLiveView.moveTo(marginLeftViewerRight -
+		// 130, 693);
+		// context.gui.context.gui.btnTrigger.moveTo(marginLeftViewerRight -
+		// 170, height - 250);
 
 		if (liveViewActive == 1) {
 
@@ -472,9 +479,7 @@ public class ManuCapture_v1_1 extends PApplet {
 				OscMessage myMessage = new OscMessage("/cameraPorts");
 				parent.println(context.gphotoA.getPort(), context.gphotoB.getPort());
 				if (context.gphotoA.getPort() == null || context.gphotoB.getPort() == null) {
-					G4P.showMessage(this,
-							"The cameras was not detected, please connect, turn on and restart de application", "",
-							G4P.WARNING);
+					G4P.showMessage(this, context.msg("sw.nocamera"), "", G4P.WARNING);
 				} else {
 					myMessage.add(context.gphotoA
 							.getPort()); /* add an int to the osc message */
@@ -611,7 +616,7 @@ public class ManuCapture_v1_1 extends PApplet {
 			rect(0, 0, width, height);
 			textSize(32);
 			fill(255, 0, 0);
-			text("LIVEVIEW MODE ENABLED", width / 2 - 100, height / 2);
+			text(context.msg("sw.liveviewenable"), width / 2 - 100, height / 2);
 			liveViewActive++;
 		} else if (liveViewActive == -1) {
 			// context.gui.context.gui.liveView_button.setEnabled(true);
@@ -663,7 +668,7 @@ public class ManuCapture_v1_1 extends PApplet {
 				rect(0, 0, context.hImageViewerSize, context.wImageViewerSize);
 				fill(255);
 				textSize(24);
-				text("CALIBRATING, PLEASE CAPTURE  THIS CAMERA", context.hImageViewerSize / 2, 200);
+				text(context.msg("sw.calibration1"), context.hImageViewerSize / 2, 200);
 			} else {
 				translate(marginLeftViewerLeft, 0);
 				fill(255, 0, 255, 0);
@@ -671,7 +676,7 @@ public class ManuCapture_v1_1 extends PApplet {
 				rect(context.hImageViewerSize, 0, context.hImageViewerSize, context.wImageViewerSize);
 				textSize(24);
 				fill(255, 255, 0);
-				String cad = "CROP POINTS, PLEASE DRAG POINTS TO COVER ALL DE MANUSCRIPT";
+				String cad = context.msg("sw.calibration2");
 				text(cad, context.hImageViewerSize / 2 - 1, 200 - 1);
 
 				fill(255);
@@ -735,30 +740,32 @@ public class ManuCapture_v1_1 extends PApplet {
 		}
 
 		// datos de cámara
-		if (!context.cameraActiveB) {
+		if (!context.gphotoB.isConnected()) {
 			fill(255, 0, 0);
 		} else {
 			fill(0, 255, 0);
 		}
 		ellipse(marginLeftViewerRight + 225, 78, 30, 30);
-//		pushMatrix();
-//		
-//		translate(0, 1015);
-//		// fill(255);
-//		text("exposure: " + context.gphotoBAdapter.exposure, marginLeftViewerRight + 75, 40);
-//		text("focusing: ", marginLeftViewerRight + 300, 40);
-//		text(context.gphotoBAdapter.g2p5.id, 840, 40);
-//		text("mirroUp " + context.gphotoBAdapter.mirrorUp, marginLeftViewerRight + 75, 60);
-//
-//		fill(0, 200, 0);
-//
-//		if (context.gphotoBAdapter.focus) {
-//			fill(255, 0, 0);
-//		} else {
-//			fill(0, 255, 0);
-//		}
-//		ellipse(marginLeftViewerRight + 370, 35, 15, 15);
-//		popMatrix();
+		// pushMatrix();
+		//
+		// translate(0, 1015);
+		// // fill(255);
+		// text("exposure: " + context.gphotoBAdapter.exposure,
+		// marginLeftViewerRight + 75, 40);
+		// text("focusing: ", marginLeftViewerRight + 300, 40);
+		// text(context.gphotoBAdapter.g2p5.id, 840, 40);
+		// text("mirroUp " + context.gphotoBAdapter.mirrorUp,
+		// marginLeftViewerRight + 75, 60);
+		//
+		// fill(0, 200, 0);
+		//
+		// if (context.gphotoBAdapter.focus) {
+		// fill(255, 0, 0);
+		// } else {
+		// fill(0, 255, 0);
+		// }
+		// ellipse(marginLeftViewerRight + 370, 35, 15, 15);
+		// popMatrix();
 		if (context.captureState == ManuCaptureContext.CAMERAS_FOCUSSING
 				|| context.captureState == ManuCaptureContext.CAMERAS_MIRROR_UP
 				|| context.captureState == ManuCaptureContext.CAMERAS_PROCESSING) {
@@ -829,8 +836,8 @@ public class ManuCapture_v1_1 extends PApplet {
 			rect(580, 20, context.hImageViewerSize, context.wImageViewerSize);
 		}
 		// datos de cámara
-	
-		if (!context.cameraActiveA) {
+
+		if (!context.gphotoA.isConnected()) {
 			fill(255, 0, 0);
 		} else {
 			fill(0, 255, 0);
@@ -838,20 +845,20 @@ public class ManuCapture_v1_1 extends PApplet {
 		ellipse(marginLeftViewerLeft + 227, 78, 30, 30);
 
 		fill(255, 0, 0);
-//		pushMatrix();
-//		translate(0, 1015);
-//		text("exposure: " + context.gphotoAAdapter.exposure, 650, 40);
-//
-//		text(" focusing: ", 890, 40);
-//		text("mirroUp " + context.gphotoAAdapter.mirrorUp, 650, 60);
-//		text(context.gphotoAAdapter.g2p5.id, 840, 40);
-//		if (context.gphotoAAdapter.focus) {
-//			fill(255, 0, 0);
-//		} else {
-//			fill(0, 255, 0);
-//		}
-//		ellipse(960, 35, 15, 15);
-//		popMatrix();
+		// pushMatrix();
+		// translate(0, 1015);
+		// text("exposure: " + context.gphotoAAdapter.exposure, 650, 40);
+		//
+		// text(" focusing: ", 890, 40);
+		// text("mirroUp " + context.gphotoAAdapter.mirrorUp, 650, 60);
+		// text(context.gphotoAAdapter.g2p5.id, 840, 40);
+		// if (context.gphotoAAdapter.focus) {
+		// fill(255, 0, 0);
+		// } else {
+		// fill(0, 255, 0);
+		// }
+		// ellipse(960, 35, 15, 15);
+		// popMatrix();
 
 		if (context.captureState == ManuCaptureContext.CAMERAS_FOCUSSING
 				|| context.captureState == ManuCaptureContext.CAMERAS_MIRROR_UP
@@ -1197,7 +1204,7 @@ public class ManuCapture_v1_1 extends PApplet {
 			// txtLog.insertText("Error reconstructing last session: check the
 			// integrity of your session folder ");
 			e.printStackTrace();
-			G4P.showMessage(this, "Can't load project", "", G4P.WARNING);
+			G4P.showMessage(this, context.msg("sw.errorloadingproject"), "", G4P.WARNING);
 			loading = false;
 		}
 	}
@@ -1299,20 +1306,20 @@ public class ManuCapture_v1_1 extends PApplet {
 		project.loadProjectMethod(projectPath);
 		String errors = "";
 		if (project.rotationA != context.rotationA) {
-			errors += "Rotation A in serials has changed " + project.rotationA + "->" + context.rotationA + "\n";
+			errors += context.msg("sw.rotationAChanged") + project.rotationA + "->" + context.rotationA + "\n";
 		}
 
 		if (project.rotationB != context.rotationB) {
 
-			errors += "Rotation B in serials has changed " + project.rotationB + "->" + context.rotationB + "\n";
+			errors += context.msg("sw.rotationBChanged") + project.rotationB + "->" + context.rotationB + "\n";
 		}
 
 		if (!project.serialA.equals(context.serialCameraA)) {
-			errors += "Serial A in serials has changed " + project.serialA + "->" + context.serialCameraA + "\n";
+			errors += context.msg("sw.serialAChanged") + project.serialA + "->" + context.serialCameraA + "\n";
 		}
 
 		if (!project.serialB.equals(context.serialCameraB)) {
-			errors += "Serial B in serials has changed " + project.serialB + "->" + context.serialCameraB + "\n";
+			errors += context.msg("sw.serialBChanged") + project.serialB + "->" + context.serialCameraB + "\n";
 
 		}
 
@@ -1404,8 +1411,8 @@ public class ManuCapture_v1_1 extends PApplet {
 
 	public void settings() {
 		// size(595, 1030);
-		 size(1920, 1080, P2D);
-//		fullScreen(P2D);
+		size(1920, 1080, P2D);
+		// fullScreen(P2D);
 	}
 
 	// public void loadRightPreview() {
