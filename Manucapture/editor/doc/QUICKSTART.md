@@ -28,6 +28,6 @@ To make a capture you can press the pedal or use the capture button in the GUI. 
 
 # FAQ
 
-¿How to know the serial number?
-¿Where is the cameraSerials.xml?
+- ¿How to know the serial number?
+- ¿Where is the cameraSerials.xml?
 
