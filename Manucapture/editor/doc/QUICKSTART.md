@@ -19,11 +19,15 @@ When starting a new digitalization project, the first step is positioning camera
 
 ## Calibration
 
-The second step when starting a new project is capture the chart color. Put the manuscript on the table, and capture the chart color in two steps.
+The second step when starting a new project is capture the chart color. Put the manuscript on the table, and capture the chart color in two steps. 
+
+The third step you have to drag the points for keystone correction.
+
+If the capture process take more than one session, is important to capture the chart color.
 
 ## Capturing documents
 
-To make a capture you can press the pedal or use the capture button in the GUI. Put attention in messages with posible errors
+To make a capture you can press the pedal or use the capture button in the GUI. Put attention in messages with posible errors.
 
 
 # FAQ
