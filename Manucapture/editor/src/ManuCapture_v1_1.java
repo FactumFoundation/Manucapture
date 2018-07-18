@@ -219,6 +219,9 @@ public class ManuCapture_v1_1 extends PApplet {
 
 		frameRate(25);
 		context.gui.grpAll.setVisible(0, false);
+
+		context.guiController.camera_A_active_button_click(null, null);
+		context.guiController.camera_B_active_click(null, null);
 	}
 
 	public void newPhotoEvent(G2P5Event event, String ic) {
@@ -657,10 +660,13 @@ public class ManuCapture_v1_1 extends PApplet {
 				// 200);
 			} else if (chartStateMachine == 1 || chartStateMachine == 2) {
 				textAlign(CENTER);
+				String msg;
 
 				if (chartStateMachine == 2) {
 					translate(marginLeftViewerLeft, 0);
+					msg = context.msg("sw.calibration3");
 				} else {
+					msg = context.msg("sw.calibration1");
 					translate(marginLeftViewerRight, 0);
 				}
 
@@ -668,12 +674,15 @@ public class ManuCapture_v1_1 extends PApplet {
 				rect(0, marginTopViewer, context.hImageViewerSize, context.wImageViewerSize);
 				fill(255);
 				textSize(24);
-				text(context.msg("sw.calibration1"), context.hImageViewerSize / 2, 200);
+				text(msg, context.hImageViewerSize / 2, 200);
 			} else {
 				translate(marginLeftViewerLeft, 0);
-				fill(255, 0, 255, 0);
-//				rect(0, 0, context.hImageViewerSize, context.wImageViewerSize);
-//				rect(context.hImageViewerSize, 0, context.hImageViewerSize, context.wImageViewerSize);
+				fill(255, 0, 0, 100);
+				// rect(0, 0, context.hImageViewerSize,
+				// context.wImageViewerSize);
+				// rect(context.hImageViewerSize, 0, context.hImageViewerSize,
+				// context.wImageViewerSize);
+				rect(0, marginTopViewer, context.hImageViewerSize*2+100, context.wImageViewerSize);
 				textSize(24);
 				fill(255, 255, 0);
 				String cad = context.msg("sw.calibration2");
@@ -690,15 +699,15 @@ public class ManuCapture_v1_1 extends PApplet {
 
 		// trigger button color
 		if (context.isAllMirrorsReady()) {
-//			context.gui.trigger_button.setLocalColorScheme(GCScheme.GREEN_SCHEME);
-			
-			fill(0,255,0);
+			// context.gui.trigger_button.setLocalColorScheme(GCScheme.GREEN_SCHEME);
+
+			fill(0, 255, 0);
 		} else {
-			fill(255,0,0);
-//			context.gui.trigger_button.setLocalColorScheme(GCScheme.RED_SCHEME);
+			fill(255, 0, 0);
+			// context.gui.trigger_button.setLocalColorScheme(GCScheme.RED_SCHEME);
 		}
-		
-		ellipse(1120,938,50,50);
+
+		ellipse(1120, 938, 50, 50);
 	}
 
 	private void drawLeft() {
@@ -1200,7 +1209,7 @@ public class ManuCapture_v1_1 extends PApplet {
 			context.gui.grpAll.setVisible(1, true);
 
 			loading = false;
-			
+
 			noZoom();
 
 			// } else {
@@ -1462,8 +1471,8 @@ public class ManuCapture_v1_1 extends PApplet {
 		 */
 		try {
 			String[] appletArgs = new String[] { "ArduinoDriver", "" };// ,
-																					// location
-																					// };
+																		// location
+																		// };
 			if (passedArgs != null) {
 				PApplet.main(concat(appletArgs, passedArgs));
 			} else {
@@ -1473,7 +1482,7 @@ public class ManuCapture_v1_1 extends PApplet {
 			e.printStackTrace();
 			System.out.println("End of programmm");
 		}
-		
+
 		try {
 			String[] appletArgs = new String[] { "ManuCapture_v1_1", "--present" };// ,
 																					// location
@@ -1487,8 +1496,6 @@ public class ManuCapture_v1_1 extends PApplet {
 			e.printStackTrace();
 			System.out.println("End of programmm");
 		}
-		
-		
 
 	}
 
