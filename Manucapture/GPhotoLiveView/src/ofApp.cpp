@@ -684,7 +684,8 @@ void ofApp::setup(){
     urlFont.load("verdana.ttf", 12, true, true);
     camIDFont.load("verdana.ttf", 36, true, true);
 
-    name_left = "Canon EOS 700D";
+   // name_left = "Canon EOS 700D";
+    name_left = "USB PTP Class Camera";
     value_left = "usb:002,011";
     name_right = "Canon EOS 700D";
     value_right = "usb:002,014";
