@@ -17,16 +17,22 @@ import processing.core.PImage;
 import processing.data.XML;
 
 public class ManuCaptureContext {
-	
-	//size view on screen
+
+	// size view on screen
 	int wImageViewerSize = 1000;
 	int hImageViewerSize = 667;
-	
-	//width size of the preview 
+
+	// width size of the preview
 	public int viewerWidthResolution = 2000;
-	
-	//max time waitting from send action to camera and receive event
+
+	// max time waitting from send action to camera and receive event
 	static public int MAX_TIME_TO_EVENT = 3000;
+
+	// max time waitting from send action to camera and receive event
+	static public int MAX_TIME_FOCUSSING = 5000;
+
+	// max time waitting from send action to camera and receive event
+	static public int MAX_TIME_CAPTURE_MACHINE_STATE = 15000;
 
 	PrintWriter logOutput;
 
@@ -68,7 +74,6 @@ public class ManuCaptureContext {
 	float scaleB = 1;
 
 	// width resolution for viewer
-	
 
 	boolean cameraActiveA = false;
 	boolean cameraActiveB = false;
@@ -345,7 +350,7 @@ public class ManuCaptureContext {
 				captureState = CAMERAS_FOCUSSING;
 				pressCameras();
 				lastCaptureMillis = parent.millis();
-			}else{
+			} else {
 				G4P.showMessage(parent, messageContainer.getText("sw.notconnected"), "", G4P.WARNING);
 			}
 
@@ -382,6 +387,12 @@ public class ManuCaptureContext {
 			failedB = true;
 		}
 
+		// if we are out from Idle more than a time we break
+
+		if (captureState != CAMERAS_IDLE && parent.millis() - lastCaptureMillis > MAX_TIME_CAPTURE_MACHINE_STATE) {
+			restoreCamerasStateAfterFailure();
+		}
+
 		if (captureState == CAMERAS_INACTIVE && gphotoA.active && gphotoB.active) {
 			captureState = CAMERAS_IDLE;
 		} else if (captureState == CAMERAS_FOCUSSING) {
@@ -405,21 +416,9 @@ public class ManuCaptureContext {
 				// if (parent.state == parent.CHART) {
 				// }
 			} else {
-				if (parent.millis() - lastCaptureMillis > 5000) {
+				if (parent.millis() - lastCaptureMillis > MAX_TIME_FOCUSSING) {
 					parent.println("Lsa dos cámaras no están dispuestas a poner el mirror en up");
-					if (!gphotoAAdapter.mirrorUp && !gphotoBAdapter.mirrorUp) {
-						releaseCameras();
-						G4P.showMessage(parent, messageContainer.getText("sw.fails"), "", G4P.WARNING);
-					} else if (!gphotoAAdapter.mirrorUp && gphotoBAdapter.mirrorUp) {
-						resetCamerasFailingA();
-						ignoreNextPhotoB = true;
-						G4P.showMessage(parent, messageContainer.getText("sw.failsA"), "", G4P.WARNING);
-					} else if (gphotoAAdapter.mirrorUp && !gphotoBAdapter.mirrorUp) {
-						resetCamerasFailingB();
-						ignoreNextPhotoA = true;
-						G4P.showMessage(parent, messageContainer.getText("sw.failsB"), "", G4P.WARNING);
-					}
-					captureState = CAMERAS_IDLE;
+					restoreCamerasStateAfterFailure();
 				}
 			}
 		} else if (captureState == CAMERAS_MIRROR_UP) {
@@ -435,6 +434,22 @@ public class ManuCaptureContext {
 			}
 		}
 
+	}
+
+	private void restoreCamerasStateAfterFailure() {
+		if (!gphotoAAdapter.mirrorUp && !gphotoBAdapter.mirrorUp) {
+			releaseCameras();
+			G4P.showMessage(parent, messageContainer.getText("sw.fails"), "", G4P.WARNING);
+		} else if (!gphotoAAdapter.mirrorUp && gphotoBAdapter.mirrorUp) {
+			resetCamerasFailingA();
+			ignoreNextPhotoB = true;
+			G4P.showMessage(parent, messageContainer.getText("sw.failsA"), "", G4P.WARNING);
+		} else if (gphotoAAdapter.mirrorUp && !gphotoBAdapter.mirrorUp) {
+			resetCamerasFailingB();
+			ignoreNextPhotoA = true;
+			G4P.showMessage(parent, messageContainer.getText("sw.failsB"), "", G4P.WARNING);
+		}
+		captureState = CAMERAS_IDLE;
 	}
 
 	public void pressCameras() {
