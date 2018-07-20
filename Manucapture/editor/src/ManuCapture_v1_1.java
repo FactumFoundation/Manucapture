@@ -113,6 +113,7 @@ public class ManuCapture_v1_1 extends PApplet {
 	boolean editingProject = false;
 
 	PImage cameraIcon;
+	PImage zoomImg = null;
 
 	public void setup() {
 
@@ -214,6 +215,7 @@ public class ManuCapture_v1_1 extends PApplet {
 		textMode(context.parent.MODEL);
 
 		cameraIcon = loadImage("cameraIcon.png");
+		zoomImg = loadImage("zoom.png");
 
 		background(backgroundColor);
 
@@ -491,8 +493,7 @@ public class ManuCapture_v1_1 extends PApplet {
 					context.oscP5.send(myMessage, context.viewerLocation);
 
 					process.waitFor();
-					
-					
+
 				}
 
 			} catch (Exception e) {
@@ -529,7 +530,7 @@ public class ManuCapture_v1_1 extends PApplet {
 
 				// camera_A_connected_click(null, null);
 				liveViewActive = -1;
-				
+
 				context.gui.context.gui.btnLiveView.setEnabled(true);
 				context.gui.btnLiveView.setVisible(true);
 			}
@@ -629,7 +630,6 @@ public class ManuCapture_v1_1 extends PApplet {
 		} else if (liveViewActive == -1) {
 			// context.gui.context.gui.liveView_button.setEnabled(true);
 			// context.gui.liveView_button.setVisible(true);
-			
 
 		}
 
@@ -686,7 +686,7 @@ public class ManuCapture_v1_1 extends PApplet {
 				// context.wImageViewerSize);
 				// rect(context.hImageViewerSize, 0, context.hImageViewerSize,
 				// context.wImageViewerSize);
-				rect(0, marginTopViewer, context.hImageViewerSize*2+100, context.wImageViewerSize);
+				rect(0, marginTopViewer, context.hImageViewerSize * 2 + 100, context.wImageViewerSize);
 				textSize(24);
 				fill(255, 255, 0);
 				String cad = context.msg("sw.calibration2");
@@ -725,6 +725,12 @@ public class ManuCapture_v1_1 extends PApplet {
 			drawImagePreview(project.selectedItem.mImageLeft, lastPressedL, marginLeftViewerRight, context.pointsRight,
 					context.scaleA);
 
+			if (lastPressedL != null) {
+				tint(255, 200);
+			}else{
+				tint(255, 20);
+			}
+			image(zoomImg,context.hImageViewerSize-70,20,50,50);
 			// pintamos en blending la imagen de calibración para puntos de crop
 			if (chartStateMachine == 3 && context.lastLeftPreview != null) {
 				pushStyle();
@@ -823,6 +829,13 @@ public class ManuCapture_v1_1 extends PApplet {
 
 			// if (context.gphotoAAdapter.cameraWaitingForPicture ||
 			// context.cameraAProcessingNewPhoto) {
+			
+			if (lastPressedR != null) {
+				tint(255, 200);
+			}else{
+				tint(255, 20);
+			}
+			image(zoomImg,context.hImageViewerSize-70,20,50,50);
 
 			if (chartStateMachine == 3 && context.lastRightPreview != null) {
 				pushStyle();
