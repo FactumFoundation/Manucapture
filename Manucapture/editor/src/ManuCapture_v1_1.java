@@ -491,6 +491,8 @@ public class ManuCapture_v1_1 extends PApplet {
 					context.oscP5.send(myMessage, context.viewerLocation);
 
 					process.waitFor();
+					
+					
 				}
 
 			} catch (Exception e) {
@@ -527,6 +529,9 @@ public class ManuCapture_v1_1 extends PApplet {
 
 				// camera_A_connected_click(null, null);
 				liveViewActive = -1;
+				
+				context.gui.context.gui.btnLiveView.setEnabled(true);
+				context.gui.btnLiveView.setVisible(true);
 			}
 		}
 
@@ -624,8 +629,7 @@ public class ManuCapture_v1_1 extends PApplet {
 		} else if (liveViewActive == -1) {
 			// context.gui.context.gui.liveView_button.setEnabled(true);
 			// context.gui.liveView_button.setVisible(true);
-			context.gui.context.gui.btnLiveView.setEnabled(true);
-			context.gui.btnLiveView.setVisible(true);
+			
 
 		}
 
@@ -750,7 +754,7 @@ public class ManuCapture_v1_1 extends PApplet {
 		} else {
 			stroke(255);
 			fill(50);
-			rect(marginLeftViewerRight, 20, context.hImageViewerSize, context.wImageViewerSize);
+			rect(marginLeftViewerRight, marginTopViewer, context.hImageViewerSize, context.wImageViewerSize);
 		}
 
 		// datos de cámara
@@ -847,7 +851,7 @@ public class ManuCapture_v1_1 extends PApplet {
 		} else {
 			stroke(255);
 			fill(50);
-			rect(580, 20, context.hImageViewerSize, context.wImageViewerSize);
+			rect(marginLeftViewerLeft, marginTopViewer, context.hImageViewerSize, context.wImageViewerSize);
 		}
 		// datos de cámara
 

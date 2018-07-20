@@ -309,6 +309,9 @@ public class G2P5 {
 		return camera;
 	}
 
+	
+	// Check difference with gphoto2 --get-config=/main/status/serialnumber
+
 	public static String getCameraPort(String eosSerial) {
 
 		ArrayList<String> portList = new ArrayList<String>();

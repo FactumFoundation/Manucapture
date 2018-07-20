@@ -149,11 +149,11 @@ public class GUIController {
 	public void close_popup_project(GButton source, GEvent event) {
 
 		boolean someError = false;
-		if (StringUtils.isEmpty(context.project.projectName)) {
+		if (context.project.projectName == null || context.project.projectName.trim().equals("")) {
 			someError = true;
 		}
 
-		if (StringUtils.isEmpty(context.project.projectCode)) {
+		if (context.project.projectCode == null || context.project.projectCode.trim().equals("")) {
 			someError = true;
 		}
 
