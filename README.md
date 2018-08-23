@@ -1,5 +1,5 @@
 # Book Scanner
 
-Integrated system for recording and archiving manuscripts in Dagestan
+Integrated system for recording and archiving manuscripts in the Insititue of History, Archaeology and Ethnography (IHAE) in Makhachkala
 
-[[https://github.com/FactumFoundation/bookScanner/blob/master/Recording_and_Archiving_System.jpg]]
+For mor info, please check the Wiki
