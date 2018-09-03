@@ -454,6 +454,13 @@ public class ManuCapture_v1_1 extends PApplet {
 		// newItem.mImageLeft.imgPreview != null) {
 		// image(newItem.mImageLeft.imgPreview, 400, 10, 200, 200);
 		// }
+		
+		if(frameCount < 60) {
+			//dejamos pasar los primeros frames para evitar blink
+			background(0);
+			text("LOADING...", width / 2, height / 3);
+			
+		}
 	}
 
 	public void load_click() { // _CODE_:load_button:841968:
