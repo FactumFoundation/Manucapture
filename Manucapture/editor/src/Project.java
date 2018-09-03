@@ -286,6 +286,9 @@ public class Project {
 
 			context.parent.saveXML(projectXML, projectFilePath);
 			context.parent.println("Saved project to ", projectFilePath);
+			
+			//VERIFY INTEGRITY XML -> FILES
+			verify();
 		} else {
 			context.parent.println("ERROR: No project info, no data is saved. Please write the project name and code");
 			G4P.showMessage(context.parent,
@@ -311,11 +314,30 @@ public class Project {
 
 	}
 
+	private void verify() {
+
+		File folder = new File(projectDirectory + "/raw");
+		String[] files = folder.list();
+
+		List<String> unusedFiles = getUnusedFiles(files);
+		List<MImage> unusedImages = getImagesXmlNoFile(files);
+		
+		if(unusedFiles.size()>0) {
+			//TENEMOS MAS FICHEROS QUE ELEMENTOS EN XML
+		}
+		
+		if(unusedImages.size()>0) {
+			//TENEMOS MAS ELEMENTOS EN XML QUE FICHEROS
+		}
+
+	}
+
 	/*
 	 * Garbage Image Collector
 	 */
 
-	public synchronized List<MImage> getUnusedImage() {
+	public List<String> getUnusedFiles(String[] files) {
+		// File folder = new File(projectDirectory + "/raw");
 		ArrayList<MImage> usedImgs = new ArrayList<MImage>();
 		for (int index = 0; index < items.size(); index++) {
 			Item item = items.get(index);
@@ -326,10 +348,8 @@ public class Project {
 
 		}
 
-		File folder = new File(projectDirectory + "/raw");
-		String[] files = folder.list();
 		if (files != null) {
-			ArrayList<MImage> unusedFiles = new ArrayList<>();
+			ArrayList<String> unusedFiles = new ArrayList<>();
 			for (int index = 0; index < files.length; index++) {
 				boolean found = false;
 				for (int index2 = 0; index2 < usedImgs.size(); index2++) {
@@ -340,12 +360,50 @@ public class Project {
 					}
 				}
 				if (!found) {
-					String targetPath = folder.getPath() + "/" + files[index];
-					MImage unusedImg = new MImage();
-					unusedFiles.add(unusedImg);
+					unusedFiles.add(files[index]);
 				}
 			}
 			// unusedFiles.removeAll(usedImgs);
+			return unusedFiles;
+		} else {
+			return new ArrayList<>();
+		}
+
+	}
+
+	/*
+	 * Garbage Image Collector
+	 */
+
+	public List<MImage> getImagesXmlNoFile(String[] files) {
+		// File folder = new File(projectDirectory + "/raw");
+		ArrayList<MImage> usedImgs = new ArrayList<MImage>();
+		for (int index = 0; index < items.size(); index++) {
+			Item item = items.get(index);
+			if (!item.mImageLeft.imagePath.equals(""))
+				usedImgs.add(item.mImageLeft);
+			if (!item.mImageRight.imagePath.equals(""))
+				usedImgs.add(item.mImageRight);
+
+		}
+
+		if (files != null) {
+			ArrayList<MImage> unusedFiles = new ArrayList<>();
+			for (int index2 = 0; index2 < usedImgs.size(); index2++) {
+
+				boolean found = false;
+
+				for (int index = 0; index < files.length; index++) {
+					if (usedImgs.get(index2).getName().equals(files[index])) {
+						found = true;
+						break;
+					}
+				}
+
+				if (!found) {
+					unusedFiles.add(usedImgs.get(index2));
+				}
+			}
 			return unusedFiles;
 		} else {
 			return new ArrayList<>();
@@ -404,8 +462,8 @@ public class Project {
 			// Now we do the preview on app
 			selectedItem.loadPreviews(projectDirectory, leftImagePath, rightImagePath);
 
-//			context.gui.page_comments_text.setText(selectedItem.comment);
-//			context.gui.page_num_text.setText(String.valueOf(selectedItem.pagNum));
+			// context.gui.page_comments_text.setText(selectedItem.comment);
+			// context.gui.page_num_text.setText(String.valueOf(selectedItem.pagNum));
 			context.gphotoAAdapter.setTargetFile(projectDirectory + "raw", projectCode);
 			context.gphotoBAdapter.setTargetFile(projectDirectory + "raw", projectCode);
 
@@ -431,11 +489,10 @@ public class Project {
 			}
 		}
 		/*
-		 * } else { if (index < items.size() - 1) { for (int i = index; i <
-		 * items.size() - 1; i++) { if ((int) items.get(i).pagNum == (int)
-		 * pageNum) { if (items.get(i).pagNum - (int) items.get(i).pagNum >
-		 * pageNum - (int) pageNum) { float newPageNum =
-		 * PApplet.round((items.get(i).pagNum - 0.1f) * 10) / 10.0f;
+		 * } else { if (index < items.size() - 1) { for (int i = index; i < items.size()
+		 * - 1; i++) { if ((int) items.get(i).pagNum == (int) pageNum) { if
+		 * (items.get(i).pagNum - (int) items.get(i).pagNum > pageNum - (int) pageNum) {
+		 * float newPageNum = PApplet.round((items.get(i).pagNum - 0.1f) * 10) / 10.0f;
 		 * items.get(i).pagNum = newPageNum; } }
 		 * 
 		 * } } }
