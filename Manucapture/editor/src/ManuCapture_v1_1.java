@@ -90,6 +90,9 @@ public class ManuCapture_v1_1 extends PApplet {
 
 	int chartStateMachine = 0;
 	// *********************
+	
+	boolean cropMode = false;
+	
 
 	int guideHeight_1 = 200;
 	int guideHeight_2 = 600;
@@ -751,7 +754,7 @@ public class ManuCapture_v1_1 extends PApplet {
 
 			if (lastPressedL == null) {
 				for (HotArea area : context.pointsRight) {
-					if (chartStateMachine == 3)
+					if (chartStateMachine == 3 || cropMode)
 						area.draw(g);
 				}
 			}
@@ -856,7 +859,7 @@ public class ManuCapture_v1_1 extends PApplet {
 			}
 			if (lastPressedR == null)
 				for (HotArea area : context.pointsLeft) {
-					if (chartStateMachine == 3)
+					if (chartStateMachine == 3 || cropMode)
 						area.draw(g);
 				}
 
@@ -993,13 +996,18 @@ public class ManuCapture_v1_1 extends PApplet {
 		}
 
 	}
+	
+	public void startCropMode() {
+		
+		cropMode = !cropMode;
+	}
 
 	public void mousePressed() {
 
 		itemsViewport.mousePressed();
 
 		if (hotAreaSelected == null) {
-			if (chartStateMachine == 3) {
+			if (chartStateMachine == 3 || cropMode) {
 				for (HotArea area : context.pointsLeft) {
 					if (area.isInArea(mouseX, mouseY)) {
 						hotAreaSelected = area;
@@ -1405,6 +1413,10 @@ public class ManuCapture_v1_1 extends PApplet {
 
 			if (button == context.gui.btnLiveView) {
 				context.guiController.liveView_button_click(null, null);
+			}
+			
+			if (button == context.gui.btnTriggerCrop) {
+				context.guiController.crop_click(null, null);
 			}
 
 			if (button == context.gui.btnClose) {

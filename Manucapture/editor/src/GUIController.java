@@ -310,6 +310,13 @@ public class GUIController {
 		PApplet.println("textfield2 - GTextField >> GEvent." + event + " @ " + context.parent.millis());
 	} // _CODE_:page_search_text:741750:
 
+	public void crop_click(GButton source, GEvent event) { // _CODE_:export_button:581416:
+		
+		PApplet.println("start crop editing");
+		
+		context.parent.startCropMode();
+	}
+	
 	public void liveView_button_click(GButton source, GEvent event) { // _CODE_:export_button:581416:
 		// PApplet.println("export_button - GButton >> GEvent." + event + " @ "
 		// +

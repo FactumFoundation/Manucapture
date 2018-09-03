@@ -75,6 +75,7 @@ public class GUI {
 	GImageButton btnTrigger;
 
 	GImageButton btnTriggerNormal;
+	GImageButton btnTriggerCrop;
 	GImageButton btnTriggerRepeat;
 	GImageButton btnTriggerChartColor;
 
@@ -288,11 +289,15 @@ public class GUI {
 		files = new String[] { "btn_live_view.png", "btn_live_view.png", "btn_live_view.png" };
 		btnLiveView = new GImageButton(parent, parent.marginLeftViewerRight - 130, 680, files);
 		grpAll.addControls(btnLiveView);
+		
+		files = new String[] { "btn_crop.png", "btn_crop.png", "btn_crop.png" };
+		btnTriggerCrop = new GImageButton(parent, parent.marginLeftViewerRight - 130, 540, files);
+		grpAll.addControls(btnTriggerCrop);
 
 		files = new String[] { "btn_normal.png", "btn_normal.png", "btn_normal.png" };
 		btnTriggerNormal = new GImageButton(parent, parent.marginLeftViewerRight + 50, parent.height - 120, files);
 		grpAll.addControls(btnTriggerNormal);
-
+		
 		files = new String[] { "btn_repeat.png", "btn_repeat.png", "btn_repeat.png" };
 		btnTriggerRepeat = new GImageButton(parent, parent.marginLeftViewerRight + 50, parent.height - 120, files);
 		grpAll.addControls(btnTriggerRepeat);
