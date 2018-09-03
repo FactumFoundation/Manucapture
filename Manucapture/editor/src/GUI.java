@@ -76,6 +76,8 @@ public class GUI {
 
 	GImageButton btnTriggerNormal;
 	GImageButton btnTriggerCrop;
+	GImageButton btnTriggerOpenSOViewer1;
+	GImageButton btnTriggerOpenSOViewer2;
 	GImageButton btnTriggerRepeat;
 	GImageButton btnTriggerChartColor;
 
@@ -293,6 +295,15 @@ public class GUI {
 		files = new String[] { "btn_crop.png", "btn_crop.png", "btn_crop.png" };
 		btnTriggerCrop = new GImageButton(parent, parent.marginLeftViewerRight - 130, 540, files);
 		grpAll.addControls(btnTriggerCrop);
+		
+		files = new String[] { "btn_viewer.png", "btn_viewer.png", "btn_viewer.png" };
+		btnTriggerOpenSOViewer1 = new GImageButton(parent, parent.marginLeftViewerLeft+ 270, 35,90,90,files);
+		grpAll.addControls(btnTriggerOpenSOViewer1);
+		
+		files = new String[] { "btn_viewer.png", "btn_viewer.png", "btn_viewer.png" };
+		btnTriggerOpenSOViewer2 = new GImageButton(parent, parent.marginLeftViewerRight + 270, 35,90,90,files);
+		grpAll.addControls(btnTriggerOpenSOViewer2);
+		
 
 		files = new String[] { "btn_normal.png", "btn_normal.png", "btn_normal.png" };
 		btnTriggerNormal = new GImageButton(parent, parent.marginLeftViewerRight + 50, parent.height - 120, files);

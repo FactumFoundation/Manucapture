@@ -117,7 +117,6 @@ public class ManuCapture_v1_1 extends PApplet {
 	PImage zoomImg = null;
 
 	public void post() {
-		println("mypost");
 		if (frameCount < 10) {
 			background(0);
 			text("LOADING...", width / 2, height / 3);
@@ -1426,6 +1425,27 @@ public class ManuCapture_v1_1 extends PApplet {
 
 			if (button == context.gui.btnTriggerCrop) {
 				context.guiController.crop_click(null, null);
+			}
+			
+			if (button == context.gui.btnTriggerOpenSOViewer1) {
+				
+				try {
+					String cmd = "rawtherapee "+project.projectDirectory+project.selectedItem.mImageLeft.imagePath;
+					println(cmd);
+					Runtime.getRuntime().exec(cmd);
+				} catch (Exception e) {
+					context._println("Couldn't create raw directory permisions");
+				}
+				noZoom();
+			}
+			
+			if (button == context.gui.btnTriggerOpenSOViewer2) {
+				try {
+					Runtime.getRuntime().exec("rawtherapee "+project.projectDirectory+project.selectedItem.mImageRight.imagePath);
+				} catch (Exception e) {
+					context._println("Couldn't create raw directory permisions");
+				}
+				noZoom();
 			}
 
 			if (button == context.gui.btnClose) {
