@@ -320,14 +320,16 @@ public class Project {
 		String[] files = folder.list();
 
 		List<String> unusedFiles = getUnusedFiles(files);
-		List<MImage> unusedImages = getImagesXmlNoFile(files);
+		List<String> unusedImages = getImagesXmlNoFile(files);
 		
 		if(unusedFiles.size()>0) {
 			//TENEMOS MAS FICHEROS QUE ELEMENTOS EN XML
+			PApplet.println("ERROR , more files than xml elements " +unusedFiles);
 		}
 		
 		if(unusedImages.size()>0) {
 			//TENEMOS MAS ELEMENTOS EN XML QUE FICHEROS
+			PApplet.println("ERROR, more xml elements than files "+unusedImages);
 		}
 
 	}
@@ -338,23 +340,15 @@ public class Project {
 
 	public List<String> getUnusedFiles(String[] files) {
 		// File folder = new File(projectDirectory + "/raw");
-		ArrayList<MImage> usedImgs = new ArrayList<MImage>();
-		for (int index = 0; index < items.size(); index++) {
-			Item item = items.get(index);
-			if (!item.mImageLeft.imagePath.equals(""))
-				usedImgs.add(item.mImageLeft);
-			if (!item.mImageRight.imagePath.equals(""))
-				usedImgs.add(item.mImageRight);
-
-		}
+		ArrayList<String> usedImgsAndXMPS = getAllFileNames();
 
 		if (files != null) {
 			ArrayList<String> unusedFiles = new ArrayList<>();
 			for (int index = 0; index < files.length; index++) {
 				boolean found = false;
-				for (int index2 = 0; index2 < usedImgs.size(); index2++) {
+				for (int index2 = 0; index2 < usedImgsAndXMPS.size(); index2++) {
 					// println(usedImg.getName(),files[index]);
-					if (usedImgs.get(index2).getName().equals(files[index])) {
+					if (usedImgsAndXMPS.get(index2).equals(files[index])) {
 						found = true;
 						break;
 					}
@@ -371,37 +365,52 @@ public class Project {
 
 	}
 
+	private ArrayList<String> getAllFileNames() {
+		ArrayList<String> usedImgsAndXMPS = new ArrayList<String>();
+		for (int index = 0; index < items.size(); index++) {
+			Item item = items.get(index);
+			if (!item.mImageLeft.imagePath.equals("")) {
+			//	usedImgsAndXMPS.add(item.mImageLeft);
+				String nameTemp = item.mImageLeft.getName().substring(1);
+				String nameTempXMP = nameTemp.replace(".cr2", ".xmp");
+				usedImgsAndXMPS.add(nameTemp);
+				usedImgsAndXMPS.add(nameTempXMP);
+			}
+			if (!item.mImageRight.imagePath.equals("")) {
+				String nameTemp = item.mImageRight.getName().substring(1);
+				String nameTempXMP = nameTemp.replace(".cr2", ".xmp");
+				usedImgsAndXMPS.add(nameTemp);
+				usedImgsAndXMPS.add(nameTempXMP);
+			}
+
+		}
+		return usedImgsAndXMPS;
+	}
+
 	/*
 	 * Garbage Image Collector
 	 */
 
-	public List<MImage> getImagesXmlNoFile(String[] files) {
+	public List<String> getImagesXmlNoFile(String[] files) {
 		// File folder = new File(projectDirectory + "/raw");
-		ArrayList<MImage> usedImgs = new ArrayList<MImage>();
-		for (int index = 0; index < items.size(); index++) {
-			Item item = items.get(index);
-			if (!item.mImageLeft.imagePath.equals(""))
-				usedImgs.add(item.mImageLeft);
-			if (!item.mImageRight.imagePath.equals(""))
-				usedImgs.add(item.mImageRight);
-
-		}
+		ArrayList<String> usedImgsAndXMPS = getAllFileNames();
 
 		if (files != null) {
-			ArrayList<MImage> unusedFiles = new ArrayList<>();
-			for (int index2 = 0; index2 < usedImgs.size(); index2++) {
+			ArrayList<String> unusedFiles = new ArrayList<>();
+			for (int index2 = 0; index2 < usedImgsAndXMPS.size(); index2++) {
 
 				boolean found = false;
 
+				
 				for (int index = 0; index < files.length; index++) {
-					if (usedImgs.get(index2).getName().equals(files[index])) {
+					if (usedImgsAndXMPS.get(index2).equals(files[index])) {
 						found = true;
 						break;
 					}
 				}
 
 				if (!found) {
-					unusedFiles.add(usedImgs.get(index2));
+					unusedFiles.add(usedImgsAndXMPS.get(index2));
 				}
 			}
 			return unusedFiles;
