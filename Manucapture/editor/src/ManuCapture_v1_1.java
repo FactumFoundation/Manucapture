@@ -731,9 +731,11 @@ public class ManuCapture_v1_1 extends PApplet {
 				popStyle();
 			}
 
-			fill(255);
-			textSize(24);
-			text(project.selectedItem.mImageLeft.imagePath, 130, -10);
+			
+			showPhotoMetaData();
+			
+			text(project.selectedItem.mImageLeft.imagePath, 0, -10);
+			
 			popMatrix();
 			stroke(255, 0, 0);
 			if (chartStateMachine == 3) {
@@ -817,6 +819,8 @@ public class ManuCapture_v1_1 extends PApplet {
 
 			drawImagePreview(project.selectedItem.mImageRight, lastPressedR, marginLeftViewerLeft, context.pointsLeft,
 					context.scaleB);
+			
+			
 
 			// if (context.gphotoAAdapter.cameraWaitingForPicture ||
 			// context.cameraAProcessingNewPhoto) {
@@ -835,11 +839,9 @@ public class ManuCapture_v1_1 extends PApplet {
 						context.lastRightPreview.width, context.lastRightPreview.height);
 				popStyle();
 			}
-
-			fill(255);
-			textSize(24);
-			text(project.selectedItem.mImageRight.imagePath, 130, -10);
-
+			
+			showPhotoMetaData();
+			text(project.selectedItem.mImageRight.imagePath, 0, -10);
 			popMatrix();
 			stroke(255, 0, 0);
 			if (chartStateMachine == 3) {
@@ -866,10 +868,10 @@ public class ManuCapture_v1_1 extends PApplet {
 		}
 		ellipse(marginLeftViewerLeft + 227, 78, 30, 30);
 
-		fill(255, 0, 0);
+		fill(255);
 		// pushMatrix();
 		// translate(0, 1015);
-		// text("exposure: " + context.gphotoAAdapter.exposure, 650, 40);
+		 
 		//
 		// text(" focusing: ", 890, 40);
 		// text("mirroUp " + context.gphotoAAdapter.mirrorUp, 650, 60);
@@ -907,6 +909,17 @@ public class ManuCapture_v1_1 extends PApplet {
 			popStyle();
 		}
 
+	}
+
+	private void showPhotoMetaData() {
+		fill(255);
+		textSize(24);
+		textAlign(LEFT);
+		//@TODO add info from the readed image
+		
+		text("ISO: " + context.gphotoAAdapter.exposure, 10, context.wImageViewerSize-20);
+		text("exposure: " + context.gphotoAAdapter.exposure, 200, context.wImageViewerSize-20);
+		text("f: " + context.gphotoAAdapter.exposure, 450, context.wImageViewerSize-20);
 	}
 
 	private void drawImagePreview(MImage img, PVector lastPressedR, int marginLeftViewer, List<HotArea> areas,
