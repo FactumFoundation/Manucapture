@@ -296,6 +296,7 @@ public class GUIController {
 	public void new_button_click(GButton source, GEvent event) { // _CODE_:new_button:324180:
 		String projectFolderPath = G4P.selectFolder("Select the project folder for NEW PROJECT");
 		if (projectFolderPath != null) {
+			context.initCropHotAreas();
 			context.project.thumbnailsLoaded = false;
 			context.project.selectedItem = null;
 			context.gui.grpProject.setVisible(1, true);

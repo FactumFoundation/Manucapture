@@ -14,6 +14,7 @@ import oscP5.OscMessage;
 import oscP5.OscP5;
 import processing.core.PApplet;
 import processing.core.PImage;
+import processing.core.PVector;
 import processing.data.XML;
 
 public class ManuCaptureContext {
@@ -116,6 +117,27 @@ public class ManuCaptureContext {
 	long lastCameraBAction = 0;
 
 	MessageContainer messageContainer;
+
+	public void initCropHotAreas() {
+		
+		int size = 50;
+
+		PVector translatePos1 = new PVector(parent.marginLeftViewerLeft, parent.marginTopViewer);
+		PVector translatePos2 = new PVector(parent.marginLeftViewerRight, parent.marginTopViewer);
+
+
+		pointsLeft.add(new HotArea(new PVector(size, size), translatePos1, 0, size, "LTL"));
+		pointsLeft.add(new HotArea(new PVector(hImageViewerSize - size, 0 + size), translatePos1, 1, size, "LTR"));
+		pointsLeft.add(new HotArea(new PVector(hImageViewerSize - size, wImageViewerSize - size), translatePos1, 2,
+				size, "LBL"));
+		pointsLeft.add(new HotArea(new PVector(0 + size, wImageViewerSize - size), translatePos1, 3, size, "LBR"));
+
+		pointsRight.add(new HotArea(new PVector(size, size), translatePos2, 0, size, "RTL"));
+		pointsRight.add(new HotArea(new PVector(hImageViewerSize - size, size), translatePos2, 1, size, "RTR"));
+		pointsRight.add(new HotArea(new PVector(hImageViewerSize - size, wImageViewerSize - size), translatePos2, 2,
+				size, "RBL"));
+		pointsRight.add(new HotArea(new PVector(size, wImageViewerSize - size), translatePos2, 3, size, "RBR"));
+	}
 
 	public G2P5ManucaptureAdapter createG2P5(String serial, String name) {
 		G2P5 g2p5 = G2P5.create(parent.homeDirectory(), serial, name);

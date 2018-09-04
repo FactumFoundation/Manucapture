@@ -136,28 +136,7 @@ public class ManuCapture_v1_1 extends PApplet {
 		context.messageContainer = new MessageContainer();
 		context.messageContainer.init();
 
-		int size = 50;
-
-		PVector translatePos1 = new PVector(marginLeftViewerLeft, marginTopViewer);
-		PVector translatePos2 = new PVector(marginLeftViewerRight, marginTopViewer);
-
-		context.pointsLeft.add(new HotArea(new PVector(size, size), translatePos1, 0, size, "LTL"));
-		context.pointsLeft.add(
-				new HotArea(new PVector(context.hImageViewerSize - size, 0 + size), translatePos1, 1, size, "LTR"));
-		context.pointsLeft
-				.add(new HotArea(new PVector(context.hImageViewerSize - size, context.wImageViewerSize - size),
-						translatePos1, 2, size, "LBL"));
-		context.pointsLeft.add(
-				new HotArea(new PVector(0 + size, context.wImageViewerSize - size), translatePos1, 3, size, "LBR"));
-
-		context.pointsRight.add(new HotArea(new PVector(size, size), translatePos2, 0, size, "RTL"));
-		context.pointsRight
-				.add(new HotArea(new PVector(context.hImageViewerSize - size, size), translatePos2, 1, size, "RTR"));
-		context.pointsRight
-				.add(new HotArea(new PVector(context.hImageViewerSize - size, context.wImageViewerSize - size),
-						translatePos2, 2, size, "RBL"));
-		context.pointsRight
-				.add(new HotArea(new PVector(size, context.wImageViewerSize - size), translatePos2, 3, size, "RBR"));
+		context.initCropHotAreas();
 
 		project = new Project();
 		project.context = context;
@@ -486,6 +465,7 @@ public class ManuCapture_v1_1 extends PApplet {
 			G2P5.killAllGphotoProcess();
 
 			String command = context.appPath + "/GPhotoLiveView/bin/GPhotoLiveView_debug";
+			
 			try {
 				Process process = Runtime.getRuntime().exec(command);
 
@@ -989,8 +969,10 @@ public class ManuCapture_v1_1 extends PApplet {
 				if (isMouseInsideLeft())
 					hotAreaSelected.setRealPosition(mouseX, mouseY);
 			}
-			project.selectedItem.mImageLeft.mesh = context.copyMesh(context.pointsLeft);
-			project.selectedItem.mImageRight.mesh = context.copyMesh(context.pointsRight);
+			if (project != null && project.selectedItem != null) {
+				project.selectedItem.mImageLeft.mesh = context.copyMesh(context.pointsLeft);
+				project.selectedItem.mImageRight.mesh = context.copyMesh(context.pointsRight);
+			}
 		}
 
 		if (lastPressedR != null) {
@@ -1136,7 +1118,7 @@ public class ManuCapture_v1_1 extends PApplet {
 
 		itemsViewport.mouseDragged();
 
-		if (hotAreaSelected != null) {
+		if (hotAreaSelected != null && project.selectedItem != null) {
 			hotAreaSelected.setRealPosition(mouseX, mouseY);
 			project.selectedItem.mImageLeft.mesh = context.copyMesh(context.pointsLeft);
 			project.selectedItem.mImageRight.mesh = context.copyMesh(context.pointsRight);
@@ -1426,11 +1408,11 @@ public class ManuCapture_v1_1 extends PApplet {
 			if (button == context.gui.btnTriggerCrop) {
 				context.guiController.crop_click(null, null);
 			}
-			
+
 			if (button == context.gui.btnTriggerOpenSOViewer1) {
-				
+
 				try {
-					String cmd = "rawtherapee "+project.projectDirectory+project.selectedItem.mImageLeft.imagePath;
+					String cmd = "rawtherapee " + project.projectDirectory + project.selectedItem.mImageLeft.imagePath;
 					println(cmd);
 					Runtime.getRuntime().exec(cmd);
 				} catch (Exception e) {
@@ -1438,10 +1420,11 @@ public class ManuCapture_v1_1 extends PApplet {
 				}
 				noZoom();
 			}
-			
+
 			if (button == context.gui.btnTriggerOpenSOViewer2) {
 				try {
-					Runtime.getRuntime().exec("rawtherapee "+project.projectDirectory+project.selectedItem.mImageRight.imagePath);
+					Runtime.getRuntime().exec(
+							"rawtherapee " + project.projectDirectory + project.selectedItem.mImageRight.imagePath);
 				} catch (Exception e) {
 					context._println("Couldn't create raw directory permisions");
 				}
