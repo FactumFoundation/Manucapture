@@ -120,6 +120,10 @@ public class ManuCaptureContext {
 
 	public void initCropHotAreas() {
 		
+		pointsLeft = new ArrayList<>();
+		pointsRight = new ArrayList<>();
+
+		
 		int size = 50;
 
 		PVector translatePos1 = new PVector(parent.marginLeftViewerLeft, parent.marginTopViewer);

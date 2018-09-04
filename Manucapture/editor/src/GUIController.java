@@ -275,6 +275,8 @@ public class GUIController {
 			context.parent.loadProject(documentFileName);
 			context.parent.loading = false;
 			normal_shutter_click1(null, null);
+			context.parent.lastPressedL = null;
+			context.parent.lastPressedR = null;
 		} else {
 			context.parent.loading = false;
 		}
@@ -304,6 +306,8 @@ public class GUIController {
 			context.parent.createProject(projectFolderPath);
 			context.gui.project_info.setText("PROJECT INFO " + context.project.projectFilePath);
 			calibration_shutter_click(null, null);
+			context.parent.lastPressedL = null;
+			context.parent.lastPressedR = null;
 		}
 	} // _CODE_:new_button:324180:
 

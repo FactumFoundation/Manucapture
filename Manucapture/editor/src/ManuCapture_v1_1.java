@@ -1239,6 +1239,10 @@ public class ManuCapture_v1_1 extends PApplet {
 			loading = false;
 
 			noZoom();
+			
+			if(project.items.isEmpty()) {
+				context.initCropHotAreas();
+			}
 
 			// } else {
 			//// new_button_click(null, null);
@@ -1375,6 +1379,9 @@ public class ManuCapture_v1_1 extends PApplet {
 		context.init();
 		// G2P5Manager.setImageCount(project.items.size());
 		project.forceSelectedItem(project.items.size(), false);
+		if(project.items.isEmpty()) {
+			context.initCropHotAreas();
+		}
 		saveLastSessionData();
 		project.removeUnusedImages();
 		stateApp = STATE_APP_PROJECT;
