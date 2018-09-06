@@ -771,8 +771,8 @@ public class ManuCapture_v1_1 extends PApplet {
 		// marginLeftViewerRight + 75, 40);
 		// text("focusing: ", marginLeftViewerRight + 300, 40);
 		// text(context.gphotoBAdapter.g2p5.id, 840, 40);
-		// text("mirroUp " + context.gphotoBAdapter.mirrorUp,
-		// marginLeftViewerRight + 75, 60);
+		 text("mirroUp " + context.gphotoBAdapter.mirrorUp,
+		 marginLeftViewerRight + 75, 60);
 		//
 		// fill(0, 200, 0);
 		//
@@ -874,7 +874,7 @@ public class ManuCapture_v1_1 extends PApplet {
 		 
 		//
 		// text(" focusing: ", 890, 40);
-		// text("mirroUp " + context.gphotoAAdapter.mirrorUp, 650, 60);
+		 text("mirroUp " + context.gphotoAAdapter.mirrorUp, 650, 60);
 		// text(context.gphotoAAdapter.g2p5.id, 840, 40);
 		// if (context.gphotoAAdapter.focus) {
 		// fill(255, 0, 0);
@@ -1489,7 +1489,7 @@ public class ManuCapture_v1_1 extends PApplet {
 	public void settings() {
 		// size(595, 1030);
 		size(1920, 1080, P2D);
-		// fullScreen(P2D);
+//		 fullScreen(P2D);
 	}
 
 	// public void loadRightPreview() {

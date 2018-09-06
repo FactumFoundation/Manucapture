@@ -426,14 +426,16 @@ public class ManuCaptureContext {
 			if (failedA) {
 				// resetCamerasFailingB();
 				// ignoreNextPhotoA = true;
-				// lastCameraAAction = -1;
+				 lastCameraAAction = -1;
+				 restoreCamerasStateAfterFailure();
 				G4P.showMessage(parent, messageContainer.getText("sw.noeventA"), "", G4P.WARNING);
 			}
 
 			if (failedB) {
 				// resetCamerasFailingA();
 				// ignoreNextPhotoB = true;
-				// lastCameraBAction = -1;
+				 lastCameraBAction = -1;
+				 restoreCamerasStateAfterFailure();
 				G4P.showMessage(parent, messageContainer.getText("sw.noeventB"), "", G4P.WARNING);
 			}
 			if (gphotoAAdapter.mirrorUp && gphotoBAdapter.mirrorUp) {

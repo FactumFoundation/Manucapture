@@ -42,6 +42,8 @@ public class G2P5 {
 
 	boolean mock = false;
 
+	boolean ignoreEventProperty = true;
+
 	public G2P5() {
 
 	}
@@ -126,7 +128,6 @@ public class G2P5 {
 		return actionCode;
 	}
 
-
 	public String[] getParameters() {
 		killAllProcessByName(id + ".cr2");
 		return null;
@@ -144,11 +145,11 @@ public class G2P5 {
 	private void invokeEventMask(String cad) {
 		sendEvent(new G2P5Event(G2P5Event.EVENT_MASK, "mask", cad));
 	}
-	
+
 	private void invokeEventFocus(String cad) {
 		sendEvent(new G2P5Event(G2P5Event.EVENT_FOCUS, "mask", cad));
 	}
-	
+
 	private void invokeEventNoFocus(String cad) {
 		sendEvent(new G2P5Event(G2P5Event.EVENT_NO_FOCUS, "mask", cad));
 	}
@@ -175,7 +176,9 @@ public class G2P5 {
 
 	private void sendEvent(G2P5Event event) {
 
-		ManuCapture_v1_1.println("NEW EVENT " + id + " " + event.eventCode + " " + event.content);
+		if (ignoreEventProperty && !event.content.contains("PTP Property")) {
+			ManuCapture_v1_1.println("NEW EVENT " + id + " " + event.eventCode + " " + event.content);
+		}
 
 		event.g2p5 = this;
 
@@ -247,7 +250,7 @@ public class G2P5 {
 		} else if (line.contains("Button")) {
 			// UNKNOWN Button 1032
 			int index = line.indexOf("Button");
-			String cad = line.substring(index+6, line.length());
+			String cad = line.substring(index + 6, line.length());
 			invokeEventButton(cad);
 
 		} else if (line.contains("OLCInfo")) {
@@ -264,13 +267,13 @@ public class G2P5 {
 					int index = line.indexOf("mask=");
 					String cad = line.substring(index + 5, line.length());
 					if (cad.startsWith("2")) {
-						//focus things
-						if(cad.equals("200")) {
+						// focus things
+						if (cad.equals("200")) {
 							invokeEventFocus(cad);
-						}else {
+						} else {
 							invokeEventNoFocus(cad);
 						}
-						
+
 					} else {
 						invokeEventMask(cad);
 					}
@@ -309,7 +312,6 @@ public class G2P5 {
 		return camera;
 	}
 
-	
 	// Check difference with gphoto2 --get-config=/main/status/serialnumber
 
 	public static String getCameraPort(String eosSerial) {

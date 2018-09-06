@@ -32,6 +32,8 @@ public class G2P5ManucaptureAdapter implements G2P5Listener {
 	boolean mirrorUp = false;
 
 	long lastEvent = 0;
+	
+	String lastMask = null;
 
 	/*
 	 * public synchronized boolean captureTethered(boolean on) { if(active){
@@ -75,12 +77,18 @@ public class G2P5ManucaptureAdapter implements G2P5Listener {
 		} else if (event.eventID == G2P5Event.EVENT_MASK) {
 			System.out.println(event.content);
 			// It seems that mask 983 means "mirror up" after focus
-			if (event.content.trim().endsWith("3")) {// || event.content.trim().equals("bc3")) {
+			if (event.content.trim().endsWith("83") || event.content.trim().endsWith("85")) {// || event.content.trim().equals("bc3")) {
 				mirrorUp = true;
+				PApplet.println("MIRRORRRRRRR UP");
+				
 			} // Detects
-			if (event.content.trim().endsWith("00")) {
+			if (event.content.trim().endsWith("00") && lastMask.equals("1")
+					|| event.content.trim().endsWith("00") && lastMask.equals("c3")) {
 				mirrorUp = false;
+				PApplet.println("MIRRORRRRRRR DOWN");
 			}
+			lastMask = event.content.trim();
+			
 		}
 
 	}

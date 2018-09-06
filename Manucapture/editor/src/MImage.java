@@ -213,7 +213,7 @@ public class MImage {
 						err += (char) error.read();
 					}
 					if (!err.equals("Error:")) {
-						context.parent.println(err);
+						context.parent.println(err+" "+command);
 					}
 
 					command = "convert " + resizedImageFullPath.replace(".jpg", "-rot.jpg") + " -rotate " + rotation
