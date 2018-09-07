@@ -95,7 +95,7 @@ public class ManuCapture_v1_1 extends PApplet {
 	int guideHeight_1 = 200;
 	int guideHeight_2 = 600;
 
-	int marginTopViewer = 40;
+	int marginTopViewer = 100;
 	int marginLeftViewerRight = 1170;
 	int marginLeftViewerLeft = 400;
 
@@ -327,8 +327,11 @@ public class ManuCapture_v1_1 extends PApplet {
 	Item newItem;
 
 	public void draw() {
+		
+		marginTopViewer = 100;
 
 		context.gui.btnLiveView.setAlpha(200);
+		context.gui.btnTriggerCrop.setAlpha(200);
 		context.gui.btnTrigger.setAlpha(220);
 		context.gui.btnTriggerChartColor.setAlpha(180);
 		context.gui.btnTriggerNormal.setAlpha(180);
@@ -336,8 +339,8 @@ public class ManuCapture_v1_1 extends PApplet {
 		context.gui.btnConnectedB.setAlpha(180);
 
 		context.gui.btnConnectedA.setAlpha(180);
-		// context.gui.btnConnectedB.moveTo(marginLeftViewerRight +
-		// context.hImageViewerSize - 280, 30);
+//		 context.gui.btnConnectedB.moveTo(marginLeftViewerRight +
+//		 context.hImageViewerSize - 280, 0);
 
 		background(75);
 
@@ -465,7 +468,7 @@ public class ManuCapture_v1_1 extends PApplet {
 			G2P5.killAllGphotoProcess();
 
 			String command = context.appPath + "/GPhotoLiveView/bin/GPhotoLiveViewer_debug";
-			
+
 			try {
 				Process process = Runtime.getRuntime().exec(command);
 
@@ -731,11 +734,10 @@ public class ManuCapture_v1_1 extends PApplet {
 				popStyle();
 			}
 
-			
 			showPhotoMetaData();
-			
+
 			text(project.selectedItem.mImageLeft.imagePath, 0, -10);
-			
+
 			popMatrix();
 			stroke(255, 0, 0);
 			if (chartStateMachine == 3) {
@@ -771,8 +773,9 @@ public class ManuCapture_v1_1 extends PApplet {
 		// marginLeftViewerRight + 75, 40);
 		// text("focusing: ", marginLeftViewerRight + 300, 40);
 		// text(context.gphotoBAdapter.g2p5.id, 840, 40);
-		 text("mirroUp " + context.gphotoBAdapter.mirrorUp,
-		 marginLeftViewerRight + 75, 60);
+		fill(255);
+		text("mirroUp " + context.gphotoBAdapter.g2p5.id + " " + context.gphotoBAdapter.mirrorUp,
+				marginLeftViewerRight + 375,20);
 		//
 		// fill(0, 200, 0);
 		//
@@ -819,8 +822,6 @@ public class ManuCapture_v1_1 extends PApplet {
 
 			drawImagePreview(project.selectedItem.mImageRight, lastPressedR, marginLeftViewerLeft, context.pointsLeft,
 					context.scaleB);
-			
-			
 
 			// if (context.gphotoAAdapter.cameraWaitingForPicture ||
 			// context.cameraAProcessingNewPhoto) {
@@ -839,7 +840,7 @@ public class ManuCapture_v1_1 extends PApplet {
 						context.lastRightPreview.width, context.lastRightPreview.height);
 				popStyle();
 			}
-			
+
 			showPhotoMetaData();
 			text(project.selectedItem.mImageRight.imagePath, 0, -10);
 			popMatrix();
@@ -871,10 +872,12 @@ public class ManuCapture_v1_1 extends PApplet {
 		fill(255);
 		// pushMatrix();
 		// translate(0, 1015);
-		 
+
 		//
 		// text(" focusing: ", 890, 40);
-		 text("mirroUp " + context.gphotoAAdapter.mirrorUp, 650, 60);
+		fill(255);
+		text("mirroUp " + context.gphotoAAdapter.g2p5.id + " " + context.gphotoAAdapter.mirrorUp,
+				marginLeftViewerLeft + 430, 40);
 		// text(context.gphotoAAdapter.g2p5.id, 840, 40);
 		// if (context.gphotoAAdapter.focus) {
 		// fill(255, 0, 0);
@@ -915,15 +918,17 @@ public class ManuCapture_v1_1 extends PApplet {
 		fill(255);
 		textSize(24);
 		textAlign(LEFT);
-		//@TODO add info from the readed image
-		
-		text("ISO: " + context.gphotoAAdapter.exposure, 10, context.wImageViewerSize-20);
-		text("exposure: " + context.gphotoAAdapter.exposure, 200, context.wImageViewerSize-20);
-		text("f: " + context.gphotoAAdapter.exposure, 450, context.wImageViewerSize-20);
+		// @TODO add info from the readed image
+
+		text("ISO: " + context.gphotoAAdapter.exposure, 10, context.wImageViewerSize - 20);
+		text("exposure: " + context.gphotoAAdapter.exposure, 200, context.wImageViewerSize - 20);
+		text("f: " + context.gphotoAAdapter.exposure, 450, context.wImageViewerSize - 20);
 	}
 
 	private void drawImagePreview(MImage img, PVector lastPressedR, int marginLeftViewer, List<HotArea> areas,
 			float scale) {
+		
+		
 		if (lastPressedR != null) {
 			// pimero quiero saber pos en la imagen
 			float imgScale = img.imgPreview.width / (float) context.hImageViewerSize;
@@ -1239,8 +1244,8 @@ public class ManuCapture_v1_1 extends PApplet {
 			loading = false;
 
 			noZoom();
-			
-			if(project.items.isEmpty()) {
+
+			if (project.items.isEmpty()) {
 				context.initCropHotAreas();
 			}
 
@@ -1379,7 +1384,7 @@ public class ManuCapture_v1_1 extends PApplet {
 		context.init();
 		// G2P5Manager.setImageCount(project.items.size());
 		project.forceSelectedItem(project.items.size(), false);
-		if(project.items.isEmpty()) {
+		if (project.items.isEmpty()) {
 			context.initCropHotAreas();
 		}
 		saveLastSessionData();
@@ -1432,7 +1437,7 @@ public class ManuCapture_v1_1 extends PApplet {
 			if (button == context.gui.btnTriggerOpenSOViewer1) {
 
 				try {
-					String cmd = "rawtherapee " + project.projectDirectory + project.selectedItem.mImageLeft.imagePath;
+					String cmd = "rawtherapee " + project.projectDirectory + project.selectedItem.mImageRight.imagePath;
 					println(cmd);
 					Runtime.getRuntime().exec(cmd);
 				} catch (Exception e) {
@@ -1444,7 +1449,7 @@ public class ManuCapture_v1_1 extends PApplet {
 			if (button == context.gui.btnTriggerOpenSOViewer2) {
 				try {
 					Runtime.getRuntime().exec(
-							"rawtherapee " + project.projectDirectory + project.selectedItem.mImageRight.imagePath);
+							"rawtherapee " + project.projectDirectory + project.selectedItem.mImageLeft.imagePath);
 				} catch (Exception e) {
 					context._println("Couldn't create raw directory permisions");
 				}

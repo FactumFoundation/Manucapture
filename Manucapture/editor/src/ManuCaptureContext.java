@@ -20,8 +20,10 @@ import processing.data.XML;
 public class ManuCaptureContext {
 
 	// size view on screen
-	int wImageViewerSize = 1000;
-	int hImageViewerSize = 667;
+	float ratioAspect = 1f;
+	
+	int wImageViewerSize = (int)(1000*ratioAspect);
+	int hImageViewerSize = (int)(667*ratioAspect);
 
 	// width size of the preview
 	public int viewerWidthResolution = 2000;
@@ -30,7 +32,7 @@ public class ManuCaptureContext {
 	static public int MAX_TIME_TO_EVENT = 3000;
 
 	// max time waitting from send action to camera and receive event
-	static public int MAX_TIME_FOCUSSING = 5000;
+	static public int MAX_TIME_FOCUSSING = 7000;
 
 	// max time waitting from send action to camera and receive event
 	static public int MAX_TIME_CAPTURE_MACHINE_STATE = 15000;
@@ -385,7 +387,6 @@ public class ManuCaptureContext {
 				G4P.showMessage(parent, messageContainer.getText("sw.notready"), "", G4P.WARNING);
 			}
 		}
-
 	}
 
 	public void processCamerasEvent(G2P5Event event) {
@@ -401,16 +402,18 @@ public class ManuCaptureContext {
 			// // we have a failing state, pulse lost
 			// resetCamerasFailingB();
 			// ignoreNextPhotoA = true;
-			// lastCameraAAction = -1;
+			 lastCameraAAction = -1;
 			failedA = true;
+			parent.println("FAILED A");
 		}
 		//
 		if (lastCameraBAction > 0 && gphotoBAdapter.lastEvent > lastCameraBAction + MAX_TIME_TO_EVENT) {
 			// // we have a failing state, pulse lost
 			// resetCamerasFailingA();
 			// ignoreNextPhotoB = true;
-			// lastCameraBAction = -1;
+			 lastCameraBAction = -1;
 			failedB = true;
+			parent.println("FAILED B");
 		}
 
 		// if we are out from Idle more than a time we break
@@ -467,14 +470,15 @@ public class ManuCaptureContext {
 	private void restoreCamerasStateAfterFailure() {
 		if (!gphotoAAdapter.mirrorUp && !gphotoBAdapter.mirrorUp) {
 			releaseCameras();
+			
 			G4P.showMessage(parent, messageContainer.getText("sw.fails"), "", G4P.WARNING);
 		} else if (!gphotoAAdapter.mirrorUp && gphotoBAdapter.mirrorUp) {
-			resetCamerasFailingA();
-			ignoreNextPhotoB = true;
+//			resetCamerasFailingA();
+//			ignoreNextPhotoB = true;
 			G4P.showMessage(parent, messageContainer.getText("sw.failsA"), "", G4P.WARNING);
 		} else if (gphotoAAdapter.mirrorUp && !gphotoBAdapter.mirrorUp) {
-			resetCamerasFailingB();
-			ignoreNextPhotoA = true;
+//			resetCamerasFailingB();
+//			ignoreNextPhotoA = true;
 			G4P.showMessage(parent, messageContainer.getText("sw.failsB"), "", G4P.WARNING);
 		}
 		captureState = CAMERAS_IDLE;
@@ -485,6 +489,8 @@ public class ManuCaptureContext {
 		lastCameraAAction = parent.millis();
 		lastCameraBAction = parent.millis();
 
+		parent.println("Press Cameras by OSC");
+		
 		OscMessage myMessage = new OscMessage("/shutterAction");
 		myMessage.add('P');
 		oscP5.send(myMessage, arduinoDriverLocation);
@@ -496,6 +502,8 @@ public class ManuCaptureContext {
 		lastCameraAAction = parent.millis();
 		lastCameraBAction = parent.millis();
 
+		parent.println("Release Cameras by OSC");
+		
 		OscMessage myMessage = new OscMessage("/shutterAction");
 		myMessage.add('R');
 		oscP5.send(myMessage, arduinoDriverLocation);
@@ -512,6 +520,8 @@ public class ManuCaptureContext {
 		myMessage.add('W');
 		oscP5.send(myMessage, arduinoDriverLocation);
 
+		parent.println("Release And Shutters Cameras by OSC");
+		
 	}
 
 	public void clickCamera() {
@@ -522,6 +532,8 @@ public class ManuCaptureContext {
 		OscMessage myMessage = new OscMessage("/shutterAction");
 		myMessage.add('S');
 		oscP5.send(myMessage, arduinoDriverLocation);
+		
+		parent.println("Shutter Cameras by OSC");
 	}
 
 	public void resetCamerasFailingA() {
@@ -533,6 +545,8 @@ public class ManuCaptureContext {
 		OscMessage myMessage = new OscMessage("/shutterAction");
 		myMessage.add('Y');
 		oscP5.send(myMessage, arduinoDriverLocation);
+		
+		parent.println("Reset Camera A failing by OSC");
 
 	}
 
@@ -543,6 +557,8 @@ public class ManuCaptureContext {
 		OscMessage myMessage = new OscMessage("/shutterAction");
 		myMessage.add('Z');
 		oscP5.send(myMessage, arduinoDriverLocation);
+		
+		parent.println("Reset Camera B failing by OSC");
 
 	}
 

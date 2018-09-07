@@ -319,11 +319,11 @@ public class GUI {
 		grpAll.addControls(btnTriggerChartColor);
 
 		files = new String[] { "btn_connected.png", "btn_connected.png", "btn_connected.png" };
-		btnConnectedA = new GImageButton(parent, parent.marginLeftViewerLeft, 30, files);
+		btnConnectedA = new GImageButton(parent, parent.marginLeftViewerLeft, 0, files);
 		grpAll.addControls(btnConnectedA);
 
 		files = new String[] { "btn_connected.png", "btn_connected.png", "btn_connected.png" };
-		btnConnectedB = new GImageButton(parent, parent.marginLeftViewerRight, 30, files);
+		btnConnectedB = new GImageButton(parent, parent.marginLeftViewerRight, 0, files);
 		grpAll.addControls(btnConnectedB);
 		
 		files = new String[] { "btn_edit.png", "btn_edit.png", "btn_edit.png" };
