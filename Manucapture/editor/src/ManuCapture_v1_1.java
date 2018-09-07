@@ -464,7 +464,7 @@ public class ManuCapture_v1_1 extends PApplet {
 
 			G2P5.killAllGphotoProcess();
 
-			String command = context.appPath + "/GPhotoLiveView/bin/GPhotoLiveView_debug";
+			String command = context.appPath + "/GPhotoLiveView/bin/GPhotoLiveViewer_debug";
 			
 			try {
 				Process process = Runtime.getRuntime().exec(command);
