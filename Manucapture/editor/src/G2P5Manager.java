@@ -15,12 +15,12 @@ public class G2P5Manager {
 		return imageCounter;
 	}
 
+	public static synchronized void setImageCount(int imageCount) {
+		imageCounter = imageCount;
+	}
+	
 	public static int getImageCount() {
 		return imageCounter;
-	}
-
-	public static void setImageCount(int imageCount) {
-		imageCounter = imageCount;
 	}
 
 	public static void init(int initialImageCount) {

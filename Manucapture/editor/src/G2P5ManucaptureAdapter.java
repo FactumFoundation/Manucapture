@@ -34,6 +34,11 @@ public class G2P5ManucaptureAdapter implements G2P5Listener {
 
 	String lastMask = null;
 
+	public G2P5ManucaptureAdapter(ManuCapture_v1_1 context, G2P5 g2p5) {
+		this.manuCapture = context;
+		this.g2p5 = g2p5;
+	}
+	
 	public void setTargetFile(String folderPath, String targetFileName) {
 		this.targetFileName = targetFileName;
 		this.folderPath = folderPath;
@@ -44,7 +49,6 @@ public class G2P5ManucaptureAdapter implements G2P5Listener {
 	}
 
 	public void newEvent(G2P5Event event) {
-
 		lastEventMillis = manuCapture.millis();
 		if (event.eventID == G2P5Event.NEW_PHOTO) {
 			int ic = G2P5Manager.addImageCount();
@@ -59,7 +63,6 @@ public class G2P5ManucaptureAdapter implements G2P5Listener {
 			}	
 		}
 		else if (event.eventID == G2P5Event.EVENT_MASK) {
-
 			if (propertyMirrorUpChanged && event.content.trim().endsWith("3")) {				
 				mirrorUp = true;
 				PApplet.println("MIRRORRRRRRR UP " + g2p5.id);
@@ -73,11 +76,7 @@ public class G2P5ManucaptureAdapter implements G2P5Listener {
 	}
 
 	public String getFullTargetPath() {
-
-		// fullTargetPath = folderPath + "/" + targetFileName;
-
 		return fullTargetPath;
-		// return super.getFullTargetPath();
 	}
 
 }

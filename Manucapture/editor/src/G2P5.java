@@ -54,8 +54,7 @@ public class G2P5 {
 		this.port = port;
 		this.tethering = true;
 		this.homeDirectory = homeDirectory;
-		// setActive(true);
-
+		setActive(true);
 	}
 
 	public synchronized String getPort() {
@@ -67,11 +66,9 @@ public class G2P5 {
 	}
 
 	public void setActive(boolean active) {
-
 		if (thread != null && thread.isAlive()) {
 			thread.interrupt();
 		}
-
 		this.active = active;
 		if (port != null) {
 			if (active) {
@@ -167,17 +164,12 @@ public class G2P5 {
 	}
 
 	private void sendEvent(G2P5Event event) {
-
 		//ManuCapture_v1_1.println("NEW EVENT " + id + " " + event.eventCode + " " + event.content);
-
 		event.g2p5 = this;
-
 		if (listener != null) {
 			listener.newEvent(event);
 		}
-
 		events.add(event);
-
 		if (mock)
 			try {
 				Thread.sleep(200);
@@ -287,8 +279,6 @@ public class G2P5 {
 		G2P5 camera = new G2P5(homeDirectory, eosSerial, port, id);
 		return camera;
 	}
-
-	// Check difference with gphoto2 --get-config=/main/status/serialnumber
 
 	public static String getCameraPort(String eosSerial) {
 

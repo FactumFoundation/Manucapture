@@ -97,7 +97,6 @@ public class GUIController {
 				PApplet.println("wrong page number");
 			}
 		}
-
 	} // _CODE_:textfield1:363899:
 
 	public void normal_shutter_click1(GButton source, GEvent event) { // _CODE_:normal_shutter_button:563899:
@@ -163,17 +162,14 @@ public class GUIController {
 			context.gui.grpProject.setVisible(1, false);
 			context.editingProject = false;
 			context.project.saveProjectXML();
-
 		} else {
 			// showwhat error
 			G4P.showMessage(context, "Missing name or code", "", G4P.WARNING);
 		}
-
 		PApplet.println("close window edit project data");
 	}
 
 	public void calibration_shutter_click(GButton source, GEvent event) { // _CODE_:calibration_shutter_button:835827:
-
 		// if (state == CAPTURING) {
 		PApplet.println("SHUTTER CONTROL SET CALIBRATION MODE");
 		context.shutterMode = ManuCapture_v1_1.CALIB_SHUTTER;
@@ -181,7 +177,6 @@ public class GUIController {
 		gui.normal_shutter_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
 		gui.repeat_shutter_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
 		gui.calibration_shutter_button.setLocalColorScheme(GCScheme.ORANGE_SCHEME);
-
 		context.cameraState = ManuCapture_v1_1.STATE_CHART;
 		context.chartStateMachine = 1;
 		// }
@@ -195,7 +190,6 @@ public class GUIController {
 		} else {
 			G4P.showMessage(context, "Mirrors are not ready", "", G4P.WARNING);
 		}
-
 	} // _CODE_:trigger_button:381491:
 
 	public void camera_A_connected_click(GButton source, GEvent event) { // _CODE_:camera_A_connected_button:265149:
@@ -224,7 +218,6 @@ public class GUIController {
 		gui.camera_A_inactive_button.setLocalColorScheme(GCScheme.ORANGE_SCHEME);
 		context.cameraActiveA = false;
 		context.gphotoA.setActive(false);
-
 	} // _CODE_:camera_A_inactive_button:493860:
 
 	public void camera_B_connected_click(GButton source, GEvent event) { // _CODE_:camera_B_connected_button:564189:
@@ -241,11 +234,9 @@ public class GUIController {
 		gui.camera_B_inactive_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
 		context.cameraActiveB = true;
 		context.gphotoB.setActive(true);
-
 		if (context.gphotoB.captureRunnable instanceof TetheredMockCaptureRunnable) {
 			context.gphotoB.active = true;
 		}
-
 	} // _CODE_:camera_B_active_button:640605:
 
 	public void camera_B_inactive_click(GButton source, GEvent event) { // _CODE_:camera_B_inactive_button:780199:
@@ -280,14 +271,12 @@ public class GUIController {
 		} else {
 			context.loading = false;
 		}
-
 	} // _CODE_:load_button:841968:
 
 	public void edit_click(GButton source, GEvent event) { // _CODE_:load_button:841968:
 		context.gui.grpProject.setVisible(1, true);
 		context.gui.grpAll.setVisible(1, false);
 		context.editingProject = true;
-
 	} // _CODE_:load_button:841968:
 
 	public void close_click(GButton source, GEvent event) { // _CODE_:load_button:841968:
