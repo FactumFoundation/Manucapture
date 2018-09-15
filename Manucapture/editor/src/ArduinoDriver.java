@@ -35,34 +35,55 @@ public class ArduinoDriver extends PApplet {
 	OscP5 oscP5;
 	NetAddress myRemoteLocation;
 
-	int bgcolor; // Background color
-	int fgcolor; // Fill color
 	Serial myPort; // The serial port
 	int[] serialInArray = new int[3]; // Where we'll put what we receive
 	int serialCount = 0; // A count of how many bytes we receive
 	boolean firstContact = false; // Whether we've heard from the
 									// microcontroller
-
+	boolean arduinoConnected = true;
+	
 	public void setup() {
 		// Stage size
 		noStroke(); // No border on the next thing drawn
 
 		// Print a list of the serial ports, for debugging purposes:
-		printArray(Serial.list());
+		try {
+			printArray(Serial.list());
+		} catch(Exception e) {
+			System.out.println("Problem accessing Serial devices");
+			e.printStackTrace();
+			arduinoConnected=false;
+		}
 
 		// I know that the first port in the serial list on my mac
 		// is always my FTDI adaptor, so I open Serial.list()[0].
 		// On Windows machines, this generally opens COM1.
 		// Open whatever port is the one you're using.
 		String portName = Serial.list()[0];
+		try {
 		myPort = new Serial(this, portName, 9600);
-
+		} catch(Exception e) {
+			System.out.println("Problem opening serial port " + portName);
+			e.printStackTrace();
+			arduinoConnected=false	;		
+		}
+		
 		oscP5 = new OscP5(this, 13000);
 		myRemoteLocation = new NetAddress("127.0.0.1", 3334);
+		if(!arduinoConnected) {
+			OscMessage myMessage = new OscMessage("/error");
+			myMessage.add(-1);
+			oscP5.send(myMessage, myRemoteLocation);			
+		}
 	}
 
 	public void draw() {
-		background(bgcolor);
+		if(arduinoConnected) {
+			background(0);
+		} else {
+			background(255,0,0);
+		}
+		
 	}
 
 	public void serialEvent(Serial myPort) {

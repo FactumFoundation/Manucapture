@@ -146,14 +146,6 @@ public class G2P5 {
 		sendEvent(new G2P5Event(G2P5Event.EVENT_MASK, "mask", cad));
 	}
 
-	private void invokeEventFocus(String cad) {
-		sendEvent(new G2P5Event(G2P5Event.EVENT_FOCUS, "mask", cad));
-	}
-
-	private void invokeEventNoFocus(String cad) {
-		sendEvent(new G2P5Event(G2P5Event.EVENT_NO_FOCUS, "mask", cad));
-	}
-
 	private void invokeEventCode(String cad, String content) {
 		sendEvent(new G2P5Event(G2P5Event.EVENT_CODE, cad, content));
 	}
@@ -176,9 +168,7 @@ public class G2P5 {
 
 	private void sendEvent(G2P5Event event) {
 
-		if (ignoreEventProperty && !event.content.contains("PTP Property")) {
-			ManuCapture_v1_1.println("NEW EVENT " + id + " " + event.eventCode + " " + event.content);
-		}
+		//ManuCapture_v1_1.println("NEW EVENT " + id + " " + event.eventCode + " " + event.content);
 
 		event.g2p5 = this;
 
@@ -234,25 +224,22 @@ public class G2P5 {
 	}
 
 	public void processLogLine(String line) {
-//		ifthis.id.equals("A")
-//		System.out.println(line);
+//		if(this.id.equals("A"))
+//			System.out.println(line);
 		if (line.contains("Camera")) {
 			int index = line.indexOf("Camera");
 			String cad = line.substring(index, line.length());
 			invokeEventCamera(cad);
-
 		} else if (line.contains("PTP")) {
 			// UNKNOWN PTP Property d1d3 changed
 			int index = line.indexOf("PTP");
 			String cad = line.substring(index, line.length());
 			invokeEventPTP(cad);
-
 		} else if (line.contains("Button")) {
 			// UNKNOWN Button 1032
 			int index = line.indexOf("Button");
 			String cad = line.substring(index + 6, line.length());
 			invokeEventButton(cad);
-
 		} else if (line.contains("OLCInfo")) {
 			// UNKNOWN OLCInfo event 0x0800 content 0000000000000000
 			// UNKNOWN OLCInfo event mask=900
@@ -266,17 +253,7 @@ public class G2P5 {
 				} else if (line.contains("mask")) {
 					int index = line.indexOf("mask=");
 					String cad = line.substring(index + 5, line.length());
-					if (cad.startsWith("2")) {
-						// focus things
-						if (cad.equals("200")) {
-							invokeEventFocus(cad);
-						} else {
-							invokeEventNoFocus(cad);
-						}
-
-					} else {
-						invokeEventMask(cad);
-					}
+					invokeEventMask(cad);
 				}
 			} else if (line.contains("OLCInfo exposure")) {
 				int index = line.indexOf("exposure indicator");
@@ -285,7 +262,6 @@ public class G2P5 {
 			} else {
 				// aquí los no reconocidos
 			}
-
 		} else if (line.contains(id + ".cr2")) {
 			// something about the file
 			if (!line.contains("LANG=C")) {
@@ -372,16 +348,5 @@ public class G2P5 {
 		String fullPath = homeDirectory + "/" + id + ".cr2";
 		return fullPath;
 	}
-
-	/*
-	 * if (line.contains(g2p5.id + ".cr2") && !line.contains("LANG=C")) {
-	 * 
-	 * try { if (g2p5.active) { Thread.sleep(600); g2p5.invokePhotoEvent(); } }
-	 * catch (Throwable t) { PApplet.println(t); } } else if
-	 * (line.contains("LANG=C")) {
-	 * PApplet.println("Problem opening thethering on camera " + g2p5.id);
-	 * inputStream.close(); bufferedReader.close();
-	 * g2p5.setAction(g2p5.CAMERA_INACTIVE); }
-	 */
 
 }

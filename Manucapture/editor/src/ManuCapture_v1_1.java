@@ -116,6 +116,8 @@ public class ManuCapture_v1_1 extends PApplet {
 	PImage cameraIcon;
 	PImage zoomImg = null;
 
+	boolean arduinoConnected = true;
+
 	public void post() {
 		if (frameCount < 10) {
 			background(0);
@@ -126,6 +128,10 @@ public class ManuCapture_v1_1 extends PApplet {
 	public void setup() {
 
 		System.setOut(new TracingPrintStream(System.out));
+
+		context.oscP5 = new OscP5(this, receivePort);
+		context.viewerLocation = new NetAddress("127.0.0.1", sendPort);
+		context.arduinoDriverLocation = new NetAddress("127.0.0.1", arduinoDriverPort);
 
 		context.parent = this;
 		context.thumbnail = new RawFile();
@@ -168,16 +174,13 @@ public class ManuCapture_v1_1 extends PApplet {
 		if (rotB != null)
 			context.rotationB = Integer.parseInt(rotB);
 
+		System.out.println("camera A rotation" + rotA);
+		System.out.println("camera B rotation" + rotB);
+
 		context.gui = new GUI();
 		context.gui.createGUI(context);
 		// context.gui.createGroup2Controls();
 		context.gui.customGUI();
-
-		System.out.println("camera A rotation" + rotA);
-		System.out.println("camera B rotation" + rotB);
-		context.oscP5 = new OscP5(this, receivePort);
-		context.viewerLocation = new NetAddress("127.0.0.1", sendPort);
-		context.arduinoDriverLocation = new NetAddress("127.0.0.1", arduinoDriverPort);
 
 		if (mock) {
 			context.gphotoA = G2P5MockDisk.create(this, context.serialCameraA, "A");
@@ -185,7 +188,6 @@ public class ManuCapture_v1_1 extends PApplet {
 			context.gphotoB = G2P5MockDisk.create(this, context.serialCameraB, "B");
 			context.gphotoBAdapter.setTargetFile(homeDirectory(), "test");
 		} else {
-
 			G2P5Manager.init(0);
 			context.gphotoAAdapter = context.createG2P5(context.serialCameraA, "A");
 			context.gphotoBAdapter = context.createG2P5(context.serialCameraB, "B");
@@ -263,15 +265,11 @@ public class ManuCapture_v1_1 extends PApplet {
 			// delay(3000);
 
 			if (shutterMode == NORMAL_SHUTTER) {
-
 				doNormalShutter(Item.TYPE_ITEM);
-
 			} else if (shutterMode == REPEAT_SHUTTER) {
 				if (project.items.size() > 0) {
 					float newPageNum = project.selectedItem.pagNum;
-
 					Item newItem = initNewItem(project.selectedItem.type, newPageNum);
-
 					newItem.loadThumbnails();
 					project.replaceItem(project.selectedItemIndex, newItem);
 					context.clearPaths();
@@ -288,9 +286,8 @@ public class ManuCapture_v1_1 extends PApplet {
 				if (chartStateMachine == 1) {
 					// we do background and first photo normally
 					doNormalShutter(Item.TYPE_CHART);
-
-					context.lastRightPreview = project.selectedItem.mImageRight.imgPreview;
-					context.lastLeftPreview = project.selectedItem.mImageLeft.imgPreview;
+					context.lastRightPreview = context.imgPreviewRight;
+					context.lastLeftPreview = context.imgPreviewLeft;
 					chartStateMachine++;
 				} else if (chartStateMachine == 2) {
 
@@ -298,10 +295,10 @@ public class ManuCapture_v1_1 extends PApplet {
 
 					newItem = initNewItem(Item.TYPE_CHART, newPageNum);
 
-					newItem.loadLeftPreview(context.project.projectDirectory,
+					context.imgPreviewLeft = newItem.loadLeftPreview(context.project.projectDirectory,
 							context.project.projectDirectory + newItem.mImageLeft.imagePath);
 
-					context.lastLeftPreview = newItem.mImageLeft.imgPreview;
+					context.lastLeftPreview = context.imgPreviewLeft;
 
 					// newItem.mImageLeft.remove();
 					newItem.mImageLeft.imagePath = "";
@@ -327,7 +324,7 @@ public class ManuCapture_v1_1 extends PApplet {
 	Item newItem;
 
 	public void draw() {
-		
+
 		marginTopViewer = 100;
 
 		context.gui.btnLiveView.setAlpha(200);
@@ -345,69 +342,14 @@ public class ManuCapture_v1_1 extends PApplet {
 		background(75);
 
 		if (stateApp == STATE_APP_NO_PROJECT) {
-			// MOSTRAR CARGAR O NUEVO
-			context.gui.grpAll.setVisible(1, false);
-			// ellipse(width/2,500,1000,1000);
-			textAlign(CENTER, CENTER);
-
-			PVector m = new PVector(mouseX, mouseY);
-			float dist = m.dist(new PVector(width / 2, 500));
-			float dist1 = m.dist(new PVector(width / 2 + width / 4, 500));
-			float dist2 = m.dist(new PVector(width / 2 - width / 4, 500));
-
-			fill(255);
-			textSize(32);
-			text(context.msg("sw.name"), width / 2, 250);
-			textSize(18);
-			text(context.msg("factum.name") + " " + context.msg("sw.version"), width / 2, height - 30);
-			textSize(20);
-
-			if (dist2 < 100)
-				fill(100);
-			else
-				fill(255);
-
-			ellipse(width / 2 - width / 4, 500, 200, 200);
-			fill(0);
-			text(context.msg("sw.newproject"), width / 2 - width / 4, 500);
-
-			if (dist < 100)
-				fill(100);
-			else
-				fill(255);
-
-			ellipse(width / 2, 500, 200, 200);
-			fill(0);
-			text(context.msg("sw.lastproject"), width / 2, 500);
-
-			if (dist1 < 100)
-				fill(100);
-			else
-				fill(255);
-			ellipse(width / 2 + width / 4, 500, 200, 200);
-			fill(0);
-			text(context.msg("sw.openproject"), width / 2 + width / 4, 500);
-
-			if (mousePressed && !loading) {
-				if (dist < 100) {
-					loading = true;
-					context.gui.grpAll.setVisible(0, true);
-
-					thread("loadLastSessionData");
-
-				}
-				if (dist1 < 100) {
-					loading = true;
-					thread("load_click");
-				}
-				if (dist2 < 100) {
-					context.guiController.new_button_click(null, null);
-				}
+			if (!arduinoConnected) {
+				drawErrorWindow();
+			} else {
+				drawInitWindow();
 			}
-
 		} else {
 			// context.gui.grpAll.setVisible(1, true);
-			drawInittializedApp();
+			drawApp();
 			if (context.gui.grpProject.isVisible()) {
 				// rect(0, 0, width, height);
 			}
@@ -451,8 +393,82 @@ public class ManuCapture_v1_1 extends PApplet {
 	public void load_click() { // _CODE_:load_button:841968:
 		context.guiController.load_click();
 	}
+	
+	private void drawErrorWindow() {
+		
+		background(100, 0, 0);
+		pushStyle();
+		fill(255);
+		textSize(32);
+		textAlign(CENTER);
+		text(context.msg("sw.failsSerial"), width / 2, 250);
+		popStyle();
+	}
+	
+	private void drawInitWindow() {
+		// MOSTRAR CARGAR O NUEVO
+		context.gui.grpAll.setVisible(1, false);
+		// ellipse(width/2,500,1000,1000);
+		textAlign(CENTER, CENTER);
 
-	private void drawInittializedApp() {
+		PVector m = new PVector(mouseX, mouseY);
+		float dist = m.dist(new PVector(width / 2, 500));
+		float dist1 = m.dist(new PVector(width / 2 + width / 4, 500));
+		float dist2 = m.dist(new PVector(width / 2 - width / 4, 500));
+
+		fill(255);
+		textSize(32);
+		text(context.msg("sw.name"), width / 2, 250);
+		textSize(18);
+		text(context.msg("factum.name") + " " + context.msg("sw.version"), width / 2, height - 30);
+		textSize(20);
+
+		if (dist2 < 100)
+			fill(100);
+		else
+			fill(255);
+
+		ellipse(width / 2 - width / 4, 500, 200, 200);
+		fill(0);
+		text(context.msg("sw.newproject"), width / 2 - width / 4, 500);
+
+		if (dist < 100)
+			fill(100);
+		else
+			fill(255);
+
+		ellipse(width / 2, 500, 200, 200);
+		fill(0);
+		text(context.msg("sw.lastproject"), width / 2, 500);
+
+		if (dist1 < 100)
+			fill(100);
+		else
+			fill(255);
+		ellipse(width / 2 + width / 4, 500, 200, 200);
+		fill(0);
+		text(context.msg("sw.openproject"), width / 2 + width / 4, 500);
+
+		if (mousePressed && !loading) {
+			if (dist < 100) {
+				loading = true;
+				context.gui.grpAll.setVisible(0, true);
+
+				thread("loadLastSessionData");
+
+			}
+			if (dist1 < 100) {
+				loading = true;
+				thread("load_click");
+			}
+			if (dist2 < 100) {
+				context.guiController.new_button_click(null, null);
+			}
+		}
+
+	}
+
+	private void drawApp() {
 		context.camerasStateMachineLoop();
 		// //
 		// context.gui.context.gui.btnLiveView.moveTo(marginLeftViewerRight -
@@ -461,17 +477,12 @@ public class ManuCapture_v1_1 extends PApplet {
 		// 170, height - 250);
 
 		if (liveViewActive == 1) {
-
 			context.gphotoA.setActive(false);
 			context.gphotoB.setActive(false);
-
 			G2P5.killAllGphotoProcess();
-
 			String command = context.appPath + "/GPhotoLiveView/bin/GPhotoLiveViewer_debug";
-
 			try {
 				Process process = Runtime.getRuntime().exec(command);
-
 				try {
 					Thread.sleep(1000);
 				} catch (InterruptedException e) {
@@ -485,9 +496,7 @@ public class ManuCapture_v1_1 extends PApplet {
 					myMessage.add(context.gphotoA.getPort()); /* add an int to the osc message */
 					myMessage.add(context.gphotoB.getPort()); /* add an int to the osc message */
 					context.oscP5.send(myMessage, context.viewerLocation);
-
 					process.waitFor();
-
 				}
 
 			} catch (Exception e) {
@@ -710,13 +719,13 @@ public class ManuCapture_v1_1 extends PApplet {
 
 	private void drawLeft() {
 
-		if (project.selectedItem != null && project.selectedItem.mImageLeft.imgPreview != null) {
+		if (project.selectedItem != null && context.imgPreviewLeft != null) {
 
 			pushStyle();
 			pushMatrix();
 			translate(marginLeftViewerRight, marginTopViewer);
 
-			drawImagePreview(project.selectedItem.mImageLeft, lastPressedL, marginLeftViewerRight, context.pointsRight,
+			drawImagePreview(context.imgPreviewRight, lastPressedL, marginLeftViewerRight, context.pointsRight,
 					context.scaleA);
 
 			if (lastPressedL != null) {
@@ -775,7 +784,7 @@ public class ManuCapture_v1_1 extends PApplet {
 		// text(context.gphotoBAdapter.g2p5.id, 840, 40);
 		fill(255);
 		text("mirroUp " + context.gphotoBAdapter.g2p5.id + " " + context.gphotoBAdapter.mirrorUp,
-				marginLeftViewerRight + 375,20);
+				marginLeftViewerRight + 375, 20);
 		//
 		// fill(0, 200, 0);
 		//
@@ -814,13 +823,13 @@ public class ManuCapture_v1_1 extends PApplet {
 
 	private void drawRight() {
 
-		if (project.selectedItem != null && project.selectedItem.mImageRight.imgPreview != null) {
+		if (project.selectedItem != null && context.imgPreviewRight != null) {
 			pushStyle();
 			pushMatrix();
 			translate(marginLeftViewerLeft, marginTopViewer);
 			imageMode(CORNER);
 
-			drawImagePreview(project.selectedItem.mImageRight, lastPressedR, marginLeftViewerLeft, context.pointsLeft,
+			drawImagePreview(context.imgPreviewLeft, lastPressedR, marginLeftViewerLeft, context.pointsLeft,
 					context.scaleB);
 
 			// if (context.gphotoAAdapter.cameraWaitingForPicture ||
@@ -925,13 +934,12 @@ public class ManuCapture_v1_1 extends PApplet {
 		text("f: " + context.gphotoAAdapter.exposure, 450, context.wImageViewerSize - 20);
 	}
 
-	private void drawImagePreview(MImage img, PVector lastPressedR, int marginLeftViewer, List<HotArea> areas,
+	private void drawImagePreview(PImage imgPreview, PVector lastPressedR, int marginLeftViewer, List<HotArea> areas,
 			float scale) {
-		
-		
+
 		if (lastPressedR != null) {
 			// pimero quiero saber pos en la imagen
-			float imgScale = img.imgPreview.width / (float) context.hImageViewerSize;
+			float imgScale = imgPreview.width / (float) context.hImageViewerSize;
 			PVector virtualPos = PVector.sub(lastPressedR, new PVector(marginLeftViewer, marginTopViewer));
 
 			PVector virtualPosScaled = PVector.mult(virtualPos, imgScale);
@@ -942,31 +950,25 @@ public class ManuCapture_v1_1 extends PApplet {
 			int portviewStartX = (int) (virtualPosScaled.x - portviewSizeX / 2);
 			int portviewStartY = (int) (virtualPosScaled.y - portviewSizeY / 2);
 
-			if (portviewStartX + portviewSizeX > img.imgPreview.width) {
-				portviewStartX = img.imgPreview.width - portviewSizeX;
+			if (portviewStartX + portviewSizeX > imgPreview.width) {
+				portviewStartX = imgPreview.width - portviewSizeX;
 			}
-
-			if (portviewStartY + portviewSizeY > img.imgPreview.height) {
-				portviewStartY = img.imgPreview.height - portviewSizeY;
+			if (portviewStartY + portviewSizeY > imgPreview.height) {
+				portviewStartY = imgPreview.height - portviewSizeY;
 			}
-
 			if (portviewStartX < 0) {
 				portviewStartX = 0;
 			}
-
 			if (portviewStartY < 0) {
 				portviewStartY = 0;
 			}
-
-			image(img.imgPreview, 0, 0, context.hImageViewerSize, context.wImageViewerSize, portviewStartX,
+			image(imgPreview, 0, 0, context.hImageViewerSize, context.wImageViewerSize, portviewStartX,
 					portviewStartY, portviewStartX + portviewSizeX, portviewStartY + portviewSizeY);
 		} else {
 
-			image(img.imgPreview, 0, 0, context.hImageViewerSize, context.wImageViewerSize, 0, 0, img.imgPreview.width,
-					img.imgPreview.height);
-
+			image(imgPreview, 0, 0, context.hImageViewerSize, context.wImageViewerSize, 0, 0, imgPreview.width,
+					imgPreview.height);
 		}
-
 	}
 
 	public void mouseMoved() {
@@ -1035,14 +1037,14 @@ public class ManuCapture_v1_1 extends PApplet {
 				if (hotAreaSelected == null && project != null && project.selectedItem != null) {
 					if (mouseButton == LEFT) {
 						if (!editingProject && lastPressedL == null && project.selectedItem.mImageLeft != null
-								&& project.selectedItem.mImageLeft.imgPreview != null) {
+								&& context.imgPreviewLeft != null) {
 							updateZoomLeft();
 						}
 						// else
 						// lastPressedL = null;
 
 						if (!editingProject && lastPressedR == null && project.selectedItem.mImageRight != null
-								&& project.selectedItem.mImageRight.imgPreview != null)
+								&& context.imgPreviewRight != null)
 							updateZoomRight();
 						// else
 						// lastPressedR = null;
@@ -1512,8 +1514,12 @@ public class ManuCapture_v1_1 extends PApplet {
 		print("### received an osc message.");
 		print(" addrpattern: " + theOscMessage.addrPattern());
 		println(" typetag: " + theOscMessage.typetag());
-
-		context.capture();
+		if (theOscMessage.addrPattern().equals("/error")) {
+			arduinoConnected = false;
+			println("Problem opening Serial Port");
+		} else {
+			context.capture();
+		}
 
 	}
 

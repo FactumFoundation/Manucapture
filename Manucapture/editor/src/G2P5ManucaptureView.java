@@ -1,6 +1,7 @@
 import java.util.List;
 
 import processing.core.PGraphics;
+import processing.core.PImage;
 import processing.core.PVector;
 
 public class G2P5ManucaptureView {
@@ -8,11 +9,11 @@ public class G2P5ManucaptureView {
 	G2P5 g2p5;
 	ManuCaptureContext context;
 
-	private void drawImagePreview(MImage img, PVector lastPressedR, int marginLeftViewer, int marginTopViewer,
+	private void drawImagePreview(PImage imgPreview, PVector lastPressedR, int marginLeftViewer, int marginTopViewer,
 			List<HotArea> areas, PGraphics canvas) {
 		if (lastPressedR != null) {
 			// pimero quiero saber pos en la imagen
-			float imgScale = img.imgPreview.width / (float) context.hImageViewerSize;
+			float imgScale = imgPreview.width / (float) context.hImageViewerSize;
 			PVector virtualPos = PVector.sub(lastPressedR, new PVector(marginLeftViewer, marginTopViewer));
 
 			PVector virtualPosScaled = PVector.mult(virtualPos, imgScale);
@@ -23,12 +24,12 @@ public class G2P5ManucaptureView {
 			int portviewStartX = (int) (virtualPosScaled.x - portviewSizeX / 2);
 			int portviewStartY = (int) (virtualPosScaled.y - portviewSizeY / 2);
 
-			if (portviewStartX + portviewSizeX > img.imgPreview.width) {
-				portviewStartX = img.imgPreview.width - portviewSizeX;
+			if (portviewStartX + portviewSizeX > imgPreview.width) {
+				portviewStartX = imgPreview.width - portviewSizeX;
 			}
 
-			if (portviewStartY + portviewSizeY > img.imgPreview.height) {
-				portviewStartY = img.imgPreview.height - portviewSizeY;
+			if (portviewStartY + portviewSizeY > imgPreview.height) {
+				portviewStartY = imgPreview.height - portviewSizeY;
 			}
 
 			if (portviewStartX < 0) {
@@ -39,12 +40,12 @@ public class G2P5ManucaptureView {
 				portviewStartY = 0;
 			}
 
-			canvas.image(img.imgPreview, 0, 0, context.hImageViewerSize, context.wImageViewerSize, portviewStartX,
+			canvas.image(imgPreview, 0, 0, context.hImageViewerSize, context.wImageViewerSize, portviewStartX,
 					portviewStartY, portviewStartX + portviewSizeX, portviewStartY + portviewSizeY);
 		} else {
 
-			canvas.image(img.imgPreview, 0, 0, context.hImageViewerSize, context.wImageViewerSize, 0, 0,
-					img.imgPreview.width, img.imgPreview.height);
+			canvas.image(imgPreview, 0, 0, context.hImageViewerSize, context.wImageViewerSize, 0, 0,
+					imgPreview.width, imgPreview.height);
 		}
 
 	}

@@ -10,5 +10,7 @@
 	<classpathentry kind="lib" path="processing_3_libs/jogl-all-natives-linux-amd64.jar"/>
 	<classpathentry kind="lib" path="processing_3_libs/jogl-all.jar"/>
 	<classpathentry kind="lib" path="processing_3_libs/oscP5.jar"/>
+	<classpathentry kind="lib" path="processing_3_libs/serial.jar"/>
+	<classpathentry kind="lib" path="processing_3_libs/jssc.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

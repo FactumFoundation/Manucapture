@@ -22,24 +22,17 @@ public class G2P5ManucaptureAdapter implements G2P5Listener {
 
 	G2P5 g2p5;
 
-	protected String id;
-
 	String exposure = "unknown";
 
 	public ManuCapture_v1_1 manuCapture;
 
+	boolean propertyMirrorUpChanged = false;
 	boolean focus = false;
 	boolean mirrorUp = false;
 
-	long lastEvent = 0;
+	long lastEventMillis = 0;
 
 	String lastMask = null;
-
-	/*
-	 * public synchronized boolean captureTethered(boolean on) { if(active){
-	 * if(!on){ killAllProcessByName(id+".cr2"); } else { t = new
-	 * TetheredCaptureThread(); t.start(); } } tethering = on; return false; }
-	 */
 
 	public void setTargetFile(String folderPath, String targetFileName) {
 		this.targetFileName = targetFileName;
@@ -52,48 +45,31 @@ public class G2P5ManucaptureAdapter implements G2P5Listener {
 
 	public void newEvent(G2P5Event event) {
 
-		lastEvent = manuCapture.millis();
-
+		lastEventMillis = manuCapture.millis();
 		if (event.eventID == G2P5Event.NEW_PHOTO) {
-			//
 			int ic = G2P5Manager.addImageCount();
 			manuCapture.newPhotoEvent(event, "" + ic);
 			mirrorUp = false;
 		} else if (event.eventID == G2P5Event.EVENT_EXPOSURE) {
 			exposure = event.content;
-		} else if (event.eventID == G2P5Event.EVENT_FOCUS) {
-			System.out.println(event.content);
-			focus = true;
-		} else if (event.eventID == G2P5Event.EVENT_NO_FOCUS) {
-			System.out.println(event.content);
-			focus = false;
-		} else if (event.eventID == G2P5Event.EVENT_BUTTON) {
-			System.out.println(event.content);
-			int bid = Integer.parseInt(event.content.trim());
-			if (bid % 1024 == 8) {
-			}
-			if (bid % 1024 == 1) {
-			}
-		} else if (event.eventID == G2P5Event.EVENT_MASK) {
-			System.out.println(event.content);
-			// It seems that mask 983 means "mirror up" after focus
-			if (event.content.trim().endsWith("c3") || event.content.trim().endsWith("81")
-					|| event.content.trim().endsWith("83") || event.content.trim().endsWith("85")) {// ||
-																									// event.content.trim().equals("bc3"))
-																									// {
+		} else if(event.eventID == G2P5Event.EVENT_PTP) {
+			if(event.content.contains("d102")) {
+				 System.out.println(g2p5.id + " Property related with Mirror up changed ");
+				 propertyMirrorUpChanged = true;
+			}	
+		}
+		else if (event.eventID == G2P5Event.EVENT_MASK) {
+
+			if (propertyMirrorUpChanged && event.content.trim().endsWith("3")) {				
 				mirrorUp = true;
 				PApplet.println("MIRRORRRRRRR UP " + g2p5.id);
-
-			} // Detects
-			if (event.content.trim().endsWith("00") && lastMask.equals("1")
-					|| event.content.trim().endsWith("00") && lastMask.equals("c3")) {
-				mirrorUp = false;
-				PApplet.println("MIRRORRRRRRR DOWN");
+			} 			
+			else {
+				System.out.println("+++++++++++++++++ Mirror Property changed but got event mask " + event.content);
 			}
+			propertyMirrorUpChanged = false;
 			lastMask = event.content.trim();
-
 		}
-
 	}
 
 	public String getFullTargetPath() {

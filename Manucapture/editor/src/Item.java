@@ -71,18 +71,18 @@ public class Item {
 		this.mImageRight.saveMetadata();
 	}
 
-	public void loadRightPreview(String projectDirectory, String nextRightImagePath) {
-		mImageRight.loadPreview(projectDirectory + "/preview_right/", nextRightImagePath, "right_preview.jpg");
+	public PImage loadRightPreview(String projectDirectory, String nextRightImagePath) {
+		return mImageRight.loadPreview(projectDirectory + "/preview_right/", nextRightImagePath, "right_preview.jpg");
 	}
 
-	public void loadLeftPreview(String projectDirectory, String leftImagePath) {
-		mImageLeft.loadPreview(projectDirectory + "/preview_left/", leftImagePath, "left_preview.jpg");
+	public PImage loadLeftPreview(String projectDirectory, String leftImagePath) {
+		return mImageLeft.loadPreview(projectDirectory + "/preview_left/", leftImagePath, "left_preview.jpg");
 	}
-
+/*
 	void loadPreviews(String projectDirectory, String leftImagePath, String rightImagePath) {
-
+		
 		loadRightPreview(projectDirectory, rightImagePath);
 		loadLeftPreview(projectDirectory, leftImagePath);
 	}
-
+*/
 }

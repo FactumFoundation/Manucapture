@@ -10,8 +10,6 @@ public class G2P5Event {
 
 	//zero and negative are for processed events
 	
-	public static int EVENT_NO_FOCUS = -3;
-	public static int EVENT_FOCUS = -2;
 	public static int EVENT_EXPOSURE = -1;
 	public static int NEW_PHOTO = 0;
 	

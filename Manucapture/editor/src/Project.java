@@ -469,8 +469,9 @@ public class Project {
 			// View message for viewer
 			// context.oscP5.send(myMessage, context.viewerLocation);
 			// Now we do the preview on app
-			selectedItem.loadPreviews(projectDirectory, leftImagePath, rightImagePath);
-
+			context.imgPreviewRight = selectedItem.loadRightPreview(projectDirectory,rightImagePath);
+			context.imgPreviewLeft = selectedItem.loadLeftPreview(projectDirectory,leftImagePath);
+			
 			// context.gui.page_comments_text.setText(selectedItem.comment);
 			// context.gui.page_num_text.setText(String.valueOf(selectedItem.pagNum));
 			context.gphotoAAdapter.setTargetFile(projectDirectory + "raw", projectCode);

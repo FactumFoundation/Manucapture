@@ -37,6 +37,8 @@ public class MessageContainer {
 		content.put("sw.failsB", "Camera B Fails");
 
 		content.put("sw.", "");
+		
+		content.put("sw.failsSerial", "Trigger board is not working. Please check if it's physically connected to the USB hub\nThen restart the app");
 
 	}
 

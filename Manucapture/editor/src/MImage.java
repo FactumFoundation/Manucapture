@@ -20,7 +20,7 @@ public class MImage {
 	String imagePreview;
 
 	PImage imgThumb;
-	PImage imgPreview;
+
 	ManuCaptureContext context;
 
 	List<HotArea> mesh = new ArrayList<>();
@@ -167,10 +167,11 @@ public class MImage {
 		return projectDirectory + "/thumbnails/" + rawImgName + "_thumb.jpg";
 	}
 
-	public void loadPreview(String previewFolder, String nextRightImagePath, String resizedImage) {
+	public PImage loadPreview(String previewFolder, String nextRightImagePath, String resizedImage) {
 
 		PImage img = null;
-
+		
+		
 		if (!nextRightImagePath.equals("")) {
 
 			// Clear preview folder
@@ -181,6 +182,7 @@ public class MImage {
 			
 			if (new File(previewFile).exists()) {
 				img = context.parent.loadImage(previewFile);
+			
 				
 			} else {
 
@@ -251,10 +253,8 @@ public class MImage {
 					e.printStackTrace();
 				}
 			}
-		}
-
-		this.imgPreview = img;
-		// return img;
+		}		
+		return img;
 	}
 
 	public void saveMetadata() {

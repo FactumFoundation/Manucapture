@@ -64,6 +64,9 @@ public class ManuCaptureContext {
 
 	boolean renderLeft = true;
 	boolean renderRight = true;
+	
+	PImage imgPreviewLeft;
+	PImage imgPreviewRight;
 
 	String appPath = "/home/factum/git/book_scanner/bookScanner/Manucapture";
 
@@ -125,7 +128,6 @@ public class ManuCaptureContext {
 		pointsLeft = new ArrayList<>();
 		pointsRight = new ArrayList<>();
 
-		
 		int size = 50;
 
 		PVector translatePos1 = new PVector(parent.marginLeftViewerLeft, parent.marginTopViewer);
@@ -398,7 +400,7 @@ public class ManuCaptureContext {
 		boolean failedA = false;
 		boolean failedB = false;
 
-		if (lastCameraAAction > 0 && gphotoAAdapter.lastEvent > lastCameraAAction + MAX_TIME_TO_EVENT) {
+		if (lastCameraAAction > 0 && gphotoAAdapter.lastEventMillis > lastCameraAAction + MAX_TIME_TO_EVENT) {
 			// // we have a failing state, pulse lost
 			// resetCamerasFailingB();
 			// ignoreNextPhotoA = true;
@@ -407,7 +409,7 @@ public class ManuCaptureContext {
 			parent.println("FAILED A");
 		}
 		//
-		if (lastCameraBAction > 0 && gphotoBAdapter.lastEvent > lastCameraBAction + MAX_TIME_TO_EVENT) {
+		if (lastCameraBAction > 0 && gphotoBAdapter.lastEventMillis > lastCameraBAction + MAX_TIME_TO_EVENT) {
 			// // we have a failing state, pulse lost
 			// resetCamerasFailingA();
 			// ignoreNextPhotoB = true;
@@ -417,7 +419,6 @@ public class ManuCaptureContext {
 		}
 
 		// if we are out from Idle more than a time we break
-
 		if (captureState != CAMERAS_IDLE && parent.millis() - lastCaptureMillis > MAX_TIME_CAPTURE_MACHINE_STATE) {
 			restoreCamerasStateAfterFailure();
 		}
@@ -469,8 +470,7 @@ public class ManuCaptureContext {
 
 	private void restoreCamerasStateAfterFailure() {
 		if (!gphotoAAdapter.mirrorUp && !gphotoBAdapter.mirrorUp) {
-			releaseCameras();
-			
+			releaseCameras();		
 			G4P.showMessage(parent, messageContainer.getText("sw.fails"), "", G4P.WARNING);
 		} else if (!gphotoAAdapter.mirrorUp && gphotoBAdapter.mirrorUp) {
 //			resetCamerasFailingA();
