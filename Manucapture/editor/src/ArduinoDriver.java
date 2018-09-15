@@ -82,8 +82,7 @@ public class ArduinoDriver extends PApplet {
 			background(0);
 		} else {
 			background(255,0,0);
-		}
-		
+		}	
 	}
 
 	public void serialEvent(Serial myPort) {
@@ -167,6 +166,7 @@ public class ArduinoDriver extends PApplet {
 	 * 
 	 * 
 	 */
+	
 	public void settings() {
 		size(256, 256);
 	}

@@ -7,7 +7,7 @@ import processing.core.PVector;
 public class G2P5ManucaptureView {
 
 	G2P5 g2p5;
-	ManuCaptureContext context;
+	ManuCapture_v1_1 context;
 
 	private void drawImagePreview(PImage imgPreview, PVector lastPressedR, int marginLeftViewer, int marginTopViewer,
 			List<HotArea> areas, PGraphics canvas) {

@@ -20,9 +20,9 @@ public class Item {
 	String comment;
 	String type;
 
-	ManuCaptureContext context;
+	ManuCapture_v1_1 context;
 
-	public Item(ManuCaptureContext context, String imagePathLeft, String imagePathRight, float pagNum, String comment,
+	public Item(ManuCapture_v1_1 context, String imagePathLeft, String imagePathRight, float pagNum, String comment,
 			String type) {
 
 		this.pagNum = pagNum;

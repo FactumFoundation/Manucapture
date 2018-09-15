@@ -21,7 +21,7 @@ public class MImage {
 
 	PImage imgThumb;
 
-	ManuCaptureContext context;
+	ManuCapture_v1_1 context;
 
 	List<HotArea> mesh = new ArrayList<>();
 
@@ -80,13 +80,13 @@ public class MImage {
 
 			if (itemImg.exists()) {
 				String thumbnailPath = getThumbnailPath(context.project.projectDirectory, itemImg);
-				context.parent.println("itemImage " + thumbnailPath);
+				context.println("itemImage " + thumbnailPath);
 				File thumbFile = new File(thumbnailPath);
 				thumbPath = thumbnailPath;
 				if (!thumbFile.exists()) {
 					imgThumb = generateThumbnail(context, itemImg);
 				} else {
-					PImage thumbImg = context.parent.loadImage(thumbnailPath);
+					PImage thumbImg = context.loadImage(thumbnailPath);
 					thumbImg = thumbImg.get(thumbMargin, 0, thumbImg.width - thumbMargin, thumbImg.height);
 					imgThumb = thumbImg;
 				}
@@ -96,9 +96,9 @@ public class MImage {
 		}
 	}
 
-	public PImage generateThumbnail(ManuCaptureContext context, File rawImgFile) {
+	public PImage generateThumbnail(ManuCapture_v1_1 context, File rawImgFile) {
 
-		PApplet parent = context.parent;
+		PApplet parent = context;
 
 		String thumbnailPath = getThumbnailPath(context.project.projectDirectory, rawImgFile);
 		String commandGenerate = "exiftool -b -ThumbnailImage " + rawImgFile.getPath() + " > " + thumbnailPath;
@@ -153,7 +153,7 @@ public class MImage {
 		// thumbImg.height);
 		// }
 
-		context.parent.println("Thumbnail Generated : " + thumbnailPath);
+		context.println("Thumbnail Generated : " + thumbnailPath);
 		return thumbImg;
 	}
 
@@ -181,7 +181,7 @@ public class MImage {
 			imagePreview = previewFile;
 			
 			if (new File(previewFile).exists()) {
-				img = context.parent.loadImage(previewFile);
+				img = context.loadImage(previewFile);
 			
 				
 			} else {
@@ -215,7 +215,7 @@ public class MImage {
 						err += (char) error.read();
 					}
 					if (!err.equals("Error:")) {
-						context.parent.println(err+" "+command);
+						context.println(err+" "+command);
 					}
 
 					command = "convert " + resizedImageFullPath.replace(".jpg", "-rot.jpg") + " -rotate " + rotation
@@ -245,7 +245,7 @@ public class MImage {
 					// Files.move(Paths.get(newPath),
 					// Paths.get(resizedImageFullPath),
 					// StandardCopyOption.REPLACE_EXISTING);
-					img = context.parent.loadImage(resizedImageFullPath);
+					img = context.loadImage(resizedImageFullPath);
 					imagePreview = previewFile;
 					context.renderRight = true;
 					System.out.println("end loadimage, FINISH loadRightPreview " + resizedImageFullPath);
@@ -284,7 +284,7 @@ public class MImage {
 		mesh.setFloat("BLx", this.mesh.get(3).pos.x / context.hImageViewerSize);
 		mesh.setFloat("BLy", this.mesh.get(3).pos.y / context.wImageViewerSize);
 
-		context.parent.saveXML(projectXML, projectFilePath);
+		context.saveXML(projectXML, projectFilePath);
 	}
 
 	private String getXmpPath() {
@@ -302,7 +302,7 @@ public class MImage {
 	public void loadMetadata() {
 		if (new File(getXmpPath()).exists()) {
 
-			XML projectDataXML = context.parent.loadXML(getXmpPath());
+			XML projectDataXML = context.loadXML(getXmpPath());
 
 			XML mesh = projectDataXML.getChild("mesh");
 

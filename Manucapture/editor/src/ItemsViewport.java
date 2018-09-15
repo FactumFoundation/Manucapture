@@ -37,7 +37,7 @@ public class ItemsViewport {
 	int itemListViewPortWidth = 285;
 	int itemListViewPortHeight = 900;
 
-	ManuCaptureContext context;
+	ManuCapture_v1_1 context;
 	
 	int ADDING_ITEM_TRANSITION = 1;
 	int REMOVING_ITEM_TRANSITION = 2;
@@ -62,7 +62,7 @@ public class ItemsViewport {
 		if (context.project.items.size() == 0) {
 			targetItemBaseY = 0.0f;
 		} else {
-			targetItemBaseY = context.parent.map(scrollHandleY, 0, itemsViewPort.height, 0, fullListHeight);
+			targetItemBaseY = context.map(scrollHandleY, 0, itemsViewPort.height, 0, fullListHeight);
 		}
 
 		if (context.project.scrollTransitionState == context.project.NO_SCROLL_TRANSITION)
@@ -204,7 +204,7 @@ public class ItemsViewport {
 
 							String page = String.valueOf(item.pagNum);
 							page = page.replace(".0", "");
-							float pageNumberWidth = context.parent.textWidth(page) + 10;
+							float pageNumberWidth = context.textWidth(page) + 10;
 							itemsViewPort.noStroke();
 							itemsViewPort.fill(0);
 							itemsViewPort.rect(itemsViewPort.width - scrollBarWidth - marginInfo - pageNumberWidth - 8,
@@ -231,17 +231,17 @@ public class ItemsViewport {
 		itemsViewPort.endDraw();
 	}
 
-	public void setup(ManuCaptureContext context) {
+	public void setup(ManuCapture_v1_1 context) {
 		this.context = context;
 
-		itemsViewPort = context.parent.createGraphics(itemListViewPortWidth, itemListViewPortHeight,
-				context.parent.P2D);
+		itemsViewPort = context.createGraphics(itemListViewPortWidth, itemListViewPortHeight,
+				context.P2D);
 		scrollHandleState = SCROLL_HANDLE_IDLE;
 
-		removeItemIcon = context.parent.loadImage("cross_inv_20x20.jpeg");
-		chartItemIcon = context.parent.loadImage("chart-item.png");
+		removeItemIcon = context.loadImage("cross_inv_20x20.jpeg");
+		chartItemIcon = context.loadImage("chart-item.png");
 		
-		bookIcon = context.parent.loadImage("bookIcon.png");
+		bookIcon = context.loadImage("bookIcon.png");
 		bookIcon.resize(bookIcon.width / 6, bookIcon.height / 6);
 
 	}
@@ -252,38 +252,38 @@ public class ItemsViewport {
 		overedCancelButtonIndex = -1;
 
 		int scrollHandleX = itemsViewPort.width - scrollBarWidth;
-		if ((context.parent.mouseX > (itemListViewPortX + scrollHandleX))
-				&& (context.parent.mouseX < (itemListViewPortX + scrollHandleX + scrollBarWidth))) {
-			if ((context.parent.mouseY > (itemListViewPortY + scrollHandleY))
-					&& (context.parent.mouseY < (itemListViewPortY + scrollHandleY + scrollHandleHeight))) {
+		if ((context.mouseX > (itemListViewPortX + scrollHandleX))
+				&& (context.mouseX < (itemListViewPortX + scrollHandleX + scrollBarWidth))) {
+			if ((context.mouseY > (itemListViewPortY + scrollHandleY))
+					&& (context.mouseY < (itemListViewPortY + scrollHandleY + scrollHandleHeight))) {
 				scrollHandleState = SCROLL_HANDLE_OVER;
 				return;
 			}
 		}
 
-		if ((context.parent.mouseX > itemListViewPortX)
-				&& (context.parent.mouseX < (itemsViewPort.width + itemListViewPortX))) {
-			if ((context.parent.mouseY > itemListViewPortY)
-					&& (context.parent.mouseY < (itemListViewPortY + itemsViewPort.height))) {
+		if ((context.mouseX > itemListViewPortX)
+				&& (context.mouseX < (itemsViewPort.width + itemListViewPortX))) {
+			if ((context.mouseY > itemListViewPortY)
+					&& (context.mouseY < (itemListViewPortY + itemsViewPort.height))) {
 				int itemHeight = itemThumbHeight + marginY;
-				int fullListHeight = itemHeight * context.parent.project.items.size();
-				float itemBaseY = context.parent.map(scrollHandleY, 0, itemsViewPort.height, 0, fullListHeight);
+				int fullListHeight = itemHeight * context.project.items.size();
+				float itemBaseY = context.map(scrollHandleY, 0, itemsViewPort.height, 0, fullListHeight);
 				for (int i = 0, itemY = 0; itemY < fullListHeight; i++, itemY += itemHeight) {
 					int viewPortRelativeHeight = (int) (itemY - itemBaseY);
 					if (viewPortRelativeHeight > -itemHeight && viewPortRelativeHeight < itemsViewPort.height) {
 						// check item overed
-						if ((context.parent.mouseY > (viewPortRelativeHeight + itemListViewPortY))
-								&& (context.parent.mouseY < (viewPortRelativeHeight + itemHeight
+						if ((context.mouseY > (viewPortRelativeHeight + itemListViewPortY))
+								&& (context.mouseY < (viewPortRelativeHeight + itemHeight
 										+ itemListViewPortY))) {
 							overedItemIndex = i;
 							// check over remove button
 							float cancelButtonX = itemsViewPort.width - scrollBarWidth - marginInfo - removeIconSize
 									+ itemListViewPortX;
 							float cancelButtonY = viewPortRelativeHeight + marginY + itemListViewPortY;
-							if ((context.parent.mouseX > cancelButtonX)
-									&& (context.parent.mouseX < (cancelButtonX + removeIconSize))) {
-								if ((context.parent.mouseY > cancelButtonY)
-										&& (context.parent.mouseY < (cancelButtonY + removeIconSize))) {
+							if ((context.mouseX > cancelButtonX)
+									&& (context.mouseX < (cancelButtonX + removeIconSize))) {
+								if ((context.mouseY > cancelButtonY)
+										&& (context.mouseY < (cancelButtonY + removeIconSize))) {
 									overedCancelButtonIndex = i;
 									break;
 								}
@@ -301,7 +301,7 @@ public class ItemsViewport {
 		// Update gui list
 		int itemHeight = itemThumbHeight + marginY;
 		int fullListHeight = itemHeight * context.project.items.size();
-		scrollHandleHeight = context.parent.map(itemsViewPort.height, 0, fullListHeight, 0, itemsViewPort.height);
+		scrollHandleHeight = context.map(itemsViewPort.height, 0, fullListHeight, 0, itemsViewPort.height);
 		if (scrollHandleHeight > itemsViewPort.height) {
 			scrollHandleHeight = itemsViewPort.height;
 		}
@@ -311,7 +311,7 @@ public class ItemsViewport {
 			if (context.project.items.size() == 1)
 				scrollHandleY = 0;
 			else
-				scrollHandleY = context.parent.map(index, 0, context.project.items.size() - 1, 0,
+				scrollHandleY = context.map(index, 0, context.project.items.size() - 1, 0,
 						itemsViewPort.height - scrollHandleHeight);
 		} catch (Exception e) {
 			scrollHandleY = 0;
@@ -329,32 +329,32 @@ public class ItemsViewport {
 	public void mousePressed() {
 
 		int scrollHandleX = itemsViewPort.width - scrollBarWidth;
-		if ((context.parent.mouseX > (itemListViewPortX + scrollHandleX))
-				&& (context.parent.mouseX < (itemListViewPortX + scrollHandleX + scrollBarWidth))) {
-			if ((context.parent.mouseY > (itemListViewPortY + scrollHandleY))
-					&& (context.parent.mouseY < (itemListViewPortY + scrollHandleY + scrollHandleHeight))) {
+		if ((context.mouseX > (itemListViewPortX + scrollHandleX))
+				&& (context.mouseX < (itemListViewPortX + scrollHandleX + scrollBarWidth))) {
+			if ((context.mouseY > (itemListViewPortY + scrollHandleY))
+					&& (context.mouseY < (itemListViewPortY + scrollHandleY + scrollHandleHeight))) {
 				scrollHandleState = SCROLL_HANDLE_PRESSED;
 				return;
 			}
 		}
-		if ((context.parent.mouseX > itemListViewPortX) && (context.parent.mouseX < (itemsViewPort.width + itemListViewPortX))) {
-			if ((context.parent.mouseY > itemListViewPortY) && (context.parent.mouseY < (itemListViewPortY + itemsViewPort.height))) {
+		if ((context.mouseX > itemListViewPortX) && (context.mouseX < (itemsViewPort.width + itemListViewPortX))) {
+			if ((context.mouseY > itemListViewPortY) && (context.mouseY < (itemListViewPortY + itemsViewPort.height))) {
 				int itemHeight = itemThumbHeight + marginY;
 				int fullListHeight = itemHeight * context.project.items.size();
-				float itemBaseY = context.parent.map(scrollHandleY, 0, itemsViewPort.height, 0, fullListHeight);
+				float itemBaseY = context.map(scrollHandleY, 0, itemsViewPort.height, 0, fullListHeight);
 				for (int i = 0, itemY = 0; itemY < fullListHeight; i++, itemY += itemHeight) {
 					int viewPortRelativeHeight = (int) (itemY - itemBaseY);
 					if (viewPortRelativeHeight > -itemHeight && viewPortRelativeHeight < itemsViewPort.height) {
 						// check item overed
-						if ((context.parent.mouseY > (viewPortRelativeHeight + itemListViewPortY))
-								&& (context.parent.mouseY < (viewPortRelativeHeight + itemHeight + itemListViewPortY))) {
+						if ((context.mouseY > (viewPortRelativeHeight + itemListViewPortY))
+								&& (context.mouseY < (viewPortRelativeHeight + itemHeight + itemListViewPortY))) {
 							context.	project.selectedItemIndex = i;
 							// check over remove button
 							float cancelButtonX = itemsViewPort.width - scrollBarWidth - marginInfo - removeIconSize
 									+ itemListViewPortX;
 							float cancelButtonY = viewPortRelativeHeight + marginY + itemListViewPortY;
-							if ((context.parent.mouseX > cancelButtonX) && (context.parent.mouseX < (cancelButtonX + removeIconSize))) {
-								if ((context.parent.mouseY > cancelButtonY) && (context.parent.mouseY < (cancelButtonY + removeIconSize))) {
+							if ((context.mouseX > cancelButtonX) && (context.mouseX < (cancelButtonX + removeIconSize))) {
+								if ((context.mouseY > cancelButtonY) && (context.mouseY < (cancelButtonY + removeIconSize))) {
 									// if (shutterMode != REPEAT_SHUTTER) {
 									context.project.removeItem(i);
 									forceSelectedItem(i, true);
@@ -377,7 +377,7 @@ public class ItemsViewport {
 	public void mouseDragged() {
 		if (scrollHandleState == SCROLL_HANDLE_PRESSED) {
 			if (scrollHandleHeight < itemsViewPort.height) {
-				scrollHandleY += context.parent.mouseY - context.parent.pmouseY;
+				scrollHandleY += context.mouseY - context.pmouseY;
 				if (scrollHandleY < 0) {
 					scrollHandleY = 0;
 				} else if ((scrollHandleY + scrollHandleHeight) > itemsViewPort.height) {

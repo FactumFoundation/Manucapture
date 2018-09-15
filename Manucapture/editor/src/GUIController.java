@@ -11,9 +11,9 @@ import processing.event.MouseEvent;
 
 public class GUIController {
 
-	ManuCaptureContext context;
+	ManuCapture_v1_1 context;
 
-	public GUIController(ManuCaptureContext context) {
+	public GUIController(ManuCapture_v1_1 context) {
 		super();
 		this.context = context;
 	}
@@ -35,13 +35,13 @@ public class GUIController {
 	public void first_page_button_click(GButton source, GEvent event) { // _CODE_:first_page_button:431616:
 //		PApplet.println("SHUTTER CONTROL SET NOTMAL MODE");
 		context.project.forceSelectedItem(0,false);
-		context.parent.itemsViewport.forceSelectedItem(0, false);
+		context.itemsViewport.forceSelectedItem(0, false);
 	} // _CODE_:first_page_button:431616:
 
 	public void last_page_button_click(GButton source, GEvent event) { // _CODE_:last_page_button:647539:
-//		PApplet.println("button2 - GButton >> GEvent." + event + " @ " + context.parent.millis());
+//		PApplet.println("button2 - GButton >> GEvent." + event + " @ " + context.millis());
 		context.project.forceSelectedItem(context.project.items.size()-1,false);
-		context.parent.itemsViewport.forceSelectedItem(context.project.items.size()-1, false);
+		context.itemsViewport.forceSelectedItem(context.project.items.size()-1, false);
 
 	} // _CODE_:last_page_button:647539:
 
@@ -102,9 +102,9 @@ public class GUIController {
 
 	public void normal_shutter_click1(GButton source, GEvent event) { // _CODE_:normal_shutter_button:563899:
 		PApplet.println("SHUTTER CONTROL SET NORMAL MODE!!!!!");
-		context.parent.shutterMode = ManuCapture_v1_1.NORMAL_SHUTTER;
+		context.shutterMode = ManuCapture_v1_1.NORMAL_SHUTTER;
 		GUI gui = context.gui;
-		context.parent.chartStateMachine = 0;
+		context.chartStateMachine = 0;
 		gui.normal_shutter_button.setLocalColorScheme(GCScheme.ORANGE_SCHEME);
 		gui.repeat_shutter_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
 		gui.calibration_shutter_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
@@ -114,7 +114,7 @@ public class GUIController {
 
 	public void repeat_shutter_click(GButton source, GEvent event) { // _CODE_:repeat_shutter_button:591981:
 		PApplet.println("SHUTTER CONTROL SET REPEAT MODE");
-		context.parent.shutterMode = ManuCapture_v1_1.REPEAT_SHUTTER;
+		context.shutterMode = ManuCapture_v1_1.REPEAT_SHUTTER;
 		GUI gui = context.gui;
 		gui.normal_shutter_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
 		gui.repeat_shutter_button.setLocalColorScheme(GCScheme.ORANGE_SCHEME);
@@ -158,15 +158,15 @@ public class GUIController {
 		}
 
 		if (!someError) {
-			context.parent.stateApp = ManuCapture_v1_1.STATE_APP_PROJECT;
+			context.stateApp = ManuCapture_v1_1.STATE_APP_PROJECT;
 			context.gui.grpAll.setVisible(1, true);
 			context.gui.grpProject.setVisible(1, false);
-			context.parent.editingProject = false;
+			context.editingProject = false;
 			context.project.saveProjectXML();
 
 		} else {
 			// showwhat error
-			G4P.showMessage(context.parent, "Missing name or code", "", G4P.WARNING);
+			G4P.showMessage(context, "Missing name or code", "", G4P.WARNING);
 		}
 
 		PApplet.println("close window edit project data");
@@ -176,14 +176,14 @@ public class GUIController {
 
 		// if (state == CAPTURING) {
 		PApplet.println("SHUTTER CONTROL SET CALIBRATION MODE");
-		context.parent.shutterMode = ManuCapture_v1_1.CALIB_SHUTTER;
+		context.shutterMode = ManuCapture_v1_1.CALIB_SHUTTER;
 		GUI gui = context.gui;
 		gui.normal_shutter_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
 		gui.repeat_shutter_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
 		gui.calibration_shutter_button.setLocalColorScheme(GCScheme.ORANGE_SCHEME);
 
-		context.parent.cameraState = ManuCapture_v1_1.STATE_CHART;
-		context.parent.chartStateMachine = 1;
+		context.cameraState = ManuCapture_v1_1.STATE_CHART;
+		context.chartStateMachine = 1;
 		// }
 	} // _CODE_:calibration_shutter_button:835827:
 
@@ -193,20 +193,20 @@ public class GUIController {
 			context.capture();
 			context.clearPaths();
 		} else {
-			G4P.showMessage(context.parent, "Mirrors are not ready", "", G4P.WARNING);
+			G4P.showMessage(context, "Mirrors are not ready", "", G4P.WARNING);
 		}
 
 	} // _CODE_:trigger_button:381491:
 
 	public void camera_A_connected_click(GButton source, GEvent event) { // _CODE_:camera_A_connected_button:265149:
-		PApplet.println("button1 - GButton >> GEvent." + event + " @ " + context.parent.millis());
+		PApplet.println("button1 - GButton >> GEvent." + event + " @ " + context.millis());
 		if (!context.gphotoA.isConnected()) {
 			context.gphotoAAdapter = context.createG2P5(context.serialCameraA, "A");
 		}
 	} // _CODE_:camera_A_connected_button:265149:
 
 	public void camera_A_active_button_click(GButton source, GEvent event) { // _CODE_:camera_A_active_button:906773:
-		PApplet.println("camera_A_active_button - GButton >> GEvent." + event + " @ " + context.parent.millis());
+		PApplet.println("camera_A_active_button - GButton >> GEvent." + event + " @ " + context.millis());
 		GUI gui = context.gui;
 		gui.camera_A_active_button.setLocalColorScheme(GCScheme.ORANGE_SCHEME);
 		gui.camera_A_inactive_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
@@ -218,7 +218,7 @@ public class GUIController {
 	} // _CODE_:camera_A_active_button:906773:
 
 	public void camera_A_inactive_button_click(GButton source, GEvent event) { // _CODE_:camera_A_inactive_button:493860:
-		PApplet.println("inactive_camera_A_button - GButton >> GEvent." + event + " @ " + context.parent.millis());
+		PApplet.println("inactive_camera_A_button - GButton >> GEvent." + event + " @ " + context.millis());
 		GUI gui = context.gui;
 		gui.camera_A_active_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
 		gui.camera_A_inactive_button.setLocalColorScheme(GCScheme.ORANGE_SCHEME);
@@ -228,14 +228,14 @@ public class GUIController {
 	} // _CODE_:camera_A_inactive_button:493860:
 
 	public void camera_B_connected_click(GButton source, GEvent event) { // _CODE_:camera_B_connected_button:564189:
-		PApplet.println("camera_B_connected_button - GButton >> GEvent." + event + " @ " + context.parent.millis());
+		PApplet.println("camera_B_connected_button - GButton >> GEvent." + event + " @ " + context.millis());
 		if (!context.gphotoB.isConnected()) {
 			context.gphotoBAdapter = context.createG2P5(context.serialCameraB, "B");
 		}
 	} // _CODE_:camera_B_connected_button:564189:
 
 	public void camera_B_active_click(GButton source, GEvent event) { // _CODE_:camera_B_active_button:640605:
-		PApplet.println("camera_B_active_button - GButton >> GEvent." + event + " @ " + context.parent.millis());
+		PApplet.println("camera_B_active_button - GButton >> GEvent." + event + " @ " + context.millis());
 		GUI gui = context.gui;
 		gui.camera_B_active_button.setLocalColorScheme(GCScheme.ORANGE_SCHEME);
 		gui.camera_B_inactive_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
@@ -249,7 +249,7 @@ public class GUIController {
 	} // _CODE_:camera_B_active_button:640605:
 
 	public void camera_B_inactive_click(GButton source, GEvent event) { // _CODE_:camera_B_inactive_button:780199:
-		PApplet.println("camera_B_inactive_button - GButton >> GEvent." + event + " @ " + context.parent.millis());
+		PApplet.println("camera_B_inactive_button - GButton >> GEvent." + event + " @ " + context.millis());
 		GUI gui = context.gui;
 		gui.camera_B_active_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
 		gui.camera_B_inactive_button.setLocalColorScheme(GCScheme.ORANGE_SCHEME);
@@ -259,7 +259,7 @@ public class GUIController {
 	} // _CODE_:camera_B_inactive_button:780199:
 
 	public void parameters_click(GButton source, GEvent event) { // _CODE_:parameters_button:465510:
-		PApplet.println("parameters_button - GButton >> GEvent." + event + " @ " + context.parent.millis());
+		PApplet.println("parameters_button - GButton >> GEvent." + event + " @ " + context.millis());
 	} // _CODE_:parameters_button:465510:
 
 	public void load_click(GButton source, GEvent event) { // _CODE_:load_button:841968:
@@ -271,14 +271,14 @@ public class GUIController {
 		String documentFileName = G4P.selectInput("Load XML");
 		if (documentFileName != null) {
 			context.project.selectedItem = null;
-			context.parent.loading = true;
-			context.parent.loadProject(documentFileName);
-			context.parent.loading = false;
+			context.loading = true;
+			context.loadProject(documentFileName);
+			context.loading = false;
 			normal_shutter_click1(null, null);
-			context.parent.lastPressedL = null;
-			context.parent.lastPressedR = null;
+			context.lastPressedL = null;
+			context.lastPressedR = null;
 		} else {
-			context.parent.loading = false;
+			context.loading = false;
 		}
 
 	} // _CODE_:load_button:841968:
@@ -286,12 +286,12 @@ public class GUIController {
 	public void edit_click(GButton source, GEvent event) { // _CODE_:load_button:841968:
 		context.gui.grpProject.setVisible(1, true);
 		context.gui.grpAll.setVisible(1, false);
-		context.parent.editingProject = true;
+		context.editingProject = true;
 
 	} // _CODE_:load_button:841968:
 
 	public void close_click(GButton source, GEvent event) { // _CODE_:load_button:841968:
-		context.parent.stateApp = ManuCapture_v1_1.STATE_APP_NO_PROJECT;
+		context.stateApp = ManuCapture_v1_1.STATE_APP_NO_PROJECT;
 
 	} // _CODE_:load_button:841968:
 
@@ -302,33 +302,33 @@ public class GUIController {
 			context.project.thumbnailsLoaded = false;
 			context.project.selectedItem = null;
 			context.gui.grpProject.setVisible(1, true);
-			context.parent.editingProject = true;
-			context.parent.createProject(projectFolderPath);
+			context.editingProject = true;
+			context.createProject(projectFolderPath);
 			context.gui.project_info.setText("PROJECT INFO " + context.project.projectFilePath);
 			calibration_shutter_click(null, null);
-			context.parent.lastPressedL = null;
-			context.parent.lastPressedR = null;
+			context.lastPressedL = null;
+			context.lastPressedR = null;
 		}
 	} // _CODE_:new_button:324180:
 
 	public void page_search_text_change(GTextField source, GEvent event) { // _CODE_:page_search_text:741750:
-		PApplet.println("textfield2 - GTextField >> GEvent." + event + " @ " + context.parent.millis());
+		PApplet.println("textfield2 - GTextField >> GEvent." + event + " @ " + context.millis());
 	} // _CODE_:page_search_text:741750:
 
 	public void crop_click(GButton source, GEvent event) { // _CODE_:export_button:581416:
 		
 		PApplet.println("start crop editing");
 		
-		context.parent.startCropMode();
+		context.startCropMode();
 	}
 	
 	public void liveView_button_click(GButton source, GEvent event) { // _CODE_:export_button:581416:
 		// PApplet.println("export_button - GButton >> GEvent." + event + " @ "
 		// +
 		// millis());
-		context.parent.liveViewActive = 0;
+		context.liveViewActive = 0;
 
-		context.parent.liveViewActive = 0;
+		context.liveViewActive = 0;
 //		context.gui.liveView_button.setEnabled(false);
 //		context.gui.liveView_button.setVisible(false);
 		

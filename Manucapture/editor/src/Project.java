@@ -41,7 +41,7 @@ public class Project {
 
 	boolean thumbnailsLoaded = false;
 
-	ManuCaptureContext context;
+	ManuCapture_v1_1 context;
 
 	int NO_SCROLL_TRANSITION = 0;
 	int SCROLL_TRANSITION = 1;
@@ -65,13 +65,13 @@ public class Project {
 		}
 
 		if (projectPath.equals("")) {
-			G4P.showMessage(context.parent, "ERROR: Problem opening last session  Please load the folder manually.",
+			G4P.showMessage(context, "ERROR: Problem opening last session  Please load the folder manually.",
 					"Save project", G4P.ERROR);
 			return;
 		}
 
 		projectFilePath = projectPath;
-		XML projectDataXML = context.parent.loadXML(projectPath);
+		XML projectDataXML = context.loadXML(projectPath);
 		loadProjectMetadata(projectDataXML);
 		loadProjectSerials(projectDataXML);
 		XML[] itemsXML = projectDataXML.getChild("items").getChildren("item");
@@ -90,7 +90,7 @@ public class Project {
 				items.add(newItem);
 			} catch (Exception e) {
 				e.printStackTrace();
-				context.parent.println("ERROR loading item", i);
+				context.println("ERROR loading item", i);
 			}
 		}
 		File projectFile = new File(projectPath);
@@ -109,7 +109,7 @@ public class Project {
 		try {
 			G2P5Manager.setImageCount(new Integer(projectDataXML.getChild("image_counter").getContent()));
 		} catch (Exception e) {
-			context.parent.println("ERROR loading image counter, seting to list size");
+			context.println("ERROR loading image counter, seting to list size");
 			G2P5Manager.setImageCount(items.size());
 		}
 		thumbnailsLoaded = true;
@@ -119,15 +119,15 @@ public class Project {
 	private void createFolder(String previewsFolderPath) {
 		File newFolder = new File(previewsFolderPath);
 		if (!newFolder.exists()) {
-			context.parent.println("creating previews folder " + newFolder.getPath());
+			context.println("creating previews folder " + newFolder.getPath());
 			if (newFolder.mkdir()) {
 				try {
 					Runtime.getRuntime().exec("chmod -R ugo+rw " + newFolder.getPath());
 				} catch (Exception e) {
-					context.parent.println("Couldn't create previews directory permisions");
+					context.println("Couldn't create previews directory permisions");
 				}
 			} else {
-				context.parent.println("Failed to create " + previewsFolderPath + " directory!");
+				context.println("Failed to create " + previewsFolderPath + " directory!");
 			}
 		}
 	}
@@ -154,7 +154,7 @@ public class Project {
 		context.gui.code_text.setText(projectCode);
 		projectAuthor = projectDataXML.getChild("metadata").getChild("author").getContent();
 		context.gui.author_text.setText(projectAuthor);
-		context.parent.println(projectDataXML.getChild("image_counter"));
+		context.println(projectDataXML.getChild("image_counter"));
 		G2P5Manager.setImageCount(new Integer(projectDataXML.getChild("image_counter").getContent()));
 
 		XML timestampXML = projectDataXML.getChild("metadata").getChild("timestamp");
@@ -179,7 +179,7 @@ public class Project {
 	}
 
 	public void saveProjectXML() {
-		context.parent.println(projectName, projectCode, projectAuthor, projectComment);
+		context.println(projectName, projectCode, projectAuthor, projectComment);
 		if (!(projectName.equals("") && projectCode.equals("") && projectAuthor.equals("")
 				&& projectComment.equals(""))) {
 			XML projectXML = new XML("project");
@@ -267,7 +267,7 @@ public class Project {
 			File fileProject = new File(projectFilePath);
 			if (fileProject.exists()) {
 				String commandGenerate = "mv " + projectFilePath + " " + projectDirectory + "/project_backup.xml";
-				context.parent.println(commandGenerate);
+				context.println(commandGenerate);
 				try {
 					String[] commands = new String[] { "/bin/sh", "-c", commandGenerate };
 					Process process = new ProcessBuilder(commands).start();
@@ -284,14 +284,14 @@ public class Project {
 				}
 			}
 
-			context.parent.saveXML(projectXML, projectFilePath);
-			context.parent.println("Saved project to ", projectFilePath);
+			context.saveXML(projectXML, projectFilePath);
+			context.println("Saved project to ", projectFilePath);
 			
 			//VERIFY INTEGRITY XML -> FILES
 			verify();
 		} else {
-			context.parent.println("ERROR: No project info, no data is saved. Please write the project name and code");
-			G4P.showMessage(context.parent,
+			context.println("ERROR: No project info, no data is saved. Please write the project name and code");
+			G4P.showMessage(context,
 					"ERROR: No project info, no data is saved.\nPlease write the project name and code. ",
 					"Save project", G4P.ERROR);
 
@@ -464,7 +464,7 @@ public class Project {
 				// myMessage.add("");
 			}
 
-			context.parent.println("send the message to viewer");
+			context.println("send the message to viewer");
 
 			// View message for viewer
 			// context.oscP5.send(myMessage, context.viewerLocation);
@@ -525,7 +525,7 @@ public class Project {
 		}
 		if (selectedItemIndex >= 0 && items.size() > 0) {
 			// Update gui list
-			context.parent.itemsViewport.forceSelectedItem(index, transition);
+			context.itemsViewport.forceSelectedItem(index, transition);
 			selectItem(selectedItemIndex);
 		}
 	}

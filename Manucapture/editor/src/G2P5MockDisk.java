@@ -7,7 +7,7 @@ public class G2P5MockDisk extends G2P5 {
 
 	int index = 0;
 
-	ManuCaptureContext context;
+	ManuCapture_v1_1 context;
 
 	String nameDataSetPath = "dataset2";
 
@@ -15,10 +15,10 @@ public class G2P5MockDisk extends G2P5 {
 		// TODO Auto-generated constructor stub
 	}
 
-	public G2P5MockDisk(ManuCapture_v1_1 parent, String eosSerial, String port, String id) {
+	public G2P5MockDisk(ManuCapture_v1_1 context, String eosSerial, String port, String id) {
 //		super.parent = parent;
 		this.id = id;
-		this.context = parent.context;
+		this.context = context;
 	}
 
 	public boolean capture() {
@@ -34,7 +34,7 @@ public class G2P5MockDisk extends G2P5 {
 		//
 		// String commandGenerate = "cp " + datasetPath + targetFileName + " " +
 		// getFullTargetPath();
-		// context.parent.println(commandGenerate);
+		// context.println(commandGenerate);
 		// try {
 		// String[] commands = new String[] { "/bin/sh", "-c", commandGenerate };
 		// Process process = new ProcessBuilder(commands).start();
