@@ -60,7 +60,6 @@ public class MImage {
 	}
 
 	public List<HotArea> copyMesh(List<HotArea> defaultValue) {
-
 		if (mesh.isEmpty()) {
 			return defaultValue;
 		} else {
@@ -69,7 +68,6 @@ public class MImage {
 				HotArea ha = mesh.get(i);
 				temp.add(new HotArea(ha.pos.copy(), ha.translatePos.copy(), ha.id, ha.threshold, ha.name));
 			}
-
 			return temp;
 		}
 	}
@@ -202,7 +200,7 @@ public class MImage {
 					e.printStackTrace();
 				}
 
-				command = context.appPath + "/epeg-master/src/bin/epeg -w " + context.viewerWidthResolution
+				command = context.appPath + "/epeg-master/src/bin/epeg -w " + context.contentGUI.viewerWidthResolution
 						+ " -p -q 100 " + previewFullPath + " " + resizedImageFullPath.replace(".jpg", "-rot.jpg");
 				
 				try {
@@ -247,7 +245,7 @@ public class MImage {
 					// StandardCopyOption.REPLACE_EXISTING);
 					img = context.loadImage(resizedImageFullPath);
 					imagePreview = previewFile;
-					context.renderRight = true;
+					context.contentGUI.renderRight = true;
 					System.out.println("end loadimage, FINISH loadRightPreview " + resizedImageFullPath);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -272,17 +270,17 @@ public class MImage {
 		manu.setString("filename", imagePath.replaceAll("raw/", ""));
 		manu.setInt("rotation", rotation);
 
-		mesh.setFloat("TLx", this.mesh.get(0).pos.x / context.hImageViewerSize);
-		mesh.setFloat("TLy", this.mesh.get(0).pos.y / context.wImageViewerSize);
+		mesh.setFloat("TLx", this.mesh.get(0).pos.x / context.contentGUI.hImageViewerSize);
+		mesh.setFloat("TLy", this.mesh.get(0).pos.y / context.contentGUI.wImageViewerSize);
 
-		mesh.setFloat("TRx", this.mesh.get(1).pos.x / context.hImageViewerSize);
-		mesh.setFloat("TRy", this.mesh.get(1).pos.y / context.wImageViewerSize);
+		mesh.setFloat("TRx", this.mesh.get(1).pos.x / context.contentGUI.hImageViewerSize);
+		mesh.setFloat("TRy", this.mesh.get(1).pos.y / context.contentGUI.wImageViewerSize);
 
-		mesh.setFloat("BRx", this.mesh.get(2).pos.x / context.hImageViewerSize);
-		mesh.setFloat("BRy", this.mesh.get(2).pos.y / context.wImageViewerSize);
+		mesh.setFloat("BRx", this.mesh.get(2).pos.x / context.contentGUI.hImageViewerSize);
+		mesh.setFloat("BRy", this.mesh.get(2).pos.y / context.contentGUI.wImageViewerSize);
 
-		mesh.setFloat("BLx", this.mesh.get(3).pos.x / context.hImageViewerSize);
-		mesh.setFloat("BLy", this.mesh.get(3).pos.y / context.wImageViewerSize);
+		mesh.setFloat("BLx", this.mesh.get(3).pos.x / context.contentGUI.hImageViewerSize);
+		mesh.setFloat("BLy", this.mesh.get(3).pos.y / context.contentGUI.wImageViewerSize);
 
 		context.saveXML(projectXML, projectFilePath);
 	}
@@ -306,17 +304,17 @@ public class MImage {
 
 			XML mesh = projectDataXML.getChild("mesh");
 
-			float tlx = mesh.getFloat("TLx") * context.hImageViewerSize;
-			float tly = mesh.getFloat("TLy") * context.wImageViewerSize;
+			float tlx = mesh.getFloat("TLx") * context.contentGUI.hImageViewerSize;
+			float tly = mesh.getFloat("TLy") * context.contentGUI.wImageViewerSize;
 
-			float trx = mesh.getFloat("TRx") * context.hImageViewerSize;
-			float tryy = mesh.getFloat("TRy") * context.wImageViewerSize;
+			float trx = mesh.getFloat("TRx") * context.contentGUI.hImageViewerSize;
+			float tryy = mesh.getFloat("TRy") * context.contentGUI.wImageViewerSize;
 
-			float brx = mesh.getFloat("BRx") * context.hImageViewerSize;
-			float bry = mesh.getFloat("BRy") * context.wImageViewerSize;
+			float brx = mesh.getFloat("BRx") * context.contentGUI.hImageViewerSize;
+			float bry = mesh.getFloat("BRy") * context.contentGUI.wImageViewerSize;
 
-			float blx = mesh.getFloat("BLx") * context.hImageViewerSize;
-			float bly = mesh.getFloat("BLy") * context.wImageViewerSize;
+			float blx = mesh.getFloat("BLx") * context.contentGUI.hImageViewerSize;
+			float bly = mesh.getFloat("BLy") * context.contentGUI.wImageViewerSize;
 
 			this.mesh.get(0).pos.x = tlx;
 			this.mesh.get(0).pos.y = tly;

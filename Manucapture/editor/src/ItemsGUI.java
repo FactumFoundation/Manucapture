@@ -2,7 +2,7 @@ import processing.core.PApplet;
 import processing.core.PGraphics;
 import processing.core.PImage;
 
-public class ItemsViewport {
+public class ItemsGUI {
 
 	int overedItemIndex;
 	int overedCancelButtonIndex = -1;
@@ -25,7 +25,6 @@ public class ItemsViewport {
 	PImage removeItemIcon;
 	PImage chartItemIcon;
 	int marginX = 2;
-	// int marginSubpgX = 8;
 	int marginInfo = 10;
 	int marginY = 10;
 	int itemThumbHeight = 160;
@@ -47,6 +46,21 @@ public class ItemsViewport {
 	float itemBaseY = 0;
 	
 	PImage bookIcon;
+	
+	ItemsGUI(ManuCapture_v1_1 context) {
+		this.context = context;
+
+		itemsViewPort = context.createGraphics(itemListViewPortWidth, itemListViewPortHeight,
+				context.P2D);
+		scrollHandleState = SCROLL_HANDLE_IDLE;
+
+		removeItemIcon = context.loadImage("cross_inv_20x20.jpeg");
+		chartItemIcon = context.loadImage("chart-item.png");
+		
+		bookIcon = context.loadImage("bookIcon.png");
+		bookIcon.resize(bookIcon.width / 6, bookIcon.height / 6);
+
+	}
 	
 	public void drawItemsViewPort() {
 
@@ -229,21 +243,7 @@ public class ItemsViewport {
 
 		}
 		itemsViewPort.endDraw();
-	}
-
-	public void setup(ManuCapture_v1_1 context) {
-		this.context = context;
-
-		itemsViewPort = context.createGraphics(itemListViewPortWidth, itemListViewPortHeight,
-				context.P2D);
-		scrollHandleState = SCROLL_HANDLE_IDLE;
-
-		removeItemIcon = context.loadImage("cross_inv_20x20.jpeg");
-		chartItemIcon = context.loadImage("chart-item.png");
-		
-		bookIcon = context.loadImage("bookIcon.png");
-		bookIcon.resize(bookIcon.width / 6, bookIcon.height / 6);
-
+		context.image(itemsViewPort, itemListViewPortX, itemListViewPortY);
 	}
 
 	public void mouseMoved() {
@@ -373,7 +373,6 @@ public class ItemsViewport {
 		scrollHandleState = SCROLL_HANDLE_IDLE;
 	}
 	
-	
 	public void mouseDragged() {
 		if (scrollHandleState == SCROLL_HANDLE_PRESSED) {
 			if (scrollHandleHeight < itemsViewPort.height) {
@@ -386,14 +385,10 @@ public class ItemsViewport {
 			} else
 				scrollHandleY = 0;
 		}
-
 	}
 
 	public void mouseReleased() {
 		scrollHandleState = SCROLL_HANDLE_IDLE;
-
-		// hotAreaSelected = null;
-
 	}
 
 }

@@ -61,31 +61,16 @@ public class ManuCapture_v1_1 extends PApplet {
 	
 	GUI gui;
 	GUIController guiController;
-	ItemsViewport itemsViewport;
+	ItemsGUI itemsGUI;
+	ContentGUI contentGUI;
 	MessageContainer messageContainer;
-	HotArea hotAreaSelected = null;
-	
+
 	Project project = null;
 	
-	
-	PImage imgPreviewLeft;
-	PImage imgPreviewRight;
-	
-	// size view on screen
-	float ratioAspect = 1f;
-	
-	int wImageViewerSize = (int)(1000*ratioAspect);
-	int hImageViewerSize = (int)(667*ratioAspect);
-
-	// width size of the preview
-	public int viewerWidthResolution = 2000;
-
 	// max time waitting from send action to camera and receive event
 	static public int MAX_TIME_TO_EVENT = 3000;
-
 	// max time waitting from send action to camera and receive event
 	static public int MAX_TIME_FOCUSSING = 7000;
-
 	// max time waitting from send action to camera and receive event
 	static public int MAX_TIME_CAPTURE_MACHINE_STATE = 15000;
 
@@ -93,25 +78,12 @@ public class ManuCapture_v1_1 extends PApplet {
 	OscP5 oscP5;
 	NetAddress viewerLocation;
 
-	boolean renderLeft = true;
-	boolean renderRight = true;
-	
 	String appPath = null;
 
 	int rotationA = 270;
 	int rotationB = 90;
 
-	List<HotArea> pointsLeft = new ArrayList<>();
-	List<HotArea> pointsRight = new ArrayList<>();
-
-	float scaleA = 1;
-	float scaleB = 1;
-
 	// width resolution for viewer
-
-	boolean cameraActiveA = false;
-	boolean cameraActiveB = false;
-
 	boolean cameraAProcessingNewPhoto = false;
 	boolean cameraBProcessingNewPhoto = false;
 
@@ -128,9 +100,6 @@ public class ManuCapture_v1_1 extends PApplet {
 	String lastImagePathB = "";
 
 	public NetAddress arduinoDriverLocation;
-
-	PImage lastLeftPreview = null;
-	PImage lastRightPreview = null;
 
 	public static int CAMERAS_INACTIVE = -1;
 	public static int CAMERAS_IDLE = 0;
@@ -160,7 +129,6 @@ public class ManuCapture_v1_1 extends PApplet {
 	int shutterMode = 0;
 	static int NORMAL_SHUTTER = 0;
 	static int REPEAT_SHUTTER = 1;
-	// int SUBPAGE_SHUTTER = 2;
 	static int CALIB_SHUTTER = 3;
 
 	int backgroundColor = 0xff000C12;
@@ -175,7 +143,6 @@ public class ManuCapture_v1_1 extends PApplet {
 	// Chart identification
 	public static int STATE_CAPTURING = 0;
 	public static int STATE_CHART = 1;
-
 	int cameraState = STATE_CAPTURING;
 
 	int chartStateMachine = 0;
@@ -186,21 +153,11 @@ public class ManuCapture_v1_1 extends PApplet {
 	int guideHeight_1 = 200;
 	int guideHeight_2 = 600;
 
-	int marginTopViewer = 100;
-	int marginLeftViewerRight = 1170;
-	int marginLeftViewerLeft = 400;
-
 	public static int STATE_APP_NO_PROJECT = 0;
 	public static int STATE_APP_PROJECT = 1;
-
-	int stateApp = STATE_APP_NO_PROJECT;
-
+	public static int STATE_APP_EDITING_PROJECT = 2;
+	private int stateApp = STATE_APP_NO_PROJECT;
 	boolean loading = false;
-	boolean editingProject = false;
-
-	PImage cameraIcon;
-	PImage zoomImg = null;
-
 	boolean arduinoConnected = true;
 
 
@@ -256,38 +213,28 @@ public class ManuCapture_v1_1 extends PApplet {
 		captureState = CAMERAS_IDLE;
 
 		// Init GUI
-
+		// Main window position
 		surface.setTitle("ManuCapture v1");
 		if (surface != null) {
 			surface.setLocation(0, 0);
 		}
-		
+		// Custom GUIs
+		contentGUI = new ContentGUI(this);
+		itemsGUI = new ItemsGUI(this);
+		// Buttons and text imputs
 		messageContainer = new MessageContainer();
 		messageContainer.init();
-
 		guiController = new GUIController(this);
-		
 		gui = new GUI();
-		gui.createGUI(this);
-		
-		gui.grpAll.setVisible(0, false);
-		gui.grpProject.setVisible(0, false);
-		gui.grpAll.setVisible(0, false);
-			
-		initCropHotAreas();
-
-		itemsViewport = new ItemsViewport();
-		itemsViewport.setup(this);
-		textMode(MODEL);
-
-		cameraIcon = loadImage("cameraIcon.png");
-		zoomImg = loadImage("zoom.png");
-
+		gui.createGUI(this);		
+		// Final graphics conf
+		setStateApp(STATE_APP_NO_PROJECT);
 		registerMethod("post", this);
 		background(backgroundColor);
 		frameRate(25);
-		
 	}
+	
+	
 
 	public void post() {
 		if (frameCount < 10) {
@@ -296,14 +243,11 @@ public class ManuCapture_v1_1 extends PApplet {
 		}
 	}
 
-	
 	public void newPhotoEvent(G2P5Event event, String ic) {
-
 		if (project.projectName == null || project.projectName.equals("")) {
 			handleMessageDialog("Error", "Can't capture photos without project name", G4P.ERROR);
 			return;
 		}
-
 		println("New photo Event!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!", event.content);
 		if (event.g2p5 == gphotoA) {
 			if (ignoreNextPhotoA) {
@@ -341,7 +285,6 @@ public class ManuCapture_v1_1 extends PApplet {
 			// cameraAProcessingNewPhoto = true;
 			// cameraBProcessingNewPhoto = true;
 			// delay(3000);
-
 			if (shutterMode == NORMAL_SHUTTER) {
 				doNormalShutter(Item.TYPE_ITEM);
 			} else if (shutterMode == REPEAT_SHUTTER) {
@@ -351,127 +294,61 @@ public class ManuCapture_v1_1 extends PApplet {
 					newItem.loadThumbnails();
 					project.replaceItem(project.selectedItemIndex, newItem);
 					clearPaths();
-
 				}
-
 			} else if (shutterMode == CALIB_SHUTTER) {
 				println("Calib shutter");
-
-				// if (chartState < 2) {
-				// doNormalShutter(Item.TYPE_BACKGROUND);
-				// } else
-				//
 				if (chartStateMachine == 1) {
 					// we do background and first photo normally
 					doNormalShutter(Item.TYPE_CHART);
-					lastRightPreview = imgPreviewRight;
-					lastLeftPreview = imgPreviewLeft;
+					contentGUI.updateLastPreviews();
 					chartStateMachine++;
 				} else if (chartStateMachine == 2) {
-
 					float newPageNum = project.selectedItem.pagNum;
-
-					newItem = initNewItem(Item.TYPE_CHART, newPageNum);
-
-					imgPreviewLeft = newItem.loadLeftPreview(project.projectDirectory,
+					Item newItem = initNewItem(Item.TYPE_CHART, newPageNum);
+					contentGUI.imgPreviewLeft = newItem.loadLeftPreview(project.projectDirectory,
 							project.projectDirectory + newItem.mImageLeft.imagePath);
-
-					lastLeftPreview = imgPreviewLeft;
-
+					contentGUI.lastLeftPreview = contentGUI.imgPreviewLeft;
 					// newItem.mImageLeft.remove();
 					newItem.mImageLeft.imagePath = "";
 					newItem.loadThumbnails();
-
 					project.replaceItem(project.selectedItemIndex, newItem);
 					clearPaths();
-
 					chartStateMachine++;
 				} else {
-
 					guiController.normal_shutter_click1(null, null);
 				}
-
 			}
 			captureState = CAMERAS_IDLE;
-			// cameraAProcessingNewPhoto = false;
-			// cameraBProcessingNewPhoto = false;
-
 		}
 	}
 
-	Item newItem;
 
 	public void draw() {
-
-		marginTopViewer = 100;
-
-		gui.btnLiveView.setAlpha(200);
-		gui.btnTriggerCrop.setAlpha(200);
-		gui.btnTrigger.setAlpha(220);
-		gui.btnTriggerChartColor.setAlpha(180);
-		gui.btnTriggerNormal.setAlpha(180);
-		gui.btnTriggerRepeat.setAlpha(180);
-		gui.btnConnectedB.setAlpha(180);
-
-		gui.btnConnectedA.setAlpha(180);
-//		 gui.btnConnectedB.moveTo(marginLeftViewerRight +
-//		 hImageViewerSize - 280, 0);
-
 		background(75);
-
-		if (stateApp == STATE_APP_NO_PROJECT) {
+		if (getStateApp() == STATE_APP_NO_PROJECT) {
 			if (!arduinoConnected) {
 				drawErrorWindow();
 			} else {
 				drawInitWindow();
 			}
-		} else {
-			// gui.grpAll.setVisible(1, true);
+		} else if (getStateApp() == STATE_APP_PROJECT) {
 			drawApp();
-			if (gui.grpProject.isVisible()) {
-				// rect(0, 0, width, height);
-			}
-
 			fill(255);
 			textAlign(CENTER);
 			textSize(18);
-			// text("Factum Foundation Version 2.0", width / 2, height - 10);
+		} else if(getStateApp() == STATE_APP_EDITING_PROJECT) {
+			fill(155, 255);
+			rect(0, 0, width, height);
+			fill(255, 0, 0);
 		}
-
-		fill(255);
-		// text("thisstate " + captureState + " state" + cameraState
-		// + "\n " + "\nstateChart "
-		// + chartStateMachine + "\n " + frameRate +
-		// gui.grpProject.isVisible(), 350, height-10);
-
 		if (loading) {
 			fill(0, 200);
 			rect(0, 0, width, height);
 			fill(255, 0, 0);
 			text("LOADING...", width / 2, height / 3);
 		}
-
-		if (editingProject) {
-			fill(155, 255);
-			rect(0, 0, width, height);
-			fill(255, 0, 0);
-			// text("LOADING...", width / 2, height / 3);
-		}
-
-		// if (lastLeftPreview != null )
-		// image(lastLeftPreview, 200, 10, 200, 200);
-
-		// if (newItem != null && newItem.mImageLeft != null &&
-		// newItem.mImageLeft.imgPreview != null) {
-		// image(newItem.mImageLeft.imgPreview, 400, 10, 200, 200);
-		// }
-
 	}
 
-	public void load_click() { // _CODE_:load_button:841968:
-		guiController.load_click();
-	}
-	
 	private void drawErrorWindow() {
 		background(100, 0, 0);
 		pushStyle();
@@ -484,7 +361,6 @@ public class ManuCapture_v1_1 extends PApplet {
 	
 	private void drawInitWindow() {
 		// MOSTRAR CARGAR O NUEVO
-		gui.grpAll.setVisible(1, false);
 		// ellipse(width/2,500,1000,1000);
 		textAlign(CENTER, CENTER);
 
@@ -540,7 +416,6 @@ public class ManuCapture_v1_1 extends PApplet {
 				guiController.new_button_click(null, null);
 			}
 		}
-
 	}
 
 	private void drawApp() {
@@ -586,7 +461,7 @@ public class ManuCapture_v1_1 extends PApplet {
 					guiController.camera_A_active_button_click(null, null);
 				}
 				if (!gphotoB.isConnected()) {
-					guiController.camera_B_active_click(null, null);
+					guiController.camera_B_active_button_click(null, null);
 				}
 
 				gphotoAAdapter.setTargetFile(project.projectDirectory + "/raw", project.projectCode);
@@ -604,6 +479,7 @@ public class ManuCapture_v1_1 extends PApplet {
 		// CAMERA STATE SECTION
 		// ///////////////////////////////////////////////////////
 
+		/*
 		if (gphotoA.isConnected()) {
 			gui.camera_A_connected_button.setText("CONNECTED");
 			gui.camera_A_connected_button.setLocalColorScheme(GCScheme.GREEN_SCHEME);
@@ -619,47 +495,12 @@ public class ManuCapture_v1_1 extends PApplet {
 			gui.camera_B_connected_button.setText("DISCONNECTED");
 			gui.camera_B_connected_button.setLocalColorScheme(GCScheme.RED_SCHEME);
 		}
+		*/
 
-		itemsViewport.drawItemsViewPort();
-
-		image(itemsViewport.itemsViewPort, itemsViewport.itemListViewPortX, itemsViewport.itemListViewPortY);
-		if (renderRight) {
-			drawRight();
-			renderRight = true;
-			// println("renderizamos imagen derecha");
-		}
-
-		if (renderLeft) {
-			drawLeft();
-			renderLeft = true;
-			// println("renderizamos imagen izquierda");
-		}
-
-		if (hotAreaSelected != null) {
-			stroke(255, 0, 0);
-			// ellipse(hotAreaSelected.pos.x, hotAreaSelected.pos.y,
-			// hotAreaSelected.threshold, hotAreaSelected.threshold);
-			hotAreaSelected.draw(g);
-		}
-
-		if (lastPressedR == null)
-			for (int i = 1; i <= pointsLeft.size(); i++) {
-				PVector areaPos1 = pointsLeft.get(i - 1).getRealPosition();
-				PVector areaPos2 = pointsLeft.get(i % pointsLeft.size()).getRealPosition();
-				stroke(255, 0, 0);
-				line(areaPos1.x, areaPos1.y, areaPos2.x, areaPos2.y);
-			}
-
-		if (lastPressedL == null)
-			for (int i = 1; i <= pointsRight.size(); i++) {
-				PVector areaPos1 = pointsRight.get(i - 1).getRealPosition();
-				PVector areaPos2 = pointsRight.get(i % pointsRight.size()).getRealPosition();
-				stroke(255, 0, 0);
-				line(areaPos1.x, areaPos1.y, areaPos2.x, areaPos2.y);
-			}
+		itemsGUI.drawItemsViewPort();
+		contentGUI.draw();
 
 		stroke(255);
-
 		textAlign(LEFT);
 		pushStyle();
 		textSize(24);
@@ -678,18 +519,7 @@ public class ManuCapture_v1_1 extends PApplet {
 			fill(255, 0, 0);
 			text(msg("sw.liveviewenable"), width / 2 - 100, height / 2);
 			liveViewActive++;
-		} else if (liveViewActive == -1) {
-			// gui.gui.liveView_button.setEnabled(true);
-			// gui.liveView_button.setVisible(true);
-
-		}
-
-		// stroke(0,0,255);
-		// line(0,guideHeight_1,width,guideHeight_1);
-		// stroke(0,255,0);
-		// line(0,guideHeight_2,width,guideHeight_2);
-
-		// rect(marginLeftViewerLeft, marginTopViewer, 100, 100);
+		} 
 
 		if (shutterMode == NORMAL_SHUTTER && gui.btnTriggerRepeat.isVisible()) {
 			gui.btnTriggerRepeat.setVisible(false);
@@ -699,473 +529,31 @@ public class ManuCapture_v1_1 extends PApplet {
 			gui.btnTriggerNormal.setVisible(false);
 		}
 
-		if (cameraState == STATE_CHART) {
-			pushMatrix();
-			pushStyle();
-
-			if (chartStateMachine == 0) {
-				// textAlign(CENTER);
-				// fill(255, 0, 0, 100);
-				// rect(marginLeftViewerLeft, 0, hImageViewerSize * 2,
-				// wImageViewerSize);
-				// fill(255);
-				// textSize(24);
-				// text("CALIBRATING, PLEASE CAPTURE \n THIS BACKGROUND
-				// \nWITHOUT ANY DOCUMENT", marginLeftViewerRight,
-				// 200);
-			} else if (chartStateMachine == 1 || chartStateMachine == 2) {
-				textAlign(CENTER);
-				String msg;
-
-				if (chartStateMachine == 2) {
-					translate(marginLeftViewerLeft, 0);
-					msg = msg("sw.calibration3");
-				} else {
-					msg = msg("sw.calibration1");
-					translate(marginLeftViewerRight, 0);
-				}
-
-				fill(255, 0, 0, 100);
-				rect(0, marginTopViewer, hImageViewerSize, wImageViewerSize);
-				fill(255);
-				textSize(24);
-				text(msg, hImageViewerSize / 2, 200);
-			} else {
-				translate(marginLeftViewerLeft, 0);
-				fill(255, 0, 0, 100);
-				// rect(0, 0, hImageViewerSize,
-				// wImageViewerSize);
-				// rect(hImageViewerSize, 0, hImageViewerSize,
-				// wImageViewerSize);
-				rect(0, marginTopViewer, hImageViewerSize * 2 + 100, wImageViewerSize);
-				textSize(24);
-				fill(255, 255, 0);
-				String cad = msg("sw.calibration2");
-				text(cad, hImageViewerSize / 2 - 1, 200 - 1);
-
-				fill(255);
-				text(cad, hImageViewerSize / 2, 200);
-			}
-
-			popStyle();
-			popMatrix();
-
-		}
-
 		// trigger button color
 		if (isAllMirrorsReady()) {
-			// gui.trigger_button.setLocalColorScheme(GCScheme.GREEN_SCHEME);
-
 			fill(0, 255, 0);
 		} else {
 			fill(255, 0, 0);
-			// gui.trigger_button.setLocalColorScheme(GCScheme.RED_SCHEME);
 		}
-
 		ellipse(1120, 938, 50, 50);
 	}
 
-	private void drawLeft() {
-
-		if (project.selectedItem != null && imgPreviewLeft != null) {
-
-			pushStyle();
-			pushMatrix();
-			translate(marginLeftViewerRight, marginTopViewer);
-
-			drawImagePreview(imgPreviewLeft, lastPressedL, marginLeftViewerRight, pointsRight,
-					scaleA);
-
-			if (lastPressedL != null) {
-				tint(255, 200);
-			} else {
-				tint(255, 20);
-			}
-			image(zoomImg, hImageViewerSize - 70, 20, 50, 50);
-			// pintamos en blending la imagen de calibración para puntos de crop
-			if (chartStateMachine == 3 && lastLeftPreview != null) {
-				pushStyle();
-				tint(255, 125);
-				image(lastLeftPreview, 0, 0, hImageViewerSize, wImageViewerSize, 0, 0,
-						lastLeftPreview.width, lastLeftPreview.height);
-				popStyle();
-			}
-
-			showPhotoMetaData();
-
-			text(project.selectedItem.mImageLeft.imagePath, 0, -10);
-
-			popMatrix();
-			stroke(255, 0, 0);
-			if (chartStateMachine == 3) {
-				stroke(map(sin(100 + millis() * 0.01f), -1, 1, 0, 255), 0, 0);
-			}
-
-			if (lastPressedL == null) {
-				for (HotArea area : pointsRight) {
-					if (chartStateMachine == 3 || cropMode)
-						area.draw(g);
-				}
-			}
-
-			popStyle();
-		} else {
-			stroke(255);
-			fill(50);
-			rect(marginLeftViewerRight, marginTopViewer, hImageViewerSize, wImageViewerSize);
-		}
-
-		// datos de cámara
-		if (!gphotoB.isConnected()) {
-			fill(255, 0, 0);
-		} else {
-			fill(0, 255, 0);
-		}
-		ellipse(marginLeftViewerRight + 225, 78, 30, 30);
-		// pushMatrix();
-		//
-		// translate(0, 1015);
-		// // fill(255);
-		// text("exposure: " + gphotoBAdapter.exposure,
-		// marginLeftViewerRight + 75, 40);
-		// text("focusing: ", marginLeftViewerRight + 300, 40);
-		// text(gphotoBAdapter.g2p5.id, 840, 40);
-		fill(255);
-		text("mirroUp " + gphotoBAdapter.g2p5.id + " " + gphotoBAdapter.mirrorUp,
-				marginLeftViewerRight + 375, 20);
-		//
-		// fill(0, 200, 0);
-		//
-		// if (gphotoBAdapter.focus) {
-		// fill(255, 0, 0);
-		// } else {
-		// fill(0, 255, 0);
-		// }
-		// ellipse(marginLeftViewerRight + 370, 35, 15, 15);
-		// popMatrix();
-		if (captureState == CAMERAS_FOCUSSING
-				|| captureState == CAMERAS_MIRROR_UP
-				|| captureState == CAMERAS_PROCESSING) {
-			pushStyle();
-			pushMatrix();
-			translate(marginLeftViewerRight, marginTopViewer);
-			pushStyle();
-			noStroke();
-			int alpha = 150;
-			if (captureState == CAMERAS_FOCUSSING) {
-				fill(40, alpha);
-			} else if (captureState == CAMERAS_MIRROR_UP) {
-				fill(120, alpha);
-			} else if (captureState == CAMERAS_PROCESSING) {
-				fill(0, 50, 0, alpha);
-			}
-			rect(0, 0, hImageViewerSize, wImageViewerSize);
-			imageMode(CENTER);
-			image(cameraIcon, hImageViewerSize / 2, wImageViewerSize / 2, 256, 256);
-			imageMode(CORNER);
-			popMatrix();
-			popStyle();
-		}
-
-	}
-
-	private void drawRight() {
-
-		if (project.selectedItem != null && imgPreviewRight != null) {
-			pushStyle();
-			pushMatrix();
-			translate(marginLeftViewerLeft, marginTopViewer);
-			imageMode(CORNER);
-
-			drawImagePreview(imgPreviewRight, lastPressedR, marginLeftViewerLeft, pointsLeft,
-					scaleB);
-
-			// if (gphotoAAdapter.cameraWaitingForPicture ||
-			// cameraAProcessingNewPhoto) {
-
-			if (lastPressedR != null) {
-				tint(255, 200);
-			} else {
-				tint(255, 20);
-			}
-			image(zoomImg, hImageViewerSize - 70, 20, 50, 50);
-
-			if (chartStateMachine == 3 && lastRightPreview != null) {
-				pushStyle();
-				tint(255, 125);
-				image(lastRightPreview, 0, 0, hImageViewerSize, wImageViewerSize, 0, 0,
-						lastRightPreview.width, lastRightPreview.height);
-				popStyle();
-			}
-
-			showPhotoMetaData();
-			text(project.selectedItem.mImageRight.imagePath, 0, -10);
-			popMatrix();
-			stroke(255, 0, 0);
-			if (chartStateMachine == 3) {
-				stroke(map(sin(millis() * 0.01f), -1, 1, 0, 255), 0, 0);
-			}
-			if (lastPressedR == null)
-				for (HotArea area : pointsLeft) {
-					if (chartStateMachine == 3 || cropMode)
-						area.draw(g);
-				}
-
-			popStyle();
-		} else {
-			stroke(255);
-			fill(50);
-			rect(marginLeftViewerLeft, marginTopViewer, hImageViewerSize, wImageViewerSize);
-		}
-		// datos de cámara
-
-		if (!gphotoA.isConnected()) {
-			fill(255, 0, 0);
-		} else {
-			fill(0, 255, 0);
-		}
-		ellipse(marginLeftViewerLeft + 227, 78, 30, 30);
-
-		fill(255);
-		// pushMatrix();
-		// translate(0, 1015);
-
-		//
-		// text(" focusing: ", 890, 40);
-		fill(255);
-		text("mirroUp " + gphotoAAdapter.g2p5.id + " " + gphotoAAdapter.mirrorUp,
-				marginLeftViewerLeft + 430, 40);
-		// text(gphotoAAdapter.g2p5.id, 840, 40);
-		// if (gphotoAAdapter.focus) {
-		// fill(255, 0, 0);
-		// } else {
-		// fill(0, 255, 0);
-		// }
-		// ellipse(960, 35, 15, 15);
-		// popMatrix();
-
-		if (captureState == CAMERAS_FOCUSSING
-				|| captureState == CAMERAS_MIRROR_UP
-				|| captureState == CAMERAS_PROCESSING) {
-			pushStyle();
-			pushMatrix();
-			translate(marginLeftViewerLeft, marginTopViewer);
-
-			noStroke();
-			int alpha = 150;
-			if (captureState == CAMERAS_FOCUSSING) {
-				fill(40, alpha);
-			} else if (captureState == CAMERAS_MIRROR_UP) {
-				fill(120, alpha);
-			} else if (captureState == CAMERAS_PROCESSING) {
-				fill(0, 50, 0, alpha);
-			}
-			rect(0, 0, hImageViewerSize, wImageViewerSize);
-			imageMode(CENTER);
-			image(cameraIcon, hImageViewerSize / 2, wImageViewerSize / 2, 256, 256);
-			imageMode(CORNER);
-
-			popMatrix();
-			popStyle();
-		}
-
-	}
-
-	private void showPhotoMetaData() {
-		fill(255);
-		textSize(24);
-		textAlign(LEFT);
-		// @TODO add info from the readed image
-
-		text("ISO: " + gphotoAAdapter.exposure, 10, wImageViewerSize - 20);
-		text("exposure: " + gphotoAAdapter.exposure, 200, wImageViewerSize - 20);
-		text("f: " + gphotoAAdapter.exposure, 450, wImageViewerSize - 20);
-	}
-
-	private void drawImagePreview(PImage imgPreview, PVector lastPressedR, int marginLeftViewer, List<HotArea> areas,
-			float scale) {
-
-		if (lastPressedR != null) {
-			// pimero quiero saber pos en la imagen
-			float imgScale = imgPreview.width / (float) hImageViewerSize;
-			PVector virtualPos = PVector.sub(lastPressedR, new PVector(marginLeftViewer, marginTopViewer));
-
-			PVector virtualPosScaled = PVector.mult(virtualPos, imgScale);
-
-			int portviewSizeX = (int) ((hImageViewerSize) / scale);
-			int portviewSizeY = (int) ((wImageViewerSize) / scale);
-
-			int portviewStartX = (int) (virtualPosScaled.x - portviewSizeX / 2);
-			int portviewStartY = (int) (virtualPosScaled.y - portviewSizeY / 2);
-
-			if (portviewStartX + portviewSizeX > imgPreview.width) {
-				portviewStartX = imgPreview.width - portviewSizeX;
-			}
-			if (portviewStartY + portviewSizeY > imgPreview.height) {
-				portviewStartY = imgPreview.height - portviewSizeY;
-			}
-			if (portviewStartX < 0) {
-				portviewStartX = 0;
-			}
-			if (portviewStartY < 0) {
-				portviewStartY = 0;
-			}
-			image(imgPreview, 0, 0, hImageViewerSize, wImageViewerSize, portviewStartX,
-					portviewStartY, portviewStartX + portviewSizeX, portviewStartY + portviewSizeY);
-		} else {
-
-			image(imgPreview, 0, 0, hImageViewerSize, wImageViewerSize, 0, 0, imgPreview.width,
-					imgPreview.height);
-		}
-	}
-
 	public void mouseMoved() {
-
-		itemsViewport.mouseMoved();
-
-		if (hotAreaSelected != null) {
-			// hotAreaSelected.pos = hotAreafloat scaleA =
-			// 1;Selected.pos.add(mouseX -
-			// dmouseX,mouseY
-			// -dmouseY);
-			if (hotAreaSelected.name.startsWith("L")) {
-				if (isMouseInsideRight())
-					hotAreaSelected.setRealPosition(mouseX, mouseY);
-			}
-
-			if (hotAreaSelected.name.startsWith("R")) {
-				if (isMouseInsideLeft())
-					hotAreaSelected.setRealPosition(mouseX, mouseY);
-			}
-			if (project != null && project.selectedItem != null) {
-				project.selectedItem.mImageLeft.mesh = copyMesh(pointsLeft);
-				project.selectedItem.mImageRight.mesh = copyMesh(pointsRight);
-			}
-		}
-
-		if (lastPressedR != null) {
-			updateZoomRight();
-
-		}
-
-		if (lastPressedL != null) {
-			updateZoomLeft();
-
-		}
-
+		itemsGUI.mouseMoved();
+		contentGUI.mouseMoved();
 	}
 
 	public void startCropMode() {
-
 		cropMode = !cropMode;
 	}
 
 	public void mousePressed() {
-
-		itemsViewport.mousePressed();
-
-		if (hotAreaSelected == null) {
-			if (chartStateMachine == 3 || cropMode) {
-				for (HotArea area : pointsLeft) {
-					if (area.isInArea(mouseX, mouseY)) {
-						hotAreaSelected = area;
-						break;
-					}
-				}
-
-				for (HotArea area : pointsRight) {
-					if (area.isInArea(mouseX, mouseY)) {
-						hotAreaSelected = area;
-						break;
-					}
-				}
-			}
-
-			if (hotAreaSelected == null) {
-				if (hotAreaSelected == null && project != null && project.selectedItem != null) {
-					if (mouseButton == LEFT) {
-						if (!editingProject && lastPressedL == null && project.selectedItem.mImageLeft != null
-								&& imgPreviewLeft != null) {
-							updateZoomLeft();
-						}
-						// else
-						// lastPressedL = null;
-
-						if (!editingProject && lastPressedR == null && project.selectedItem.mImageRight != null
-								&& imgPreviewRight != null)
-							updateZoomRight();
-						// else
-						// lastPressedR = null;
-
-					}
-					if (mouseButton == RIGHT) {
-						lastPressedR = null;
-						lastPressedL = null;
-					}
-				}
-			}
-		} else {
-			hotAreaSelected = null;
-			project.selectedItem.saveMetadata();
-		}
-
-		println("mouseX:" + mouseX + " mouseY:" + mouseY);
-	}
-
-	private boolean isMouseInsideLeft() {
-
-		if (mouseY > marginTopViewer && mouseY < height - marginTopViewer) {
-			// Estamos en y
-			if (mouseX > marginLeftViewerRight && mouseX < marginLeftViewerRight + hImageViewerSize) {
-				return true;
-			}
-
-		}
-		return false;
-	}
-
-	private boolean isMouseInsideRight() {
-
-		if (mouseY > marginTopViewer && mouseY < height - marginTopViewer) {
-			// Estamos en y
-			if (mouseX > marginLeftViewerLeft && mouseX < marginLeftViewerLeft + hImageViewerSize) {
-
-				if (mouseX > marginLeftViewerRight) {
-
-				} else {
-					return true;
-				}
-			}
-		}
-		return false;
-	}
-
-	private void updateZoomLeft() {
-		if (isMouseInsideLeft() && chartStateMachine != 3)
-			lastPressedL = new PVector(mouseX, mouseY);
-	}
-
-	private void updateZoomRight() {
-		if (isMouseInsideRight() && chartStateMachine != 3)
-			lastPressedR = new PVector(mouseX, mouseY);
+		contentGUI.mousePressed();
+		itemsGUI.mousePressed();
 	}
 
 	public void mouseWheel(MouseEvent event) {
-		float e = event.getCount();
-		if (mouseX > marginLeftViewerRight && mouseX < marginLeftViewerRight + hImageViewerSize) {
-			if (mouseY > 20 && mouseY < 20 + wImageViewerSize) {
-				scaleA -= e / 10;
-				scaleA = max(scaleA, 1);
-				scaleA = min(scaleA, 4);
-			}
-		}
-		if (mouseX > 580 && mouseX < 580 + hImageViewerSize) {
-			if (mouseY > 20 && mouseY < 20 + wImageViewerSize) {
-				scaleB -= e / 10;
-				scaleB = max(scaleB, 1);
-				scaleB = min(scaleB, 4);
-			}
-		}
+		contentGUI.mouseWheel(event.getCount());
 	}
 
 	public void keyPressed() {
@@ -1175,20 +563,13 @@ public class ManuCapture_v1_1 extends PApplet {
 	}
 
 	public void mouseDragged() {
-
-		itemsViewport.mouseDragged();
-
-		if (hotAreaSelected != null && project.selectedItem != null) {
-			hotAreaSelected.setRealPosition(mouseX, mouseY);
-			project.selectedItem.mImageLeft.mesh = copyMesh(pointsLeft);
-			project.selectedItem.mImageRight.mesh = copyMesh(pointsRight);
-		}
+		itemsGUI.mouseDragged();
+		contentGUI.mouseDragged();
 	}
 
 	public void mouseReleased() {
-		itemsViewport.mouseReleased();
+		itemsGUI.mouseReleased();
 		// hotAreaSelected = null;
-
 	}
 
 	private void doNormalShutter(String type) {
@@ -1215,14 +596,10 @@ public class ManuCapture_v1_1 extends PApplet {
 
 		String relNewImagePathA = "";
 		if (!newImagePathA.equals("")) {
-			// relNewImagePathA = getNewPathImage(project.projectDirectory,
-			// newImagePathA);
 			relNewImagePathA = newImagePathA.substring(project.projectDirectory.length());
 		}
 		String relNewImagePathB = "";
 		if (!newImagePathB.equals(""))
-			// relNewImagePathB = getNewPathImage(project.projectDirectory,
-			// newImagePathB);
 			relNewImagePathB = newImagePathB.substring(project.projectDirectory.length());
 
 		// TODO here we decide what is in the left and the right
@@ -1237,12 +614,7 @@ public class ManuCapture_v1_1 extends PApplet {
 		String value;
 		try {
 			XML lastSessionData = loadXML("lastSession.xml");
-			// int reply = G4P.selectOption(this, "Load previous session?", "",
-			// G4P.PLAIN,
-			// G4P.YES_NO);
-			// if (reply == 0) {
 
-			// TODO: Load project here
 			File projectFile = new File(lastSessionData.getChild("Project").getContent());
 			if (projectFile.exists())
 				loadProject(projectFile.getPath());
@@ -1254,16 +626,10 @@ public class ManuCapture_v1_1 extends PApplet {
 			value = lastSessionData.getChild("Camera_A_Active").getContent();
 			if (value.equals("1") && !gphotoA.isConnected())
 				guiController.camera_A_active_button_click(null, null);
-			// cameraActiveA = true;
-			// else
-			// cameraActiveA = false;
 
 			value = lastSessionData.getChild("Camera_B_Active").getContent();
 			if (value.equals("1") && !gphotoB.isConnected())
-				guiController.camera_B_active_click(null, null);
-			// cameraActiveB = true;
-			// else
-			// cameraActiveB = false;
+				guiController.camera_B_active_button_click(null, null);
 
 			project.forceSelectedItem(project.selectedItemIndex, false);
 
@@ -1274,12 +640,9 @@ public class ManuCapture_v1_1 extends PApplet {
 			noZoom();
 
 			if (project.items.isEmpty()) {
-				initCropHotAreas();
+				contentGUI.initCropHotAreas();
 			}
 
-			// } else {
-			//// new_button_click(null, null);
-			// }
 		} catch (Exception e) {
 			_println("lastSession.xml not found");
 			// txtLog.insertText("Error reconstructing last session: check the
@@ -1306,14 +669,14 @@ public class ManuCapture_v1_1 extends PApplet {
 
 		XML lastCameraActiveA = new XML("Camera_A_Active");
 
-		if (cameraActiveA)
+		if (gphotoA.isConnected())
 			value = "1";
 		else
 			value = "0";
 		lastCameraActiveA.setContent(String.valueOf(value));
 		lastSessionData.addChild(lastCameraActiveA);
 
-		if (cameraActiveB)
+		if (gphotoB.isConnected())
 			value = "1";
 		else
 			value = "0";
@@ -1381,7 +744,7 @@ public class ManuCapture_v1_1 extends PApplet {
 		captureState = CAMERAS_IDLE;
 
 		saveLastSessionData();
-
+		gui.project_info.setText("PROJECT INFO " + project.projectFilePath);
 	}
 
 	public void loadProject(String projectPath) {
@@ -1415,12 +778,12 @@ public class ManuCapture_v1_1 extends PApplet {
 		G2P5Manager.setImageCount(project.items.size());
 		project.forceSelectedItem(project.items.size(), false);
 		if (project.items.isEmpty()) {
-			initCropHotAreas();
+			contentGUI.initCropHotAreas();
 		}
 		saveLastSessionData();
 		project.removeUnusedImages();
-		stateApp = STATE_APP_PROJECT;
-		gui.grpAll.setVisible(1, true);
+		setStateApp(STATE_APP_PROJECT);
+		
 	}
 
 	public String homeDirectory() {
@@ -1428,107 +791,16 @@ public class ManuCapture_v1_1 extends PApplet {
 		return pathApp;
 	}
 
-	private void noZoom() {
+	public void noZoom() {
 		lastPressedL = null;
 		lastPressedR = null;
 	}
-
-	public void handleButtonEvents(GImageButton button, GEvent event) {
-
-		if (button == gui.btnTriggerRepeat) {
-			guiController.normal_shutter_click1(null, null);
-			noZoom();
-		}
-
-		if (button == gui.btnTriggerNormal) {
-			guiController.repeat_shutter_click(null, null);
-			noZoom();
-		}
-
-		if (chartStateMachine != 3) {
-
-			if (button == gui.btnTrigger) {
-				guiController.trigger_button_click(null, null);
-			}
-
-			if (button == gui.btnTriggerChartColor) {
-				guiController.calibration_shutter_click(null, null);
-				noZoom();
-			}
-
-			if (button == gui.btnLiveView) {
-				guiController.liveView_button_click(null, null);
-			}
-
-			if (button == gui.btnTriggerCrop) {
-				guiController.crop_click(null, null);
-			}
-
-			if (button == gui.btnTriggerOpenSOViewer1) {
-
-				try {
-					String cmd = "rawtherapee " + project.projectDirectory + project.selectedItem.mImageRight.imagePath;
-					println(cmd);
-					Runtime.getRuntime().exec(cmd);
-				} catch (Exception e) {
-					_println("Couldn't create raw directory permisions");
-				}
-				noZoom();
-			}
-
-			if (button == gui.btnTriggerOpenSOViewer2) {
-				try {
-					Runtime.getRuntime().exec(
-							"rawtherapee " + project.projectDirectory + project.selectedItem.mImageLeft.imagePath);
-				} catch (Exception e) {
-					_println("Couldn't create raw directory permisions");
-				}
-				noZoom();
-			}
-
-			if (button == gui.btnClose) {
-				guiController.close_click(null, null);
-			}
-
-			if (button == gui.btnEdit) {
-				guiController.edit_click(null, null);
-			}
-
-			if (button == gui.btnFirstPage) {
-				guiController.first_page_button_click(null, null);
-			}
-
-			if (button == gui.btnLastPage) {
-				guiController.last_page_button_click(null, null);
-			}
-
-			if (button == gui.btnConnectedA) {
-				if (!cameraActiveA)
-					guiController.camera_A_active_button_click(null, null);
-				else
-					guiController.camera_A_inactive_button_click(null, null);
-				noZoom();
-			}
-			if (button == gui.btnConnectedB) {
-				if (!cameraActiveB)
-					guiController.camera_B_active_click(null, null);
-				else
-					guiController.camera_B_inactive_click(null, null);
-				noZoom();
-			}
-
-		}
-	}
-
+	
 	public void settings() {
 		size(1920, 1080, P2D);
-//		 fullScreen(P2D);
 	}
 
 	public void oscEvent(OscMessage theOscMessage) {
-		/*
-		 * print the address pattern and the typetag of the received OscMessage
-		 */
 		print("### received an osc message.");
 		print(" addrpattern: " + theOscMessage.addrPattern());
 		println(" typetag: " + theOscMessage.typetag());
@@ -1538,47 +810,13 @@ public class ManuCapture_v1_1 extends PApplet {
 		} else {
 			capture();
 		}
-
 	}
 	
-	
-	public void initCropHotAreas() {
-		
-		pointsLeft = new ArrayList<>();
-		pointsRight = new ArrayList<>();
-
-		int size = 50;
-
-		PVector translatePos1 = new PVector(marginLeftViewerLeft, marginTopViewer);
-		PVector translatePos2 = new PVector(marginLeftViewerRight, marginTopViewer);
-
-		pointsLeft.add(new HotArea(new PVector(size, size), translatePos1, 0, size, "LTL"));
-		pointsLeft.add(new HotArea(new PVector(hImageViewerSize - size, 0 + size), translatePos1, 1, size, "LTR"));
-		pointsLeft.add(new HotArea(new PVector(hImageViewerSize - size, wImageViewerSize - size), translatePos1, 2,
-				size, "LBL"));
-		pointsLeft.add(new HotArea(new PVector(0 + size, wImageViewerSize - size), translatePos1, 3, size, "LBR"));
-
-		pointsRight.add(new HotArea(new PVector(size, size), translatePos2, 0, size, "RTL"));
-		pointsRight.add(new HotArea(new PVector(hImageViewerSize - size, size), translatePos2, 1, size, "RTR"));
-		pointsRight.add(new HotArea(new PVector(hImageViewerSize - size, wImageViewerSize - size), translatePos2, 2,
-				size, "RBL"));
-		pointsRight.add(new HotArea(new PVector(size, wImageViewerSize - size), translatePos2, 3, size, "RBR"));
-	}
-
 	public G2P5ManucaptureAdapter createG2P5(String serial, String name) {
 		G2P5 g2p5 = G2P5.create(homeDirectory(), serial, name);
 		G2P5ManucaptureAdapter adapter = new G2P5ManucaptureAdapter(this, g2p5);
 		adapter.setTargetFile(project.projectDirectory + "raw", project.projectName);
 		return adapter;
-	}
-
-	public List<HotArea> copyMesh(List<HotArea> mesh) {
-		List<HotArea> temp = new ArrayList<>();
-		for (int i = 0; i < mesh.size(); i++) {
-			HotArea ha = mesh.get(i);
-			temp.add(new HotArea(ha.pos.copy(), ha.translatePos.copy(), ha.id, ha.threshold, ha.name));
-		}
-		return temp;
 	}
 
 	public void deleteAllFiles(String targetFilePath, String suf) {
@@ -1662,7 +900,6 @@ public class ManuCapture_v1_1 extends PApplet {
 					e.printStackTrace();
 				}
 		}
-
 	}
 
 	public boolean writeExifData(String fullFileName, String documentId, String xResolution, String yResolution) {
@@ -1693,7 +930,6 @@ public class ManuCapture_v1_1 extends PApplet {
 			if (pr != null)
 				pr.destroy();
 		}
-
 		return false;
 	}
 
@@ -1836,14 +1072,12 @@ public class ManuCapture_v1_1 extends PApplet {
 			if (!gphotoAAdapter.mirrorUp && !gphotoBAdapter.mirrorUp) {
 				captureState = CAMERAS_PROCESSING;
 			}
-
 		}
 		else if (captureState == CAMERAS_PROCESSING) {
 			if (!gphotoAAdapter.mirrorUp && !gphotoBAdapter.mirrorUp) {
 				// captureState = CAMERAS_PROCESSING;
 			}
 		}
-
 	}
 
 	private void restoreCamerasStateAfterFailure() {
@@ -1926,31 +1160,33 @@ public class ManuCapture_v1_1 extends PApplet {
 		return !gphotoAAdapter.mirrorUp && !gphotoBAdapter.mirrorUp;
 	}
 
-	public void clearPreviews() {
-	}
-
 	public String msg(String key) {
 		return messageContainer.getText(key);
+	}
+	
+	public int getStateApp() {
+		return stateApp;
+	}
+
+	public void setStateApp(int stateApp) {
+		this.stateApp = stateApp;
+		noZoom();
+		if(stateApp == STATE_APP_NO_PROJECT) {
+			gui.grpProject.setVisible(1, false);
+			gui.grpAll.setVisible(1, false);
+		}
+		else if(stateApp == STATE_APP_PROJECT) {
+			gui.grpProject.setVisible(1, false);
+			gui.grpAll.setVisible(1, true);
+		}		
+		if(stateApp == STATE_APP_EDITING_PROJECT) {
+			gui.grpProject.setVisible(1, true);
+			gui.grpAll.setVisible(1, false);
+		}
 	}
 
 	static public void main(String[] passedArgs) {
 
-		// String location = "--location=0,0";
-
-		/*
-		 * GraphicsEnvironment environment =
-		 * GraphicsEnvironment.getLocalGraphicsEnvironment(); GraphicsDevice devices[] =
-		 * environment.getScreenDevices();
-		 * 
-		 * if(devices.length>1 ){ //we have a 2nd display/projector
-		 * 
-		 * primary_width = devices[0].getDisplayMode().getWidth(); location =
-		 * "--location="+primary_width+",0";
-		 * 
-		 * }else{//leave on primary display location = "--location=0,0";
-		 * 
-		 * }
-		 */
 		try {
 			String[] appletArgs = new String[] { "ArduinoDriver", "" };// ,
 																		// location
@@ -1978,7 +1214,5 @@ public class ManuCapture_v1_1 extends PApplet {
 			e.printStackTrace();
 			System.out.println("End of programmm");
 		}
-
 	}
-
 }

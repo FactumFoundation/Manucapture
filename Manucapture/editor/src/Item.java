@@ -39,8 +39,8 @@ public class Item {
 
 		this.mImageLeft.imagePath = imagePathLeft;
 		this.mImageRight.imagePath = imagePathRight;
-		this.mImageLeft.mesh = context.copyMesh(context.pointsLeft);
-		this.mImageRight.mesh = context.copyMesh(context.pointsRight);
+		this.mImageLeft.mesh = context.contentGUI.copyMesh(context.contentGUI.pointsLeft);
+		this.mImageRight.mesh = context.contentGUI.copyMesh(context.contentGUI.pointsRight);
 		this.mImageRight.context = context;
 		this.mImageLeft.context = context;
 	}

@@ -469,8 +469,8 @@ public class Project {
 			// View message for viewer
 			// context.oscP5.send(myMessage, context.viewerLocation);
 			// Now we do the preview on app
-			context.imgPreviewRight = selectedItem.loadRightPreview(projectDirectory,rightImagePath);
-			context.imgPreviewLeft = selectedItem.loadLeftPreview(projectDirectory,leftImagePath);
+			context.contentGUI.imgPreviewRight = selectedItem.loadRightPreview(projectDirectory,rightImagePath);
+			context.contentGUI.imgPreviewLeft = selectedItem.loadLeftPreview(projectDirectory,leftImagePath);
 			
 			// context.gui.page_comments_text.setText(selectedItem.comment);
 			// context.gui.page_num_text.setText(String.valueOf(selectedItem.pagNum));
@@ -479,8 +479,8 @@ public class Project {
 
 			selectedItem.loadMetadata();
 
-			context.pointsLeft = selectedItem.mImageLeft.copyMesh(context.pointsLeft);
-			context.pointsRight = selectedItem.mImageRight.copyMesh(context.pointsRight);
+			context.contentGUI.pointsLeft = selectedItem.mImageLeft.copyMesh(context.contentGUI.pointsLeft);
+			context.contentGUI.pointsRight = selectedItem.mImageRight.copyMesh(context.contentGUI.pointsRight);
 		}
 	}
 
@@ -525,7 +525,7 @@ public class Project {
 		}
 		if (selectedItemIndex >= 0 && items.size() > 0) {
 			// Update gui list
-			context.itemsViewport.forceSelectedItem(index, transition);
+			context.itemsGUI.forceSelectedItem(index, transition);
 			selectItem(selectedItemIndex);
 		}
 	}
