@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 16.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1" id="Layer_1" xmlns:xml="http://www.w3.org/XML/1998/namespace"
+	 xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="51.0mm" height="38.5mm"
+	 viewBox="0 0 39 51" enable-background="new 0 0 39 51" xml:space="preserve">
+<g id="silkscreen">
+	<line fill="none" stroke="#FFFFFF" stroke-width="0.75" x1="0.72" y1="0.72" x2="0.72" y2="36.78"/>
+	<line fill="none" stroke="#FFFFFF" stroke-width="0.75" x1="0.72" y1="36.78" x2="50.28" y2="36.78"/>
+	<line fill="none" stroke="#FFFFFF" stroke-width="0.75" x1="50.28" y1="36.78" x2="50.28" y2="0.72"/>
+	<line fill="none" stroke="#FFFFFF" stroke-width="0.75" x1="0.72" y1="0.72" x2="50.28" y2="0.72"/>
+</g>
+<g id="copper0">
+	<g id="copper1">
+		<circle id="connector0pin" fill="none" stroke="#FFBF00" stroke-width="1.152" cx="7" cy="06.5" r="1.5"/>
+		<circle id="connector1pin" fill="none" stroke="#FFBF00" stroke-width="1.152" cx="7" cy="11.5" r="1.5"/>
+		<circle id="connector2pin" fill="none" stroke="#FFBF00" stroke-width="1.152" cx="7" cy="16.5" r="1.5"/>
+		<circle id="connector3pin" fill="none" stroke="#FFBF00" stroke-width="1.152" cx="7" cy="21.5" r="1.5"/>
+		<circle id="connector4pin" fill="none" stroke="#FFBF00" stroke-width="1.152" cx="7" cy="26.5" r="1.5"/>
+		<circle id="connector5pin" fill="none" stroke="#FFBF00" stroke-width="1.152" cx="7" cy="31.5" r="1.5"/>
+		<circle id="connector6pin" fill="none" stroke="#FFBF00" stroke-width="0.8"   cx="48" cy="08.0" r="0.9"/>
+		<circle id="connector7pin" fill="none" stroke="#FFBF00" stroke-width="0.8"   cx="48" cy="10.5" r="0.9"/>
+		<circle id="connector8pin" fill="none" stroke="#FFBF00" stroke-width="0.8"   cx="48" cy="13.0" r="0.9"/>
+		<circle id="connector9pin" fill="none" stroke="#FFBF00" stroke-width="0.8"   cx="48" cy="15.5" r="0.9"/>
+		<circle id="connector10pin" fill="none" stroke="#FFBF00" stroke-width="0.8"  cx="48" cy="24.5" r="0.9"/>
+		<circle id="connector11pin" fill="none" stroke="#FFBF00" stroke-width="0.8"  cx="48" cy="27.0" r="0.9"/>
+		<circle id="connector12pin" fill="none" stroke="#FFBF00" stroke-width="0.8"  cx="48" cy="29.5" r="0.9"/>
+	</g>
+</g>
+<g id="keepout">
+</g>
+<g id="soldermask">
+</g>
+<g id="outline">
+</g>
+</svg>
