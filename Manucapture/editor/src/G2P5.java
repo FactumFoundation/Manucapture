@@ -164,7 +164,6 @@ public class G2P5 {
 	}
 
 	private void sendEvent(G2P5Event event) {
-		//ManuCapture_v1_1.println("NEW EVENT " + id + " " + event.eventCode + " " + event.content);
 		event.g2p5 = this;
 		if (listener != null) {
 			listener.newEvent(event);
@@ -216,8 +215,6 @@ public class G2P5 {
 	}
 
 	public void processLogLine(String line) {
-//		if(this.id.equals("A"))
-//			System.out.println(line);
 		if (line.contains("Camera")) {
 			int index = line.indexOf("Camera");
 			String cad = line.substring(index, line.length());
@@ -314,7 +311,6 @@ public class G2P5 {
 				BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream), 1);
 				String line;
 				while ((line = bufferedReader.readLine()) != null) {
-					PApplet.println(line);
 					if (line.contains("Current: ")) {
 						int index = line.indexOf("Current: ");
 						String serial = line.substring(index + 9, line.length());

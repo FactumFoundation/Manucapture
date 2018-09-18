@@ -64,74 +64,83 @@ public class GUI {
 		grpProject = new GGroup(context);
 
 		String[] files;
-		files = new String[] { "btn_trigger.png", "btn_trigger.png", "btn_trigger.png" };
-		btnTrigger = new GImageButton(context, context.contentGUI.marginLeftViewerRight - 170, context.height - 200, files);
-		btnTrigger.addEventHandler(guiController, "trigger_button_click");
-		grpAll.addControls(btnTrigger);
+
+		int buttonsDeltaY = 190;
 
 		files = new String[] { "btn_live_view.png", "btn_live_view.png", "btn_live_view.png" };
-		btnLiveView = new GImageButton(context, context.contentGUI.marginLeftViewerRight - 130, 680, files);
+		btnLiveView = new GImageButton(context, context.width-168, context.height - 5*buttonsDeltaY, files);
 		btnLiveView.addEventHandler(guiController, "liveView_button_click");
 		grpAll.addControls(btnLiveView);
+
+		files = new String[] { "btn_calibrate.png", "btn_calibrate.png", "btn_calibrate.png" };
+		btnTriggerChartColor = new GImageButton(context, context.width-168, context.height - 4*buttonsDeltaY, files);
+		btnTriggerChartColor.addEventHandler(guiController,"calibration_shutter_click");
+		grpAll.addControls(btnTriggerChartColor);
 		
 		files = new String[] { "btn_crop.png", "btn_crop.png", "btn_crop.png" };
-		btnTriggerCrop = new GImageButton(context, context.contentGUI.marginLeftViewerRight - 130, 540, files);
+		btnTriggerCrop = new GImageButton(context, context.width-168, context.height - 3*buttonsDeltaY, files);
 		btnTriggerCrop.addEventHandler(guiController, "crop_click");
 		grpAll.addControls(btnTriggerCrop);
-		
-		files = new String[] { "btn_viewer.png", "btn_viewer.png", "btn_viewer.png" };
-		btnTriggerOpenSOViewer1 = new GImageButton(context, context.contentGUI.marginLeftViewerLeft+ 270, 35,90,90,files);
-		btnTriggerOpenSOViewer1.addEventHandler(guiController, "openViewer_1");
-		grpAll.addControls(btnTriggerOpenSOViewer1);
-		
-		files = new String[] { "btn_viewer.png", "btn_viewer.png", "btn_viewer.png" };
-		btnTriggerOpenSOViewer2 = new GImageButton(context, context.contentGUI.marginLeftViewerRight + 270, 35,90,90,files);
-		btnTriggerOpenSOViewer2.addEventHandler(guiController, "openViewer_2");
-		grpAll.addControls(btnTriggerOpenSOViewer2);
-		
+				
 		files = new String[] { "btn_normal.png", "btn_normal.png", "btn_normal.png" };
-		btnTriggerNormal = new GImageButton(context, context.contentGUI.marginLeftViewerRight + 50, context.height - 120, files);
+		btnTriggerNormal = new GImageButton(context, context.width-168, context.height - 2*buttonsDeltaY, files);
 		btnTriggerNormal.addEventHandler(guiController, "repeat_shutter_click");
 		grpAll.addControls(btnTriggerNormal);
 		
 		files = new String[] { "btn_repeat.png", "btn_repeat.png", "btn_repeat.png" };
-		btnTriggerRepeat = new GImageButton(context, context.contentGUI.marginLeftViewerRight + 50, context.height - 120, files);
+		btnTriggerRepeat = new GImageButton(context, context.width-168, context.height - 2*buttonsDeltaY, files);
 		btnTriggerRepeat.addEventHandler(guiController,"normal_shutter_click1");
 		btnTriggerRepeat.setVisible(false);
 		grpAll.addControls(btnTriggerRepeat);
+	
+		files = new String[] { "btn_trigger_small.png", "btn_trigger_small.png", "btn_trigger_small.png" };
+		btnTrigger = new GImageButton(context, context.width-168, context.height - buttonsDeltaY, files);
+		btnTrigger.addEventHandler(guiController, "trigger_button_click");
+		grpAll.addControls(btnTrigger);
 
-		files = new String[] { "btn_calibrate.png", "btn_calibrate.png", "btn_calibrate.png" };
-		btnTriggerChartColor = new GImageButton(context, context.contentGUI.marginLeftViewerRight - 310, context.height - 120, files);
-		btnTriggerChartColor.addEventHandler(guiController,"calibration_shutter_click");
-		grpAll.addControls(btnTriggerChartColor);
-
-		files = new String[] { "btn_connected.png", "btn_connected.png", "btn_connected.png" };
-		btnConnectedA = new GImageButton(context, context.contentGUI.marginLeftViewerLeft, 0, files);
+		
+	
+		files = new String[] { "btn_connected_narrow.png", "btn_connected_narrow.png", "btn_connected_narrow.png" };
+		btnConnectedA = new GImageButton(context, context.width-158, 40, files);
 		btnConnectedA.addEventHandler(guiController,"camera_A_connect_button_click");
 		grpAll.addControls(btnConnectedA);
 
-		files = new String[] { "btn_connected.png", "btn_connected.png", "btn_connected.png" };
-		btnConnectedB = new GImageButton(context, context.contentGUI.marginLeftViewerRight, 0, files);
+		files = new String[] { "btn_connected_narrow.png", "btn_connected_narrow.png", "btn_connected_narrow.png" };
+		btnConnectedB = new GImageButton(context, context.width-88, 40, files);
 		btnConnectedB.addEventHandler(guiController,"camera_B_connect_button_click");
 		grpAll.addControls(btnConnectedB);
+
+		
+		files = new String[] { "btn_viewer.png", "btn_viewer.png", "btn_viewer.png" };
+		btnTriggerOpenSOViewer1 = new GImageButton(context, context.contentGUI.marginLeftViewer, 5,90,90,files);
+		btnTriggerOpenSOViewer1.addEventHandler(guiController, "openViewer_1");
+		grpAll.addControls(btnTriggerOpenSOViewer1);
+		
+		files = new String[] { "btn_viewer.png", "btn_viewer.png", "btn_viewer.png" };
+		btnTriggerOpenSOViewer2 = new GImageButton(context, context.contentGUI.marginRightViewer, 5,90,90,files);
+		btnTriggerOpenSOViewer2.addEventHandler(guiController, "openViewer_2");
+		grpAll.addControls(btnTriggerOpenSOViewer2);
+		
+		
+		
 		
 		files = new String[] { "btn_edit.png", "btn_edit.png", "btn_edit.png" };
-		btnEdit = new GImageButton(context, 148 +30,70, files);
+		btnEdit = new GImageButton(context, 148 +30,40, files);
 		btnEdit.addEventHandler(guiController,"edit_click");
 		grpAll.addControls(btnEdit);
 		
 		files = new String[] { "btn_close.png", "btn_close.png", "btn_close.png" };
-		btnClose = new GImageButton(context, -15 + 30,70, files);
+		btnClose = new GImageButton(context, -15 + 30,40, files);
 		btnClose.addEventHandler(guiController,"close_click");
 		grpAll.addControls(btnClose);
 		
 		files = new String[] { "btn_first_page.png", "btn_first_page.png", "btn_first_page.png" };
-		btnFirstPage = new GImageButton(context,-2 +30,1010, files);
+		btnFirstPage = new GImageButton(context,-2 +30,980, files);
 		btnFirstPage.addEventHandler(guiController,"first_page_button_click");
 		grpAll.addControls(btnFirstPage);
 		
 		files = new String[] { "btn_last_page.png", "btn_last_page.png", "btn_last_page.png" };
-		btnLastPage = new GImageButton(context,127+30,1010, files);
+		btnLastPage = new GImageButton(context,127+30,980, files);
 		btnLastPage.addEventHandler(guiController,"last_page_button_click");
 		grpAll.addControls(btnLastPage);
 		

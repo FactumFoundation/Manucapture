@@ -32,7 +32,7 @@ public class ItemsGUI {
 	int overItemColor = 0xff4B4949;
 
 	int itemListViewPortX = 35;
-	int itemListViewPortY = 120;
+	int itemListViewPortY = 90;
 	int itemListViewPortWidth = 285;
 	int itemListViewPortHeight = 900;
 

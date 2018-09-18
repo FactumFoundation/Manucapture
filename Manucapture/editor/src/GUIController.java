@@ -110,7 +110,7 @@ public class GUIController {
 		context.chartStateMachine = 0;
 		context.gui.btnTriggerNormal.setVisible(true);
 		context.gui.btnTriggerRepeat.setVisible(false);
-		context.noZoom();
+		context.contentGUI.noZoom();
 	} // _CODE_:normal_shutter_button:563899:
 
 	public void repeat_shutter_click(GImageButton source, GEvent event) { // _CODE_:repeat_shutter_button:591981:
@@ -119,7 +119,7 @@ public class GUIController {
 		GUI gui = context.gui;
 		context.gui.btnTriggerNormal.setVisible(false);
 		context.gui.btnTriggerRepeat.setVisible(true);
-		context.noZoom();
+		context.contentGUI.noZoom();
 
 	} // _CODE_:repeat_shutter_button:591981:
 
@@ -172,7 +172,7 @@ public class GUIController {
 			context.shutterMode = ManuCapture_v1_1.CALIB_SHUTTER;
 			context.cameraState = ManuCapture_v1_1.STATE_CHART;
 			context.chartStateMachine = 1;
-			context.noZoom();
+			context.contentGUI.noZoom();
 		}
 	} // _CODE_:calibration_shutter_button:835827:
 
@@ -192,7 +192,7 @@ public class GUIController {
 				camera_A_active_button_click(null, null);
 			else
 				camera_A_inactive_button_click(null, null);
-			context.noZoom();
+			context.contentGUI.noZoom();
 		}
 	}
 	
@@ -217,7 +217,7 @@ public class GUIController {
 				camera_B_active_button_click(null, null);
 			else
 				camera_B_inactive_button_click(null, null);
-			context.noZoom();
+			context.contentGUI.noZoom();
 		}
 	}	
 
@@ -246,8 +246,7 @@ public class GUIController {
 			context.loadProject(documentFileName);
 			context.loading = false;
 			normal_shutter_click1(null, null);
-			context.lastPressedL = null;
-			context.lastPressedR = null;
+			context.contentGUI.noZoom();
 		} else {
 			context.loading = false;
 		}
@@ -301,7 +300,7 @@ public class GUIController {
 			} catch (Exception e) {
 				context._println("Couldn't create raw directory permisions");
 			}
-			context.noZoom();
+			context.contentGUI.noZoom();
 		}
 	}
 	
@@ -313,7 +312,7 @@ public class GUIController {
 			} catch (Exception e) {
 				context._println("Couldn't create raw directory permisions");
 			}
-			context.noZoom();
+			context.contentGUI.noZoom();
 		}
 	}
 

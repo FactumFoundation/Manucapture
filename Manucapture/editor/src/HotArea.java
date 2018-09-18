@@ -57,8 +57,6 @@ public class HotArea {
 
 	public void draw(PGraphics canvas, PVector pos) {
 
-//		realPos.x = canvas.screenX(pos.x, pos.y);
-//		realPos.y = canvas.screenY(pos.x, pos.y);
 		canvas.noFill();
 		canvas.ellipse(pos.x, pos.y, threshold, threshold);
 		canvas.line(pos.x-threshold/2, pos.y,pos.x+threshold/2, pos.y);

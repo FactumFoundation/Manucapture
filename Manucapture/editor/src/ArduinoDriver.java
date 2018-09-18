@@ -115,7 +115,24 @@ public class ArduinoDriver extends PApplet {
 		}
 		// myPort.write('R');
 	}
-
+	
+	public void keyPressed() {
+		if(key=='p') {
+			myPort.write('P'); //  
+		} else if(key=='r') {
+			myPort.write('R'); // Release
+		} else if(key=='w') { 
+			myPort.write('W'); // Release and shutter
+		} else if(key=='s') {
+			myPort.write('S'); // Click camera
+		}  else if(key=='y') { 
+			myPort.write('Y'); // Release and shutter
+		} else if(key=='z') {
+			myPort.write('Z'); // Click camera
+		} 
+	}
+	
+	
 	/* incoming osc message are forwarded to the oscEvent method. */
 	public void oscEvent(OscMessage theOscMessage) {
 		/*

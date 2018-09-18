@@ -67,9 +67,6 @@ public class G2P5ManucaptureAdapter implements G2P5Listener {
 				mirrorUp = true;
 				PApplet.println("MIRRORRRRRRR UP " + g2p5.id);
 			} 			
-			else {
-				System.out.println("+++++++++++++++++ Mirror Property changed but got event mask " + event.content);
-			}
 			propertyMirrorUpChanged = false;
 			lastMask = event.content.trim();
 		}

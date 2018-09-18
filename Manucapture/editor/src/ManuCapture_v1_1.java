@@ -54,10 +54,7 @@ public class ManuCapture_v1_1 extends PApplet {
 	 * Place, Suite 330, Boston, MA 02111-1307 USA
 	 */
 	
-	G2P5 gphotoA;
-	G2P5 gphotoB;
-	G2P5ManucaptureAdapter gphotoAAdapter;
-	G2P5ManucaptureAdapter gphotoBAdapter;
+
 	
 	GUI gui;
 	GUIController guiController;
@@ -65,20 +62,34 @@ public class ManuCapture_v1_1 extends PApplet {
 	ContentGUI contentGUI;
 	MessageContainer messageContainer;
 
+	String appPath = null;
+	String baseDirectory = "";
 	Project project = null;
-	
-	// max time waitting from send action to camera and receive event
-	static public int MAX_TIME_TO_EVENT = 3000;
-	// max time waitting from send action to camera and receive event
-	static public int MAX_TIME_FOCUSSING = 7000;
-	// max time waitting from send action to camera and receive event
-	static public int MAX_TIME_CAPTURE_MACHINE_STATE = 15000;
-
 	PrintWriter logOutput;
+	
 	OscP5 oscP5;
 	NetAddress viewerLocation;
 
-	String appPath = null;
+	int receivePort = 3334;
+	int sendPort = 3333;
+	int arduinoDriverPort = 13000;
+	boolean arduinoConnected = true;
+	
+	public static int STATE_APP_NO_PROJECT = 0;
+	public static int STATE_APP_PROJECT = 1;
+	public static int STATE_APP_EDITING_PROJECT = 2;
+	private int stateApp = STATE_APP_NO_PROJECT;
+	boolean loading = false;
+
+	// max time waitting from send action to camera and receive event
+	static public int MAX_TIME_TO_EVENT = 3000;
+	// max time waitting from send action to camera and receive event
+	static public int MAX_TIME_CAPTURE_MACHINE_STATE = 5000;
+	
+	G2P5 gphotoA;
+	G2P5 gphotoB;
+	G2P5ManucaptureAdapter gphotoAAdapter;
+	G2P5ManucaptureAdapter gphotoBAdapter;
 
 	int rotationA = 270;
 	int rotationB = 90;
@@ -106,25 +117,16 @@ public class ManuCapture_v1_1 extends PApplet {
 	public static int CAMERAS_FOCUSSING = 1;
 	public static int CAMERAS_MIRROR_UP = 2;
 	public static int CAMERAS_PROCESSING = 3;
-
-	int captureState = CAMERAS_INACTIVE;
-	int counterEvent = 0;
+	public static int CAMERAS_RECOVERING = 4;
+	private int captureState = CAMERAS_IDLE;
 
 	long lastCaptureMillis = 0;
 
 	public boolean ignoreNextPhotoA = false;
 	public boolean ignoreNextPhotoB = false;
 
-	long lastCameraAAction = 0;
-	long lastCameraBAction = 0;
-
-	int receivePort = 3334;
-	int sendPort = 3333;
-	int arduinoDriverPort = 13000;
-
-	String baseDirectory = "";
-
-	boolean initSelectedItem = false;
+	long lastCameraAAction = -1;
+	long lastCameraBAction = -1;
 
 	int shutterMode = 0;
 	static int NORMAL_SHUTTER = 0;
@@ -133,34 +135,22 @@ public class ManuCapture_v1_1 extends PApplet {
 
 	int backgroundColor = 0xff000C12;
 
-	PVector lastPressedR = null;
-	PVector lastPressedL = null;
-
 	int liveViewActive = -1;
 
 	boolean mock = false;
 
+	// *********************
+	boolean initSelectedItem = false;
+	
 	// Chart identification
 	public static int STATE_CAPTURING = 0;
 	public static int STATE_CHART = 1;
 	int cameraState = STATE_CAPTURING;
 
 	int chartStateMachine = 0;
-	// *********************
-
 	boolean cropMode = false;
 
-	int guideHeight_1 = 200;
-	int guideHeight_2 = 600;
-
-	public static int STATE_APP_NO_PROJECT = 0;
-	public static int STATE_APP_PROJECT = 1;
-	public static int STATE_APP_EDITING_PROJECT = 2;
-	private int stateApp = STATE_APP_NO_PROJECT;
-	boolean loading = false;
-	boolean arduinoConnected = true;
-
-
+	
 	public void setup() {
 
 		System.setOut(new TracingPrintStream(System.out));
@@ -210,7 +200,6 @@ public class ManuCapture_v1_1 extends PApplet {
 			gphotoAAdapter.setTargetFile(project.projectDirectory + "/raw", project.projectCode);
 			gphotoBAdapter.setTargetFile(project.projectDirectory + "/raw", project.projectCode);
 		}
-		captureState = CAMERAS_IDLE;
 
 		// Init GUI
 		// Main window position
@@ -234,8 +223,6 @@ public class ManuCapture_v1_1 extends PApplet {
 		frameRate(25);
 	}
 	
-	
-
 	public void post() {
 		if (frameCount < 10) {
 			background(backgroundColor);
@@ -244,11 +231,14 @@ public class ManuCapture_v1_1 extends PApplet {
 	}
 
 	public void newPhotoEvent(G2P5Event event, String ic) {
+
+		println("New photo Event!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!", event.content);
+		
 		if (project.projectName == null || project.projectName.equals("")) {
 			handleMessageDialog("Error", "Can't capture photos without project name", G4P.ERROR);
 			return;
 		}
-		println("New photo Event!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!", event.content);
+
 		if (event.g2p5 == gphotoA) {
 			if (ignoreNextPhotoA) {
 				println("Ignoring A");
@@ -271,6 +261,8 @@ public class ManuCapture_v1_1 extends PApplet {
 			}
 		}
 
+		// Adding new Item!! Here
+		
 		if ((gphotoA.isConnected() && gphotoB.isConnected()
 				&& (!newImagePathA.equals("") && !newImagePathB.equals("")))
 				// this allows use only one camera if the other is inactive
@@ -279,12 +271,6 @@ public class ManuCapture_v1_1 extends PApplet {
 				// this allows use only one camera if the other is inactive
 				|| (!gphotoA.isConnected() && gphotoB.isConnected()
 						&& !newImagePathB.equals(""))) {
-			// if(captureState ==
-			// ManuCaptureCAMERAS_PROCESSING){
-
-			// cameraAProcessingNewPhoto = true;
-			// cameraBProcessingNewPhoto = true;
-			// delay(3000);
 			if (shutterMode == NORMAL_SHUTTER) {
 				doNormalShutter(Item.TYPE_ITEM);
 			} else if (shutterMode == REPEAT_SHUTTER) {
@@ -318,7 +304,6 @@ public class ManuCapture_v1_1 extends PApplet {
 					guiController.normal_shutter_click1(null, null);
 				}
 			}
-			captureState = CAMERAS_IDLE;
 		}
 	}
 
@@ -420,7 +405,7 @@ public class ManuCapture_v1_1 extends PApplet {
 
 	private void drawApp() {
 
-		camerasStateMachineLoop();
+		camerasStateWatchDog();
 
 		if (liveViewActive == 1) {
 			gphotoA.setActive(false);
@@ -499,19 +484,19 @@ public class ManuCapture_v1_1 extends PApplet {
 
 		itemsGUI.drawItemsViewPort();
 		contentGUI.draw();
-
 		stroke(255);
 		textAlign(LEFT);
 		pushStyle();
-		textSize(24);
+		//textSize(24);
+		//fill(255);
+		//text("Project " + project.projectName, 40, 35);
 		fill(255);
-		text("Project " + project.projectName, 40, 35);
 		textSize(18);
-		text("Code " + project.projectCode, 40, 65);
+		text("Project code " + project.projectCode, 40, 30);
+		text("Camera status", width-155, 30);
 		popStyle();
 		textSize(16);
 		fill(255, 0, 0);
-
 		if (liveViewActive == 0) {
 			fill(0, 200);
 			rect(0, 0, width, height);
@@ -520,22 +505,37 @@ public class ManuCapture_v1_1 extends PApplet {
 			text(msg("sw.liveviewenable"), width / 2 - 100, height / 2);
 			liveViewActive++;
 		} 
-
 		if (shutterMode == NORMAL_SHUTTER && gui.btnTriggerRepeat.isVisible()) {
 			gui.btnTriggerRepeat.setVisible(false);
 		}
-
 		if (shutterMode == REPEAT_SHUTTER && gui.btnTriggerNormal.isVisible()) {
 			gui.btnTriggerNormal.setVisible(false);
 		}
+		
+		
+		// datos de cámara
+		if (!gphotoB.isConnected()) {
+			fill(255, 0, 0);
+		} else {
+			fill(0, 255, 0);
+		}
+		ellipse(width-54, 69, 30, 30);
 
+		// datos de cámara
+		if (!gphotoA.isConnected()) {
+			fill(255, 0, 0);
+		} else {
+			fill(0, 255, 0);
+		}
+		ellipse(width-125, 69, 30, 30);
+		
 		// trigger button color
 		if (isAllMirrorsReady()) {
 			fill(0, 255, 0);
 		} else {
 			fill(255, 0, 0);
 		}
-		ellipse(1120, 938, 50, 50);
+		ellipse(width - 88, 962, 50, 50);
 	}
 
 	public void mouseMoved() {
@@ -583,17 +583,14 @@ public class ManuCapture_v1_1 extends PApplet {
 		Item newItem = initNewItem(type, newPageNum);
 		newItem.saveMetadata();
 		newItem.loadThumbnails();
-
 		project.addItem(project.selectedItemIndex + 1, newItem);
 		clearPaths();
 	}
 
 	private Item initNewItem(String type, float newPageNum) {
-
 		if (project.projectDirectory.equals("")) {
 			clearPaths();
 		}
-
 		String relNewImagePathA = "";
 		if (!newImagePathA.equals("")) {
 			relNewImagePathA = newImagePathA.substring(project.projectDirectory.length());
@@ -601,16 +598,13 @@ public class ManuCapture_v1_1 extends PApplet {
 		String relNewImagePathB = "";
 		if (!newImagePathB.equals(""))
 			relNewImagePathB = newImagePathB.substring(project.projectDirectory.length());
-
 		// TODO here we decide what is in the left and the right
 		Item newItem = new Item(this, relNewImagePathA, relNewImagePathB, newPageNum, "", type);
 		return newItem;
 	}
 
 	public void loadLastSessionData() {
-
 		guiController.normal_shutter_click1(null, null);
-
 		String value;
 		try {
 			XML lastSessionData = loadXML("lastSession.xml");
@@ -637,7 +631,7 @@ public class ManuCapture_v1_1 extends PApplet {
 
 			loading = false;
 
-			noZoom();
+			contentGUI.noZoom();
 
 			if (project.items.isEmpty()) {
 				contentGUI.initCropHotAreas();
@@ -741,7 +735,7 @@ public class ManuCapture_v1_1 extends PApplet {
 
 		gphotoAAdapter.setTargetFile(project.projectDirectory + "/raw", project.projectCode);
 		gphotoBAdapter.setTargetFile(project.projectDirectory + "/raw", project.projectCode);
-		captureState = CAMERAS_IDLE;
+		setCaptureState(CAMERAS_IDLE);
 
 		saveLastSessionData();
 		gui.project_info.setText("PROJECT INFO " + project.projectFilePath);
@@ -754,27 +748,22 @@ public class ManuCapture_v1_1 extends PApplet {
 		if (project.rotationA != rotationA) {
 			errors += msg("sw.rotationAChanged") + project.rotationA + "->" + rotationA + "\n";
 		}
-
 		if (project.rotationB != rotationB) {
 			errors += msg("sw.rotationBChanged") + project.rotationB + "->" + rotationB + "\n";
 		}
-
 		if (!project.serialA.equals(serialCameraA)) {
 			errors += msg("sw.serialAChanged") + project.serialA + "->" + serialCameraA + "\n";
 		}
-
 		if (!project.serialB.equals(serialCameraB)) {
 			errors += msg("sw.serialBChanged") + project.serialB + "->" + serialCameraB + "\n";
 		}
-
 		if (!errors.equals("")) {
 			G4P.showMessage(this, errors, "", G4P.WARNING);
 		}
-
 		initSelectedItem = true;
 		gphotoAAdapter.setTargetFile(project.projectDirectory + "/raw", project.projectCode);
 		gphotoBAdapter.setTargetFile(project.projectDirectory + "/raw", project.projectCode);
-		captureState = CAMERAS_IDLE;
+		setCaptureState(CAMERAS_IDLE);
 		G2P5Manager.setImageCount(project.items.size());
 		project.forceSelectedItem(project.items.size(), false);
 		if (project.items.isEmpty()) {
@@ -783,7 +772,6 @@ public class ManuCapture_v1_1 extends PApplet {
 		saveLastSessionData();
 		project.removeUnusedImages();
 		setStateApp(STATE_APP_PROJECT);
-		
 	}
 
 	public String homeDirectory() {
@@ -791,11 +779,6 @@ public class ManuCapture_v1_1 extends PApplet {
 		return pathApp;
 	}
 
-	public void noZoom() {
-		lastPressedL = null;
-		lastPressedR = null;
-	}
-	
 	public void settings() {
 		size(1920, 1080, P2D);
 	}
@@ -997,103 +980,104 @@ public class ManuCapture_v1_1 extends PApplet {
 
 	public void capture() {
 		// Init capture secuence
-		if (captureState == CAMERAS_IDLE) {
+		if (getCaptureState() == CAMERAS_IDLE) {
 			if (gphotoA.isConnected() && gphotoB.isConnected()) {
-				captureState = CAMERAS_FOCUSSING;
-				pressCameras();
-				lastCaptureMillis = millis();
+				setCaptureState(CAMERAS_FOCUSSING);
 			} else {
 				G4P.showMessage(this, messageContainer.getText("sw.notconnected"), "", G4P.WARNING);
 			}
 		} else {
-			if (captureState == CAMERAS_INACTIVE) {
+			if (getCaptureState() == CAMERAS_INACTIVE) {
 				G4P.showMessage(this, messageContainer.getText("sw.notready"), "", G4P.WARNING);
 			}
 		}
 	}
 
-	public void processCamerasEvent(G2P5Event event) {
-	}
+	public void camerasStateWatchDog() {
 
-	public void camerasStateMachineLoop() {
-		boolean failedA = false;
-		boolean failedB = false;
-		if (lastCameraAAction > 0 && gphotoAAdapter.lastEventMillis > lastCameraAAction + MAX_TIME_TO_EVENT) {
-			// // we have a failing state, pulse lost
-			// resetCamerasFailingB();
-			// ignoreNextPhotoA = true;
-			 lastCameraAAction = -1;
-			failedA = true;
-			println("FAILED A");
+		// Check response of individual cameras 
+		/*if (lastCameraAAction > 0 && gphotoAAdapter.lastEventMillis > lastCameraAAction + MAX_TIME_TO_EVENT) {
+			println("Camera A not responding to actions");
+			G4P.showMessage(this, messageContainer.getText("sw.noeventA"), "", G4P.WARNING);
+			lastCameraAAction = -1;
 		}
 		//
 		if (lastCameraBAction > 0 && gphotoBAdapter.lastEventMillis > lastCameraBAction + MAX_TIME_TO_EVENT) {
-			// // we have a failing state, pulse lost
-			// resetCamerasFailingA();
-			// ignoreNextPhotoB = true;
-			 lastCameraBAction = -1;
-			failedB = true;
-			println("FAILED B");
+			println("Camera B not responding to actions");
+			G4P.showMessage(this, messageContainer.getText("sw.noeventB"), "", G4P.WARNING);
+			lastCameraBAction = -1;
 		}
-		// if we are out from Idle more than a time we break
-		if (captureState != CAMERAS_IDLE && millis() - lastCaptureMillis > MAX_TIME_CAPTURE_MACHINE_STATE) {
-			restoreCamerasStateAfterFailure();
-		}
-		if (captureState == CAMERAS_INACTIVE && gphotoA.active && gphotoB.active) {
-			captureState = CAMERAS_IDLE;
-		} else if (captureState == CAMERAS_FOCUSSING) {
-			// @TODO failedA and failedB
-			if (failedA) {
-				// resetCamerasFailingB();
-				// ignoreNextPhotoA = true;
-				 lastCameraAAction = -1;
-				 restoreCamerasStateAfterFailure();
-				G4P.showMessage(this, messageContainer.getText("sw.noeventA"), "", G4P.WARNING);
-			}
-			if (failedB) {
-				// resetCamerasFailingA();
-				// ignoreNextPhotoB = true;
-				 lastCameraBAction = -1;
-				 restoreCamerasStateAfterFailure();
-				G4P.showMessage(this, messageContainer.getText("sw.noeventB"), "", G4P.WARNING);
-			}
+		*/
+		
+		//Check general timing in Capture State to solve the triggering
+		if (getCaptureState() == CAMERAS_INACTIVE && gphotoA.active && gphotoB.active) {
+			setCaptureState(CAMERAS_IDLE);
+		} 
+		else if (getCaptureState() == CAMERAS_FOCUSSING) {
 			if (gphotoAAdapter.mirrorUp && gphotoBAdapter.mirrorUp) {
-				releaseAndShutterCameras();
-				captureState = CAMERAS_MIRROR_UP;
-				// if (state == CHART) {
-				// }
-			} else {
-				if (millis() - lastCaptureMillis > MAX_TIME_FOCUSSING) {
-					println("Lsa dos cámaras no están dispuestas a poner el mirror en up");
-					restoreCamerasStateAfterFailure();
+				setCaptureState(CAMERAS_MIRROR_UP);
+			} else if(millis() > lastCaptureMillis + MAX_TIME_CAPTURE_MACHINE_STATE) {
+				setCaptureState(CAMERAS_RECOVERING);
+			}
+		} else if (getCaptureState() == CAMERAS_MIRROR_UP) {
+			if (!gphotoAAdapter.mirrorUp && !gphotoBAdapter.mirrorUp) {
+				setCaptureState(CAMERAS_IDLE);
+			}
+		} else if (getCaptureState() == CAMERAS_RECOVERING) {
+			if (!gphotoAAdapter.mirrorUp && !gphotoBAdapter.mirrorUp) {
+				setCaptureState(CAMERAS_IDLE);
+			} else if(millis() > lastCaptureMillis + MAX_TIME_CAPTURE_MACHINE_STATE) {
+				if(gphotoAAdapter.mirrorUp) {
+					clickCameraA();
+					ignoreNextPhotoA = true;
 				}
+				if(gphotoBAdapter.mirrorUp) {
+					clickCameraB();
+					ignoreNextPhotoB = true;
+				}
+				setCaptureState(CAMERAS_IDLE);
 			}
-		} else if (captureState == CAMERAS_MIRROR_UP) {
-			if (!gphotoAAdapter.mirrorUp && !gphotoBAdapter.mirrorUp) {
-				captureState = CAMERAS_PROCESSING;
-			}
-		}
-		else if (captureState == CAMERAS_PROCESSING) {
-			if (!gphotoAAdapter.mirrorUp && !gphotoBAdapter.mirrorUp) {
-				// captureState = CAMERAS_PROCESSING;
-			}
+		} else if(getCaptureState() == CAMERAS_IDLE) {
+			
 		}
 	}
 
+
+	int getCaptureState() {
+		return captureState;
+	}
+
+	void setCaptureState(int captureState) {
+
+		if(captureState == CAMERAS_RECOVERING) {
+			restoreCamerasStateAfterFailure();
+		}
+		if (captureState == CAMERAS_FOCUSSING){
+			pressCameras();
+		}
+		else if(captureState == CAMERAS_MIRROR_UP) {
+			releaseAndShutterCameras();
+		} else if(captureState == CAMERAS_IDLE) {
+
+		}
+		lastCaptureMillis = millis();
+		this.captureState = captureState;
+	}
+
+	
 	private void restoreCamerasStateAfterFailure() {
 		if (!gphotoAAdapter.mirrorUp && !gphotoBAdapter.mirrorUp) {
 			releaseCameras();		
 			G4P.showMessage(this, messageContainer.getText("sw.fails"), "", G4P.WARNING);
 		} else if (!gphotoAAdapter.mirrorUp && gphotoBAdapter.mirrorUp) {
-//			resetCamerasFailingA();
-//			ignoreNextPhotoB = true;
+			clickCameraB();
+			ignoreNextPhotoB = true;
 			G4P.showMessage(this, messageContainer.getText("sw.failsA"), "", G4P.WARNING);
 		} else if (gphotoAAdapter.mirrorUp && !gphotoBAdapter.mirrorUp) {
-//			resetCamerasFailingB();
-//			ignoreNextPhotoA = true;
+			clickCameraA();
+			ignoreNextPhotoA = true;
 			G4P.showMessage(this, messageContainer.getText("sw.failsB"), "", G4P.WARNING);
 		}
-		captureState = CAMERAS_IDLE;
 	}
 
 	public void pressCameras() {
@@ -1133,18 +1117,14 @@ public class ManuCapture_v1_1 extends PApplet {
 		println("Shutter Cameras by OSC");
 	}
 
-	public void resetCamerasFailingA() {
-		// COMMENT THIS BECAUSE CAN ENTER IN LOOP, IF FAIL THIS WE TRY TO RESET
-		// IF NEEDED HERE ADD A COUNTER TO STOP
-		// lastCameraAAction = millis();
+	public void clickCameraB() {
 		OscMessage myMessage = new OscMessage("/shutterAction");
 		myMessage.add('Y');
 		oscP5.send(myMessage, arduinoDriverLocation);
 		println("Reset Camera A failing by OSC");
 	}
 
-	public void resetCamerasFailingB() {
-		// lastCameraBAction = millis();
+	public void clickCameraA() {
 		OscMessage myMessage = new OscMessage("/shutterAction");
 		myMessage.add('Z');
 		oscP5.send(myMessage, arduinoDriverLocation);
@@ -1170,7 +1150,7 @@ public class ManuCapture_v1_1 extends PApplet {
 
 	public void setStateApp(int stateApp) {
 		this.stateApp = stateApp;
-		noZoom();
+		contentGUI.noZoom();
 		if(stateApp == STATE_APP_NO_PROJECT) {
 			gui.grpProject.setVisible(1, false);
 			gui.grpAll.setVisible(1, false);
@@ -1184,6 +1164,7 @@ public class ManuCapture_v1_1 extends PApplet {
 			gui.grpAll.setVisible(1, false);
 		}
 	}
+
 
 	static public void main(String[] passedArgs) {
 
@@ -1215,4 +1196,5 @@ public class ManuCapture_v1_1 extends PApplet {
 			System.out.println("End of programmm");
 		}
 	}
+
 }
