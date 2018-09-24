@@ -6,6 +6,8 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.jogamp.nativewindow.awt.AWTPrintLifecycle.Context;
+
 import processing.core.*;
 
 /**
@@ -43,6 +45,10 @@ public class G2P5 {
 	boolean mock = false;
 
 	boolean ignoreEventProperty = true;
+	
+	String shutterSpeedNormal = "1/30";
+	String shutterSpeedLiveview = "1";
+	
 
 	public G2P5() {
 
@@ -70,6 +76,9 @@ public class G2P5 {
 			thread.interrupt();
 		}
 		this.active = active;
+
+		setNormalConfig();
+		
 		if (port != null) {
 			if (active) {
 				setAction(CAMERA_IDLE);
@@ -333,6 +342,45 @@ public class G2P5 {
 	public String getFilePath() {
 		String fullPath = homeDirectory + "/" + id + ".cr2";
 		return fullPath;
+	}
+	
+	public void setLiveViewConfig() {
+		String commandToRun = "gphoto2 --port " + port + " --set-config-value /main/capturesettings/shutterspeed=0.3";
+		PApplet.println(commandToRun);
+		try {
+			String[] commands = new String[] { "/bin/sh", "-c", commandToRun };
+			Process process = new ProcessBuilder(commands).start();
+			InputStream inputStream = process.getInputStream();
+			BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream), 1);
+			String line;
+			while ((line = bufferedReader.readLine()) != null) {
+				// wait for end of process
+			}
+			inputStream.close();
+			bufferedReader.close();
+		} catch (IOException ioe) {
+			ioe.printStackTrace();
+		}
+	}
+	
+	public void setNormalConfig() {
+		String commandToRun = "gphoto2 --port " + port + " --set-config-value /main/capturesettings/shutterspeed=1/30";
+		PApplet.println(commandToRun);
+		try {
+			String[] commands = new String[] { "/bin/sh", "-c", commandToRun };
+			Process process = new ProcessBuilder(commands).start();
+			InputStream inputStream = process.getInputStream();
+			BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream), 1);
+			String line;
+			while ((line = bufferedReader.readLine()) != null) {
+				// wait for end of process
+				PApplet.println("Normal : " + line);
+			}
+			inputStream.close();
+			bufferedReader.close();
+		} catch (IOException ioe) {
+			ioe.printStackTrace();
+		}
 	}
 
 }

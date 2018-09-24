@@ -221,6 +221,8 @@ public class ManuCapture_v1_1 extends PApplet {
 		registerMethod("post", this);
 		background(backgroundColor);
 		frameRate(25);
+		
+		
 	}
 	
 	public void post() {
@@ -411,6 +413,9 @@ public class ManuCapture_v1_1 extends PApplet {
 			gphotoA.setActive(false);
 			gphotoB.setActive(false);
 			G2P5.killAllGphotoProcess();
+			// SHUTTERSPEED
+			gphotoA.setLiveViewConfig();
+			gphotoB.setLiveViewConfig();
 			String command = appPath + "/GPhotoLiveView/bin/GPhotoLiveViewer_debug";
 			try {
 				Process process = Runtime.getRuntime().exec(command);
@@ -456,6 +461,8 @@ public class ManuCapture_v1_1 extends PApplet {
 
 				gui.btnLiveView.setEnabled(true);
 				gui.btnLiveView.setVisible(true);
+				
+
 			}
 		}
 
@@ -601,6 +608,10 @@ public class ManuCapture_v1_1 extends PApplet {
 		// TODO here we decide what is in the left and the right
 		Item newItem = new Item(this, relNewImagePathA, relNewImagePathB, newPageNum, "", type);
 		return newItem;
+	}
+	
+	public void load_click() { // _CODE_:load_button:841968:
+		guiController.load_click(null,null);
 	}
 
 	public void loadLastSessionData() {
