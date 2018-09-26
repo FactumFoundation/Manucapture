@@ -192,11 +192,11 @@ public class ItemsGUI {
 
 						if ((i != context.project.selectedItemIndex) || (itemsViewTransition != ADDING_ITEM_TRANSITION)) {
 							if (item.mImageLeft.imgThumb != null) {
-								itemsViewPort.image(item.mImageLeft.imgThumb, marginX + item.mImageLeft.imgThumb.width,
+								itemsViewPort.image(item.mImageLeft.imgThumb, marginX,
 										viewPortRelativeHeight);
 							}
 							if (item.mImageRight.imgThumb != null) {
-								itemsViewPort.image(item.mImageRight.imgThumb, marginX, viewPortRelativeHeight);
+								itemsViewPort.image(item.mImageRight.imgThumb, marginX + item.mImageLeft.imgThumb.width, viewPortRelativeHeight);
 							}
 							itemsViewPort.noFill();
 							itemsViewPort.stroke(255);

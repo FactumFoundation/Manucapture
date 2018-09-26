@@ -8,284 +8,126 @@ import processing.event.MouseEvent;
 public class ContentGUI {
 	
 	ManuCapture_v1_1 context;
-	boolean renderRight = true;
-	boolean renderLeft = true;
+	boolean renderRightImage = true;
+	boolean renderLeftImage = true;
 	PVector lastPressedR = null;
 	PVector lastPressedL = null;
-	List<HotArea> pointsLeft = new ArrayList<>();
-	List<HotArea> pointsRight = new ArrayList<>();
-	int marginTopViewer = 40;
-	int marginRightViewer = 1070;
-	int marginLeftViewer = 350;
-
+	List<Guide> guidesLeft = new ArrayList<>();
+	List<Guide> guidesRight = new ArrayList<>();
+	int imageMarginTop = 40;
+	int rightImageMarginLeft = 1070;
+	int leftImageMarginLeft = 350;
 	// size view on screen
 	float ratioAspect = 1f;
-	int wImageViewerSize = (int)(1000*ratioAspect);
-	int hImageViewerSize = (int)(667*ratioAspect);
+	int hImageViewerSize = (int)(1000*ratioAspect);
+	int wImageViewerSize = (int)(667*ratioAspect);
 	// width size of the preview
 	public int viewerWidthResolution = 2000;
 	PImage imgPreviewLeft;
 	PImage imgPreviewRight;
-	HotArea hotAreaSelected = null;
+	Guide GuideSelected = null;
 	PImage lastLeftPreview = null;
 	PImage lastRightPreview = null;
 	PImage cameraIcon;
 	PImage zoomImg = null;
-	float scaleA = 1.0f;
-	float scaleB = 1.0f;
+	float rightImageScale = 1.0f;
+	float leftImageScale = 1.0f;
+	
+	// TODO: calculate base zoom for Canon 5DSR
+	float baseZoom = 2f; // For Canon 700D 5200/1000
 	
 	public ContentGUI(ManuCapture_v1_1 context){
 		this.context = context;
-		// Preview area
-		initCropHotAreas();
+		initCropGuides();
 		cameraIcon = context.loadImage("cameraIcon.png");
 		zoomImg = context.loadImage("zoom.png");
 	}
 	
-	public void initCropHotAreas() {
-		
-		pointsLeft = new ArrayList<>();
-		pointsRight = new ArrayList<>();
-
+	public void initCropGuides() {
+		guidesLeft = new ArrayList<>();
+		guidesRight = new ArrayList<>();
 		int size = 50;
-
-		PVector translatePos1 = new PVector(marginLeftViewer, marginTopViewer);
-		PVector translatePos2 = new PVector(marginRightViewer, marginTopViewer);
-
-		pointsLeft.add(new HotArea(new PVector(size, size), translatePos1, 0, size, "LTL"));
-		pointsLeft.add(new HotArea(new PVector(hImageViewerSize - size, 0 + size), translatePos1, 1, size, "LTR"));
-		pointsLeft.add(new HotArea(new PVector(hImageViewerSize - size, wImageViewerSize - size), translatePos1, 2,
-				size, "LBL"));
-		pointsLeft.add(new HotArea(new PVector(0 + size, wImageViewerSize - size), translatePos1, 3, size, "LBR"));
-
-		pointsRight.add(new HotArea(new PVector(size, size), translatePos2, 0, size, "RTL"));
-		pointsRight.add(new HotArea(new PVector(hImageViewerSize - size, size), translatePos2, 1, size, "RTR"));
-		pointsRight.add(new HotArea(new PVector(hImageViewerSize - size, wImageViewerSize - size), translatePos2, 2,
-				size, "RBL"));
-		pointsRight.add(new HotArea(new PVector(size, wImageViewerSize - size), translatePos2, 3, size, "RBR"));
+		PVector translatePos1 = new PVector(leftImageMarginLeft, imageMarginTop);
+		PVector translatePos2 = new PVector(rightImageMarginLeft, imageMarginTop);
+		guidesLeft.add(new Guide(new PVector(size,0), translatePos1, size, "LL"));
+		guidesLeft.add(new Guide(new PVector(0,size), translatePos1, size, "LT"));
+		guidesLeft.add(new Guide(new PVector(wImageViewerSize-size,0), translatePos1, size, "LR"));
+		guidesLeft.add(new Guide(new PVector(0, hImageViewerSize-size), translatePos1, size, "LB"));
+		guidesRight.add(new Guide(new PVector(size,0), translatePos2, size, "RL"));
+		guidesRight.add(new Guide(new PVector(0,size), translatePos2, size, "RT"));
+		guidesRight.add(new Guide(new PVector(wImageViewerSize-size,0), translatePos2, size, "RR"));
+		guidesRight.add(new Guide(new PVector(0, hImageViewerSize-size), translatePos2, size, "RB"));		
 	}
-
 
 	public void draw() {
-		
-		if (renderRight) {
-			drawRight();
-			renderRight = true;
+		if (renderRightImage) {
+			drawRightImage();
 		}
-		if (renderLeft) {
-			drawLeft();
-			renderLeft = true;
-		}
-		if (hotAreaSelected != null) {
-			context.stroke(255, 0, 0);
-			hotAreaSelected.draw(context.g);
-		}
-		if (lastPressedR == null)
-			for (int i = 1; i <= pointsLeft.size(); i++) {
-				PVector areaPos1 = pointsLeft.get(i - 1).getRealPosition();
-				PVector areaPos2 = pointsLeft.get(i % pointsLeft.size()).getRealPosition();
-				context.stroke(255, 0, 0);
-				context.line(areaPos1.x, areaPos1.y, areaPos2.x, areaPos2.y);
-			}
-		if (lastPressedL == null)
-			for (int i = 1; i <= pointsRight.size(); i++) {
-				PVector areaPos1 = pointsRight.get(i - 1).getRealPosition();
-				PVector areaPos2 = pointsRight.get(i % pointsRight.size()).getRealPosition();
-				context.stroke(255, 0, 0);
-				context.line(areaPos1.x, areaPos1.y, areaPos2.x, areaPos2.y);
-			}
-		if (context.cameraState == context.STATE_CHART) {
-			context.pushMatrix();
-			context.pushStyle();
-			if (context.chartStateMachine == 0) {
-				// textAlign(CENTER);
-				// fill(255, 0, 0, 100);
-				// rect(marginLeftViewerLeft, 0, hImageViewerSize * 2,
-				// wImageViewerSize);
-				// fill(255);
-				// textSize(24);
-				// text("CALIBRATING, PLEASE CAPTURE \n THIS BACKGROUND
-				// \nWITHOUT ANY DOCUMENT", marginLeftViewerRight,
-				// 200);
-			} else if (context.chartStateMachine == 1 || context.chartStateMachine == 2) {
-				context.textAlign(context.CENTER);
-				String msg;
-				if (context.chartStateMachine == 2) {
-					context.translate(marginLeftViewer, 0);
-					msg = context.msg("sw.calibration3");
-				} else {
-					msg = context.msg("sw.calibration1");
-					context.translate(marginRightViewer, 0);
-				}
-				context.fill(255, 0, 0, 100);
-				context.rect(0, marginTopViewer, hImageViewerSize, wImageViewerSize);
-				context.fill(255);
-				context.textSize(24);
-				context.text(msg, hImageViewerSize / 2, 200);
-			} else {
-				context.translate(marginLeftViewer, 0);
-				context.fill(255, 0, 0, 100);
-				context.rect(0, marginTopViewer, hImageViewerSize * 2 + 100, wImageViewerSize);
-				context.textSize(24);
-				context.fill(255, 255, 0);
-				String cad = context.msg("sw.calibration2");
-				context.text(cad, hImageViewerSize / 2 - 1, 200 - 1);
-				context.fill(255);
-				context.text(cad, hImageViewerSize / 2, 200);
-			}
-			context.popStyle();
-			context.popMatrix();
-		}
+		if (renderLeftImage) {
+			drawLeftImage();
+		}		
+		drawCropGuides();
+		drawCalibrationInfo();
+		drawCameraStatusOverlay();
 	}
-	
-	
-	private void drawLeft() {
-
+		
+	private void drawLeftImage() {
 		if (context.project.selectedItem != null && imgPreviewLeft != null) {
 			context.pushStyle();
 			context.pushMatrix();
-			context.translate(marginRightViewer, marginTopViewer);
-			drawImagePreview(imgPreviewLeft, lastPressedL, marginRightViewer, pointsRight,
-					scaleA);
+			context.translate(leftImageMarginLeft, imageMarginTop);
+			drawImagePreview(imgPreviewLeft, lastPressedL, leftImageMarginLeft, leftImageScale);
 			if (lastPressedL != null) {
 				context.tint(255, 200);
 			} else {
 				context.tint(255, 20);
 			}
-			context.image(zoomImg, hImageViewerSize - 70, 20, 50, 50);
-			// pintamos en blending la imagen de calibración para puntos de crop
-			if (context.chartStateMachine == 3 && lastLeftPreview != null) {
-				context.pushStyle();
-				context.tint(255, 125);
-				context.image(lastLeftPreview, 0, 0, hImageViewerSize, wImageViewerSize, 0, 0,
-						lastLeftPreview.width, lastLeftPreview.height);
-				context.popStyle();
-			}
-			showPhotoMetaData();
+			context.image(zoomImg, wImageViewerSize - 70, 20, 50, 50);
+			context.fill(255);
 			context.textSize(18);
-			context.text(context.project.selectedItem.mImageLeft.imagePath, 100, -10);
-			context.popMatrix();
-			context.stroke(255, 0, 0);
-			if (context.chartStateMachine == 3) {
-				context.stroke(context.map(context.sin(100 + context.millis() * 0.01f), -1, 1, 0, 255), 0, 0);
-			}
-			if (lastPressedL == null) {
-				for (HotArea area : pointsRight) {
-					if (context.chartStateMachine == 3 || context.cropMode)
-						area.draw(context.g);
-				}
-			}
+			context.text(context.project.selectedItem.mImageLeft.imagePath, 210, -10);
+			context.popMatrix();			
 			context.popStyle();
 		} else {
 			context.stroke(255);
 			context.fill(50);
-			context.rect(marginRightViewer, marginTopViewer, hImageViewerSize, wImageViewerSize);
+			context.rect(rightImageMarginLeft, imageMarginTop, wImageViewerSize, hImageViewerSize);
 		}
-
-		if (context.getCaptureState() == context.CAMERAS_FOCUSSING
-				|| context.getCaptureState() == context.CAMERAS_MIRROR_UP
-				|| context.getCaptureState() == context.CAMERAS_PROCESSING) {
-			context.pushStyle();
-			context.pushMatrix();
-			context.translate(marginRightViewer, marginTopViewer);
-			context.pushStyle();
-			context.noStroke();
-			int alpha = 150;
-			if (context.getCaptureState() == context.CAMERAS_FOCUSSING) {
-				context.fill(40, alpha);
-			} else if (context.getCaptureState() == context.CAMERAS_MIRROR_UP) {
-				context.fill(120, alpha);
-			} else if (context.getCaptureState() == context.CAMERAS_PROCESSING) {
-				context.fill(0, 50, 0, alpha);
-			}
-			context.rect(0, 0, hImageViewerSize, wImageViewerSize);
-			context.imageMode(context.CENTER);
-			context.image(cameraIcon, hImageViewerSize / 2, wImageViewerSize / 2, 256, 256);
-			context.imageMode(context.CORNER);
-			context.popMatrix();
-			context.popStyle();
-		}
-
 	}
 
-	private void drawRight() {
-		
+	private void drawRightImage() {
 		if (context.project.selectedItem != null && imgPreviewRight != null) {
 			context.pushStyle();
 			context.pushMatrix();
-			context.translate(marginLeftViewer, marginTopViewer);
+			context.translate(rightImageMarginLeft, imageMarginTop);
 			context.imageMode(context.CORNER);
-			drawImagePreview(imgPreviewRight, lastPressedR, marginLeftViewer, pointsLeft,
-					scaleB);
+			drawImagePreview(imgPreviewRight, lastPressedR, rightImageMarginLeft, rightImageScale);
 			if (lastPressedR != null) {
 				context.tint(255, 200);
 			} else {
 				context.tint(255, 20);
 			}
-			context.image(zoomImg, hImageViewerSize - 70, 20, 50, 50);
-			if (context.chartStateMachine == 3 && lastRightPreview != null) {
-				context.pushStyle();
-				context.tint(255, 125);
-				context.image(lastRightPreview, 0, 0, hImageViewerSize, wImageViewerSize, 0, 0,
-						lastRightPreview.width, lastRightPreview.height);
-				context.popStyle();
-			}
-			showPhotoMetaData();
+			context.image(zoomImg, wImageViewerSize - 70, 20, 50, 50);
+			context.fill(255);
 			context.textSize(18);
-			context.text(context.project.selectedItem.mImageRight.imagePath, 100, -10);
-			context.popMatrix();	
-			context.stroke(255, 0, 0);
-			if (context.chartStateMachine == 3) {
-				context.stroke(context.map(context.sin(context.millis() * 0.01f), -1, 1, 0, 255), 0, 0);
-			}
-			if (lastPressedR == null)
-				for (HotArea area : pointsLeft) {
-					if (context.chartStateMachine == 3 || context.cropMode)
-						area.draw(context.g);
-				}
-
+			context.text(context.project.selectedItem.mImageRight.imagePath, 210, -10);
+			context.popMatrix();				
 			context.popStyle();
 		} else {
 			context.stroke(255);
 			context.fill(50);
-			context.rect(marginLeftViewer, marginTopViewer, hImageViewerSize, wImageViewerSize);
-		}
-		if (context.getCaptureState() == context.CAMERAS_FOCUSSING
-				|| context.getCaptureState() == context.CAMERAS_MIRROR_UP
-				|| context.getCaptureState() == context.CAMERAS_PROCESSING) {
-			context.pushStyle();
-			context.pushMatrix();
-			context.translate(marginLeftViewer, marginTopViewer);
-
-			context.noStroke();
-			int alpha = 150;
-			if (context.getCaptureState() == context.CAMERAS_FOCUSSING) {
-				context.fill(40, alpha);
-			} else if (context.getCaptureState() == context.CAMERAS_MIRROR_UP) {
-				context.fill(120, alpha);
-			} else if (context.getCaptureState() == context.CAMERAS_PROCESSING) {
-				context.fill(0, 50, 0, alpha);
-			}
-			context.rect(0, 0, hImageViewerSize, wImageViewerSize);
-			context.imageMode(context.CENTER);
-			context.image(cameraIcon, hImageViewerSize / 2, wImageViewerSize / 2, 256, 256);
-			context.imageMode(context.CORNER);
-
-			context.popMatrix();
-			context.popStyle();
+			context.rect(leftImageMarginLeft, imageMarginTop, wImageViewerSize, hImageViewerSize);
 		}
 	}
 	
-	private void drawImagePreview(PImage imgPreview, PVector lastPressedR, int marginLeftViewer, List<HotArea> areas,
-			float scale) {
-
-		if (lastPressedR != null) {
+	private void drawImagePreview(PImage imgPreview, PVector lastPressed, int marginLeft,float scale) {
+		if (lastPressed != null) {
 			// pimero quiero saber pos en la imagen
-			float imgScale = imgPreview.width / (float) hImageViewerSize;
-			PVector virtualPos = PVector.sub(lastPressedR, new PVector(marginLeftViewer, marginTopViewer));
+			float imgScale = imgPreview.width / (float) wImageViewerSize;
+			PVector virtualPos = PVector.sub(lastPressed, new PVector(marginLeft, imageMarginTop));
 			PVector virtualPosScaled = PVector.mult(virtualPos, imgScale);
-			int portviewSizeX = (int) ((hImageViewerSize) / scale);
-			int portviewSizeY = (int) ((wImageViewerSize) / scale);
+			int portviewSizeX = (int) ((wImageViewerSize) / scale);
+			int portviewSizeY = (int) ((hImageViewerSize) / scale);
 			int portviewStartX = (int) (virtualPosScaled.x - portviewSizeX / 2);
 			int portviewStartY = (int) (virtualPosScaled.y - portviewSizeY / 2);
 			if (portviewStartX + portviewSizeX > imgPreview.width) {
@@ -300,163 +142,399 @@ public class ContentGUI {
 			if (portviewStartY < 0) {
 				portviewStartY = 0;
 			}
-			context.image(imgPreview, 0, 0, hImageViewerSize, wImageViewerSize, portviewStartX,
+			context.image(imgPreview, 0, 0, wImageViewerSize, hImageViewerSize, portviewStartX,
 					portviewStartY, portviewStartX + portviewSizeX, portviewStartY + portviewSizeY);
 		} else {
-
-			context.image(imgPreview, 0, 0, hImageViewerSize, wImageViewerSize, 0, 0, imgPreview.width,
+			context.image(imgPreview, 0, 0, wImageViewerSize, hImageViewerSize, 0, 0, imgPreview.width,
 					imgPreview.height);
 		}
 	}
 	
-	private void showPhotoMetaData() {
-		context.fill(255);
-		context.textSize(24);
-		context.textAlign(context.LEFT);
-		// @TODO add info from the readed image
-		//context.text("ISO: " + context.gphotoAAdapter.exposure, 10, wImageViewerSize - 20);
-		//context.text("exposure: " + context.gphotoAAdapter.exposure, 200, wImageViewerSize - 20);
-		//context.text("f: " + context.gphotoAAdapter.exposure, 450, wImageViewerSize - 20);
+	public void drawCropGuides() {
+		// TODO: Draw guides				
+		if (lastPressedR == null) {
+			for (Guide guide : guidesRight) {
+				if (context.cropMode) {
+					context.stroke(255,150,0);
+				} else {
+					context.stroke(255,0,0);
+				}
+				PVector screenPos = guide.getScreenPosition();
+				if(guide.isHorizontal()) {
+					context.line(screenPos.x, screenPos.y,screenPos.x+wImageViewerSize,screenPos.y);
+				} else {
+					context.line(screenPos.x, screenPos.y,screenPos.x,screenPos.y+hImageViewerSize);
+				}
+			}
+		} else {
+			float imgScale = imgPreviewRight.width / (float) wImageViewerSize;
+			PVector virtualPos = PVector.sub(lastPressedR, new PVector(rightImageMarginLeft, imageMarginTop));
+			PVector virtualPosScaled = PVector.mult(virtualPos, imgScale);
+			float portviewSizeX =  wImageViewerSize / rightImageScale;
+			float portviewSizeY = hImageViewerSize / rightImageScale;
+			float portviewStartX = virtualPosScaled.x - portviewSizeX / 2;
+			float portviewStartY = virtualPosScaled.y - portviewSizeY / 2;
+			if (portviewStartX + portviewSizeX > imgPreviewRight.width) {
+				portviewStartX = imgPreviewRight.width - portviewSizeX;
+			}
+			if (portviewStartY + portviewSizeY > imgPreviewRight.height) {
+				portviewStartY = imgPreviewRight.height - portviewSizeY;
+			}
+			if (portviewStartX < 0) {
+				portviewStartX = 0;
+			}
+			if (portviewStartY < 0) {
+				portviewStartY = 0;
+			}
+			for (Guide guide : guidesRight) {
+				if (context.cropMode) {
+					context.stroke(255,150,0);
+				} else {
+					context.stroke(255,0,0);
+				}
+				if(guide.isHorizontal()) {
+					float screenY = context.map(baseZoom*guide.pos.y,portviewStartY,portviewStartY+portviewSizeY,(float)imageMarginTop,(float)imageMarginTop+hImageViewerSize*rightImageScale);
+					if(screenY >= imageMarginTop && screenY<=imageMarginTop+hImageViewerSize)
+						context.line(rightImageMarginLeft, screenY,rightImageMarginLeft+wImageViewerSize,screenY);
+				} else {
+					float screenX = context.map(baseZoom*guide.pos.x,portviewStartX,portviewStartX+portviewSizeX,(float)rightImageMarginLeft,(float)rightImageMarginLeft+wImageViewerSize*rightImageScale);
+					if(screenX >= rightImageMarginLeft && screenX<=rightImageMarginLeft+wImageViewerSize)
+						context.line(screenX, imageMarginTop,screenX,imageMarginTop+hImageViewerSize);
+				}
+			}
+		}
+		if (lastPressedL == null) {
+			for (Guide guide : guidesLeft) {
+				if (context.cropMode) {
+					context.stroke(255,150,0);
+				} else {
+					context.stroke(255,0,0);
+				}
+				PVector screenPos = guide.getScreenPosition();
+				if(guide.isHorizontal()) {
+					context.line(screenPos.x, screenPos.y,screenPos.x+wImageViewerSize,screenPos.y);
+				} else {
+					context.line(screenPos.x, screenPos.y,screenPos.x,screenPos.y+hImageViewerSize);
+				}
+			}
+		} else {
+			float imgScale = imgPreviewLeft.width / (float) wImageViewerSize;
+			PVector virtualPos = PVector.sub(lastPressedL, new PVector(leftImageMarginLeft, imageMarginTop));
+			PVector virtualPosScaled = PVector.mult(virtualPos, imgScale);
+			int portviewSizeX = (int) ((wImageViewerSize) / leftImageScale);
+			int portviewSizeY = (int) ((hImageViewerSize) / leftImageScale);
+			int portviewStartX = (int) (virtualPosScaled.x - portviewSizeX / 2);
+			int portviewStartY = (int) (virtualPosScaled.y - portviewSizeY / 2);
+			if (portviewStartX + portviewSizeX > imgPreviewLeft.width) {
+				portviewStartX = imgPreviewLeft.width - portviewSizeX;
+			}
+			if (portviewStartY + portviewSizeY > imgPreviewLeft.height) {
+				portviewStartY = imgPreviewLeft.height - portviewSizeY;
+			}
+			if (portviewStartX < 0) {
+				portviewStartX = 0;
+			}
+			if (portviewStartY < 0) {
+				portviewStartY = 0;
+			}
+			for (Guide guide : guidesLeft) {
+				if (context.cropMode) {
+					context.stroke(255,150,0);
+				} else {
+					context.stroke(255,0,0);
+				}
+				if(guide.isHorizontal()) {
+					float screenY = context.map(baseZoom*guide.pos.y,portviewStartY,portviewStartY+portviewSizeY,(float)imageMarginTop,(float)imageMarginTop+hImageViewerSize*leftImageScale);
+					if(screenY >= imageMarginTop && screenY<=imageMarginTop+hImageViewerSize)
+						context.line(leftImageMarginLeft, screenY,leftImageMarginLeft+wImageViewerSize,screenY);
+				} else {
+					float screenX = context.map(baseZoom*guide.pos.x,portviewStartX,portviewStartX+portviewSizeX,(float)leftImageMarginLeft,(float)leftImageMarginLeft+wImageViewerSize*leftImageScale);
+					if(screenX >= leftImageMarginLeft && screenX<=leftImageMarginLeft+wImageViewerSize)
+						context.line(screenX, imageMarginTop,screenX,imageMarginTop+hImageViewerSize);
+				}
+			}
+		}
+		if (GuideSelected != null) {
+			context.stroke(255, 255, 0);
+			PVector screenPos = GuideSelected.getScreenPosition();
+			if(GuideSelected.isHorizontal()) {
+				context.line(screenPos.x, screenPos.y,screenPos.x+wImageViewerSize,screenPos.y);
+			} else {
+				context.line(screenPos.x, screenPos.y,screenPos.x,screenPos.y+hImageViewerSize);
+			}	
+		}
+	}
+	
+	public void drawCalibrationInfo() {
+		if (context.cameraState == context.STATE_CHART) {
+			
+			if (context.chartStateMachine == 0) {
+				// textAlign(CENTER);
+				// fill(255, 0, 0, 100);
+				// rect(marginLeftViewerLeft, 0, hImageViewerSize * 2,
+				// wImageViewerSize);
+				// fill(255);
+				// textSize(24);
+				// text("CALIBRATING, PLEASE CAPTURE \n THIS BACKGROUND
+				// \nWITHOUT ANY DOCUMENT", mrginLeftViewerRight,
+				// 200);
+			} else if (context.chartStateMachine == 1 || context.chartStateMachine == 2) {
+				context.pushMatrix();
+				context.pushStyle();
+				context.textAlign(context.CENTER);
+				String msg;
+				if (context.chartStateMachine == 2) {
+					context.translate(leftImageMarginLeft, imageMarginTop);
+					msg = context.msg("sw.calibration3");
+				} else {
+					msg = context.msg("sw.calibration1");
+					context.translate(rightImageMarginLeft, imageMarginTop);
+				}
+				context.fill(255, 0, 0, 100);
+				context.rect(0, 0, wImageViewerSize, hImageViewerSize);
+				context.fill(255);
+				context.textSize(24);
+				context.text(msg, wImageViewerSize / 2, 50);
+				context.popMatrix();
+				context.popStyle();
+			} else if (context.chartStateMachine == 3) {
+				context.pushStyle();
+				if (lastLeftPreview != null) {
+					context.tint(255, 125);
+					context.image(lastLeftPreview, leftImageMarginLeft, imageMarginTop, wImageViewerSize, hImageViewerSize, 0, 0,
+							lastLeftPreview.width, lastLeftPreview.height);
+				}
+				if (lastRightPreview != null) {
+					context.tint(255, 125);
+					context.image(lastRightPreview, rightImageMarginLeft, imageMarginTop, wImageViewerSize, hImageViewerSize, 0, 0,
+							lastRightPreview.width, lastRightPreview.height);
+				}
+				context.pushMatrix();
+				context.translate(leftImageMarginLeft, 0);
+				context.fill(255, 0, 0, 100);
+				context.rect(0, imageMarginTop, wImageViewerSize * 2 + 100, hImageViewerSize);
+				context.textSize(24);
+				context.textAlign(context.CENTER);
+				context.fill(255, 255, 0);
+				String cad = context.msg("sw.calibration2");
+				context.text(cad, wImageViewerSize / 2 - 1, 200 - 1);
+				context.fill(255);
+				context.text(cad, wImageViewerSize / 2, 200);
+				context.popMatrix();
+				context.popStyle();
+			}
+		//	context.popStyle();
+		//	context.popMatrix();
+		}
 	}
 
+	public void drawCameraStatusOverlay() {
+		if (context.getCaptureState() == context.CAMERAS_FOCUSSING
+				|| context.getCaptureState() == context.CAMERAS_MIRROR_UP
+				|| context.getCaptureState() == context.CAMERAS_PROCESSING) {
+			context.pushStyle();
+			context.noStroke();
+			int alpha = 150;
+			if (context.getCaptureState() == context.CAMERAS_FOCUSSING) {
+				context.fill(40, alpha);
+			} else if (context.getCaptureState() == context.CAMERAS_MIRROR_UP) {
+				context.fill(120, alpha);
+			} else if (context.getCaptureState() == context.CAMERAS_PROCESSING) {
+				context.fill(0, 50, 0, alpha);
+			}
+			context.pushMatrix();
+			context.translate(leftImageMarginLeft, imageMarginTop);
+			context.rect(0, 0, wImageViewerSize, hImageViewerSize);
+			context.imageMode(context.CENTER);
+			context.image(cameraIcon, wImageViewerSize / 2, hImageViewerSize / 2, 256, 256);
+			context.imageMode(context.CORNER);
+			context.popMatrix();
+			context.pushMatrix();
+			context.translate(rightImageMarginLeft, imageMarginTop);
+			context.rect(0, 0, wImageViewerSize, hImageViewerSize);
+			context.imageMode(context.CENTER);
+			context.image(cameraIcon, wImageViewerSize / 2, hImageViewerSize / 2, 256, 256);
+			context.imageMode(context.CORNER);
+			context.popMatrix();
+			context.popStyle();
+		}
+	}
+	
 	public void updateLastPreviews() {
 		lastRightPreview = imgPreviewRight;
 		lastLeftPreview = imgPreviewLeft;
 	}
 	
+	public void startCropMode() {
+		noZoom();
+	}
+	
+	public void exitCropMode() {
+		GuideSelected = null;
+	}
+	
 	public void mouseMoved() {
-		
-		if (hotAreaSelected != null) {
-			if (hotAreaSelected.name.startsWith("L")) {
-				if (isMouseInsideRight())
-					hotAreaSelected.setRealPosition(context.mouseX, context.mouseY);
-			}
-			if (hotAreaSelected.name.startsWith("R")) {
-				if (isMouseInsideLeft())
-					hotAreaSelected.setRealPosition(context.mouseX, context.mouseY);
-			}
-			if (context.project != null && context.project.selectedItem != null) {
-				context.project.selectedItem.mImageLeft.mesh = copyMesh(pointsLeft);
-				context.project.selectedItem.mImageRight.mesh = copyMesh(pointsRight);
-			}
-		}
-
-		if (lastPressedR != null) {
-			updateZoomRight();
-		}
-
-		if (lastPressedL != null) {
-			updateZoomLeft();
-		}
-		
 	}
 	
 	public void mousePressed() {
-		if (hotAreaSelected == null) {
-			if (context.chartStateMachine == 3 || context.cropMode) {
-				for (HotArea area : pointsLeft) {
-					if (area.isInArea(context.mouseX, context.mouseY)) {
-						hotAreaSelected = area;
-						break;
-					}
-				}
-				for (HotArea area : pointsRight) {
-					if (area.isInArea(context.mouseX, context.mouseY)) {
-						hotAreaSelected = area;
-						break;
-					}
-				}
-			}
 
-			if (hotAreaSelected == null) {
-				if ( context.project != null && context.project.selectedItem != null) {
-					if (context.mouseButton == context.LEFT) {
-						if (context.getStateApp()==context.STATE_APP_PROJECT && lastPressedL == null && context.project.selectedItem.mImageLeft != null
-								&& imgPreviewLeft != null) {
-							updateZoomLeft();
-						}
-						if (context.getStateApp()==context.STATE_APP_PROJECT && lastPressedR == null && context.project.selectedItem.mImageRight != null
-								&& imgPreviewRight != null)
-							updateZoomRight();
+		if (context.cropMode) {
+			if(isMouseInsideLeftImage()) {
+				for (Guide guide : guidesLeft) {
+					if (guide.isOver(context.mouseX, context.mouseY)) {
+						GuideSelected = guide;
+						break;
 					}
-					if (context.mouseButton == context.RIGHT) {
-						lastPressedR = null;
-						lastPressedL = null;
+				}	
+			}
+			else if(isMouseInsideRightImage()) {
+				for (Guide guide : guidesRight) {
+					if (guide.isOver(context.mouseX, context.mouseY)) {
+						GuideSelected = guide;
+						break;
 					}
 				}
 			}
-		} else {
-			hotAreaSelected = null;
-			context.project.selectedItem.saveMetadata();
 		}
+		else {
+			if ( context.project != null && context.project.selectedItem != null) {
+				if (context.mouseButton == context.LEFT) {
+					if (context.getStateApp()==context.STATE_APP_PROJECT && lastPressedL == null && context.project.selectedItem.mImageLeft != null
+							&& imgPreviewLeft != null) {
+						initZoomLeft();
+					}
+					if (context.getStateApp()==context.STATE_APP_PROJECT && lastPressedR == null && context.project.selectedItem.mImageRight != null
+							&& imgPreviewRight != null)
+						initZoomRight();
+				}
+				if (context.mouseButton == context.RIGHT) {
+					exitZoomLeft();
+					exitZoomRight();
+				}
+			}
+		}		 
 	}
 	
 	public void mouseDragged() {
-		if (hotAreaSelected != null && context.project.selectedItem != null) {
-			hotAreaSelected.setRealPosition(context.mouseX, context.mouseY);
-			context.project.selectedItem.mImageLeft.mesh = copyMesh(pointsLeft);
-			context.project.selectedItem.mImageRight.mesh = copyMesh(pointsRight);
+		if (GuideSelected != null) {
+			if (GuideSelected.name.startsWith("L")) {
+				if (isMouseInsideLeftImage())
+					GuideSelected.setImagePosition(context.mouseX, context.mouseY);
+			}
+			if (GuideSelected.name.startsWith("R")) {
+				if (isMouseInsideRightImage())
+					GuideSelected.setImagePosition(context.mouseX, context.mouseY);
+			}
+			if (context.project != null && context.project.selectedItem != null) {
+				context.project.selectedItem.mImageLeft.guides = copyGuides(guidesLeft);
+				context.project.selectedItem.mImageRight.guides = copyGuides(guidesRight);
+			}
+		}
+		else if (lastPressedR != null) {
+			updateZoomRight();
+		}
+		else if (lastPressedL != null) {
+			updateZoomLeft();
+		}
+	}
+	
+	public void mouseReleased() {
+		GuideSelected = null;
+		if(context.mouseX > leftImageMarginLeft && context.mouseX < rightImageMarginLeft + wImageViewerSize) {
+			if(context.project != null && context.project.selectedItem != null)
+				context.project.selectedItem.saveMetadata();			
 		}
 	}
 	
 	public void mouseWheel(float count) {
-
-		if (context.mouseX > marginRightViewer && context.mouseX < marginRightViewer + hImageViewerSize) {
-			if (context.mouseY > 20 && context.mouseY < 20 + wImageViewerSize) {
-				scaleA -= count / 10;
-				scaleA = context.max(scaleA, 1);
-				scaleA = context.min(scaleA, 4);
+		if(!context.cropMode) {
+			if (isMouseInsideRightImage()) {
+				rightImageScale -= count / 10;
+				rightImageScale = context.max(rightImageScale, 1);
+				rightImageScale = context.min(rightImageScale, 4);
 			}
-		}
-		if (context.mouseX > 580 && context.mouseX < 580 + hImageViewerSize) {
-			if (context.mouseY > 20 && context.mouseY < 20 + wImageViewerSize) {
-				scaleB -= count / 10;
-				scaleB = context.max(scaleB, 1);
-				scaleB = context.min(scaleB, 4);
+			if (isMouseInsideLeftImage()) {
+				leftImageScale -= count / 10;
+				leftImageScale = context.max(leftImageScale, 1);
+				leftImageScale = context.min(leftImageScale, 4);
 			}
 		}
 	}
 	
-	private boolean isMouseInsideLeft() {
-		if (context.mouseY > marginTopViewer && context.mouseY < context.height - marginTopViewer) {
-			// Estamos en y
-			if (context.mouseX > marginRightViewer && context.mouseX < marginRightViewer + hImageViewerSize) {
+	private boolean isMouseInsideRightImage() {
+		if (context.mouseY > imageMarginTop && context.mouseY < context.height - imageMarginTop) {
+			if (context.mouseX > rightImageMarginLeft && context.mouseX < rightImageMarginLeft + wImageViewerSize) {
 				return true;
 			}
 		}
 		return false;
 	}
 
-	private boolean isMouseInsideRight() {
-		if (context.mouseY > marginTopViewer && context.mouseY < context.height - marginTopViewer) {
-			// Estamos en y
-			if (context.mouseX > marginLeftViewer && context.mouseX < marginLeftViewer + hImageViewerSize) {
-
-				if (context.mouseX > marginRightViewer) {
-
-				} else {
-					return true;
-				}
+	private boolean isMouseInsideLeftImage() {
+		if (context.mouseY > imageMarginTop && context.mouseY < context.height - imageMarginTop) {
+			if (context.mouseX > leftImageMarginLeft && context.mouseX < leftImageMarginLeft + wImageViewerSize) {
+				return true;
 			}
 		}
 		return false;
 	}
 
+	private void initZoomLeft() {
+		if (isMouseInsideLeftImage()) {
+			if(lastPressedL == null)
+				lastPressedL = new PVector(context.mouseX, context.mouseY);
+		}	
+	}
+	
 	private void updateZoomLeft() {
-		if (isMouseInsideLeft() && context.chartStateMachine != 3)
-			lastPressedL = new PVector(context.mouseX, context.mouseY);
+		if (isMouseInsideLeftImage()) {
+			if(lastPressedL != null) {
+				lastPressedL.x += context.mouseX - context.pmouseX;
+				/*
+				if(lastPressedL.x>leftImageMarginLeft+wImageViewerSize) {
+					lastPressedL.x = leftImageMarginLeft+wImageViewerSize;
+				} else if(lastPressedL.x<leftImageMarginLeft) {
+					lastPressedL.x=leftImageMarginLeft;
+				}
+				*/
+				lastPressedL.y += context.mouseY - context.pmouseY;
+			}
+		}	
+	}
+
+	private void exitZoomLeft() {
+		if (isMouseInsideLeftImage()) {
+			lastPressedL = null;
+		}
+	}
+	
+	private void initZoomRight() {
+		if (isMouseInsideRightImage()) {
+			if(lastPressedR == null)
+				lastPressedR = new PVector(context.mouseX, context.mouseY);
+		}	
 	}
 
 	private void updateZoomRight() {
-		if (isMouseInsideRight() && context.chartStateMachine != 3)
-			lastPressedR = new PVector(context.mouseX, context.mouseY);
+		if (isMouseInsideRightImage()) {
+			if(lastPressedR != null) {
+				lastPressedR.x += context.mouseX - context.pmouseX;
+				lastPressedR.y += context.mouseY - context.pmouseY;				
+			}
+		}	
 	}
-
-	public List<HotArea> copyMesh(List<HotArea> mesh) {
-		List<HotArea> temp = new ArrayList<>();
-		for (int i = 0; i < mesh.size(); i++) {
-			HotArea ha = mesh.get(i);
-			temp.add(new HotArea(ha.pos.copy(), ha.translatePos.copy(), ha.id, ha.threshold, ha.name));
+	
+	private void exitZoomRight() {
+		if (isMouseInsideRightImage()) {
+			lastPressedR = null;
+		}
+	}
+	
+	public List<Guide> copyGuides(List<Guide> guides) {
+		List<Guide> temp = new ArrayList<>();
+		for (int i = 0; i < guides.size(); i++) {
+			Guide ha = guides.get(i);
+			temp.add(new Guide(ha.pos.copy(), ha.translatePos.copy(), ha.threshold, ha.name));
 		}
 		return temp;
 	}
@@ -465,5 +543,4 @@ public class ContentGUI {
 		lastPressedL = null;
 		lastPressedR = null;
 	}
-	
 }

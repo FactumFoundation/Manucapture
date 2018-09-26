@@ -86,29 +86,26 @@ public class ManuCapture_v1_1 extends PApplet {
 	// max time waitting from send action to camera and receive event
 	static public int MAX_TIME_CAPTURE_MACHINE_STATE = 5000;
 	
-	G2P5 gphotoA;
-	G2P5 gphotoB;
-	G2P5ManucaptureAdapter gphotoAAdapter;
-	G2P5ManucaptureAdapter gphotoBAdapter;
+	G2P5 gphotoPageRight;
+	G2P5 gphotoPageLeft;
+	G2P5ManucaptureAdapter gphotoPageRightAdapter;
+	G2P5ManucaptureAdapter gphotoPageLeftAdapter;
 
-	int rotationA = 270;
-	int rotationB = 90;
+	int rotationPageRight = 270;
+	int rotationPageLeft = 90;
 
 	// width resolution for viewer
 	boolean cameraAProcessingNewPhoto = false;
 	boolean cameraBProcessingNewPhoto = false;
 
-	String serialCameraA;
-	String serialCameraB;
+	String serialCameraPageRight;
+	String serialCameraPageLeft;
 
-	XML serialXMLA;
-	XML serialXMLB;
+	XML serialXMLCameraPageRight;
+	XML serialXMLCameraPageLeft;
 
-	String newImagePathA = "";
-	String newImagePathB = "";
-
-	String lastImagePathA = "";
-	String lastImagePathB = "";
+	String newPageRightPath = "";
+	String newPageLeftPath = "";
 
 	public NetAddress arduinoDriverLocation;
 
@@ -122,8 +119,8 @@ public class ManuCapture_v1_1 extends PApplet {
 
 	long lastCaptureMillis = 0;
 
-	public boolean ignoreNextPhotoA = false;
-	public boolean ignoreNextPhotoB = false;
+	public boolean ignoreNextPageRight = false;
+	public boolean ignoreNextPageLeft = false;
 
 	long lastCameraAAction = -1;
 	long lastCameraBAction = -1;
@@ -172,33 +169,33 @@ public class ManuCapture_v1_1 extends PApplet {
 		
 		// Cameras
 		XML serialXML = loadXML("cameraSerials.xml");
-		serialCameraA = serialXML.getChild("Camera_A").getContent();
-		serialCameraB = serialXML.getChild("Camera_B").getContent();
-		serialXMLA = serialXML.getChild("Camera_A");
-		serialXMLB = serialXML.getChild("Camera_B");
-		String rotA = serialXML.getChild("Camera_A").getString("rotation");
-		String rotB = serialXML.getChild("Camera_B").getString("rotation");
-		if (rotA != null)
-			rotationA = Integer.parseInt(rotA);
-		if (rotB != null)
-			rotationB = Integer.parseInt(rotB);
-		System.out.println("camera A rotation" + rotA);
-		System.out.println("camera B rotation" + rotB);
+		serialCameraPageRight = serialXML.getChild("Camera_Page_Right").getContent();
+		serialCameraPageLeft = serialXML.getChild("Camera_Page_Left").getContent();
+		serialXMLCameraPageRight = serialXML.getChild("Camera_Page_Right");
+		serialXMLCameraPageLeft = serialXML.getChild("Camera_Page_Left");
+		String rotPageRight = serialXML.getChild("Camera_Page_Right").getString("rotation");
+		String rotPageLeft = serialXML.getChild("Camera_Page_Left").getString("rotation");
+		if (rotPageRight != null)
+			rotationPageRight = Integer.parseInt(rotPageRight);
+		if (rotPageLeft != null)
+			rotationPageLeft = Integer.parseInt(rotPageLeft);
+		System.out.println("rotation of camera for page right " + rotPageRight);
+		System.out.println("rotation of camera for page left " + rotPageLeft);
 		if (mock) {
-			gphotoA = G2P5MockDisk.create(this, serialCameraA, "A");
-			gphotoAAdapter.setTargetFile(homeDirectory(), "test");
-			gphotoB = G2P5MockDisk.create(this, serialCameraB, "B");
-			gphotoBAdapter.setTargetFile(homeDirectory(), "test");
+			gphotoPageRight = G2P5MockDisk.create(this, serialCameraPageRight, "Page_Right");
+			gphotoPageRightAdapter.setTargetFile(homeDirectory(), "test");
+			gphotoPageLeft = G2P5MockDisk.create(this, serialCameraPageLeft, "Page_Left");
+			gphotoPageLeftAdapter.setTargetFile(homeDirectory(), "test");
 		} else {
 			G2P5Manager.init(0);
-			gphotoAAdapter = createG2P5(serialCameraA, "A");
-			gphotoBAdapter = createG2P5(serialCameraB, "B");
-			gphotoA = gphotoAAdapter.g2p5;
-			gphotoB = gphotoBAdapter.g2p5;
-			gphotoA.listener = gphotoAAdapter;
-			gphotoB.listener = gphotoBAdapter;
-			gphotoAAdapter.setTargetFile(project.projectDirectory + "/raw", project.projectCode);
-			gphotoBAdapter.setTargetFile(project.projectDirectory + "/raw", project.projectCode);
+			gphotoPageRightAdapter = createG2P5(serialCameraPageRight, "Page_Right");
+			gphotoPageLeftAdapter = createG2P5(serialCameraPageLeft, "Page_Left");
+			gphotoPageRight = gphotoPageRightAdapter.g2p5;
+			gphotoPageLeft = gphotoPageLeftAdapter.g2p5;
+			gphotoPageRight.listener = gphotoPageRightAdapter;
+			gphotoPageLeft.listener = gphotoPageLeftAdapter;
+			gphotoPageRightAdapter.setTargetFile(project.projectDirectory + "/raw", project.projectCode);
+			gphotoPageLeftAdapter.setTargetFile(project.projectDirectory + "/raw", project.projectCode);
 		}
 
 		// Init GUI
@@ -221,8 +218,6 @@ public class ManuCapture_v1_1 extends PApplet {
 		registerMethod("post", this);
 		background(backgroundColor);
 		frameRate(25);
-		
-		
 	}
 	
 	public void post() {
@@ -241,38 +236,37 @@ public class ManuCapture_v1_1 extends PApplet {
 			return;
 		}
 
-		if (event.g2p5 == gphotoA) {
-			if (ignoreNextPhotoA) {
-				println("Ignoring A");
-				ignoreNextPhotoA = false;
+		if (event.g2p5 == gphotoPageRight) {
+			if (ignoreNextPageRight) {
+				println("Ignoring incoming right page");
+				ignoreNextPageRight = false;
 			} else {
-				gphotoAAdapter.setTargetFile(project.projectDirectory + "/raw", project.projectCode);
-				gphotoAAdapter.setFullTargetPath(ic);
-				moveFile(event.content, gphotoAAdapter.getFullTargetPath());
-				newImagePathA = gphotoAAdapter.getFullTargetPath();
+				gphotoPageRightAdapter.setTargetFile(project.projectDirectory + "/raw", project.projectCode);
+				gphotoPageRightAdapter.setFullTargetPath(ic);
+				moveFile(event.content, gphotoPageRightAdapter.getFullTargetPath());
+				newPageRightPath = gphotoPageRightAdapter.getFullTargetPath();
 			}
-		} else if (event.g2p5 == gphotoB) {
-			if (ignoreNextPhotoB) {
-				println("Ignoring B");
-				ignoreNextPhotoB = false;
+		} else if (event.g2p5 == gphotoPageLeft) {
+			if (ignoreNextPageLeft) {
+				println("Ignoring incoming left page");
+				ignoreNextPageLeft = false;
 			} else {
-				gphotoBAdapter.setTargetFile(project.projectDirectory + "/raw", project.projectCode);
-				gphotoBAdapter.setFullTargetPath(ic);
-				moveFile(event.content, gphotoBAdapter.getFullTargetPath());
-				newImagePathB = gphotoBAdapter.getFullTargetPath();
+				gphotoPageLeftAdapter.setTargetFile(project.projectDirectory + "/raw", project.projectCode);
+				gphotoPageLeftAdapter.setFullTargetPath(ic);
+				moveFile(event.content, gphotoPageLeftAdapter.getFullTargetPath());
+				newPageLeftPath = gphotoPageLeftAdapter.getFullTargetPath();
 			}
 		}
 
 		// Adding new Item!! Here
-		
-		if ((gphotoA.isConnected() && gphotoB.isConnected()
-				&& (!newImagePathA.equals("") && !newImagePathB.equals("")))
+		if ((gphotoPageRight.isConnected() && gphotoPageLeft.isConnected()
+				&& (!newPageRightPath.equals("") && !newPageLeftPath.equals("")))
 				// this allows use only one camera if the other is inactive
-				|| (gphotoA.isConnected() && !gphotoB.isConnected()
-						&& !newImagePathA.equals(""))
+				|| (gphotoPageRight.isConnected() && !gphotoPageLeft.isConnected()
+						&& !newPageRightPath.equals(""))
 				// this allows use only one camera if the other is inactive
-				|| (!gphotoA.isConnected() && gphotoB.isConnected()
-						&& !newImagePathB.equals(""))) {
+				|| (!gphotoPageRight.isConnected() && gphotoPageLeft.isConnected()
+						&& !newPageLeftPath.equals(""))) {
 			if (shutterMode == NORMAL_SHUTTER) {
 				doNormalShutter(Item.TYPE_ITEM);
 			} else if (shutterMode == REPEAT_SHUTTER) {
@@ -410,12 +404,12 @@ public class ManuCapture_v1_1 extends PApplet {
 		camerasStateWatchDog();
 
 		if (liveViewActive == 1) {
-			gphotoA.setActive(false);
-			gphotoB.setActive(false);
+			gphotoPageRight.setActive(false);
+			gphotoPageLeft.setActive(false);
 			G2P5.killAllGphotoProcess();
 			// SHUTTERSPEED
-			gphotoA.setLiveViewConfig();
-			gphotoB.setLiveViewConfig();
+			gphotoPageRight.setLiveViewConfig();
+			gphotoPageLeft.setLiveViewConfig();
 			String command = appPath + "/GPhotoLiveView/bin/GPhotoLiveViewer_debug";
 			try {
 				Process process = Runtime.getRuntime().exec(command);
@@ -425,12 +419,12 @@ public class ManuCapture_v1_1 extends PApplet {
 					e.printStackTrace();
 				}
 				OscMessage myMessage = new OscMessage("/cameraPorts");
-				println(gphotoA.getPort(), gphotoB.getPort());
-				if (gphotoA.getPort() == null || gphotoB.getPort() == null) {
+				println(gphotoPageRight.getPort(), gphotoPageLeft.getPort());
+				if (gphotoPageRight.getPort() == null || gphotoPageLeft.getPort() == null) {
 					G4P.showMessage(this, msg("sw.nocamera"), "", G4P.WARNING);
 				} else {
-					myMessage.add(gphotoA.getPort()); /* add an int to the osc message */
-					myMessage.add(gphotoB.getPort()); /* add an int to the osc message */
+					myMessage.add(gphotoPageRight.getPort()); /* add an int to the osc message */
+					myMessage.add(gphotoPageLeft.getPort()); /* add an int to the osc message */
 					oscP5.send(myMessage, viewerLocation);
 					process.waitFor();
 				}
@@ -439,30 +433,23 @@ public class ManuCapture_v1_1 extends PApplet {
 				e.printStackTrace();
 			} finally {
 				G2P5.killAllGphotoProcess();
-
 				try {
 					Thread.sleep(100);
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-
-				if (!gphotoA.isConnected()) {
-					guiController.camera_A_active_button_click(null, null);
+				if (!gphotoPageRight.isConnected()) {
+					guiController.camera_page_right_active_button_click(null, null);
 				}
-				if (!gphotoB.isConnected()) {
-					guiController.camera_B_active_button_click(null, null);
+				if (!gphotoPageLeft.isConnected()) {
+					guiController.camera_page_left_active_button_click(null, null);
 				}
-
-				gphotoAAdapter.setTargetFile(project.projectDirectory + "/raw", project.projectCode);
-				gphotoBAdapter.setTargetFile(project.projectDirectory + "/raw", project.projectCode);
-
+				gphotoPageRightAdapter.setTargetFile(project.projectDirectory + "/raw", project.projectCode);
+				gphotoPageLeftAdapter.setTargetFile(project.projectDirectory + "/raw", project.projectCode);
 				liveViewActive = -1;
-
 				gui.btnLiveView.setEnabled(true);
 				gui.btnLiveView.setVisible(true);
-				
-
 			}
 		}
 
@@ -494,9 +481,6 @@ public class ManuCapture_v1_1 extends PApplet {
 		stroke(255);
 		textAlign(LEFT);
 		pushStyle();
-		//textSize(24);
-		//fill(255);
-		//text("Project " + project.projectName, 40, 35);
 		fill(255);
 		textSize(18);
 		text("Project code " + project.projectCode, 40, 30);
@@ -519,9 +503,8 @@ public class ManuCapture_v1_1 extends PApplet {
 			gui.btnTriggerNormal.setVisible(false);
 		}
 		
-		
 		// datos de cámara
-		if (!gphotoB.isConnected()) {
+		if (!gphotoPageLeft.isConnected()) {
 			fill(255, 0, 0);
 		} else {
 			fill(0, 255, 0);
@@ -529,7 +512,7 @@ public class ManuCapture_v1_1 extends PApplet {
 		ellipse(width-54, 69, 30, 30);
 
 		// datos de cámara
-		if (!gphotoA.isConnected()) {
+		if (!gphotoPageRight.isConnected()) {
 			fill(255, 0, 0);
 		} else {
 			fill(0, 255, 0);
@@ -550,8 +533,13 @@ public class ManuCapture_v1_1 extends PApplet {
 		contentGUI.mouseMoved();
 	}
 
-	public void startCropMode() {
+	public void toggleCropMode() {
 		cropMode = !cropMode;
+		if(!cropMode) {
+			contentGUI.exitCropMode();
+		} else {
+			contentGUI.startCropMode();
+		}
 	}
 
 	public void mousePressed() {
@@ -576,7 +564,7 @@ public class ManuCapture_v1_1 extends PApplet {
 
 	public void mouseReleased() {
 		itemsGUI.mouseReleased();
-		// hotAreaSelected = null;
+		contentGUI.mouseReleased();
 	}
 
 	private void doNormalShutter(String type) {
@@ -586,7 +574,6 @@ public class ManuCapture_v1_1 extends PApplet {
 		} else {
 			newPageNum = (int) project.items.get(project.selectedItemIndex).pagNum + 1;
 		}
-
 		Item newItem = initNewItem(type, newPageNum);
 		newItem.saveMetadata();
 		newItem.loadThumbnails();
@@ -598,19 +585,18 @@ public class ManuCapture_v1_1 extends PApplet {
 		if (project.projectDirectory.equals("")) {
 			clearPaths();
 		}
-		String relNewImagePathA = "";
-		if (!newImagePathA.equals("")) {
-			relNewImagePathA = newImagePathA.substring(project.projectDirectory.length());
+		String relNewPageRightPath = "";
+		if (!newPageRightPath.equals("")) {
+			relNewPageRightPath = newPageRightPath.substring(project.projectDirectory.length());
 		}
-		String relNewImagePathB = "";
-		if (!newImagePathB.equals(""))
-			relNewImagePathB = newImagePathB.substring(project.projectDirectory.length());
-		// TODO here we decide what is in the left and the right
-		Item newItem = new Item(this, relNewImagePathA, relNewImagePathB, newPageNum, "", type);
+		String relNewPageLeftPath = "";
+		if (!newPageLeftPath.equals(""))
+			relNewPageLeftPath = newPageLeftPath.substring(project.projectDirectory.length());
+		Item newItem = new Item(this, relNewPageLeftPath, relNewPageRightPath, newPageNum, "", type);
 		return newItem;
 	}
 	
-	public void load_click() { // _CODE_:load_button:841968:
+	public void load_click() { 
 		guiController.load_click(null,null);
 	}
 
@@ -619,39 +605,27 @@ public class ManuCapture_v1_1 extends PApplet {
 		String value;
 		try {
 			XML lastSessionData = loadXML("lastSession.xml");
-
 			File projectFile = new File(lastSessionData.getChild("Project").getContent());
 			if (projectFile.exists())
 				loadProject(projectFile.getPath());
 			else
 				println("Error loading the project: Project file doesn't exist");
-
 			project.selectedItemIndex = new Integer(lastSessionData.getChild("Current_Item").getContent());
-
-			value = lastSessionData.getChild("Camera_A_Active").getContent();
-			if (value.equals("1") && !gphotoA.isConnected())
-				guiController.camera_A_active_button_click(null, null);
-
-			value = lastSessionData.getChild("Camera_B_Active").getContent();
-			if (value.equals("1") && !gphotoB.isConnected())
-				guiController.camera_B_active_button_click(null, null);
-
+			value = lastSessionData.getChild("Camera_Page_Right_Active").getContent();
+			if (value.equals("1") && !gphotoPageRight.isConnected())
+				guiController.camera_page_right_active_button_click(null, null);
+			value = lastSessionData.getChild("Camera_Page_Left_Active").getContent();
+			if (value.equals("1") && !gphotoPageLeft.isConnected())
+				guiController.camera_page_left_active_button_click(null, null);
 			project.forceSelectedItem(project.selectedItemIndex, false);
-
 			gui.grpAll.setVisible(1, true);
-
 			loading = false;
-
 			contentGUI.noZoom();
-
 			if (project.items.isEmpty()) {
-				contentGUI.initCropHotAreas();
+				contentGUI.initCropGuides();
 			}
-
 		} catch (Exception e) {
 			_println("lastSession.xml not found");
-			// txtLog.insertText("Error reconstructing last session: check the
-			// integrity of your session folder ");
 			e.printStackTrace();
 			G4P.showMessage(this, msg("sw.errorloadingproject"), "", G4P.WARNING);
 			loading = false;
@@ -661,34 +635,27 @@ public class ManuCapture_v1_1 extends PApplet {
 	public void saveLastSessionData() {
 
 		String value;
-
 		XML lastSessionData = new XML("Session");
-
 		XML lastdocumentFileName = new XML("Project");
 		lastdocumentFileName.setContent(project.projectFilePath);
 		lastSessionData.addChild(lastdocumentFileName);
-
 		XML lastCurrentItem = new XML("Current_Item");
 		lastCurrentItem.setContent(String.valueOf(project.selectedItemIndex));
 		lastSessionData.addChild(lastCurrentItem);
-
-		XML lastCameraActiveA = new XML("Camera_A_Active");
-
-		if (gphotoA.isConnected())
+		XML lastCameraPageRightActive = new XML("Camera_Page_Right_Active");
+		if (gphotoPageRight.isConnected())
 			value = "1";
 		else
 			value = "0";
-		lastCameraActiveA.setContent(String.valueOf(value));
-		lastSessionData.addChild(lastCameraActiveA);
-
-		if (gphotoB.isConnected())
+		lastCameraPageRightActive.setContent(String.valueOf(value));
+		lastSessionData.addChild(lastCameraPageRightActive);
+		if (gphotoPageLeft.isConnected())
 			value = "1";
 		else
 			value = "0";
-		XML lastCameraActiveB = new XML("Camera_B_Active");
-		lastCameraActiveB.setContent(String.valueOf(value));
-		lastSessionData.addChild(lastCameraActiveB);
-
+		XML lastCameraPageLeftActive = new XML("Camera_Page_Left_Active");
+		lastCameraPageLeftActive.setContent(String.valueOf(value));
+		lastSessionData.addChild(lastCameraPageLeftActive);
 		saveXML(lastSessionData, "data/lastSession.xml");
 	}
 
@@ -700,18 +667,15 @@ public class ManuCapture_v1_1 extends PApplet {
 	public synchronized void createProject(String projectFolderPath) {
 		if (!project.projectFilePath.equals("")) {
 			project.closeProject();
-			// gui.page_comments_text.setText("");
-			// gui.page_num_text.setText("0");
-
 		}
 		XML projectDataXML = loadXML("project_template.xml");
 		project.loadProjectMetadata(projectDataXML);
 
-		project.rotationA = rotationA;
-		project.rotationB = rotationB;
+		project.rotationPageRight = rotationPageRight;
+		project.rotationPageLeft = rotationPageLeft;
 
-		project.serialA = serialCameraA;
-		project.serialB = serialCameraB;
+		project.serialCameraPageRight = serialCameraPageRight;
+		project.serialCameraPageLeft = serialCameraPageLeft;
 
 		saveXML(projectDataXML, projectFolderPath + "/project.xml");
 
@@ -744,8 +708,8 @@ public class ManuCapture_v1_1 extends PApplet {
 		project.selectedItemIndex = -1;
 		project.thumbnailsLoaded = true;
 
-		gphotoAAdapter.setTargetFile(project.projectDirectory + "/raw", project.projectCode);
-		gphotoBAdapter.setTargetFile(project.projectDirectory + "/raw", project.projectCode);
+		gphotoPageRightAdapter.setTargetFile(project.projectDirectory + "/raw", project.projectCode);
+		gphotoPageLeftAdapter.setTargetFile(project.projectDirectory + "/raw", project.projectCode);
 		setCaptureState(CAMERAS_IDLE);
 
 		saveLastSessionData();
@@ -756,29 +720,29 @@ public class ManuCapture_v1_1 extends PApplet {
 		project.selectedItem = null;
 		project.loadProjectMethod(projectPath);
 		String errors = "";
-		if (project.rotationA != rotationA) {
-			errors += msg("sw.rotationAChanged") + project.rotationA + "->" + rotationA + "\n";
+		if (project.rotationPageRight != rotationPageRight) {
+			errors += msg("sw.rotationAChanged") + project.rotationPageRight + "->" + rotationPageRight + "\n";
 		}
-		if (project.rotationB != rotationB) {
-			errors += msg("sw.rotationBChanged") + project.rotationB + "->" + rotationB + "\n";
+		if (project.rotationPageLeft != rotationPageLeft) {
+			errors += msg("sw.rotationBChanged") + project.rotationPageLeft + "->" + rotationPageLeft + "\n";
 		}
-		if (!project.serialA.equals(serialCameraA)) {
-			errors += msg("sw.serialAChanged") + project.serialA + "->" + serialCameraA + "\n";
+		if (!project.serialCameraPageRight.equals(serialCameraPageRight)) {
+			errors += msg("sw.serialAChanged") + project.serialCameraPageRight + "->" + serialCameraPageRight + "\n";
 		}
-		if (!project.serialB.equals(serialCameraB)) {
-			errors += msg("sw.serialBChanged") + project.serialB + "->" + serialCameraB + "\n";
+		if (!project.serialCameraPageLeft.equals(serialCameraPageLeft)) {
+			errors += msg("sw.serialBChanged") + project.serialCameraPageLeft + "->" + serialCameraPageLeft + "\n";
 		}
 		if (!errors.equals("")) {
 			G4P.showMessage(this, errors, "", G4P.WARNING);
 		}
 		initSelectedItem = true;
-		gphotoAAdapter.setTargetFile(project.projectDirectory + "/raw", project.projectCode);
-		gphotoBAdapter.setTargetFile(project.projectDirectory + "/raw", project.projectCode);
+		gphotoPageRightAdapter.setTargetFile(project.projectDirectory + "/raw", project.projectCode);
+		gphotoPageLeftAdapter.setTargetFile(project.projectDirectory + "/raw", project.projectCode);
 		setCaptureState(CAMERAS_IDLE);
 		G2P5Manager.setImageCount(project.items.size());
 		project.forceSelectedItem(project.items.size(), false);
 		if (project.items.isEmpty()) {
-			contentGUI.initCropHotAreas();
+			contentGUI.initCropGuides();
 		}
 		saveLastSessionData();
 		project.removeUnusedImages();
@@ -829,10 +793,8 @@ public class ManuCapture_v1_1 extends PApplet {
 	}
 
 	public void clearPaths() {
-		lastImagePathA = newImagePathA;
-		lastImagePathB = newImagePathB;
-		newImagePathA = "";
-		newImagePathB = "";
+		newPageRightPath = "";
+		newPageLeftPath = "";
 	}
 
 	public void deleteFile(String targetFilePath) {
@@ -883,25 +845,21 @@ public class ManuCapture_v1_1 extends PApplet {
 				try {
 					iStream.close();
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			if (bReader != null)
 				try {
 					bReader.close();
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 		}
 	}
 
 	public boolean writeExifData(String fullFileName, String documentId, String xResolution, String yResolution) {
-
 		Process pr = null;
 		InputStream in = null;
 		String exifToolError = "";
-
 		try {
 			String command = "exiftool -Xresolution=" + xResolution + " -Yresolution=" + yResolution + " -DocumentName="
 					+ documentId + " -overwrite_original -P  " + fullFileName;
@@ -910,7 +868,6 @@ public class ManuCapture_v1_1 extends PApplet {
 			in = pr.getErrorStream();
 			int data = in.read();
 			while (data != -1) {
-				// do something with data...
 				exifToolError += (char) data;
 				data = in.read();
 			}
@@ -990,9 +947,8 @@ public class ManuCapture_v1_1 extends PApplet {
 	}
 
 	public void capture() {
-		// Init capture secuence
 		if (getCaptureState() == CAMERAS_IDLE) {
-			if (gphotoA.isConnected() && gphotoB.isConnected()) {
+			if (gphotoPageRight.isConnected() && gphotoPageLeft.isConnected()) {
 				setCaptureState(CAMERAS_FOCUSSING);
 			} else {
 				G4P.showMessage(this, messageContainer.getText("sw.notconnected"), "", G4P.WARNING);
@@ -1005,61 +961,44 @@ public class ManuCapture_v1_1 extends PApplet {
 	}
 
 	public void camerasStateWatchDog() {
-
-		// Check response of individual cameras 
-		/*if (lastCameraAAction > 0 && gphotoAAdapter.lastEventMillis > lastCameraAAction + MAX_TIME_TO_EVENT) {
-			println("Camera A not responding to actions");
-			G4P.showMessage(this, messageContainer.getText("sw.noeventA"), "", G4P.WARNING);
-			lastCameraAAction = -1;
-		}
-		//
-		if (lastCameraBAction > 0 && gphotoBAdapter.lastEventMillis > lastCameraBAction + MAX_TIME_TO_EVENT) {
-			println("Camera B not responding to actions");
-			G4P.showMessage(this, messageContainer.getText("sw.noeventB"), "", G4P.WARNING);
-			lastCameraBAction = -1;
-		}
-		*/
-		
+	
 		//Check general timing in Capture State to solve the triggering
-		if (getCaptureState() == CAMERAS_INACTIVE && gphotoA.active && gphotoB.active) {
+		if (getCaptureState() == CAMERAS_INACTIVE && gphotoPageRight.active && gphotoPageLeft.active) {
 			setCaptureState(CAMERAS_IDLE);
 		} 
 		else if (getCaptureState() == CAMERAS_FOCUSSING) {
-			if (gphotoAAdapter.mirrorUp && gphotoBAdapter.mirrorUp) {
+			if (gphotoPageRightAdapter.mirrorUp && gphotoPageLeftAdapter.mirrorUp) {
 				setCaptureState(CAMERAS_MIRROR_UP);
 			} else if(millis() > lastCaptureMillis + MAX_TIME_CAPTURE_MACHINE_STATE) {
 				setCaptureState(CAMERAS_RECOVERING);
 			}
 		} else if (getCaptureState() == CAMERAS_MIRROR_UP) {
-			if (!gphotoAAdapter.mirrorUp && !gphotoBAdapter.mirrorUp) {
+			if (!gphotoPageRightAdapter.mirrorUp && !gphotoPageLeftAdapter.mirrorUp) {
 				setCaptureState(CAMERAS_IDLE);
 			}
 		} else if (getCaptureState() == CAMERAS_RECOVERING) {
-			if (!gphotoAAdapter.mirrorUp && !gphotoBAdapter.mirrorUp) {
+			if (!gphotoPageRightAdapter.mirrorUp && !gphotoPageLeftAdapter.mirrorUp) {
 				setCaptureState(CAMERAS_IDLE);
 			} else if(millis() > lastCaptureMillis + MAX_TIME_CAPTURE_MACHINE_STATE) {
-				if(gphotoAAdapter.mirrorUp) {
+				if(gphotoPageRightAdapter.mirrorUp) {
 					clickCameraA();
-					ignoreNextPhotoA = true;
+					ignoreNextPageRight = true;
 				}
-				if(gphotoBAdapter.mirrorUp) {
+				if(gphotoPageLeftAdapter.mirrorUp) {
 					clickCameraB();
-					ignoreNextPhotoB = true;
+					ignoreNextPageLeft = true;
 				}
 				setCaptureState(CAMERAS_IDLE);
 			}
-		} else if(getCaptureState() == CAMERAS_IDLE) {
-			
+		} else if(getCaptureState() == CAMERAS_IDLE) {		
 		}
 	}
-
 
 	int getCaptureState() {
 		return captureState;
 	}
 
 	void setCaptureState(int captureState) {
-
 		if(captureState == CAMERAS_RECOVERING) {
 			restoreCamerasStateAfterFailure();
 		}
@@ -1075,25 +1014,22 @@ public class ManuCapture_v1_1 extends PApplet {
 		this.captureState = captureState;
 	}
 
-	
 	private void restoreCamerasStateAfterFailure() {
-		if (!gphotoAAdapter.mirrorUp && !gphotoBAdapter.mirrorUp) {
+		if (!gphotoPageRightAdapter.mirrorUp && !gphotoPageLeftAdapter.mirrorUp) {
 			releaseCameras();		
 			G4P.showMessage(this, messageContainer.getText("sw.fails"), "", G4P.WARNING);
-		} else if (!gphotoAAdapter.mirrorUp && gphotoBAdapter.mirrorUp) {
+		} else if (!gphotoPageRightAdapter.mirrorUp && gphotoPageLeftAdapter.mirrorUp) {
 			clickCameraB();
-			ignoreNextPhotoB = true;
+			ignoreNextPageLeft = true;
 			G4P.showMessage(this, messageContainer.getText("sw.failsA"), "", G4P.WARNING);
-		} else if (gphotoAAdapter.mirrorUp && !gphotoBAdapter.mirrorUp) {
+		} else if (gphotoPageRightAdapter.mirrorUp && !gphotoPageLeftAdapter.mirrorUp) {
 			clickCameraA();
-			ignoreNextPhotoA = true;
+			ignoreNextPageRight = true;
 			G4P.showMessage(this, messageContainer.getText("sw.failsB"), "", G4P.WARNING);
 		}
 	}
 
 	public void pressCameras() {
-		lastCameraAAction = millis();
-		lastCameraBAction = millis();
 		println("Press Cameras by OSC");
 		OscMessage myMessage = new OscMessage("/shutterAction");
 		myMessage.add('P');
@@ -1101,8 +1037,6 @@ public class ManuCapture_v1_1 extends PApplet {
 	}
 
 	public void releaseCameras() {
-		lastCameraAAction = millis();
-		lastCameraBAction = millis();
 		println("Release Cameras by OSC");
 		OscMessage myMessage = new OscMessage("/shutterAction");
 		myMessage.add('R');
@@ -1110,8 +1044,6 @@ public class ManuCapture_v1_1 extends PApplet {
 	}
 
 	public void releaseAndShutterCameras() {
-		lastCameraAAction = millis();
-		lastCameraBAction = millis();
 		println("shutter cameras");
 		OscMessage myMessage = new OscMessage("/shutterAction");
 		myMessage.add('W');
@@ -1120,8 +1052,6 @@ public class ManuCapture_v1_1 extends PApplet {
 	}
 
 	public void clickCamera() {
-		lastCameraAAction = millis();
-		lastCameraBAction = millis();
 		OscMessage myMessage = new OscMessage("/shutterAction");
 		myMessage.add('S');
 		oscP5.send(myMessage, arduinoDriverLocation);
@@ -1148,7 +1078,7 @@ public class ManuCapture_v1_1 extends PApplet {
 	}
 
 	public boolean isAllMirrorsReady() {
-		return !gphotoAAdapter.mirrorUp && !gphotoBAdapter.mirrorUp;
+		return !gphotoPageRightAdapter.mirrorUp && !gphotoPageLeftAdapter.mirrorUp;
 	}
 
 	public String msg(String key) {
@@ -1176,13 +1106,9 @@ public class ManuCapture_v1_1 extends PApplet {
 		}
 	}
 
-
 	static public void main(String[] passedArgs) {
-
 		try {
-			String[] appletArgs = new String[] { "ArduinoDriver", "" };// ,
-																		// location
-																		// };
+			String[] appletArgs = new String[] { "ArduinoDriver", "" };
 			if (passedArgs != null) {
 				PApplet.main(concat(appletArgs, passedArgs));
 			} else {
@@ -1192,11 +1118,8 @@ public class ManuCapture_v1_1 extends PApplet {
 			e.printStackTrace();
 			System.out.println("End of programmm");
 		}
-
 		try {
-			String[] appletArgs = new String[] { "ManuCapture_v1_1", "--present" };// ,
-																					// location
-																					// };
+			String[] appletArgs = new String[] { "ManuCapture_v1_1", "--present" };
 			if (passedArgs != null) {
 				PApplet.main(concat(appletArgs, passedArgs));
 			} else {
@@ -1207,5 +1130,4 @@ public class ManuCapture_v1_1 extends PApplet {
 			System.out.println("End of programmm");
 		}
 	}
-
 }

@@ -16,57 +16,39 @@ public class MImage {
 
 	String imagePath;
 	String thumbPath;
-
 	String imagePreview;
-
 	PImage imgThumb;
-
 	ManuCapture_v1_1 context;
-
-	List<HotArea> mesh = new ArrayList<>();
-
+	List<Guide> guides = new ArrayList<>();
 	int thumbMargin = 6;
-
 	int rotation;
-
 	long timestamp = -1;
-
-	String lastLeftImagePath = "";
-	String lastRightImagePath = "";
-
 	G2P5ManucaptureAdapter g2p5Adapter;
 
 	void remove() {
-		// imagePath = "";
-		// thumbPath = "";
 		imgThumb = null;
-		mesh = new ArrayList<>();
+		guides = new ArrayList<>();
 		String pathI = context.project.projectDirectory + "" + imagePath;
 		if (pathI != null && new File(pathI).exists())
 			new File(pathI).delete();
-
 		String pathT = thumbPath;
 		if (pathT != null && new File(pathT).exists())
 			new File(pathT).delete();
-
 		if (getXmpPath() != null && new File(getXmpPath()).exists())
 			new File(getXmpPath()).delete();
-
 		if (imagePreview != null && new File(imagePreview).exists()){
 			boolean deleted = new File(imagePreview).delete();
 		}
-
-		// PReview
 	}
 
-	public List<HotArea> copyMesh(List<HotArea> defaultValue) {
-		if (mesh.isEmpty()) {
+	public List<Guide> copyGuides(List<Guide> defaultValue) {
+		if (guides.isEmpty()) {
 			return defaultValue;
 		} else {
-			List<HotArea> temp = new ArrayList<>();
-			for (int i = 0; i < mesh.size(); i++) {
-				HotArea ha = mesh.get(i);
-				temp.add(new HotArea(ha.pos.copy(), ha.translatePos.copy(), ha.id, ha.threshold, ha.name));
+			List<Guide> temp = new ArrayList<>();
+			for (int i = 0; i < guides.size(); i++) {
+				Guide ha = guides.get(i);
+				temp.add(new Guide(ha.pos.copy(), ha.translatePos.copy(), ha.threshold, ha.name));
 			}
 			return temp;
 		}
@@ -75,7 +57,6 @@ public class MImage {
 	public void loadTumbnail() {
 		if (imagePath != null && !imagePath.equals("")) {
 			File itemImg = new File(context.project.projectDirectory + "/" + imagePath);
-
 			if (itemImg.exists()) {
 				String thumbnailPath = getThumbnailPath(context.project.projectDirectory, itemImg);
 				context.println("itemImage " + thumbnailPath);
@@ -97,7 +78,6 @@ public class MImage {
 	public PImage generateThumbnail(ManuCapture_v1_1 context, File rawImgFile) {
 
 		PApplet parent = context;
-
 		String thumbnailPath = getThumbnailPath(context.project.projectDirectory, rawImgFile);
 		String commandGenerate = "exiftool -b -ThumbnailImage " + rawImgFile.getPath() + " > " + thumbnailPath;
 		parent.println(commandGenerate);
@@ -144,13 +124,7 @@ public class MImage {
 		}
 		parent.delay(100);
 		PImage thumbImg = parent.loadImage(thumbnailPath);
-		// if (rightImg) {
 		thumbImg = thumbImg.get(0, 0, thumbImg.width - thumbMargin, thumbImg.height);
-		// } else {
-		// thumbImg = thumbImg.get(thumbMargin, 0, thumbImg.width - thumbMargin,
-		// thumbImg.height);
-		// }
-
 		context.println("Thumbnail Generated : " + thumbnailPath);
 		return thumbImg;
 	}
@@ -159,39 +133,27 @@ public class MImage {
 	 * Thumbnail processing
 	 * 
 	 */
-
 	public String getThumbnailPath(String projectDirectory, File imageFile) {
 		String rawImgName = FilenameUtils.removeExtension(imageFile.getName());
 		return projectDirectory + "/thumbnails/" + rawImgName + "_thumb.jpg";
 	}
 
-	public PImage loadPreview(String previewFolder, String nextRightImagePath, String resizedImage) {
-
+	public PImage loadPreview(String previewFolder, String rawImagePath, String resizedImage) {
 		PImage img = null;
-		
-		
-		if (!nextRightImagePath.equals("")) {
-
+		if (!rawImagePath.equals("")) {
 			// Clear preview folder
 			context.deleteAllFiles(previewFolder, ".jpg");
-
-			String previewFile = nextRightImagePath.replace(".cr2", ".jpg").replace("/raw/", "/previews/");
+			String previewFile = rawImagePath.replace(".cr2", ".jpg").replace("/raw/", "/previews/");
 			imagePreview = previewFile;
-			
 			if (new File(previewFile).exists()) {
 				img = context.loadImage(previewFile);
-			
-				
 			} else {
-
-				File itemImgRight = new File(nextRightImagePath);
+				File itemImgRight = new File(rawImagePath);
 				String fileName = FilenameUtils.removeExtension(itemImgRight.getName());
 				String previewName = fileName + "-preview3.jpg";
 				String previewFullPath = previewFolder + previewName;
 				String resizedImageFullPath = previewFolder + resizedImage;
-				lastRightImagePath = previewFullPath;
-
-				String command = "exiv2 -ep3 -l " + previewFolder + " " + nextRightImagePath;
+				String command = "exiv2 -ep3 -l " + previewFolder + " " + rawImagePath;
 				System.out.println("comando " + command);
 				try {
 					Process process = Runtime.getRuntime().exec(command);
@@ -199,14 +161,11 @@ public class MImage {
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
-
 				command = context.appPath + "/epeg-master/src/bin/epeg -w " + context.contentGUI.viewerWidthResolution
 						+ " -p -q 100 " + previewFullPath + " " + resizedImageFullPath.replace(".jpg", "-rot.jpg");
-				
 				try {
 					Process process = Runtime.getRuntime().exec(command);
 					InputStream error = process.getErrorStream();
-
 					process.waitFor();
 					String err = "Error:";
 					for (int i = 0; i < error.available(); i++) {
@@ -215,7 +174,6 @@ public class MImage {
 					if (!err.equals("Error:")) {
 						context.println(err+" "+command);
 					}
-
 					command = "convert " + resizedImageFullPath.replace(".jpg", "-rot.jpg") + " -rotate " + rotation
 							+ " " + resizedImageFullPath;
 					System.out.println("comando " + command);
@@ -225,7 +183,6 @@ public class MImage {
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
-
 					command = "cp " + resizedImageFullPath + " " + previewFile;
 					System.out.println("comando " + command);
 					try {
@@ -234,19 +191,11 @@ public class MImage {
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
-
 					System.out.println("end convert, start loadimage");
-
-					// String newPath = previewFullPath.replace(".jpg",
-					// "_IMGP.jpg");
-
-					// Files.move(Paths.get(newPath),
-					// Paths.get(resizedImageFullPath),
-					// StandardCopyOption.REPLACE_EXISTING);
 					img = context.loadImage(resizedImageFullPath);
 					imagePreview = previewFile;
-					context.contentGUI.renderRight = true;
-					System.out.println("end loadimage, FINISH loadRightPreview " + resizedImageFullPath);
+					context.contentGUI.renderRightImage = true;
+					System.out.println("end loadimage, FINISH loadPreview " + resizedImageFullPath);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -256,32 +205,19 @@ public class MImage {
 	}
 
 	public void saveMetadata() {
-
 		if (imagePath == null || imagePath.equals("")) {
 			return;
 		}
-
 		XML projectXML = new XML("xmp");
-
 		XML manu = projectXML.addChild("name");
-		XML mesh = projectXML.addChild("mesh");
-
+		XML crop = projectXML.addChild("crop");
 		String projectFilePath = getXmpPath();
 		manu.setString("filename", imagePath.replaceAll("raw/", ""));
 		manu.setInt("rotation", rotation);
-
-		mesh.setFloat("TLx", this.mesh.get(0).pos.x / context.contentGUI.hImageViewerSize);
-		mesh.setFloat("TLy", this.mesh.get(0).pos.y / context.contentGUI.wImageViewerSize);
-
-		mesh.setFloat("TRx", this.mesh.get(1).pos.x / context.contentGUI.hImageViewerSize);
-		mesh.setFloat("TRy", this.mesh.get(1).pos.y / context.contentGUI.wImageViewerSize);
-
-		mesh.setFloat("BRx", this.mesh.get(2).pos.x / context.contentGUI.hImageViewerSize);
-		mesh.setFloat("BRy", this.mesh.get(2).pos.y / context.contentGUI.wImageViewerSize);
-
-		mesh.setFloat("BLx", this.mesh.get(3).pos.x / context.contentGUI.hImageViewerSize);
-		mesh.setFloat("BLy", this.mesh.get(3).pos.y / context.contentGUI.wImageViewerSize);
-
+		crop.setFloat("left", this.guides.get(0).pos.x / context.contentGUI.wImageViewerSize);
+		crop.setFloat("top", this.guides.get(1).pos.y / context.contentGUI.hImageViewerSize);
+		crop.setFloat("right", this.guides.get(2).pos.x / context.contentGUI.wImageViewerSize);
+		crop.setFloat("bottom", this.guides.get(3).pos.y / context.contentGUI.hImageViewerSize);
 		context.saveXML(projectXML, projectFilePath);
 	}
 
@@ -299,36 +235,20 @@ public class MImage {
 
 	public void loadMetadata() {
 		if (new File(getXmpPath()).exists()) {
-
 			XML projectDataXML = context.loadXML(getXmpPath());
-
-			XML mesh = projectDataXML.getChild("mesh");
-
-			float tlx = mesh.getFloat("TLx") * context.contentGUI.hImageViewerSize;
-			float tly = mesh.getFloat("TLy") * context.contentGUI.wImageViewerSize;
-
-			float trx = mesh.getFloat("TRx") * context.contentGUI.hImageViewerSize;
-			float tryy = mesh.getFloat("TRy") * context.contentGUI.wImageViewerSize;
-
-			float brx = mesh.getFloat("BRx") * context.contentGUI.hImageViewerSize;
-			float bry = mesh.getFloat("BRy") * context.contentGUI.wImageViewerSize;
-
-			float blx = mesh.getFloat("BLx") * context.contentGUI.hImageViewerSize;
-			float bly = mesh.getFloat("BLy") * context.contentGUI.wImageViewerSize;
-
-			this.mesh.get(0).pos.x = tlx;
-			this.mesh.get(0).pos.y = tly;
-
-			this.mesh.get(1).pos.x = trx;
-			this.mesh.get(1).pos.y = tryy;
-
-			this.mesh.get(2).pos.x = brx;
-			this.mesh.get(2).pos.y = bry;
-
-			this.mesh.get(3).pos.x = blx;
-			this.mesh.get(3).pos.y = bly;
-
+			XML crop = projectDataXML.getChild("crop");
+			float left = crop.getFloat("left") * context.contentGUI.wImageViewerSize;
+			float top = crop.getFloat("top") * context.contentGUI.hImageViewerSize;
+			float right = crop.getFloat("right") * context.contentGUI.wImageViewerSize;
+			float bottom = crop.getFloat("bottom") * context.contentGUI.hImageViewerSize;
+			this.guides.get(0).pos.x = left;
+			this.guides.get(0).pos.y = 0;
+			this.guides.get(1).pos.x = 0;
+			this.guides.get(1).pos.y = top;
+			this.guides.get(2).pos.x = right;
+			this.guides.get(2).pos.y = 0;
+			this.guides.get(3).pos.x = 0;
+			this.guides.get(3).pos.y = bottom;
 		}
 	}
-
 }

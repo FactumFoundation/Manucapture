@@ -28,8 +28,8 @@ public class GUI {
 	GImageButton btnTriggerOpenSOViewer2;
 	GImageButton btnTriggerRepeat;
 	GImageButton btnTriggerChartColor;
-	GImageButton btnConnectedA;
-	GImageButton btnConnectedB;
+	GImageButton btnConnectedCameraPageRight;
+	GImageButton btnConnectedCameraPageLeft;
 	GImageButton btnEdit;
 	GImageButton btnClose;
 	GImageButton btnFirstPage;
@@ -98,32 +98,26 @@ public class GUI {
 		btnTrigger.addEventHandler(guiController, "trigger_button_click");
 		grpAll.addControls(btnTrigger);
 
-		
-	
 		files = new String[] { "btn_connected_narrow.png", "btn_connected_narrow.png", "btn_connected_narrow.png" };
-		btnConnectedA = new GImageButton(context, context.width-158, 40, files);
-		btnConnectedA.addEventHandler(guiController,"camera_A_connect_button_click");
-		grpAll.addControls(btnConnectedA);
+		btnConnectedCameraPageRight = new GImageButton(context, context.width-158, 40, files);
+		btnConnectedCameraPageRight.addEventHandler(guiController,"camera_page_right_connect_button_click");
+		grpAll.addControls(btnConnectedCameraPageRight);
 
 		files = new String[] { "btn_connected_narrow.png", "btn_connected_narrow.png", "btn_connected_narrow.png" };
-		btnConnectedB = new GImageButton(context, context.width-88, 40, files);
-		btnConnectedB.addEventHandler(guiController,"camera_B_connect_button_click");
-		grpAll.addControls(btnConnectedB);
-
+		btnConnectedCameraPageLeft = new GImageButton(context, context.width-88, 40, files);
+		btnConnectedCameraPageLeft.addEventHandler(guiController,"camera_page_left_connect_button_click");
+		grpAll.addControls(btnConnectedCameraPageLeft);
 		
 		files = new String[] { "btn_viewer.png", "btn_viewer.png", "btn_viewer.png" };
-		btnTriggerOpenSOViewer1 = new GImageButton(context, context.contentGUI.marginLeftViewer, 5,90,90,files);
+		btnTriggerOpenSOViewer1 = new GImageButton(context, context.contentGUI.leftImageMarginLeft, 5,90,90,files);
 		btnTriggerOpenSOViewer1.addEventHandler(guiController, "openViewer_1");
 		grpAll.addControls(btnTriggerOpenSOViewer1);
 		
 		files = new String[] { "btn_viewer.png", "btn_viewer.png", "btn_viewer.png" };
-		btnTriggerOpenSOViewer2 = new GImageButton(context, context.contentGUI.marginRightViewer, 5,90,90,files);
+		btnTriggerOpenSOViewer2 = new GImageButton(context, context.contentGUI.rightImageMarginLeft, 5,90,90,files);
 		btnTriggerOpenSOViewer2.addEventHandler(guiController, "openViewer_2");
 		grpAll.addControls(btnTriggerOpenSOViewer2);
-		
-		
-		
-		
+				
 		files = new String[] { "btn_edit.png", "btn_edit.png", "btn_edit.png" };
 		btnEdit = new GImageButton(context, 148 +30,40, files);
 		btnEdit.addEventHandler(guiController,"edit_click");
@@ -151,18 +145,14 @@ public class GUI {
 		btnTriggerChartColor.setAlpha(180);
 		btnTriggerNormal.setAlpha(180);
 		btnTriggerRepeat.setAlpha(180);
-		btnConnectedB.setAlpha(180);
-		btnConnectedA.setAlpha(180);
-		
+		btnConnectedCameraPageLeft.setAlpha(180);
+		btnConnectedCameraPageRight.setAlpha(180);
 		
 		Font font = new Font("Verdana", Font.BOLD, 10);
-
 		createProjectControls();
-		
 		G4P.messagesEnabled(false);
 		G4P.setGlobalColorScheme(GCScheme.YELLOW_SCHEME);
 		G4P.setCursor(context.ARROW);
-
 	}
 
 	private void createProjectControls() {
@@ -170,19 +160,14 @@ public class GUI {
 		btnOK = new GButton(context, context.width / 2 - 250, 500, 300, 130);
 		btnOK.setText("OK!");
 		btnOK.addEventHandler(guiController, "close_popup_project");
-
 		int fieldW = 500;
 		int fieldH = 40;
-
 		int labelX = context.width / 3;
 		int labelY = 40;
-
 		int labelW = 200;
 		int labelH = 40;
-
 		int fieldX = labelX + labelW + 10;
 		int fieldY = 140;
-
 		name_text = new GTextField(context, fieldX, 106 + fieldY, fieldW, fieldH, G4P.SCROLLBARS_NONE);
 		name_text.setLocalColorScheme(GCScheme.CYAN_SCHEME);
 		name_text.setOpaque(true);

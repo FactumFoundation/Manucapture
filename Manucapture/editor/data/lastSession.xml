@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Session>
-  <Project>/home/dudito/proyectos/book_scanner/testproject2/project.xml</Project>
-  <Current_Item>4</Current_Item>
-  <Camera_A_Active>0</Camera_A_Active>
-  <Camera_B_Active>0</Camera_B_Active>
+  <Project>/home/factum/NEW_BOOK_20/project.xml</Project>
+  <Current_Item>5</Current_Item>
+  <Camera_Page_Right_Active>1</Camera_Page_Right_Active>
+  <Camera_Page_Left_Active>1</Camera_Page_Left_Active>
 </Session>

@@ -19,76 +19,60 @@ public class GUIController {
 		this.context = context;
 	}
 
-	/*
-	 * ========================================================= ==== WARNING
-	 * === ========================================================= The code in
-	 * this tab has been generated from the GUI form designer and care should be
-	 * taken when editing this file. Only add/edit code inside the event
-	 * handlers i.e. only use lines between the matching comment tags. e.g.
-	 * 
-	 * void myBtnEvents(GButton button) { //_CODE_:button1:12356: // It is safe
-	 * to enter your event code here } //_CODE_:button1:12356:
-	 * 
-	 * Do not rename this tab!
-	 * =========================================================
-	 */
-
-	public void first_page_button_click(GImageButton source, GEvent event) { // _CODE_:first_page_button:431616:
+	public void first_page_button_click(GImageButton source, GEvent event) { 
 		PApplet.println("SHUTTER CONTROL SET NOTMAL MODE");
 		if (context.chartStateMachine != 3) {
 			context.project.forceSelectedItem(0,false);
 			context.itemsGUI.forceSelectedItem(0, false);
 		}
-	} // _CODE_:first_page_button:431616:
+	} 
 
-	public void last_page_button_click(GImageButton source, GEvent event) { // _CODE_:last_page_button:647539:
-//		PApplet.println("button2 - GButton >> GEvent." + event + " @ " + context.millis());
+	public void last_page_button_click(GImageButton source, GEvent event) {
 		if (context.chartStateMachine != 3) {
 			context.project.forceSelectedItem(context.project.items.size()-1,false);
 			context.itemsGUI.forceSelectedItem(context.project.items.size()-1, false);
 		}
-	} // _CODE_:last_page_button:647539:
+	}
 
-	public void name_text_change(GTextField source, GEvent event) { // _CODE_:name_text:702135:
+	public void name_text_change(GTextField source, GEvent event) { 
 		context.project.projectName = source.getText();
 		if (event.toString() == "ENTERED" && !context.project.projectDirectory.equals("")) {
 			context.project.saveProjectXML();
 		}
-	} // _CODE_:name_text:702135:
+	}
 
-	public void code_text_change(GTextField source, GEvent event) { // _CODE_:code_text:779005:
+	public void code_text_change(GTextField source, GEvent event) { 
 		context.project.projectCode = source.getText();
 		if (event.toString() == "ENTERED" && !context.project.projectDirectory.equals("")) {
 			context.project.saveProjectXML();
 		}
-	} // _CODE_:code_text:779005:
+	} 
 
-	public void author_text_change(GTextField source, GEvent event) { // _CODE_:author_text:873016:
+	public void author_text_change(GTextField source, GEvent event) { 
 		context.project.projectAuthor = source.getText();
 		if (event.toString() == "ENTERED" && !context.project.projectDirectory.equals("")) {
 			context.project.saveProjectXML();
 		}
-	} // _CODE_:author_text:873016:
+	} 
 
-	public void project_comments_change(GTextField source, GEvent event) { // _CODE_:project_comments_text:337734:
+	public void project_comments_change(GTextField source, GEvent event) { 
 		context.project.projectComment = source.getText();
 		PApplet.println();
 		if (event.toString() == "ENTERED" && !context.project.projectDirectory.equals("")) {
 			context.project.saveProjectXML();
 		}
+	}
 
-	} // _CODE_:project_comments_text:337734:
-
-	public void page_comments_text_change(GTextField source, GEvent event) { // _CODE_:page_comments_text:397499:
+	public void page_comments_text_change(GTextField source, GEvent event) { 
 		if (context.project.selectedItem != null) {
 			context.project.selectedItem.comment = source.getText();
 		}
 		if (event.toString() == "ENTERED" && !context.project.projectDirectory.equals("")) {
 			context.project.saveProjectXML();
 		}
-	} // _CODE_:page_comments_text:397499:
+	}
 
-	public void page_num_text_change(GTextField source, GEvent event) { // _CODE_:textfield1:363899:
+	public void page_num_text_change(GTextField source, GEvent event) { 
 		if (event.toString() == "ENTERED" && !context.project.projectDirectory.equals("")) {
 			try {
 				float pageNumber = Float.parseFloat(source.getText());
@@ -101,9 +85,9 @@ public class GUIController {
 				PApplet.println("wrong page number");
 			}
 		}
-	} // _CODE_:textfield1:363899:
+	}
 
-	public void normal_shutter_click1(GImageButton source, GEvent event) { // _CODE_:normal_shutter_button:563899:
+	public void normal_shutter_click1(GImageButton source, GEvent event) { 
 		PApplet.println("SHUTTER CONTROL SET NORMAL MODE!!!!!");
 		context.shutterMode = ManuCapture_v1_1.NORMAL_SHUTTER;
 		GUI gui = context.gui;
@@ -111,27 +95,16 @@ public class GUIController {
 		context.gui.btnTriggerNormal.setVisible(true);
 		context.gui.btnTriggerRepeat.setVisible(false);
 		context.contentGUI.noZoom();
-	} // _CODE_:normal_shutter_button:563899:
+	} 
 
-	public void repeat_shutter_click(GImageButton source, GEvent event) { // _CODE_:repeat_shutter_button:591981:
+	public void repeat_shutter_click(GImageButton source, GEvent event) { 
 		PApplet.println("SHUTTER CONTROL SET REPEAT MODE");
 		context.shutterMode = ManuCapture_v1_1.REPEAT_SHUTTER;
 		GUI gui = context.gui;
 		context.gui.btnTriggerNormal.setVisible(false);
 		context.gui.btnTriggerRepeat.setVisible(true);
 		context.contentGUI.noZoom();
-
-	} // _CODE_:repeat_shutter_button:591981:
-
-	// public void subpage_shutter_click(GButton source, GEvent event) { //
-	// _CODE_:subpage_shutter_button:295319:
-	// PApplet.println("SHUTTER CONTROL SET SUBPAGE MODE");
-	// shutterMode = SUBPAGE_SHUTTER;
-	// GUI gui = context.gui;
-	// gui.normal_shutter_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
-	// gui.repeat_shutter_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
-	// gui.calibration_shutter_button.setLocalColorScheme(GCScheme.CYAN_SCHEME);
-	// } // _CODE_:subpage_shutter_button:295319:
+	}
 
 	public void close_popup_project_window(GWindow window) {
 		close_popup_project(null, null);
@@ -159,14 +132,12 @@ public class GUIController {
 			context.gui.grpProject.setVisible(1, false);
 			context.project.saveProjectXML();
 		} else {
-			// showwhat error
 			G4P.showMessage(context, "Missing name or code", "", G4P.WARNING);
 		}
 		PApplet.println("close window edit project data");
 	}
 
-	public void calibration_shutter_click(GImageButton source, GEvent event) { // _CODE_:calibration_shutter_button:835827:
-		// if (state == CAPTURING) {
+	public void calibration_shutter_click(GImageButton source, GEvent event) { 
 		if (context.chartStateMachine != 3) {
 			PApplet.println("SHUTTER CONTROL SET CALIBRATION MODE");
 			context.shutterMode = ManuCapture_v1_1.CALIB_SHUTTER;
@@ -174,9 +145,9 @@ public class GUIController {
 			context.chartStateMachine = 1;
 			context.contentGUI.noZoom();
 		}
-	} // _CODE_:calibration_shutter_button:835827:
+	} 
 
-	public void trigger_button_click(GImageButton source, GEvent event) { // _CODE_:trigger_button:381491:
+	public void trigger_button_click(GImageButton source, GEvent event) { 
 		PApplet.println("SHUTTER TRIGGERED");
 		if (context.isAllMirrorsReady()) {
 			context.capture();
@@ -184,61 +155,59 @@ public class GUIController {
 		} else {
 			G4P.showMessage(context, "Mirrors are not ready", "", G4P.WARNING);
 		}
-	} // _CODE_:trigger_button:381491:
+	}
 
-	public void camera_A_connect_button_click(GImageButton source, GEvent event) {
+	public void camera_page_right_connect_button_click(GImageButton source, GEvent event) {
 		if (context.chartStateMachine != 3) {
-			if (!context.gphotoA.isConnected()) 
-				camera_A_active_button_click(null, null);
+			if (!context.gphotoPageRight.isConnected()) 
+				camera_page_right_active_button_click(null, null);
 			else
-				camera_A_inactive_button_click(null, null);
+				camera_page_right_inactive_button_click(null, null);
 			context.contentGUI.noZoom();
 		}
 	}
 	
-	public void camera_A_active_button_click(GButton source, GEvent event) { // _CODE_:camera_A_active_button:906773:
-		PApplet.println("camera_A_active_button - GButton >> GEvent." + event + " @ " + context.millis());
+	public void camera_page_right_active_button_click(GButton source, GEvent event) { 
 		GUI gui = context.gui;
-		context.gphotoA.setActive(true);
-		if (context.gphotoA.captureRunnable instanceof TetheredMockCaptureRunnable) {
-			context.gphotoA.active = true;
+		context.gphotoPageRight.setActive(true);
+		if (context.gphotoPageRight.captureRunnable instanceof TetheredMockCaptureRunnable) {
+			context.gphotoPageRight.active = true;
 		}
-	} // _CODE_:camera_A_active_button:906773:
+	} 
 
-	public void camera_A_inactive_button_click(GButton source, GEvent event) { // _CODE_:camera_A_inactive_button:493860:
-		PApplet.println("inactive_camera_A_button - GButton >> GEvent." + event + " @ " + context.millis());
+	public void camera_page_right_inactive_button_click(GButton source, GEvent event) { 
 		GUI gui = context.gui;
-		context.gphotoA.setActive(false);
-	} // _CODE_:camera_A_inactive_button:493860:
+		context.gphotoPageRight.setActive(false);
+	} 
 
-	public void camera_B_connect_button_click(GImageButton source, GEvent event) {
+	public void camera_page_left_connect_button_click(GImageButton source, GEvent event) {
 		if (context.chartStateMachine != 3) {
-			if (!context.gphotoB.isConnected()) 
-				camera_B_active_button_click(null, null);
+			if (!context.gphotoPageLeft.isConnected()) 
+				camera_page_left_active_button_click(null, null);
 			else
-				camera_B_inactive_button_click(null, null);
+				camera_page_left_inactive_button_click(null, null);
 			context.contentGUI.noZoom();
 		}
 	}	
 
-	public void camera_B_active_button_click(GButton source, GEvent event) { // _CODE_:camera_B_active_button:640605:
+	public void camera_page_left_active_button_click(GButton source, GEvent event) { 
 		PApplet.println("camera_B_active_button - GButton >> GEvent." + event + " @ " + context.millis());
-		context.gphotoB.setActive(true);
-		if (context.gphotoB.captureRunnable instanceof TetheredMockCaptureRunnable) {
-			context.gphotoB.active = true;
+		context.gphotoPageLeft.setActive(true);
+		if (context.gphotoPageLeft.captureRunnable instanceof TetheredMockCaptureRunnable) {
+			context.gphotoPageLeft.active = true;
 		}
-	} // _CODE_:camera_B_active_button:640605:
+	} 
 
-	public void camera_B_inactive_button_click(GButton source, GEvent event) { // _CODE_:camera_B_inactive_button:780199:
+	public void camera_page_left_inactive_button_click(GButton source, GEvent event) { 
 		PApplet.println("camera_B_inactive_button - GButton >> GEvent." + event + " @ " + context.millis());
-		context.gphotoB.setActive(false);
-	} // _CODE_:camera_B_inactive_button:780199:
+		context.gphotoPageLeft.setActive(false);
+	} 
 
-	public void parameters_click(GButton source, GEvent event) { // _CODE_:parameters_button:465510:
+	public void parameters_click(GButton source, GEvent event) { 
 		PApplet.println("parameters_button - GButton >> GEvent." + event + " @ " + context.millis());
-	} // _CODE_:parameters_button:465510:
+	} 
 
-	public void load_click(GButton source, GEvent event) { // _CODE_:load_button:841968:
+	public void load_click(GButton source, GEvent event) { 
 		String documentFileName = G4P.selectInput("Load XML");
 		if (documentFileName != null) {
 			context.project.selectedItem = null;
@@ -250,46 +219,46 @@ public class GUIController {
 		} else {
 			context.loading = false;
 		}
-	} // _CODE_:load_button:841968:
+	} 
 
-	public void edit_click(GImageButton source, GEvent event) { // _CODE_:load_button:841968:
+	public void edit_click(GImageButton source, GEvent event) { 
 		if (context.chartStateMachine != 3) {
 			context.setStateApp(context.STATE_APP_EDITING_PROJECT);
 		}
-	} // _CODE_:load_button:841968:
+	} 
 
-	public void close_click(GImageButton source, GEvent event) { // _CODE_:load_button:841968:
+	public void close_click(GImageButton source, GEvent event) { 
 		if (context.chartStateMachine != 3) {
 			context.setStateApp(ManuCapture_v1_1.STATE_APP_NO_PROJECT);
 		}
-	} // _CODE_:load_button:841968:
+	} 
 
-	public void new_button_click(GButton source, GEvent event) { // _CODE_:new_button:324180:
+	public void new_button_click(GButton source, GEvent event) { 
 		String projectFolderPath = G4P.selectFolder("Select the project folder for NEW PROJECT");
 		if (projectFolderPath != null) {
-			context.contentGUI.initCropHotAreas();
+			context.contentGUI.initCropGuides();
 			context.project.thumbnailsLoaded = false;
 			context.project.selectedItem = null;
 			context.setStateApp(context.STATE_APP_EDITING_PROJECT);
 			context.createProject(projectFolderPath);
 			calibration_shutter_click(null, null);
 		}
-	} // _CODE_:new_button:324180:
+	} 
 
-	public void page_search_text_change(GTextField source, GEvent event) { // _CODE_:page_search_text:741750:
+	public void page_search_text_change(GTextField source, GEvent event) { 
 		PApplet.println("textfield2 - GTextField >> GEvent." + event + " @ " + context.millis());
-	} // _CODE_:page_search_text:741750:
+	} 
 
-	public void crop_click(GImageButton source, GEvent event) { // _CODE_:export_button:581416:
+	public void crop_click(GImageButton source, GEvent event) {
 		PApplet.println("start crop editing");
-		context.startCropMode();
+		context.toggleCropMode();
 	}
 	
-	public void liveView_button_click(GImageButton source, GEvent event) { // _CODE_:export_button:581416:
+	public void liveView_button_click(GImageButton source, GEvent event) { 
 		context.liveViewActive = 0;
 		context.gui.btnLiveView.setEnabled(false);
 		context.gui.btnLiveView.setVisible(false);
-	} // _CODE_:export_button:581416:
+	} 
 	
 	public void openViewer_1(GImageButton source, GEvent event) {
 		if (context.chartStateMachine != 3) {

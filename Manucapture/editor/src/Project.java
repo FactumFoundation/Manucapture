@@ -31,11 +31,11 @@ public class Project {
 	String uploaded = "";
 	String source;
 
-	String serialA;
-	String serialB;
+	String serialCameraPageRight;
+	String serialCameraPageLeft;
 
-	int rotationA;
-	int rotationB;
+	int rotationPageRight;
+	int rotationPageLeft;
 
 	ArrayList<Item> items = new ArrayList<Item>();
 
@@ -135,11 +135,11 @@ public class Project {
 	public void loadProjectSerials(XML projectDataXML) {
 		XML serialsXML = projectDataXML.getChild("serials");
 		XML a = serialsXML.getChild("A");
-		serialA = a.getContent();
-		serialB = serialsXML.getChild("B").getContent();
+		serialCameraPageRight = a.getContent();
+		serialCameraPageLeft = serialsXML.getChild("B").getContent();
 
-		rotationA = serialsXML.getChild("A").getInt("rotation");
-		rotationB = serialsXML.getChild("B").getInt("rotation");
+		rotationPageRight = serialsXML.getChild("A").getInt("rotation");
+		rotationPageLeft = serialsXML.getChild("B").getInt("rotation");
 	}
 
 	public void loadProjectMetadata(XML projectDataXML) {
@@ -215,13 +215,13 @@ public class Project {
 			XML serialsXML = new XML("serials");
 
 			XML AXML = new XML("A");
-			AXML.setContent(serialA);
-			AXML.setInt("rotation", rotationA);
+			AXML.setContent(serialCameraPageRight);
+			AXML.setInt("rotation", rotationPageRight);
 			serialsXML.addChild(AXML);
 
 			XML BXML = new XML("B");
-			BXML.setContent(serialB);
-			BXML.setInt("rotation", rotationB);
+			BXML.setContent(serialCameraPageLeft);
+			BXML.setInt("rotation", rotationPageLeft);
 			serialsXML.addChild(BXML);
 
 			projectXML.addChild(serialsXML);
@@ -474,13 +474,13 @@ public class Project {
 			
 			// context.gui.page_comments_text.setText(selectedItem.comment);
 			// context.gui.page_num_text.setText(String.valueOf(selectedItem.pagNum));
-			context.gphotoAAdapter.setTargetFile(projectDirectory + "raw", projectCode);
-			context.gphotoBAdapter.setTargetFile(projectDirectory + "raw", projectCode);
+			context.gphotoPageRightAdapter.setTargetFile(projectDirectory + "raw", projectCode);
+			context.gphotoPageLeftAdapter.setTargetFile(projectDirectory + "raw", projectCode);
 
 			selectedItem.loadMetadata();
 
-			context.contentGUI.pointsLeft = selectedItem.mImageLeft.copyMesh(context.contentGUI.pointsLeft);
-			context.contentGUI.pointsRight = selectedItem.mImageRight.copyMesh(context.contentGUI.pointsRight);
+			context.contentGUI.guidesLeft = selectedItem.mImageLeft.copyGuides(context.contentGUI.guidesLeft);
+			context.contentGUI.guidesRight = selectedItem.mImageRight.copyGuides(context.contentGUI.guidesRight);
 		}
 	}
 
@@ -489,9 +489,7 @@ public class Project {
 	public void removeItem(int index) {
 		Item itemToRemove = items.get(index);
 		float pageNum = itemToRemove.pagNum;
-
 		items.remove(index);
-
 		// if (itemToRemove.type.equals("Item")) {
 		if (index < items.size()) {
 			for (int i = index; i < items.size(); i++) {
@@ -515,7 +513,6 @@ public class Project {
 		saveProjectXML();
 		itemToRemove.remove();
 		// removeUnusedImages();
-
 	}
 
 	public void forceSelectedItem(int index, boolean transition) {
@@ -570,32 +567,27 @@ public class Project {
 						items.add(newItem);
 						forceSelectedItem(index, true);
 					}
-
 				}
 			}
-
 			for (int i = index + 1; i < items.size(); i++) {
 				items.get(i).pagNum++;
 			}
-
 			saveProjectXML();
 			context._println("item added");
 		}
 	}
 
+	
 	public void replaceItem(int index, Item newItem) {
 		if (index >= 0 && index < items.size()) {
-
 			// si viene vacío rellenenamos con el item anterior
 			if (newItem.mImageLeft.imagePath.equals("")) {
-
 				newItem.mImageLeft.imagePath = items.get(index).mImageLeft.imagePath;
 				newItem.loadThumbnails();
 			} else {
 				// sino borramos el anterior
 				items.get(index).mImageLeft.remove();
 			}
-
 			if (newItem.mImageRight.imagePath.equals("")) {
 				newItem.mImageRight.imagePath = items.get(index).mImageRight.imagePath;
 				newItem.loadThumbnails();
@@ -603,25 +595,14 @@ public class Project {
 				// sino borramos el anterior
 				items.get(index).mImageRight.remove();
 			}
-
-			newItem.mImageLeft.mesh = items.get(index).mImageLeft.mesh;
-			newItem.mImageRight.mesh = items.get(index).mImageRight.mesh;
-
+			newItem.mImageLeft.guides = items.get(index).mImageLeft.guides;
+			newItem.mImageRight.guides = items.get(index).mImageRight.guides;
 			items.remove(index);
 			items.add(index, newItem);
 			selectedItemIndex = PApplet.min(index + 1, items.size());
-			// if (!newItem.type.equals("SubItem")) {
-			// if ((project.selectedItemIndex == items.size())
-			// || (items.get(project.selectedItemIndex).pagNum != newItem.pagNum
-			// + 1)) {
-			// Item emptyItem = new Item(context, "", "", newItem.pagNum + 1,
-			// "", "Item");
-			// items.add(project.selectedItemIndex, emptyItem);
-			// }
-			// }
 			forceSelectedItem(selectedItemIndex, true);
 			saveProjectXML();
 		}
 	}
-
+	
 }
