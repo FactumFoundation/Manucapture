@@ -56,6 +56,9 @@ public class ManuCapture_v1_1 extends PApplet {
 	
 
 	
+	public static final String PAGE_LEFT_NAME = "Page_Left";
+	public static final String PAGE_RIGHT_NAME = "Page_Right";
+	
 	GUI gui;
 	GUIController guiController;
 	ItemsGUI itemsGUI;
@@ -182,14 +185,14 @@ public class ManuCapture_v1_1 extends PApplet {
 		System.out.println("rotation of camera for page right " + rotPageRight);
 		System.out.println("rotation of camera for page left " + rotPageLeft);
 		if (mock) {
-			gphotoPageRight = G2P5MockDisk.create(this, serialCameraPageRight, "Page_Right");
+			gphotoPageRight = G2P5MockDisk.create(this, serialCameraPageRight, PAGE_RIGHT_NAME);
 			gphotoPageRightAdapter.setTargetFile(homeDirectory(), "test");
-			gphotoPageLeft = G2P5MockDisk.create(this, serialCameraPageLeft, "Page_Left");
+			gphotoPageLeft = G2P5MockDisk.create(this, serialCameraPageLeft, PAGE_LEFT_NAME);
 			gphotoPageLeftAdapter.setTargetFile(homeDirectory(), "test");
 		} else {
 			G2P5Manager.init(0);
-			gphotoPageRightAdapter = createG2P5(serialCameraPageRight, "Page_Right");
-			gphotoPageLeftAdapter = createG2P5(serialCameraPageLeft, "Page_Left");
+			gphotoPageRightAdapter = createG2P5(serialCameraPageRight, PAGE_RIGHT_NAME);
+			gphotoPageLeftAdapter = createG2P5(serialCameraPageLeft, PAGE_LEFT_NAME);
 			gphotoPageRight = gphotoPageRightAdapter.g2p5;
 			gphotoPageLeft = gphotoPageLeftAdapter.g2p5;
 			gphotoPageRight.listener = gphotoPageRightAdapter;
