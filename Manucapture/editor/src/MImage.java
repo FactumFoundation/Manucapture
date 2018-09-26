@@ -1,10 +1,15 @@
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 
 import processing.core.PApplet;
@@ -14,16 +19,25 @@ import processing.data.XML;
 
 public class MImage {
 
+	private static final String SIDECAR_EXTENSION = ".pp3";
+
 	String imagePath;
 	String thumbPath;
 	String imagePreview;
 	PImage imgThumb;
+
 	ManuCapture_v1_1 context;
 	List<Guide> guides = new ArrayList<>();
+
 	int thumbMargin = 6;
 	int rotation;
+
 	long timestamp = -1;
 	G2P5ManucaptureAdapter g2p5Adapter;
+
+	String templatePath = "/home/dudito/git/bookScanner/Manucapture/editor/src/data/template.pp3";
+
+	String pathMock = null;
 
 	void remove() {
 		imgThumb = null;
@@ -34,9 +48,9 @@ public class MImage {
 		String pathT = thumbPath;
 		if (pathT != null && new File(pathT).exists())
 			new File(pathT).delete();
-		if (getXmpPath() != null && new File(getXmpPath()).exists())
-			new File(getXmpPath()).delete();
-		if (imagePreview != null && new File(imagePreview).exists()){
+		if (getSidecarPath() != null && new File(getSidecarPath()).exists())
+			new File(getSidecarPath()).delete();
+		if (imagePreview != null && new File(imagePreview).exists()) {
 			boolean deleted = new File(imagePreview).delete();
 		}
 	}
@@ -172,7 +186,7 @@ public class MImage {
 						err += (char) error.read();
 					}
 					if (!err.equals("Error:")) {
-						context.println(err+" "+command);
+						context.println(err + " " + command);
 					}
 					command = "convert " + resizedImageFullPath.replace(".jpg", "-rot.jpg") + " -rotate " + rotation
 							+ " " + resizedImageFullPath;
@@ -200,7 +214,7 @@ public class MImage {
 					e.printStackTrace();
 				}
 			}
-		}		
+		}
 		return img;
 	}
 
@@ -208,10 +222,62 @@ public class MImage {
 		if (imagePath == null || imagePath.equals("")) {
 			return;
 		}
+
+		String sideCarFilePath = getSidecarPath();
+		File file = new File(sideCarFilePath);
+		if (!file.exists()) {
+			// load the template
+			sideCarFilePath = templatePath;
+			file = new File(sideCarFilePath);
+		}
+
+		String line;
+		String newtext = "";
+
+		BufferedReader reader = null;
+		try {
+			reader = new BufferedReader(new FileReader(file));
+			while ((line = reader.readLine()) != null) {
+				if (line.trim().equals("[Coarse Transformation]")) {
+					
+					// move inside rotation
+					while ((!line.trim().equals(""))) {
+						line = reader.readLine();
+						if (line.startsWith("Rotate")) {
+							newtext += "Rotate" + "=" + rotation+"\n";
+						} else {
+							newtext += line + "\n";
+						}
+					}
+				}else {
+					newtext += line + "\n";
+				}
+			}
+
+			FileUtils.writeStringToFile(new File(getSidecarPath()), newtext, Charset.defaultCharset());
+
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			if (reader != null)
+				try {
+					reader.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+		}
+
+	}
+
+	public void saveMetadataOldXML() {
+		if (imagePath == null || imagePath.equals("")) {
+			return;
+		}
 		XML projectXML = new XML("xmp");
 		XML manu = projectXML.addChild("name");
 		XML crop = projectXML.addChild("crop");
-		String projectFilePath = getXmpPath();
+		String projectFilePath = getSidecarPath();
 		manu.setString("filename", imagePath.replaceAll("raw/", ""));
 		manu.setInt("rotation", rotation);
 		crop.setFloat("left", this.guides.get(0).pos.x / context.contentGUI.wImageViewerSize);
@@ -221,8 +287,13 @@ public class MImage {
 		context.saveXML(projectXML, projectFilePath);
 	}
 
-	private String getXmpPath() {
-		return context.project.projectDirectory + (imagePath).replace(".cr2", ".xmp");
+	private String getSidecarPath() {
+		if (pathMock != null) {
+			// return pathMock;
+			return pathMock.replace(".cr2", SIDECAR_EXTENSION);
+		} else {
+			return context.project.projectDirectory + (imagePath).replace(".cr2", SIDECAR_EXTENSION);
+		}
 	}
 
 	public String getAbsolutePath() {
@@ -234,8 +305,8 @@ public class MImage {
 	}
 
 	public void loadMetadata() {
-		if (new File(getXmpPath()).exists()) {
-			XML projectDataXML = context.loadXML(getXmpPath());
+		if (new File(getSidecarPath()).exists()) {
+			XML projectDataXML = context.loadXML(getSidecarPath());
 			XML crop = projectDataXML.getChild("crop");
 			float left = crop.getFloat("left") * context.contentGUI.wImageViewerSize;
 			float top = crop.getFloat("top") * context.contentGUI.hImageViewerSize;
@@ -250,5 +321,13 @@ public class MImage {
 			this.guides.get(3).pos.x = 0;
 			this.guides.get(3).pos.y = bottom;
 		}
+	}
+
+	public static void main(String[] args) {
+		MImage image = new MImage();
+		image.imagePath = "/home/dudito/proyectos/book_scanner/Manucapture_Crop_Pages/dataSet/024/024_Page_Left_1.cr2";
+		image.pathMock = "/home/dudito/proyectos/book_scanner/Manucapture_Crop_Pages/dataSet/024/024_Page_Left_1.cr2";
+
+		image.saveMetadata();
 	}
 }
