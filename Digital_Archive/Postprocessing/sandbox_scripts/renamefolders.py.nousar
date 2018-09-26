@@ -1,0 +1,263 @@
+#!/usr/bin/python -tt
+# -*- coding: utf-8 -*-
+"""
+Archivo para procesar raws con gestion del color y creacion de derivados jpeg y tiff
+by jpereira :: www.jpereira.net :: info@jpereira.net
+"""
+import os, sys,filecmp,time, errno, glob
+import logging
+import subprocess
+from distutils.dir_util import copy_tree
+import mysql.connector
+from mysql.connector import errorcode
+from time import gmtime, strftime
+import xml.dom.minidom
+from datetime import datetime
+import smtplib
+
+'''
+#Para desarrollo y pruebas
+# Repositorio con los archivos originales
+ORIGPATH = "/Volumes/Macintosh_HD_DATA/DEEP/1_Oriental_Manuscripts_Fund/15";
+# Repositior para el archivo profundo o definitivo
+TARGETROOT = "/Volumes/Macintosh_HD_DATA/DEEP/1_Oriental_Manuscripts_Fund/15";
+# Directorio para almacenar ciertos archvos de logs
+REPORT = "/Volumes/Macintosh_HD_DATA/REPORTS/";
+# Repositorio de la web
+WEBSITEREPO = "/Users/jpereira/Sites/workspace/manuscript/files"
+# directorio temporal para IM
+REPORT = "/Volumes/Macintosh_HD_DATA/REPORTS/";   
+
+USER_DB = "root"
+PASS_DB = "pereira"
+DATABASE = "manuscritos"
+HOST_DB = "127.0.0.1"
+'''
+
+#Para desarrollo y pruebas
+# Repositorio con los archivos originales
+ORIGPATH = "/home/user/DIGITAL_LIBRARY/ARCHIVE/DEEP_ARCHIVE/1_Oriental_Manuscripts_Fund/F14";
+# Repositior para el archivo profundo o definitivo
+TARGETROOT = "/home/user/DIGITAL_LIBRARY/ARCHIVE/DEEP_ARCHIVE/1_Oriental_Manuscripts_Fund/F14";
+# Directorio para almacenar ciertos archvos de logs
+REPORT = "/home/user/DIGITAL_LIBRARY/REPORTS";
+# Repositorio de la web
+WEBSITEREPO = "/home/user/DIGITAL_LIBRARY/ARCHIVE/WEBSITE_ARCHIVE"
+# directorio temporal para IM
+
+
+USER_DB = "root"
+PASS_DB = "1234asdf$"
+DATABASE = "manuscritos"
+HOST_DB = "127.0.0.1"
+
+
+NOFOLLOW = ["Archive_scripts","PENDING","test"] 
+
+def str_to_bool(s):
+    if s == 'True':
+        return True
+    elif s == 'False':
+        return False
+    else:
+        raise ValueError
+
+def parse_xml(PATH):
+
+    DOMTree = xml.dom.minidom.parse(PATH)
+    collection = DOMTree.documentElement
+    metaInfo = {}
+    meta = collection.getElementsByTagName("metadata")
+    metaInfo['name'] = meta[0].getElementsByTagName('name')[0].childNodes[0].data
+    #bookname.childNodes[0].data
+    metaInfo['code'] = meta[0].getElementsByTagName('code')[0].childNodes[0].data
+    metaInfo['timestamp']  = meta[0].getElementsByTagName('timestamp')[0].childNodes[0].data
+    
+    target_directory = meta[0].getElementsByTagName('target_directory')[0].childNodes[0].data
+    target_subdirectory = meta[0].getElementsByTagName('target_subdirectory')[0].childNodes[0].data
+    
+    metaInfo['target'] = os.path.join(TARGETROOT, target_directory, target_subdirectory)
+    metaInfo['uploaded'] = str_to_bool(meta[0].getElementsByTagName('uploaded')[0].childNodes[0].data)
+    metaInfo['source'] = meta[0].getElementsByTagName('source')[0].childNodes[0].data
+
+    return metaInfo
+
+def myConn():
+    con ={}
+    con["cnx"] =  mysql.connector.connect(user=USER_DB, password=PASS_DB, host=HOST_DB, database=DATABASE)
+    con["cursor"] =  con["cnx"].cursor()
+    return con
+    
+def myConnClos(cursor, cnx):
+    cursor.close()
+    cnx.close() 
+    
+if __name__ == '__main__':
+    
+   
+ 
+    LOGFILE = os.path.join(REPORT, "rename_job.txt" )
+            
+    logging.root.handlers = []
+    logging.basicConfig(filename=LOGFILE,
+                                filemode='a',
+                                format='%(asctime)s %(name)s %(levelname)s %(message)s',
+                                datefmt= '%d/%m/%Y %H:%M:%S',
+                                level=logging.DEBUG)
+    
+    lst = os.listdir(ORIGPATH)
+    lst.sort()
+    
+    for fname in lst:
+        
+                
+        if not fname.startswith('.'):
+            
+            print("fname: {}".format( fname ))
+                           
+            projectXML = os.path.join(ORIGPATH,fname, "project.xml")
+            bookMeta = parse_xml(projectXML)
+            
+            #genera el antiguo código
+            oldTimemark = datetime.strptime(bookMeta['timestamp'], '%Y%m%d%H%M%S').strftime('%Y%m%d%H%M%S')
+            oldBookdirname = "{0}_{1}".format(bookMeta['code'], oldTimemark )
+            print("oldTimemark: {}".format( oldTimemark ))
+            print("oldBookdirname: {}".format( oldBookdirname ))
+            
+            #crea el nuevo codigo
+            newTimemark = datetime.strptime('{:<011d}'.format( int(bookMeta['timestamp'] ) ), '%Y%m%d%H%M%S').strftime('%Y%m%d%H%M%S')
+            #newBookdirname = "{0}_{1}".format(bookMeta['code'], newTimemark )
+            newBookdirname = "{0}_{1}".format(bookMeta['code'], newTimemark )
+            print("newTimemark: {}".format( newTimemark ))
+            print("newBookdirname: {}".format( newBookdirname ))
+            
+            
+            oldMysqlData = datetime.strptime(bookMeta['timestamp'], '%Y%m%d%H%M%S')
+            newMysqlData = datetime.strptime('{:<011d}'.format( int( bookMeta['timestamp'] ) ), '%Y%m%d%H%M%S')
+            
+            try:
+                
+                my = myConn()
+                
+                selectProject = "SELECT idObject FROM objects WHERE codObject='{0}' and dateProject='{1}' LIMIT 1  ".format( bookMeta['code'],oldMysqlData )
+                #print( selectProject )
+                my["cursor"].execute(selectProject)
+                rows = my["cursor"].fetchall()
+                if len(rows) > 0:
+                    idObject = rows[0][0]
+                    print( idObject )
+                else:
+                    idObject = 0
+                
+                selectProcess = "SELECT idProcess FROM process WHERE projectCode='{0}'  LIMIT 1  ".format( oldBookdirname )
+                #print( selectProcess )
+                my["cursor"].execute(selectProcess)
+                rows = my["cursor"].fetchall()
+                if len(rows) > 0:
+                	idProcess = rows[0][0]
+                	print( idProcess )
+                else:
+                	idProcess = 0
+                	print( 0 )                
+                
+                logging.info("fname {0} oldTimemark {1} oldBookdirname {2} newTimemark {3} newBookdirname {4} oldMysqlData {5} newMysqlData {6} mysqlID {7} mysqlIdProcess {8}".format(fname, oldTimemark, oldBookdirname, newTimemark, newBookdirname,oldMysqlData,newMysqlData,idObject,idProcess) )
+
+                
+                if fname == oldBookdirname:
+                
+                    my = myConn()
+                    #actualiza mysql
+                    update_sql = "UPDATE process SET projectCode = '{0}' WHERE projectCode='{1}' and status='FINISH'".format(newBookdirname, oldBookdirname)
+                    print("update_sql: {}".format( update_sql ))
+                    my["cursor"].execute(update_sql)
+                    my["cnx"].commit()
+                
+                    #update_sql = "UPDATE objects SET dateProject = '{0}' WHERE codObject='{1}' and dateProject='{2}'".format(newMysqlData, bookMeta['code'],oldMysqlData)
+                    #print("update_sql: {}".format( update_sql ))
+                    
+                    #my["cursor"].execute(update_sql)
+                
+                    #my["cnx"].commit()
+                    
+                    
+                    #verifica que existe en Mysql
+                    
+                    
+                    selectProject = "SELECT idObject FROM objects WHERE codObject='{0}' and dateProject='{1}' LIMIT 1  ".format( bookMeta['code'],newMysqlData )
+                    #print( selectProject )
+                    my["cursor"].execute(selectProject)
+                    rows = my["cursor"].fetchall()
+                    if (len(rows) > 0):
+                        
+                        #si Mysql object existe consulta el process
+                        
+                        selectProcess = "SELECT idProcess FROM process WHERE projectCode='{0}'  LIMIT 1  ".format( newBookdirname )
+                        print( selectProcess )
+                        my["cursor"].execute(selectProcess)
+                        rows = my["cursor"].fetchall()
+                        if (len(rows) > 0):
+                            
+                            #el process existe renombra archivos
+                            
+                            #renombra archivo profundo
+                            origName = os.path.join(TARGETROOT,fname)
+                            destName = os.path.join(TARGETROOT,newBookdirname)
+                            os.rename(origName, destName)
+                            
+                            if os.path.isdir(destName):
+                                print("{0} a {1} renombrado correctamente archivo profundo".format(fname, destName))
+                                logging.info("{0} a {1} renombrado correctamente archivo profundo".format(fname, destName))
+                            else:
+                                print("{0} ERROR en renombrado archivo profundo".format(fname))
+                                logging.error( "{0} ERROR en renombrado archivo profundo".format(fname) )  
+                                
+                            #renombra website
+                            origName = os.path.join(WEBSITEREPO,fname)
+                            destName = os.path.join(WEBSITEREPO,newBookdirname)
+                            os.rename(origName, destName)
+                            
+                            if os.path.isdir(destName):
+                                print("{0} a {1} renombrado correctamente website".format(fname, destName))
+                                logging.info("{0} a {1} renombrado correctamente website".format(fname, destName))
+                            else:
+                                print("{0} ERROR en renombrado website".format(fname))
+                                logging.error( "{0} ERROR en renombrado website".format(fname) )
+                        else:
+                            print("{} no existe entrada mysql para process".format(fname)) 
+                            logging.error( "{} no existe entrada mysql para process".format(fname) )        
+
+                                      
+                    else:
+                        print("{} no existe entrada mysql para objetos".format(fname))
+                        logging.error( "{} no existe entrada mysql para process".format(fname) )  
+
+                        
+                    
+                    
+                    myConnClos(my["cursor"], my["cnx"])
+                    
+                else:
+                    print("no coincide el fname con el oldBookdirname fname {0} oldBookdirname {1}".format(fname, oldBookdirname) )
+                    logging.error( "No coincide el fname con el oldBookdirname fname {0} oldBookdirname {1}".format(fname, oldBookdirname) )  
+        
+            
+            except IOError as e:
+                    print e.errno
+                    logging.error(e.errno)
+                    print e
+                    logging.error(e)
+                    
+            except mysql.connector.Error as err:
+                if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
+                    print("Something is wrong with your user name or password")
+                    logging.error("Something is wrong with your user name or password" )
+                elif err.errno == errorcode.ER_BAD_DB_ERROR:
+                    print("Database does not exist")
+                    logging.error("Database does not exist" )
+                else:
+                    print(err)
+                    logging.warn("Error at MySQL: {}".format(err) )
+                    
+            except mysql.connector.IntegrityError as err:
+                logging.warn("Error at MySQL: {}".format(err) )
+  
