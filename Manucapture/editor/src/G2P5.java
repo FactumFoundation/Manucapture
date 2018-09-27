@@ -31,17 +31,11 @@ public class G2P5 {
 	public static int CAMERA_CAPTURE = 1;
 	public static int CAMERA_INACTIVE = -1;
 
-	// G2P5TetheredCaptureThread t;
-
 	RunnableTetheredInterface captureRunnable;
 	Thread thread;
-
 	G2P5Listener listener;
-
 	String homeDirectory;
-
 	List<G2P5Event> events = new ArrayList<>();
-
 	boolean mock = true;
 	boolean ignoreEventProperty = true;
 	String shutterSpeedNormal = "1/30";

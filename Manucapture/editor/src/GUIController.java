@@ -3,6 +3,7 @@ import g4p_controls.GButton;
 import g4p_controls.GCScheme;
 import g4p_controls.GEvent;
 import g4p_controls.GImageButton;
+import g4p_controls.GImageToggleButton;
 import g4p_controls.GTextField;
 import g4p_controls.GWinData;
 import g4p_controls.GWindow;
@@ -34,15 +35,6 @@ public class GUIController {
 		}
 	}
 
-	/*
-	public void name_text_change(GTextField source, GEvent event) { 
-		context.project.projectName = source.getText();
-		if (event.toString() == "ENTERED" && !context.project.projectDirectory.equals("")) {
-			context.project.saveProjectXML();
-		}
-	}
-	*/
-
 	public void code_text_change(GTextField source, GEvent event) { 
 		context.project.projectCode = source.getText();
 		if (event.toString() == "ENTERED" && !context.project.projectDirectory.equals("")) {
@@ -50,62 +42,13 @@ public class GUIController {
 		}
 	} 
 
-	/*
-	public void author_text_change(GTextField source, GEvent event) { 
-		context.project.projectAuthor = source.getText();
-		if (event.toString() == "ENTERED" && !context.project.projectDirectory.equals("")) {
-			context.project.saveProjectXML();
-		}
-	} 
-
-	public void project_comments_change(GTextField source, GEvent event) { 
-		context.project.projectComment = source.getText();
-		PApplet.println();
-		if (event.toString() == "ENTERED" && !context.project.projectDirectory.equals("")) {
-			context.project.saveProjectXML();
-		}
-	}
-
-	public void page_comments_text_change(GTextField source, GEvent event) { 
-		if (context.project.selectedItem != null) {
-			context.project.selectedItem.comment = source.getText();
-		}
-		if (event.toString() == "ENTERED" && !context.project.projectDirectory.equals("")) {
-			context.project.saveProjectXML();
-		}
-	}
-
-	public void page_num_text_change(GTextField source, GEvent event) { 
-		if (event.toString() == "ENTERED" && !context.project.projectDirectory.equals("")) {
-			try {
-				float pageNumber = Float.parseFloat(source.getText());
-				int itemIndex = context.project.findItemIndexByPagNum(pageNumber);
-				if (itemIndex != -1) {
-					context.project.forceSelectedItem(itemIndex, true);
-				}
-				context.project.saveProjectXML();
-			} catch (NumberFormatException ex) {
-				PApplet.println("wrong page number");
-			}
-		}
-	}
-*/
-	public void normal_shutter_click1(GImageButton source, GEvent event) { 
-		PApplet.println("SHUTTER CONTROL SET NORMAL MODE!!!!!");
-		context.shutterMode = ManuCapture_v1_1.NORMAL_SHUTTER;
-		GUI gui = context.gui;
-		context.chartStateMachine = 0;
-		context.gui.btnTriggerNormal.setVisible(true);
-		context.gui.btnTriggerRepeat.setVisible(false);
-		context.contentGUI.noZoom();
-	} 
-
-	public void repeat_shutter_click(GImageButton source, GEvent event) { 
+	public void repeat_shutter_click(GImageToggleButton source, GEvent event) { 
 		PApplet.println("SHUTTER CONTROL SET REPEAT MODE");
-		context.shutterMode = ManuCapture_v1_1.REPEAT_SHUTTER;
-		GUI gui = context.gui;
-		context.gui.btnTriggerNormal.setVisible(false);
-		context.gui.btnTriggerRepeat.setVisible(true);
+		if(source.getState()==1) {
+			context.shutterMode = ManuCapture_v1_1.REPEAT_SHUTTER;
+		} else {
+			context.shutterMode = ManuCapture_v1_1.NORMAL_SHUTTER;
+		}
 		context.contentGUI.noZoom();
 	}
 
@@ -140,14 +83,20 @@ public class GUIController {
 		PApplet.println("close window edit project data");
 	}
 
-	public void calibration_shutter_click(GImageButton source, GEvent event) { 
-		if (context.chartStateMachine != 3) {
+	public void calibration_shutter_click(GImageToggleButton source, GEvent event) { 
+		if (source.getState()==1) {
 			PApplet.println("SHUTTER CONTROL SET CALIBRATION MODE");
 			context.shutterMode = ManuCapture_v1_1.CALIB_SHUTTER;
-			context.cameraState = ManuCapture_v1_1.STATE_CHART;
+			context.setCaptureState(ManuCapture_v1_1.STATE_CHART);
 			context.chartStateMachine = 1;
+
+		} else {
+			context.shutterMode = context.NORMAL_SHUTTER;
+			context.chartStateMachine = 0;
 			context.contentGUI.noZoom();
+			context.setCaptureState(ManuCapture_v1_1.NORMAL_SHUTTER);
 		}
+		context.contentGUI.noZoom();
 	} 
 
 	public void trigger_button_click(GImageButton source, GEvent event) { 
@@ -217,7 +166,7 @@ public class GUIController {
 			context.loading = true;
 			context.loadProject(documentFileName);
 			context.loading = false;
-			normal_shutter_click1(null, null);
+			context.shutterMode = ManuCapture_v1_1.NORMAL_SHUTTER;
 			context.contentGUI.noZoom();
 		} else {
 			context.loading = false;
@@ -252,12 +201,12 @@ public class GUIController {
 		PApplet.println("textfield2 - GTextField >> GEvent." + event + " @ " + context.millis());
 	} 
 
-	public void crop_click(GImageButton source, GEvent event) {
+	public void crop_click(GImageToggleButton source, GEvent event) {
 		PApplet.println("start crop editing");
 		context.toggleCropMode();
 	}
 	
-	public void liveView_button_click(GImageButton source, GEvent event) { 
+	public void liveView_button_click(GImageToggleButton source, GEvent event) { 
 		context.liveViewActive = 0;
 		context.gui.btnLiveView.setEnabled(false);
 		context.gui.btnLiveView.setVisible(false);

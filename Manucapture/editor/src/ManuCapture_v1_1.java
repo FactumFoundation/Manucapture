@@ -91,7 +91,7 @@ public class ManuCapture_v1_1 extends PApplet {
 	boolean loading = false;
 
 	// max time waitting from send action to camera and receive event
-	static public int MAX_TIME_TO_EVENT = 3000;
+	//static public int MAX_TIME_TO_EVENT = 3000;
 	// max time waitting from send action to camera and receive event
 	static public int MAX_TIME_CAPTURE_MACHINE_STATE = 5000;
 	
@@ -289,6 +289,9 @@ public class ManuCapture_v1_1 extends PApplet {
 					newItem.loadThumbnails();
 					project.replaceItem(project.selectedItemIndex, newItem);
 					clearPaths();
+					shutterMode = ManuCapture_v1_1.NORMAL_SHUTTER;
+					chartStateMachine = 0;
+					// TODO Restore gui repeat button to off
 				}
 			} else if (shutterMode == CALIB_SHUTTER) {
 				println("Calib shutter");
@@ -310,7 +313,10 @@ public class ManuCapture_v1_1 extends PApplet {
 					clearPaths();
 					chartStateMachine++;
 				} else {
-					guiController.normal_shutter_click1(null, null);
+					shutterMode = NORMAL_SHUTTER;
+					setCaptureState(CAMERAS_IDLE);
+					chartStateMachine = 0;
+					contentGUI.noZoom();
 				}
 			}
 		}
@@ -509,12 +515,6 @@ public class ManuCapture_v1_1 extends PApplet {
 			text(msg("sw.liveviewenable"), width / 2 - 100, height / 2);
 			liveViewActive++;
 		} 
-		if (shutterMode == NORMAL_SHUTTER && gui.btnTriggerRepeat.isVisible()) {
-			gui.btnTriggerRepeat.setVisible(false);
-		}
-		if (shutterMode == REPEAT_SHUTTER && gui.btnTriggerNormal.isVisible()) {
-			gui.btnTriggerNormal.setVisible(false);
-		}
 		
 		// datos de cámara
 		if (!gphotoPageLeft.isConnected()) {
@@ -614,7 +614,7 @@ public class ManuCapture_v1_1 extends PApplet {
 	}
 
 	public void loadLastSessionData() {
-		guiController.normal_shutter_click1(null, null);
+
 		String value;
 		try {
 			XML lastSessionData = loadXML("lastSession.xml");
@@ -643,6 +643,10 @@ public class ManuCapture_v1_1 extends PApplet {
 			G4P.showMessage(this, msg("sw.errorloadingproject"), "", G4P.WARNING);
 			loading = false;
 		}
+		shutterMode = NORMAL_SHUTTER;
+		setCaptureState(CAMERAS_IDLE);
+		chartStateMachine = 0;
+		contentGUI.noZoom();
 	}
 
 	public void saveLastSessionData() {

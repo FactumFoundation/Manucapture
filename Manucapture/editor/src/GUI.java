@@ -22,30 +22,24 @@ public class GUI {
 
 	GGroup grpAll;
 	GImageButton btnTrigger;
-	GImageButton btnTriggerNormal;
-	GImageButton btnTriggerCrop;
-	GImageButton btnTriggerOpenSOViewer1;
-	GImageButton btnTriggerOpenSOViewer2;
-	GImageButton btnTriggerRepeat;
-	GImageButton btnTriggerChartColor;
+	GImageButton btnOpenSOViewer1;
+	GImageButton btnOpenSOViewer2;
 	GImageButton btnConnectedCameraPageRight;
 	GImageButton btnConnectedCameraPageLeft;
 	GImageButton btnEdit;
 	GImageButton btnClose;
 	GImageButton btnFirstPage;
 	GImageButton btnLastPage;
-	GImageButton btnLiveView;
 	
+	GImageToggleButton btnTriggerCrop;
+	GImageToggleButton btnRepeat;
+	GImageToggleButton btnColorChart;
+	GImageToggleButton btnLiveView;
+
 	GGroup grpProject;
-	//GTextField name_text;
 	GLabel project_info;
-	//GLabel name;
 	GLabel code_label;
 	GTextField code_text;
-	//GLabel author_label;
-	//GLabel project_comments_label;
-	//GTextField author_text;
-	//GTextField project_comments_text;
 	GButton btnOK;
 	GWindow window;
 
@@ -66,31 +60,22 @@ public class GUI {
 
 		int buttonsDeltaY = 190;
 
-		files = new String[] { "btn_live_view.png", "btn_live_view.png", "btn_live_view.png" };
-		btnLiveView = new GImageButton(context, context.width-168, context.height - 5*buttonsDeltaY, files);
+		btnLiveView = new GImageToggleButton(context, context.width-168, context.height - 5*buttonsDeltaY, "btn_live_view_toggle.png", 2, 1);
 		btnLiveView.addEventHandler(guiController, "liveView_button_click");
 		grpAll.addControls(btnLiveView);
 
-		files = new String[] { "btn_calibrate.png", "btn_calibrate.png", "btn_calibrate.png" };
-		btnTriggerChartColor = new GImageButton(context, context.width-168, context.height - 4*buttonsDeltaY, files);
-		btnTriggerChartColor.addEventHandler(guiController,"calibration_shutter_click");
-		grpAll.addControls(btnTriggerChartColor);
+		btnColorChart = new GImageToggleButton(context, context.width-168, context.height - 4*buttonsDeltaY, "btn_calibrate_toggle.png", 2, 1);
+		btnColorChart.addEventHandler(guiController,"calibration_shutter_click");
+		grpAll.addControls(btnColorChart);
 		
-		files = new String[] { "btn_crop.png", "btn_crop.png", "btn_crop.png" };
-		btnTriggerCrop = new GImageButton(context, context.width-168, context.height - 3*buttonsDeltaY, files);
+		btnTriggerCrop = new GImageToggleButton(context, context.width-168, context.height - 3*buttonsDeltaY, "btn_crop_toggle.png", 2, 1);
 		btnTriggerCrop.addEventHandler(guiController, "crop_click");
 		grpAll.addControls(btnTriggerCrop);
-				
-		files = new String[] { "btn_normal.png", "btn_normal.png", "btn_normal.png" };
-		btnTriggerNormal = new GImageButton(context, context.width-168, context.height - 2*buttonsDeltaY, files);
-		btnTriggerNormal.addEventHandler(guiController, "repeat_shutter_click");
-		grpAll.addControls(btnTriggerNormal);
 		
-		files = new String[] { "btn_repeat.png", "btn_repeat.png", "btn_repeat.png" };
-		btnTriggerRepeat = new GImageButton(context, context.width-168, context.height - 2*buttonsDeltaY, files);
-		btnTriggerRepeat.addEventHandler(guiController,"normal_shutter_click1");
-		btnTriggerRepeat.setVisible(false);
-		grpAll.addControls(btnTriggerRepeat);
+		btnRepeat = new GImageToggleButton(context, context.width-168, context.height - 2*buttonsDeltaY, "btn_repeat_toggle.png", 2, 1);
+		btnRepeat.addEventHandler(guiController,"repeat_shutter_click");
+		btnRepeat.setVisible(false);
+		grpAll.addControls(btnRepeat);
 	
 		files = new String[] { "btn_trigger_small.png", "btn_trigger_small.png", "btn_trigger_small.png" };
 		btnTrigger = new GImageButton(context, context.width-168, context.height - buttonsDeltaY, files);
@@ -108,14 +93,14 @@ public class GUI {
 		grpAll.addControls(btnConnectedCameraPageLeft);
 		
 		files = new String[] { "btn_viewer.png", "btn_viewer.png", "btn_viewer.png" };
-		btnTriggerOpenSOViewer1 = new GImageButton(context, context.contentGUI.leftImageMarginLeft, 5,90,90,files);
-		btnTriggerOpenSOViewer1.addEventHandler(guiController, "openViewer_1");
-		grpAll.addControls(btnTriggerOpenSOViewer1);
+		btnOpenSOViewer1 = new GImageButton(context, context.contentGUI.leftImageMarginLeft, 5,90,90,files);
+		btnOpenSOViewer1.addEventHandler(guiController, "openViewer_1");
+		grpAll.addControls(btnOpenSOViewer1);
 		
 		files = new String[] { "btn_viewer.png", "btn_viewer.png", "btn_viewer.png" };
-		btnTriggerOpenSOViewer2 = new GImageButton(context, context.contentGUI.rightImageMarginLeft, 5,90,90,files);
-		btnTriggerOpenSOViewer2.addEventHandler(guiController, "openViewer_2");
-		grpAll.addControls(btnTriggerOpenSOViewer2);
+		btnOpenSOViewer2 = new GImageButton(context, context.contentGUI.rightImageMarginLeft, 5,90,90,files);
+		btnOpenSOViewer2.addEventHandler(guiController, "openViewer_2");
+		grpAll.addControls(btnOpenSOViewer2);
 				
 		files = new String[] { "btn_edit.png", "btn_edit.png", "btn_edit.png" };
 		btnEdit = new GImageButton(context, 148 +30,40, files);
@@ -137,13 +122,11 @@ public class GUI {
 		btnLastPage.addEventHandler(guiController,"last_page_button_click");
 		grpAll.addControls(btnLastPage);
 		
-
 		btnLiveView.setAlpha(200);
 		btnTriggerCrop.setAlpha(200);
 		btnTrigger.setAlpha(220);
-		btnTriggerChartColor.setAlpha(180);
-		btnTriggerNormal.setAlpha(180);
-		btnTriggerRepeat.setAlpha(180);
+		btnColorChart.setAlpha(180);
+		btnRepeat.setAlpha(180);
 		btnConnectedCameraPageLeft.setAlpha(180);
 		btnConnectedCameraPageRight.setAlpha(180);
 		
@@ -185,64 +168,13 @@ public class GUI {
 		btnOK.setText("OK!");
 		btnOK.addEventHandler(guiController, "close_popup_project");
 
-		
-		/*
-		name_text = new GTextField(context, fieldX, 106 + fieldY, fieldW, fieldH, G4P.SCROLLBARS_NONE);
-		name_text.setLocalColorScheme(GCScheme.CYAN_SCHEME);
-		name_text.setOpaque(true);
-		name_text.addEventHandler(guiController, "name_text_change");
-		name_text.setText(context.project.projectName);
-		*/
-
-		/*
-		name = new GLabel(context, labelX, 106 + fieldY, labelW, labelH);
-		name.setText("Name:");
-		name.setTextBold();
-		name.setLocalColorScheme(GCScheme.CYAN_SCHEME);
-		name.setOpaque(true);
-		*/
-				
-		/*
-		author_label = new GLabel(context, labelX, 206 + fieldY, labelW, labelH);
-		author_label.setText("Author:");
-		author_label.setTextBold();
-		author_label.setLocalColorScheme(GCScheme.CYAN_SCHEME);
-		author_label.setOpaque(true);
-
-		author_text = new GTextField(context, fieldX, 206 + fieldY, fieldW, fieldH, G4P.SCROLLBARS_NONE);
-		author_text.setLocalColorScheme(GCScheme.CYAN_SCHEME);
-		author_text.setOpaque(true);
-		author_text.setText(context.project.projectAuthor);
-		author_text.addEventHandler(guiController, "author_text_change");
-
-		project_comments_text = new GTextField(context, fieldX, 256 + fieldY, fieldW, fieldH, G4P.SCROLLBARS_NONE);
-		project_comments_text.setLocalColorScheme(GCScheme.CYAN_SCHEME);
-		project_comments_text.setOpaque(true);
-		project_comments_text.setText(context.project.projectComment);
-		project_comments_text.addEventHandler(guiController, "project_comments_change");
-
-		project_comments_label = new GLabel(context, labelX, 256 + fieldY, labelW, labelH);
-		project_comments_label.setText("Comments:");
-		project_comments_label.setTextBold();
-		project_comments_label.setLocalColorScheme(GCScheme.CYAN_SCHEME);
-		project_comments_label.setOpaque(true);
-*/
 		Font font = new Font("Verdana", Font.BOLD, 25);
-		//name.setFont(font);
 		code_label.setFont(font);
-	//	author_label.setFont(font);
-	//	project_comments_label.setFont(font);
-	//	project_comments_text.setFont(font);
-	//	author_text.setFont(font);
 		code_text.setFont(font);
-		//name_text.setFont(font);
 		btnOK.setFont(font);
 		Font sectionFont = new Font("Verdana", Font.BOLD, 18);
 		project_info.setFont(sectionFont);
-		//grpProject.addControls(btnOK, name_text, project_info, name, code_label, code_text);
 		grpProject.addControls(btnOK, project_info, code_label, code_text);
-
-		//grpProject.addControls(author_text, project_comments_text, project_comments_label);
 		grpProject.setVisible(0, false);
 	}
 
