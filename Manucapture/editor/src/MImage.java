@@ -306,20 +306,20 @@ public class MImage {
 
 	public void loadMetadata() {
 		if (new File(getSidecarPath()).exists()) {
-			XML projectDataXML = context.loadXML(getSidecarPath());
-			XML crop = projectDataXML.getChild("crop");
-			float left = crop.getFloat("left") * context.contentGUI.wImageViewerSize;
-			float top = crop.getFloat("top") * context.contentGUI.hImageViewerSize;
-			float right = crop.getFloat("right") * context.contentGUI.wImageViewerSize;
-			float bottom = crop.getFloat("bottom") * context.contentGUI.hImageViewerSize;
-			this.guides.get(0).pos.x = left;
-			this.guides.get(0).pos.y = 0;
-			this.guides.get(1).pos.x = 0;
-			this.guides.get(1).pos.y = top;
-			this.guides.get(2).pos.x = right;
-			this.guides.get(2).pos.y = 0;
-			this.guides.get(3).pos.x = 0;
-			this.guides.get(3).pos.y = bottom;
+//			XML projectDataXML = context.loadXML(getSidecarPath());
+//			XML crop = projectDataXML.getChild("crop");
+//			float left = crop.getFloat("left") * context.contentGUI.wImageViewerSize;
+//			float top = crop.getFloat("top") * context.contentGUI.hImageViewerSize;
+//			float right = crop.getFloat("right") * context.contentGUI.wImageViewerSize;
+//			float bottom = crop.getFloat("bottom") * context.contentGUI.hImageViewerSize;
+//			this.guides.get(0).pos.x = left;
+//			this.guides.get(0).pos.y = 0;
+//			this.guides.get(1).pos.x = 0;
+//			this.guides.get(1).pos.y = top;
+//			this.guides.get(2).pos.x = right;
+//			this.guides.get(2).pos.y = 0;
+//			this.guides.get(3).pos.x = 0;
+//			this.guides.get(3).pos.y = bottom;
 		}
 	}
 

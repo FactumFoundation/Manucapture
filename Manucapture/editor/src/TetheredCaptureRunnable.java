@@ -5,7 +5,7 @@ import java.io.InputStreamReader;
 
 import processing.core.PApplet;
 
-public class TetheredCaptureRunnable implements Runnable{
+public class TetheredCaptureRunnable implements RunnableTetheredInterface{
 
 	G2P5 g2p5;
 	
@@ -37,6 +37,11 @@ public class TetheredCaptureRunnable implements Runnable{
 			ioe.printStackTrace();
 		}
 
+	}
+
+	@Override
+	public void doTriggerEvent(boolean process) {
+		
 	}
 
 }
