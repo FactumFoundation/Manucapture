@@ -33,7 +33,6 @@ import boofcv.alg.feature.detect.line.*;
 import boofcv.factory.feature.detect.line.*;
 import georegression.struct.line.*;
 
-
 public class ManuCapture_v1_1 extends PApplet {
 
 	/*
@@ -43,7 +42,8 @@ public class ManuCapture_v1_1 extends PApplet {
 	 * http://www.factumfoundation.org/pag/235/Digitisation-of-oriental-
 	 * manuscripts-in-Daghestan
 	 * 
-	 * Copyright (c) 2016-2018 Jorge Cano, Enrique Esteban and Eduardo Moriana in Factum Foundation
+	 * Copyright (c) 2016-2018 Jorge Cano, Enrique Esteban and Eduardo Moriana in
+	 * Factum Foundation
 	 * 
 	 * This program is free software; you can redistribute it and/or modify it under
 	 * the terms of the GNU General Public License as published by the Free Software
@@ -59,12 +59,10 @@ public class ManuCapture_v1_1 extends PApplet {
 	 * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
 	 * Place, Suite 330, Boston, MA 02111-1307 USA
 	 */
-	
 
-	
 	public static final String PAGE_LEFT_NAME = "Page_Left";
 	public static final String PAGE_RIGHT_NAME = "Page_Right";
-	
+
 	GUI gui;
 	GUIController guiController;
 	ItemsGUI itemsGUI;
@@ -75,7 +73,7 @@ public class ManuCapture_v1_1 extends PApplet {
 	String baseDirectory = "";
 	Project project = null;
 	PrintWriter logOutput;
-	
+
 	OscP5 oscP5;
 	NetAddress viewerLocation;
 
@@ -83,7 +81,7 @@ public class ManuCapture_v1_1 extends PApplet {
 	int sendPort = 3333;
 	int arduinoDriverPort = 13000;
 	boolean arduinoConnected = true;
-	
+
 	public static int STATE_APP_NO_PROJECT = 0;
 	public static int STATE_APP_PROJECT = 1;
 	public static int STATE_APP_EDITING_PROJECT = 2;
@@ -91,10 +89,10 @@ public class ManuCapture_v1_1 extends PApplet {
 	boolean loading = false;
 
 	// max time waitting from send action to camera and receive event
-	//static public int MAX_TIME_TO_EVENT = 3000;
+	// static public int MAX_TIME_TO_EVENT = 3000;
 	// max time waitting from send action to camera and receive event
 	static public int MAX_TIME_CAPTURE_MACHINE_STATE = 5000;
-	
+
 	G2P5 gphotoPageRight;
 	G2P5 gphotoPageLeft;
 	G2P5ManucaptureAdapter gphotoPageRightAdapter;
@@ -147,7 +145,7 @@ public class ManuCapture_v1_1 extends PApplet {
 
 	// *********************
 	boolean initSelectedItem = false;
-	
+
 	// Chart identification
 	public static int STATE_CAPTURING = 0;
 	public static int STATE_CHART = 1;
@@ -161,7 +159,7 @@ public class ManuCapture_v1_1 extends PApplet {
 
 	int rawW = 5200;
 	int rawH = 3468;
-	
+
 	public void setup() {
 
 		System.setOut(new TracingPrintStream(System.out));
@@ -171,7 +169,7 @@ public class ManuCapture_v1_1 extends PApplet {
 		viewerLocation = new NetAddress("127.0.0.1", sendPort);
 		arduinoDriverLocation = new NetAddress("127.0.0.1", arduinoDriverPort);
 
-	    // Project
+		// Project
 		appPath = sketchPath() + "/..";
 		project = new Project();
 		project.context = this;
@@ -180,13 +178,17 @@ public class ManuCapture_v1_1 extends PApplet {
 		if (!file.exists()) {
 			file.mkdir();
 		}
-		
+
 		// Cameras
 		XML serialXML = loadXML("cameraSerials.xml");
 		serialCameraPageRight = serialXML.getChild("Camera_Page_Right").getContent();
 		serialCameraPageLeft = serialXML.getChild("Camera_Page_Left").getContent();
 		serialXMLCameraPageRight = serialXML.getChild("Camera_Page_Right");
 		serialXMLCameraPageLeft = serialXML.getChild("Camera_Page_Left");
+
+		rawW = serialXML.getInt("raw_width");
+		rawH = serialXML.getInt("raw_height");
+
 		String rotPageRight = serialXML.getChild("Camera_Page_Right").getString("rotation");
 		String rotPageLeft = serialXML.getChild("Camera_Page_Left").getString("rotation");
 		if (rotPageRight != null)
@@ -210,8 +212,8 @@ public class ManuCapture_v1_1 extends PApplet {
 			gphotoPageLeft.listener = gphotoPageLeftAdapter;
 			gphotoPageRightAdapter.setTargetFile(project.projectDirectory + "/raw", project.projectCode);
 			gphotoPageLeftAdapter.setTargetFile(project.projectDirectory + "/raw", project.projectCode);
-			
-			if(gphotoPageLeftAdapter.g2p5.mock ) {
+
+			if (gphotoPageLeftAdapter.g2p5.mock) {
 				MAX_TIME_CAPTURE_MACHINE_STATE = 15000;
 			}
 		}
@@ -230,14 +232,14 @@ public class ManuCapture_v1_1 extends PApplet {
 		messageContainer.init();
 		guiController = new GUIController(this);
 		gui = new GUI();
-		gui.createGUI(this);		
+		gui.createGUI(this);
 		// Final graphics conf
 		setStateApp(STATE_APP_NO_PROJECT);
 		registerMethod("post", this);
 		background(backgroundColor);
 		frameRate(25);
 	}
-	
+
 	public void post() {
 		if (frameCount < 10) {
 			background(backgroundColor);
@@ -248,7 +250,7 @@ public class ManuCapture_v1_1 extends PApplet {
 	public void newPhotoEvent(G2P5Event event, String ic) {
 
 		println("New photo Event!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!", event.content);
-	
+
 		if (event.g2p5 == gphotoPageRight) {
 			if (ignoreNextPageRight) {
 				println("Ignoring incoming right page");
@@ -275,11 +277,9 @@ public class ManuCapture_v1_1 extends PApplet {
 		if ((gphotoPageRight.isConnected() && gphotoPageLeft.isConnected()
 				&& (!newPageRightPath.equals("") && !newPageLeftPath.equals("")))
 				// this allows use only one camera if the other is inactive
-				|| (gphotoPageRight.isConnected() && !gphotoPageLeft.isConnected()
-						&& !newPageRightPath.equals(""))
+				|| (gphotoPageRight.isConnected() && !gphotoPageLeft.isConnected() && !newPageRightPath.equals(""))
 				// this allows use only one camera if the other is inactive
-				|| (!gphotoPageRight.isConnected() && gphotoPageLeft.isConnected()
-						&& !newPageLeftPath.equals(""))) {
+				|| (!gphotoPageRight.isConnected() && gphotoPageLeft.isConnected() && !newPageLeftPath.equals(""))) {
 			if (shutterMode == NORMAL_SHUTTER) {
 				doNormalShutter(Item.TYPE_ITEM);
 			} else if (shutterMode == REPEAT_SHUTTER) {
@@ -322,7 +322,6 @@ public class ManuCapture_v1_1 extends PApplet {
 		}
 	}
 
-
 	public void draw() {
 		background(75);
 		if (getStateApp() == STATE_APP_NO_PROJECT) {
@@ -336,7 +335,7 @@ public class ManuCapture_v1_1 extends PApplet {
 			fill(255);
 			textAlign(CENTER);
 			textSize(18);
-		} else if(getStateApp() == STATE_APP_EDITING_PROJECT) {
+		} else if (getStateApp() == STATE_APP_EDITING_PROJECT) {
 			fill(155, 255);
 			rect(0, 0, width, height);
 			fill(255, 0, 0);
@@ -358,7 +357,7 @@ public class ManuCapture_v1_1 extends PApplet {
 		text(msg("sw.failsSerial"), width / 2, 250);
 		popStyle();
 	}
-	
+
 	private void drawInitWindow() {
 		// MOSTRAR CARGAR O NUEVO
 		// ellipse(width/2,500,1000,1000);
@@ -478,22 +477,18 @@ public class ManuCapture_v1_1 extends PApplet {
 		// ///////////////////////////////////////////////////////
 
 		/*
-		if (gphotoA.isConnected()) {
-			gui.camera_A_connected_button.setText("CONNECTED");
-			gui.camera_A_connected_button.setLocalColorScheme(GCScheme.GREEN_SCHEME);
-		} else {
-			gui.camera_A_connected_button.setText("DISCONNECTED");
-			gui.camera_A_connected_button.setLocalColorScheme(GCScheme.RED_SCHEME);
-		}
-
-		if (gphotoB.isConnected()) {
-			gui.camera_B_connected_button.setText("CONNECTED");
-			gui.camera_B_connected_button.setLocalColorScheme(GCScheme.GREEN_SCHEME);
-		} else {
-			gui.camera_B_connected_button.setText("DISCONNECTED");
-			gui.camera_B_connected_button.setLocalColorScheme(GCScheme.RED_SCHEME);
-		}
-		*/
+		 * if (gphotoA.isConnected()) {
+		 * gui.camera_A_connected_button.setText("CONNECTED");
+		 * gui.camera_A_connected_button.setLocalColorScheme(GCScheme.GREEN_SCHEME); }
+		 * else { gui.camera_A_connected_button.setText("DISCONNECTED");
+		 * gui.camera_A_connected_button.setLocalColorScheme(GCScheme.RED_SCHEME); }
+		 * 
+		 * if (gphotoB.isConnected()) {
+		 * gui.camera_B_connected_button.setText("CONNECTED");
+		 * gui.camera_B_connected_button.setLocalColorScheme(GCScheme.GREEN_SCHEME); }
+		 * else { gui.camera_B_connected_button.setText("DISCONNECTED");
+		 * gui.camera_B_connected_button.setLocalColorScheme(GCScheme.RED_SCHEME); }
+		 */
 
 		itemsGUI.drawItemsViewPort();
 		contentGUI.draw();
@@ -503,7 +498,7 @@ public class ManuCapture_v1_1 extends PApplet {
 		fill(255);
 		textSize(18);
 		text("Project code " + project.projectCode, 40, 30);
-		text("Camera status", width-155, 30);
+		text("Camera status", width - 155, 30);
 		popStyle();
 		textSize(16);
 		fill(255, 0, 0);
@@ -514,15 +509,15 @@ public class ManuCapture_v1_1 extends PApplet {
 			fill(255, 0, 0);
 			text(msg("sw.liveviewenable"), width / 2 - 100, height / 2);
 			liveViewActive++;
-		} 
-		
+		}
+
 		// datos de cámara
 		if (!gphotoPageLeft.isConnected()) {
 			fill(255, 0, 0);
 		} else {
 			fill(0, 255, 0);
 		}
-		ellipse(width-54, 69, 30, 30);
+		ellipse(width - 54, 69, 30, 30);
 
 		// datos de cámara
 		if (!gphotoPageRight.isConnected()) {
@@ -530,8 +525,8 @@ public class ManuCapture_v1_1 extends PApplet {
 		} else {
 			fill(0, 255, 0);
 		}
-		ellipse(width-125, 69, 30, 30);
-		
+		ellipse(width - 125, 69, 30, 30);
+
 		// trigger button color
 		if (isAllMirrorsReady()) {
 			fill(0, 255, 0);
@@ -548,7 +543,7 @@ public class ManuCapture_v1_1 extends PApplet {
 
 	public void toggleCropMode() {
 		cropMode = !cropMode;
-		if(!cropMode) {
+		if (!cropMode) {
 			contentGUI.exitCropMode();
 		} else {
 			contentGUI.startCropMode();
@@ -608,9 +603,9 @@ public class ManuCapture_v1_1 extends PApplet {
 		Item newItem = new Item(this, relNewPageLeftPath, relNewPageRightPath, newPageNum, "", type);
 		return newItem;
 	}
-	
-	public void load_click() { 
-		guiController.load_click(null,null);
+
+	public void load_click() {
+		guiController.load_click(null, null);
 	}
 
 	public void loadLastSessionData() {
@@ -786,7 +781,7 @@ public class ManuCapture_v1_1 extends PApplet {
 			capture();
 		}
 	}
-	
+
 	public G2P5ManucaptureAdapter createG2P5(String serial, String name) {
 		G2P5 g2p5 = G2P5.create(homeDirectory(), serial, name);
 		G2P5ManucaptureAdapter adapter = new G2P5ManucaptureAdapter(this, g2p5);
@@ -976,15 +971,14 @@ public class ManuCapture_v1_1 extends PApplet {
 	}
 
 	public void camerasStateWatchDog() {
-	
-		//Check general timing in Capture State to solve the triggering
+
+		// Check general timing in Capture State to solve the triggering
 		if (getCaptureState() == CAMERAS_INACTIVE && gphotoPageRight.active && gphotoPageLeft.active) {
 			setCaptureState(CAMERAS_IDLE);
-		} 
-		else if (getCaptureState() == CAMERAS_FOCUSSING) {
+		} else if (getCaptureState() == CAMERAS_FOCUSSING) {
 			if (gphotoPageRightAdapter.mirrorUp && gphotoPageLeftAdapter.mirrorUp) {
 				setCaptureState(CAMERAS_MIRROR_UP);
-			} else if(millis() > lastCaptureMillis + MAX_TIME_CAPTURE_MACHINE_STATE) {
+			} else if (millis() > lastCaptureMillis + MAX_TIME_CAPTURE_MACHINE_STATE) {
 				setCaptureState(CAMERAS_RECOVERING);
 			}
 		} else if (getCaptureState() == CAMERAS_MIRROR_UP) {
@@ -994,18 +988,18 @@ public class ManuCapture_v1_1 extends PApplet {
 		} else if (getCaptureState() == CAMERAS_RECOVERING) {
 			if (!gphotoPageRightAdapter.mirrorUp && !gphotoPageLeftAdapter.mirrorUp) {
 				setCaptureState(CAMERAS_IDLE);
-			} else if(millis() > lastCaptureMillis + MAX_TIME_CAPTURE_MACHINE_STATE) {
-				if(gphotoPageRightAdapter.mirrorUp) {
+			} else if (millis() > lastCaptureMillis + MAX_TIME_CAPTURE_MACHINE_STATE) {
+				if (gphotoPageRightAdapter.mirrorUp) {
 					clickCameraPageRight();
 					ignoreNextPageRight = true;
 				}
-				if(gphotoPageLeftAdapter.mirrorUp) {
+				if (gphotoPageLeftAdapter.mirrorUp) {
 					clickCameraPageLeft();
 					ignoreNextPageLeft = true;
 				}
 				setCaptureState(CAMERAS_IDLE);
 			}
-		} else if(getCaptureState() == CAMERAS_IDLE) {		
+		} else if (getCaptureState() == CAMERAS_IDLE) {
 		}
 	}
 
@@ -1014,15 +1008,14 @@ public class ManuCapture_v1_1 extends PApplet {
 	}
 
 	void setCaptureState(int captureState) {
-		if(captureState == CAMERAS_RECOVERING) {
+		if (captureState == CAMERAS_RECOVERING) {
 			restoreCamerasStateAfterFailure();
 		}
-		if (captureState == CAMERAS_FOCUSSING){
+		if (captureState == CAMERAS_FOCUSSING) {
 			pressCameras();
-		}
-		else if(captureState == CAMERAS_MIRROR_UP) {
+		} else if (captureState == CAMERAS_MIRROR_UP) {
 			releaseAndShutterCameras();
-		} else if(captureState == CAMERAS_IDLE) {
+		} else if (captureState == CAMERAS_IDLE) {
 
 		}
 		lastCaptureMillis = millis();
@@ -1031,7 +1024,7 @@ public class ManuCapture_v1_1 extends PApplet {
 
 	private void restoreCamerasStateAfterFailure() {
 		if (!gphotoPageRightAdapter.mirrorUp && !gphotoPageLeftAdapter.mirrorUp) {
-			releaseCameras();		
+			releaseCameras();
 			G4P.showMessage(this, messageContainer.getText("sw.fails"), "", G4P.WARNING);
 		} else if (!gphotoPageRightAdapter.mirrorUp && gphotoPageLeftAdapter.mirrorUp) {
 			clickCameraPageLeft();
@@ -1082,7 +1075,7 @@ public class ManuCapture_v1_1 extends PApplet {
 	}
 
 	public void clickCameraPageLeft() {
-		
+
 		OscMessage myMessage = new OscMessage("/shutterAction");
 		myMessage.add('Y');
 		oscP5.send(myMessage, arduinoDriverLocation);
@@ -1110,7 +1103,7 @@ public class ManuCapture_v1_1 extends PApplet {
 	public String msg(String key) {
 		return messageContainer.getText(key);
 	}
-	
+
 	public int getStateApp() {
 		return stateApp;
 	}
@@ -1118,15 +1111,14 @@ public class ManuCapture_v1_1 extends PApplet {
 	public void setStateApp(int stateApp) {
 		this.stateApp = stateApp;
 		contentGUI.noZoom();
-		if(stateApp == STATE_APP_NO_PROJECT) {
+		if (stateApp == STATE_APP_NO_PROJECT) {
 			gui.grpProject.setVisible(1, false);
 			gui.grpAll.setVisible(1, false);
-		}
-		else if(stateApp == STATE_APP_PROJECT) {
+		} else if (stateApp == STATE_APP_PROJECT) {
 			gui.grpProject.setVisible(1, false);
 			gui.grpAll.setVisible(1, true);
-		}		
-		if(stateApp == STATE_APP_EDITING_PROJECT) {
+		}
+		if (stateApp == STATE_APP_EDITING_PROJECT) {
 			gui.grpProject.setVisible(1, true);
 			gui.grpAll.setVisible(1, false);
 		}
