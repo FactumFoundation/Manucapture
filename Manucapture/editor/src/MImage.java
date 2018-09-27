@@ -39,6 +39,7 @@ public class MImage {
 
 	String pathMock = null;
 
+
 	void remove() {
 		imgThumb = null;
 		guides = new ArrayList<>();
@@ -299,7 +300,6 @@ public class MImage {
 					}
 				}
 
-
 			} catch (IOException e) {
 				e.printStackTrace();
 			} finally {
@@ -358,7 +358,6 @@ public class MImage {
 					// crop.setFloat("bottom", this.guides.get(3).pos.y /
 					// context.contentGUI.hImageViewerSize);
 
-					// TODO I'ts not normalized , we need the total res of cr2
 					newtext += line + "\n";
 					// move inside crop
 					while ((!line.trim().equals(""))) {
@@ -366,13 +365,21 @@ public class MImage {
 						if (line.startsWith("Enabled")) {
 							newtext += "Enabled" + "=true" + "\n";
 						} else if (line.startsWith("X")) {
-							newtext += "X" + "=" + (int)this.guides.get(0).pos.x + "\n";
+						
+							float tempNormalized = this.guides.get(0).pos.x / context.contentGUI.wImageViewerSize;
+							newtext += "X" + "=" + (int) (tempNormalized * context.rawW) + "\n";
 						} else if (line.startsWith("Y")) {
-							newtext += "Y" + "=" + (int)this.guides.get(1).pos.y + "\n";
+							
+							float tempNormalized = this.guides.get(1).pos.y / context.contentGUI.hImageViewerSize;
+							newtext += "Y" + "=" + (int) (tempNormalized * context.rawH) + "\n";
 						} else if (line.startsWith("W")) {
-							newtext += "W" + "=" + (int)this.guides.get(2).pos.x + "\n";
+							
+							float tempNormalized = this.guides.get(2).pos.x / context.contentGUI.wImageViewerSize;
+							newtext += "W" + "=" + (int) (tempNormalized * context.rawW) + "\n";
 						} else if (line.startsWith("H")) {
-							newtext += "H" + "=" + (int)this.guides.get(3).pos.y + "\n";
+							
+							float tempNormalized = this.guides.get(3).pos.y / context.contentGUI.hImageViewerSize;
+							newtext += "H" + "=" + (int) (tempNormalized * context.rawH) + "\n";
 						} else {
 							newtext += line + "\n";
 						}
@@ -460,11 +467,11 @@ public class MImage {
 		image.rotation = 90;
 
 		image.guides.add(new Guide(new PVector(0, 0), null, 0, "0"));
-		image.guides.add(new Guide(new PVector(1, 1), null, 0, "1"));
-		image.guides.add(new Guide(new PVector(2, 2), null, 0, "2"));
-		image.guides.add(new Guide(new PVector(3, 3), null, 0, "3"));
+		image.guides.add(new Guide(new PVector(0, 0), null, 0, "1"));
+		image.guides.add(new Guide(new PVector(0, 0), null, 0, "2"));
+		image.guides.add(new Guide(new PVector(0, 0), null, 0, "3"));
 
 		image.saveMetadata();
-		 image.loadMetadata();
+		image.loadMetadata();
 	}
 }

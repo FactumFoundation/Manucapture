@@ -158,7 +158,9 @@ public class ManuCapture_v1_1 extends PApplet {
 
 	List<LineParametric2D_F32> leftLinesFootSub;
 	List<LineParametric2D_F32> rightLinesFootSub;
-	
+
+	int rawW = 5200;
+	int rawH = 3468;
 	
 	public void setup() {
 
