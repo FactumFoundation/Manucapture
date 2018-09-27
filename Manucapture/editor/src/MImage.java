@@ -35,7 +35,7 @@ public class MImage {
 	long timestamp = -1;
 	G2P5ManucaptureAdapter g2p5Adapter;
 
-	String templatePath = "/home/dudito/git/bookScanner/Manucapture/editor/src/data/template.pp3";
+	String templatePath = "/src/data/template.pp3";
 
 	String pathMock = null;
 
@@ -227,7 +227,7 @@ public class MImage {
 		File file = new File(sideCarFilePath);
 		if (!file.exists()) {
 			// load the template
-			sideCarFilePath = templatePath;
+			sideCarFilePath = context.sketchPath() +  templatePath;
 			file = new File(sideCarFilePath);
 		}
 
