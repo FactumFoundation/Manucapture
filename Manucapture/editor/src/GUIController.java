@@ -34,12 +34,14 @@ public class GUIController {
 		}
 	}
 
+	/*
 	public void name_text_change(GTextField source, GEvent event) { 
 		context.project.projectName = source.getText();
 		if (event.toString() == "ENTERED" && !context.project.projectDirectory.equals("")) {
 			context.project.saveProjectXML();
 		}
 	}
+	*/
 
 	public void code_text_change(GTextField source, GEvent event) { 
 		context.project.projectCode = source.getText();
@@ -48,6 +50,7 @@ public class GUIController {
 		}
 	} 
 
+	/*
 	public void author_text_change(GTextField source, GEvent event) { 
 		context.project.projectAuthor = source.getText();
 		if (event.toString() == "ENTERED" && !context.project.projectDirectory.equals("")) {
@@ -86,7 +89,7 @@ public class GUIController {
 			}
 		}
 	}
-
+*/
 	public void normal_shutter_click1(GImageButton source, GEvent event) { 
 		PApplet.println("SHUTTER CONTROL SET NORMAL MODE!!!!!");
 		context.shutterMode = ManuCapture_v1_1.NORMAL_SHUTTER;
@@ -120,9 +123,9 @@ public class GUIController {
 
 	public void close_popup_project(GButton source, GEvent event) {
 		boolean someError = false;
-		if (context.project.projectName == null || context.project.projectName.trim().equals("")) {
+		/*if (context.project.projectName == null || context.project.projectName.trim().equals("")) {
 			someError = true;
-		}
+		}*/
 		if (context.project.projectCode == null || context.project.projectCode.trim().equals("")) {
 			someError = true;
 		}

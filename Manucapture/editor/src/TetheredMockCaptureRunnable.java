@@ -19,7 +19,7 @@ public class TetheredMockCaptureRunnable implements Runnable {
 
 	private List<String> dataset = new ArrayList<>();
 	private int indexDataSet = 0;
-	public String pathDataSet = "/home/dudito/proyectos/book_scanner/Manucapture_Crop_Pages/dataSet/024/";
+	public String pathDataSet = "/home/factum/Escritorio/024/";
 
 	public String[] readLines(String filename) throws IOException {
 
@@ -77,8 +77,6 @@ public class TetheredMockCaptureRunnable implements Runnable {
 		while (true) {
 			line = logs[indexLogs];
 			
-			
-
 			// first modify the id with id of this thread, normally two A and B
 			line = line.replaceAll("/A.cr2", "/" + g2p5.id + ".cr2");
 

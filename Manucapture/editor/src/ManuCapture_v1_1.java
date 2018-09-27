@@ -27,6 +27,12 @@ import processing.core.PImage;
 import processing.core.PVector;
 import processing.data.XML;
 import processing.event.MouseEvent;
+import boofcv.processing.*;
+import boofcv.struct.image.*;
+import boofcv.alg.feature.detect.line.*;
+import boofcv.factory.feature.detect.line.*;
+import georegression.struct.line.*;
+
 
 public class ManuCapture_v1_1 extends PApplet {
 
@@ -150,6 +156,9 @@ public class ManuCapture_v1_1 extends PApplet {
 	int chartStateMachine = 0;
 	boolean cropMode = false;
 
+	List<LineParametric2D_F32> leftLinesFootSub;
+	List<LineParametric2D_F32> rightLinesFootSub;
+	
 	
 	public void setup() {
 

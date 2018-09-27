@@ -145,15 +145,15 @@ public class Project {
 	public void loadProjectMetadata(XML projectDataXML) {
 
 		projectName = projectDataXML.getChild("metadata").getChild("name").getContent();
-		context.gui.name_text.setText(projectName);
+	//	context.gui.name_text.setText(projectName);
 		context.gui.project_info.setText("PROJECT INFO " + context.project.projectFilePath);
 
 		projectComment = projectDataXML.getChild("metadata").getChild("comment").getContent();
-		context.gui.project_comments_text.setText(projectComment);
+	//	context.gui.project_comments_text.setText(projectComment);
 		projectCode = projectDataXML.getChild("metadata").getChild("code").getContent();
 		context.gui.code_text.setText(projectCode);
 		projectAuthor = projectDataXML.getChild("metadata").getChild("author").getContent();
-		context.gui.author_text.setText(projectAuthor);
+	//	context.gui.author_text.setText(projectAuthor);
 		context.println(projectDataXML.getChild("image_counter"));
 		G2P5Manager.setImageCount(new Integer(projectDataXML.getChild("image_counter").getContent()));
 
