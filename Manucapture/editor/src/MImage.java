@@ -19,7 +19,7 @@ import processing.data.XML;
 
 public class MImage {
 
-	private static final String SIDECAR_EXTENSION = ".pp3";
+	private static final String SIDECAR_EXTENSION = ".cr2.pp3";
 
 	String imagePath;
 	String thumbPath;
@@ -238,12 +238,12 @@ public class MImage {
 		try {
 			reader = new BufferedReader(new FileReader(file));
 			while ((line = reader.readLine()) != null) {
-				if (line.trim().equals("[Coarse Transformation]")) {
-					
+				if (line.trim().equals("[Rotation]")) {
+					newtext += line + "\n";
 					// move inside rotation
 					while ((!line.trim().equals(""))) {
 						line = reader.readLine();
-						if (line.startsWith("Rotate")) {
+						if (line.startsWith("Degree")) {
 							newtext += "Rotate" + "=" + rotation+"\n";
 						} else {
 							newtext += line + "\n";
@@ -327,7 +327,7 @@ public class MImage {
 		MImage image = new MImage();
 		image.imagePath = "/home/dudito/proyectos/book_scanner/Manucapture_Crop_Pages/dataSet/024/024_Page_Left_1.cr2";
 		image.pathMock = "/home/dudito/proyectos/book_scanner/Manucapture_Crop_Pages/dataSet/024/024_Page_Left_1.cr2";
-
+		image.rotation = 270;
 		image.saveMetadata();
 	}
 }
