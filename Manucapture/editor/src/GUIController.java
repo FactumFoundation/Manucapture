@@ -84,10 +84,10 @@ public class GUIController {
 	}
 
 	public void calibration_shutter_click(GImageToggleButton source, GEvent event) { 
-		if (source.getState()==1) {
+		if (source == null || source.getState()==1) {
 			PApplet.println("SHUTTER CONTROL SET CALIBRATION MODE");
 			context.shutterMode = ManuCapture_v1_1.CALIB_SHUTTER;
-			context.setCaptureState(ManuCapture_v1_1.STATE_CHART);
+			context.cameraState = ManuCapture_v1_1.STATE_CHART;
 			context.chartStateMachine = 1;
 
 		} else {

@@ -32,9 +32,7 @@ public class ContentGUI {
 	PImage zoomImg = null;
 	float rightImageScale = 1.0f;
 	float leftImageScale = 1.0f;
-	
-	// TODO: calculate base zoom for Canon 5DSR
-	float baseZoom = 2f; // For Canon 700D 5200/1000
+	float baseZoom = 2f; 
 	
 	public ContentGUI(ManuCapture_v1_1 context){
 		this.context = context;
@@ -294,7 +292,7 @@ public class ContentGUI {
 				context.rect(0, 0, wImageViewerSize, hImageViewerSize);
 				context.fill(255);
 				context.textSize(24);
-				context.text(msg, wImageViewerSize / 2, 50);
+				context.text(msg, wImageViewerSize / 2, 150);
 				context.popMatrix();
 				context.popStyle();
 			} else if (context.chartStateMachine == 3) {
@@ -315,11 +313,9 @@ public class ContentGUI {
 				context.rect(0, imageMarginTop, wImageViewerSize * 2 + 100, hImageViewerSize);
 				context.textSize(24);
 				context.textAlign(context.CENTER);
-				context.fill(255, 255, 0);
-				String cad = context.msg("sw.calibration2");
-				context.text(cad, wImageViewerSize / 2 - 1, 200 - 1);
 				context.fill(255);
-				context.text(cad, wImageViewerSize / 2, 200);
+				String cad = context.msg("sw.calibration2");
+				context.text(cad, wImageViewerSize / 2 + leftImageMarginLeft, 150);
 				context.popMatrix();
 				context.popStyle();
 			}
@@ -396,7 +392,13 @@ public class ContentGUI {
 				}
 			}
 		}
-		else {
+		else if(context.chartStateMachine==3){
+			context.shutterMode = context.NORMAL_SHUTTER;
+			context.setCaptureState(context.CAMERAS_IDLE);
+			context.chartStateMachine = 0;
+			context.gui.btnColorChart.setState(0);
+			noZoom();
+		} else if(context.chartStateMachine==0){
 			if ( context.project != null && context.project.selectedItem != null) {
 				if (context.mouseButton == context.LEFT) {
 					if (context.getStateApp()==context.STATE_APP_PROJECT && lastPressedL == null && context.project.selectedItem.mImageLeft != null

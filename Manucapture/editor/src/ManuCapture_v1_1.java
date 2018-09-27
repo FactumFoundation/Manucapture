@@ -291,6 +291,7 @@ public class ManuCapture_v1_1 extends PApplet {
 					clearPaths();
 					shutterMode = ManuCapture_v1_1.NORMAL_SHUTTER;
 					chartStateMachine = 0;
+					gui.btnRepeat.setState(0);
 					// TODO Restore gui repeat button to off
 				}
 			} else if (shutterMode == CALIB_SHUTTER) {
@@ -312,12 +313,7 @@ public class ManuCapture_v1_1 extends PApplet {
 					project.replaceItem(project.selectedItemIndex, newItem);
 					clearPaths();
 					chartStateMachine++;
-				} else {
-					shutterMode = NORMAL_SHUTTER;
-					setCaptureState(CAMERAS_IDLE);
-					chartStateMachine = 0;
-					contentGUI.noZoom();
-				}
+				} 
 			}
 		}
 	}

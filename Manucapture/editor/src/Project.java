@@ -591,8 +591,6 @@ public class Project {
 			newItem.mImageRight.guides = items.get(index).mImageRight.guides;
 			items.remove(index);
 			items.add(index, newItem);
-			selectedItemIndex = PApplet.min(index + 1, items.size());
-			forceSelectedItem(selectedItemIndex, true);
 			saveProjectXML();
 		}
 	}

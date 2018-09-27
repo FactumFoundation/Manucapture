@@ -16,9 +16,9 @@ public class MessageContainer {
 		content.put("sw.nocamera", "The cameras was not detected, please connect, turn on and restart de application");
 		content.put("sw.liveviewenable", "LIVEVIEW MODE ENABLED");
 
-		content.put("sw.calibration1", "CAPTURING CHART COLOR\n PLEASE OPEN THE MANUSCRIPT AT THE END,\n AND PUT THE CHART COLOR IN THIS SIDE");
-		content.put("sw.calibration2", "DRAG POINTS TO COVER ALL DE MANUSCRIPT, AND PRESS BUTTON NORMAL");
-		content.put("sw.calibration3", "CAPTURING CHART COLOR\n PLEASE OPEN THE MANUSCRIPT AT THE START,\n AND PUT THE CHART COLOR IN THIS SIDE");
+		content.put("sw.calibration1", "PUT THE COLOR CHART IN THIS SIDE");
+		content.put("sw.calibration2", "CALIBRATION DONE, CLICK THE MOUSE TO CONTINUE");
+		content.put("sw.calibration3", "PUT THE CHART COLOR IN THIS SIDE");
 
 		content.put("sw.errorloadingproject", "Can't load project");
 

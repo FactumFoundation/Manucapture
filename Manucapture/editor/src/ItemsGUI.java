@@ -127,7 +127,6 @@ public class ItemsGUI {
 		} else {
 			// items
 			if (context.project.thumbnailsLoaded) {
-
 				// TODO: Add transition when adding
 				if (lastDrawedItems != context.project.items.size() && lastDrawedItems != -1
 						&& (context.project.selectedItemIndex != context.project.items.size() - 1)) {
@@ -191,11 +190,9 @@ public class ItemsGUI {
 						}
 
 						if ((i != context.project.selectedItemIndex) || (itemsViewTransition != ADDING_ITEM_TRANSITION)) {
-							if (item.mImageLeft.imgThumb != null) {
+							if (item.mImageLeft.imgThumb != null && item.mImageRight.imgThumb != null) {
 								itemsViewPort.image(item.mImageLeft.imgThumb, marginX,
 										viewPortRelativeHeight);
-							}
-							if (item.mImageRight.imgThumb != null) {
 								itemsViewPort.image(item.mImageRight.imgThumb, marginX + item.mImageLeft.imgThumb.width, viewPortRelativeHeight);
 							}
 							itemsViewPort.noFill();
