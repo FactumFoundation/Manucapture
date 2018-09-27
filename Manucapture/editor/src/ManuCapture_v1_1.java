@@ -163,8 +163,6 @@ public class ManuCapture_v1_1 extends PApplet {
 	String proyectsRepositoryFolder = null;
 	boolean creatingProyect = false;
 
-	
-
 	public void setup() {
 
 		System.setOut(new TracingPrintStream(System.out));
@@ -194,8 +192,8 @@ public class ManuCapture_v1_1 extends PApplet {
 		rawW = serialXML.getInt("raw_width");
 		rawH = serialXML.getInt("raw_height");
 
-		proyectsRepositoryFolder=serialXML.getString("repository");
-		
+		proyectsRepositoryFolder = serialXML.getString("repository");
+
 		String rotPageRight = serialXML.getChild("Camera_Page_Right").getString("rotation");
 		String rotPageLeft = serialXML.getChild("Camera_Page_Left").getString("rotation");
 		if (rotPageRight != null)
@@ -679,8 +677,7 @@ public class ManuCapture_v1_1 extends PApplet {
 	 * 
 	 */
 
-
-public synchronized boolean createProject(String projectFolderPath) {
+	public synchronized boolean createProject(String projectFolderPath) {
 
 		boolean ret = true;
 
@@ -698,16 +695,18 @@ public synchronized boolean createProject(String projectFolderPath) {
 		if (!file.mkdirs()) {
 			// we have a problem
 			ret = false;
-			G4P.showMessage(this, messageContainer.getText("sw.failsrepository")+tempProjectPath, "", G4P.WARNING);
-			
+			G4P.showMessage(this, messageContainer.getText("sw.failsrepository") + tempProjectPath, "", G4P.WARNING);
+
 		}
+		
+		projectFolderPath = tempProjectPath;
 
 		if (ret) {
-//			project.projectFilePath = tempProjectPath;
+			// project.projectFilePath = tempProjectPath;
 
-//			if (!project.projectFilePath.equals("")) {
-//				project.closeProject();
-//			}
+			// if (!project.projectFilePath.equals("")) {
+			// project.closeProject();
+			// }
 
 			XML projectDataXML = loadXML("project_template.xml");
 			project.loadProjectMetadata(projectDataXML);
@@ -726,7 +725,7 @@ public synchronized boolean createProject(String projectFolderPath) {
 					try {
 						Runtime.getRuntime().exec("chmod -R ugo+rw " + thumbnailsFolder.getPath());
 					} catch (Exception e) {
-						
+
 						_println("Couldn't create thumbnail directory permisions");
 					}
 				} else {
@@ -759,6 +758,7 @@ public synchronized boolean createProject(String projectFolderPath) {
 		}
 		return ret;
 	}
+
 	public void loadProject(String projectPath) {
 		project.selectedItem = null;
 		project.loadProjectMethod(projectPath);

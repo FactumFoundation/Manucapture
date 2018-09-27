@@ -94,6 +94,8 @@ public void close_popup_project(GButton source, GEvent event) {
 			someError = true;
 		}
 		
+		String codeTemp = context.project.projectCode;
+		
 		if (!someError) {
 			//first check if the proyect is just created
 			boolean ret = true;
@@ -111,7 +113,9 @@ public void close_popup_project(GButton source, GEvent event) {
 			if(ret) {
 			context.setStateApp(ManuCapture_v1_1.STATE_APP_PROJECT);
 			context.gui.grpAll.setVisible(1, true);
+			
 			context.gui.grpProject.setVisible(1, false);
+			context.project.projectCode = codeTemp;
 			context.project.saveProjectXML();
 			}
 		} else {
