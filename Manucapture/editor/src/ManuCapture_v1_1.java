@@ -160,6 +160,11 @@ public class ManuCapture_v1_1 extends PApplet {
 	int rawW = 5200;
 	int rawH = 3468;
 
+	String proyectsRepositoryFolder = null;
+	boolean creatingProyect = false;
+
+	
+
 	public void setup() {
 
 		System.setOut(new TracingPrintStream(System.out));
@@ -189,6 +194,8 @@ public class ManuCapture_v1_1 extends PApplet {
 		rawW = serialXML.getInt("raw_width");
 		rawH = serialXML.getInt("raw_height");
 
+		proyectsRepositoryFolder=serialXML.getString("repository");
+		
 		String rotPageRight = serialXML.getChild("Camera_Page_Right").getString("rotation");
 		String rotPageLeft = serialXML.getChild("Camera_Page_Left").getString("rotation");
 		if (rotPageRight != null)
@@ -313,7 +320,7 @@ public class ManuCapture_v1_1 extends PApplet {
 					project.replaceItem(project.selectedItemIndex, newItem);
 					clearPaths();
 					chartStateMachine++;
-				} 
+				}
 			}
 		}
 	}
@@ -672,58 +679,86 @@ public class ManuCapture_v1_1 extends PApplet {
 	 * 
 	 */
 
-	public synchronized void createProject(String projectFolderPath) {
-		if (!project.projectFilePath.equals("")) {
-			project.closeProject();
+
+public synchronized boolean createProject(String projectFolderPath) {
+
+		boolean ret = true;
+
+		// We will check if is posible using this name
+
+		String tempProjectPath = proyectsRepositoryFolder + projectFolderPath;
+
+		File file = new File(tempProjectPath);
+
+		if (file.exists()) {
+			// we have a problem
+			ret = false;
 		}
-		XML projectDataXML = loadXML("project_template.xml");
-		project.loadProjectMetadata(projectDataXML);
 
-		project.rotationPageRight = rotationPageRight;
-		project.rotationPageLeft = rotationPageLeft;
+		if (!file.mkdirs()) {
+			// we have a problem
+			ret = false;
+			G4P.showMessage(this, messageContainer.getText("sw.failsrepository")+tempProjectPath, "", G4P.WARNING);
+			
+		}
 
-		project.serialCameraPageRight = serialCameraPageRight;
-		project.serialCameraPageLeft = serialCameraPageLeft;
+		if (ret) {
+//			project.projectFilePath = tempProjectPath;
 
-		saveXML(projectDataXML, projectFolderPath + "/project.xml");
+//			if (!project.projectFilePath.equals("")) {
+//				project.closeProject();
+//			}
 
-		File thumbnailsFolder = new File(projectFolderPath + "/thumbnails");
-		if (!thumbnailsFolder.exists()) {
-			if (thumbnailsFolder.mkdir()) {
-				try {
-					Runtime.getRuntime().exec("chmod -R ugo+rw " + thumbnailsFolder.getPath());
-				} catch (Exception e) {
-					_println("Couldn't create thumbnail directory permisions");
+			XML projectDataXML = loadXML("project_template.xml");
+			project.loadProjectMetadata(projectDataXML);
+
+			project.rotationPageRight = rotationPageRight;
+			project.rotationPageLeft = rotationPageLeft;
+
+			project.serialCameraPageRight = serialCameraPageRight;
+			project.serialCameraPageLeft = serialCameraPageLeft;
+
+			saveXML(projectDataXML, projectFolderPath + "/project.xml");
+
+			File thumbnailsFolder = new File(projectFolderPath + "/thumbnails");
+			if (!thumbnailsFolder.exists()) {
+				if (thumbnailsFolder.mkdir()) {
+					try {
+						Runtime.getRuntime().exec("chmod -R ugo+rw " + thumbnailsFolder.getPath());
+					} catch (Exception e) {
+						
+						_println("Couldn't create thumbnail directory permisions");
+					}
+				} else {
+					_println("Failed to create thumbnail directory!");
 				}
-			} else {
-				_println("Failed to create thumbnail directory!");
 			}
-		}
-		File rawFolder = new File(projectFolderPath + "/raw");
-		if (!rawFolder.exists()) {
-			if (rawFolder.mkdir()) {
-				try {
-					Runtime.getRuntime().exec("chmod -R ugo+rw " + rawFolder.getPath());
-				} catch (Exception e) {
-					_println("Couldn't create raw directory permisions");
+			File rawFolder = new File(projectFolderPath + "/raw");
+			if (!rawFolder.exists()) {
+				if (rawFolder.mkdir()) {
+					try {
+						Runtime.getRuntime().exec("chmod -R ugo+rw " + rawFolder.getPath());
+					} catch (Exception e) {
+						_println("Couldn't create raw directory permisions");
+					}
+				} else {
+					_println("Failed to create thumbnail directory!");
 				}
-			} else {
-				_println("Failed to create thumbnail directory!");
 			}
+			project.projectDirectory = projectFolderPath;
+			project.projectFilePath = projectFolderPath + "/project.xml";
+			project.selectedItemIndex = -1;
+			project.thumbnailsLoaded = true;
+
+			gphotoPageRightAdapter.setTargetFile(project.projectDirectory + "/raw", project.projectCode);
+			gphotoPageLeftAdapter.setTargetFile(project.projectDirectory + "/raw", project.projectCode);
+			setCaptureState(CAMERAS_IDLE);
+
+			saveLastSessionData();
+			gui.project_info.setText("PROJECT INFO " + project.projectFilePath);
 		}
-		project.projectDirectory = projectFolderPath;
-		project.projectFilePath = projectFolderPath + "/project.xml";
-		project.selectedItemIndex = -1;
-		project.thumbnailsLoaded = true;
-
-		gphotoPageRightAdapter.setTargetFile(project.projectDirectory + "/raw", project.projectCode);
-		gphotoPageLeftAdapter.setTargetFile(project.projectDirectory + "/raw", project.projectCode);
-		setCaptureState(CAMERAS_IDLE);
-
-		saveLastSessionData();
-		gui.project_info.setText("PROJECT INFO " + project.projectFilePath);
+		return ret;
 	}
-
 	public void loadProject(String projectPath) {
 		project.selectedItem = null;
 		project.loadProjectMethod(projectPath);

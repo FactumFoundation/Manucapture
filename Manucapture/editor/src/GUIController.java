@@ -64,24 +64,63 @@ public class GUIController {
 		PApplet.println("holl1e" + ouseevent.getAction());
 	}
 
-	public void close_popup_project(GButton source, GEvent event) {
+//	public void close_popup_project(GButton source, GEvent event) {
+//		boolean someError = false;
+//		/*if (context.project.projectName == null || context.project.projectName.trim().equals("")) {
+//			someError = true;
+//		}*/
+//		if (context.project.projectCode == null || context.project.projectCode.trim().equals("")) {
+//			someError = true;
+//		}
+//		if (!someError) {
+//			context.setStateApp(ManuCapture_v1_1.STATE_APP_PROJECT);
+//			context.gui.grpAll.setVisible(1, true);
+//			context.gui.grpProject.setVisible(1, false);
+//			context.project.saveProjectXML();
+//		} else {
+//			G4P.showMessage(context, "Missing name or code", "", G4P.WARNING);
+//		}
+//		PApplet.println("close window edit project data");
+//	}
+	
+
+public void close_popup_project(GButton source, GEvent event) {
 		boolean someError = false;
-		/*if (context.project.projectName == null || context.project.projectName.trim().equals("")) {
-			someError = true;
-		}*/
+		/*
+		 * if (context.project.projectName == null ||
+		 * context.project.projectName.trim().equals("")) { someError = true; }
+		 */
 		if (context.project.projectCode == null || context.project.projectCode.trim().equals("")) {
 			someError = true;
 		}
+		
 		if (!someError) {
+			//first check if the proyect is just created
+			boolean ret = true;
+			if(context.creatingProyect) {
+				//we have to create the folder and especify path of project
+				
+				
+				ret = context.createProject(context.project.projectCode);
+				if(ret) {
+					
+				}
+				
+			}
+			
+			if(ret) {
 			context.setStateApp(ManuCapture_v1_1.STATE_APP_PROJECT);
 			context.gui.grpAll.setVisible(1, true);
 			context.gui.grpProject.setVisible(1, false);
 			context.project.saveProjectXML();
+			}
 		} else {
 			G4P.showMessage(context, "Missing name or code", "", G4P.WARNING);
 		}
+
 		PApplet.println("close window edit project data");
 	}
+
 
 	public void calibration_shutter_click(GImageToggleButton source, GEvent event) { 
 		if (source == null || source.getState()==1) {
@@ -185,17 +224,31 @@ public class GUIController {
 		}
 	} 
 
-	public void new_button_click(GButton source, GEvent event) { 
-		String projectFolderPath = G4P.selectFolder("Select the project folder for NEW PROJECT");
-		if (projectFolderPath != null) {
-			context.contentGUI.initCropGuides();
-			context.project.thumbnailsLoaded = false;
-			context.project.selectedItem = null;
-			context.setStateApp(context.STATE_APP_EDITING_PROJECT);
-			context.createProject(projectFolderPath);
-			calibration_shutter_click(null, null);
-		}
-	} 
+//	public void new_button_click(GButton source, GEvent event) { 
+//		String projectFolderPath = G4P.selectFolder("Select the project folder for NEW PROJECT");
+//		if (projectFolderPath != null) {
+//			context.contentGUI.initCropGuides();
+//			context.project.thumbnailsLoaded = false;
+//			context.project.selectedItem = null;
+//			context.setStateApp(context.STATE_APP_EDITING_PROJECT);
+//			context.createProject(projectFolderPath);
+//			calibration_shutter_click(null, null);
+//		}
+//	} 
+	
+	public void new_button_click(GButton source, GEvent event) {
+		// String projectFolderPath = G4P.selectFolder("Select the project folder for
+		// NEW PROJECT");
+		// if (projectFolderPath != null) {
+		context.creatingProyect = true;
+		context.contentGUI.initCropGuides();
+		context.project.thumbnailsLoaded = false;
+		context.project.selectedItem = null;
+		context.setStateApp(context.STATE_APP_EDITING_PROJECT);
+
+		// }
+	}
+
 
 	public void page_search_text_change(GTextField source, GEvent event) { 
 		PApplet.println("textfield2 - GTextField >> GEvent." + event + " @ " + context.millis());
