@@ -242,12 +242,7 @@ public class ManuCapture_v1_1 extends PApplet {
 	public void newPhotoEvent(G2P5Event event, String ic) {
 
 		println("New photo Event!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!", event.content);
-		
-		if (project.projectName == null || project.projectName.equals("")) {
-			handleMessageDialog("Error", "Can't capture photos without project name", G4P.ERROR);
-			return;
-		}
-
+	
 		if (event.g2p5 == gphotoPageRight) {
 			if (ignoreNextPageRight) {
 				println("Ignoring incoming right page");
@@ -785,18 +780,16 @@ public class ManuCapture_v1_1 extends PApplet {
 	public G2P5ManucaptureAdapter createG2P5(String serial, String name) {
 		G2P5 g2p5 = G2P5.create(homeDirectory(), serial, name);
 		G2P5ManucaptureAdapter adapter = new G2P5ManucaptureAdapter(this, g2p5);
-		adapter.setTargetFile(project.projectDirectory + "raw", project.projectName);
+		adapter.setTargetFile(project.projectDirectory + "raw", project.projectCode);
 		return adapter;
 	}
 
 	public void deleteAllFiles(String targetFilePath, String suf) {
 		// println("delete all " + suf + "files " + targetFilePath);
 		File storageDir = new File(targetFilePath);
-
 		if (!storageDir.exists()) {
 			storageDir.mkdirs();
 		}
-
 		for (File tempFile : storageDir.listFiles()) {
 			if (tempFile.getName().endsWith(suf))
 				tempFile.delete();

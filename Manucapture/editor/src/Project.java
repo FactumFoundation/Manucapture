@@ -20,10 +20,10 @@ public class Project {
 	String projectFilePath = "";
 	String projectDirectory = "";
 	// metadata
-	String projectName = "";
-	String projectComment = "";
+	//String projectName = "";
+	//String projectComment = "";
 	String projectCode = "";
-	String projectAuthor = "";
+	//String projectAuthor = "";
 
 	// new metadata
 	String timestamp = "";
@@ -144,15 +144,15 @@ public class Project {
 
 	public void loadProjectMetadata(XML projectDataXML) {
 
-		projectName = projectDataXML.getChild("metadata").getChild("name").getContent();
+	//	projectName = projectDataXML.getChild("metadata").getChild("name").getContent();
 	//	context.gui.name_text.setText(projectName);
 		context.gui.project_info.setText("PROJECT INFO " + context.project.projectFilePath);
 
-		projectComment = projectDataXML.getChild("metadata").getChild("comment").getContent();
+	//	projectComment = projectDataXML.getChild("metadata").getChild("comment").getContent();
 	//	context.gui.project_comments_text.setText(projectComment);
 		projectCode = projectDataXML.getChild("metadata").getChild("code").getContent();
 		context.gui.code_text.setText(projectCode);
-		projectAuthor = projectDataXML.getChild("metadata").getChild("author").getContent();
+	//	projectAuthor = projectDataXML.getChild("metadata").getChild("author").getContent();
 	//	context.gui.author_text.setText(projectAuthor);
 		context.println(projectDataXML.getChild("image_counter"));
 		G2P5Manager.setImageCount(new Integer(projectDataXML.getChild("image_counter").getContent()));
@@ -179,23 +179,17 @@ public class Project {
 	}
 
 	public void saveProjectXML() {
-		context.println(projectName, projectCode, projectAuthor, projectComment);
-		if (!(projectName.equals("") && projectCode.equals("") && projectAuthor.equals("")
-				&& projectComment.equals(""))) {
+		if (!projectCode.equals("")) {
 			XML projectXML = new XML("project");
-
 			XML metadataXML = new XML("metadata");
 			XML nameXML = new XML("name");
-			nameXML.setContent(projectName);
 			metadataXML.addChild(nameXML);
 			XML codeXML = new XML("code");
 			codeXML.setContent(projectCode);
 			metadataXML.addChild(codeXML);
 			XML projectCommentXML = new XML("comment");
-			projectCommentXML.setContent(projectComment);
 			metadataXML.addChild(projectCommentXML);
 			XML authorXML = new XML("author");
-			authorXML.setContent(projectAuthor);
 			metadataXML.addChild(authorXML);
 			// timestamp
 			XML timestampXML = new XML("timestamp");
@@ -305,9 +299,7 @@ public class Project {
 		items = new ArrayList<Item>();
 		thumbnailsLoaded = false;
 		projectFilePath = "";
-		projectAuthor = "";
 		projectCode = "";
-		projectComment = "";
 		projectDirectory = "";
 
 		// TODO: Check everything to close in the Reset viewer

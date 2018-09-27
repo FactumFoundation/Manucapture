@@ -42,14 +42,11 @@ public class G2P5 {
 
 	List<G2P5Event> events = new ArrayList<>();
 
-	boolean mock = true;
-
+	boolean mock = false;
 	boolean ignoreEventProperty = true;
-	
 	String shutterSpeedNormal = "1/30";
 	String shutterSpeedLiveview = "1";
 	
-
 	public G2P5() {
 
 	}
