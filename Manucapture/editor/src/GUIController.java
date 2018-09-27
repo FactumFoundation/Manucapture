@@ -105,7 +105,7 @@ public void close_popup_project(GButton source, GEvent event) {
 				
 				ret = context.createProject(context.project.projectCode);
 				if(ret) {
-					
+					context.creatingProyect = false;	
 				}
 				
 			}
@@ -248,6 +248,7 @@ public void close_popup_project(GButton source, GEvent event) {
 		context.contentGUI.initCropGuides();
 		context.project.thumbnailsLoaded = false;
 		context.project.selectedItem = null;
+		context.project.projectCode  = "";
 		context.setStateApp(context.STATE_APP_EDITING_PROJECT);
 
 		// }
