@@ -255,7 +255,7 @@ Orientation=As Image
 Guide=Frame
 
 [Coarse Transformation]
-Rotate=270
+Rotate=0
 HorizontalFlip=false
 VerticalFlip=false
 

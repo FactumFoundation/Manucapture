@@ -35,8 +35,8 @@ public class MImage {
 	long timestamp = -1;
 	G2P5ManucaptureAdapter g2p5Adapter;
 
+	String templatePath = "/home/dudito/git/bookScanner/Manucapture/editor/src/data/template.pp3";
 
-	String templatePath = "/src/data/template.pp3";
 	String pathMock = null;
 
 	void remove() {
@@ -235,7 +235,7 @@ public class MImage {
 				reader = new BufferedReader(new FileReader(file));
 				while ((line = reader.readLine()) != null) {
 					if (line.trim().equals("[Coarse Transformation]")) {
-
+						newtext += line + "\n";
 						// move inside rotation
 						while ((!line.trim().equals(""))) {
 							line = reader.readLine();
@@ -245,12 +245,60 @@ public class MImage {
 								rotation = (int) rotationF;
 							}
 						}
+					}
+					if (line.trim().equals("[Crop]")) {
+
+						// crop.setFloat("left", this.guides.get(0).pos.x /
+						// context.contentGUI.wImageViewerSize);
+						// crop.setFloat("top", this.guides.get(1).pos.y /
+						// context.contentGUI.hImageViewerSize);
+						// crop.setFloat("right", this.guides.get(2).pos.x /
+						// context.contentGUI.wImageViewerSize);
+						// crop.setFloat("bottom", this.guides.get(3).pos.y /
+						// context.contentGUI.hImageViewerSize);
+
+						// TODO I'ts not normalized , we need the total res of cr2
+						newtext += line + "\n";
+						// move inside crop
+						while ((!line.trim().equals(""))) {
+							line = reader.readLine();
+							if (line.startsWith("Enabled")) {
+							} else if (line.startsWith("X")) {
+								String XCad = line.substring(2, line.length());
+								int left = Integer.parseInt(XCad);
+
+								this.guides.get(0).pos.x = left;
+								this.guides.get(0).pos.y = 0;
+
+							} else if (line.startsWith("Y")) {
+								String XCad = line.substring(2, line.length());
+								int top = Integer.parseInt(XCad);
+
+								this.guides.get(1).pos.x = 0;
+								this.guides.get(1).pos.y = top;
+
+							} else if (line.startsWith("W")) {
+								String XCad = line.substring(2, line.length());
+								int right = Integer.parseInt(XCad);
+
+								this.guides.get(2).pos.x = right;
+								this.guides.get(2).pos.y = 0;
+
+							} else if (line.startsWith("H")) {
+								String XCad = line.substring(2, line.length());
+								int bottom = Integer.parseInt(XCad);
+
+								this.guides.get(3).pos.x = 0;
+								this.guides.get(3).pos.y = bottom;
+							} else {
+								newtext += line + "\n";
+							}
+						}
 					} else {
 						newtext += line + "\n";
 					}
 				}
 
-				FileUtils.writeStringToFile(new File(getSidecarPath()), newtext, Charset.defaultCharset());
 
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -275,7 +323,8 @@ public class MImage {
 		File file = new File(sideCarFilePath);
 		if (!file.exists()) {
 			// load the template
-			sideCarFilePath = context.sketchPath() +  templatePath;
+			// sideCarFilePath = context.dataPath("") + templatePath;
+			sideCarFilePath = templatePath;
 			file = new File(sideCarFilePath);
 		}
 
@@ -287,7 +336,7 @@ public class MImage {
 			reader = new BufferedReader(new FileReader(file));
 			while ((line = reader.readLine()) != null) {
 				if (line.trim().equals("[Coarse Transformation]")) {
-
+					newtext += line + "\n";
 					// move inside rotation
 					while ((!line.trim().equals(""))) {
 						line = reader.readLine();
@@ -297,7 +346,40 @@ public class MImage {
 							newtext += line + "\n";
 						}
 					}
-				} else {
+				}
+				if (line.trim().equals("[Crop]")) {
+
+					// crop.setFloat("left", this.guides.get(0).pos.x /
+					// context.contentGUI.wImageViewerSize);
+					// crop.setFloat("top", this.guides.get(1).pos.y /
+					// context.contentGUI.hImageViewerSize);
+					// crop.setFloat("right", this.guides.get(2).pos.x /
+					// context.contentGUI.wImageViewerSize);
+					// crop.setFloat("bottom", this.guides.get(3).pos.y /
+					// context.contentGUI.hImageViewerSize);
+
+					// TODO I'ts not normalized , we need the total res of cr2
+					newtext += line + "\n";
+					// move inside crop
+					while ((!line.trim().equals(""))) {
+						line = reader.readLine();
+						if (line.startsWith("Enabled")) {
+							newtext += "Enabled" + "=true" + "\n";
+						} else if (line.startsWith("X")) {
+							newtext += "X" + "=" + (int)this.guides.get(0).pos.x + "\n";
+						} else if (line.startsWith("Y")) {
+							newtext += "Y" + "=" + (int)this.guides.get(1).pos.y + "\n";
+						} else if (line.startsWith("W")) {
+							newtext += "W" + "=" + (int)this.guides.get(2).pos.x + "\n";
+						} else if (line.startsWith("H")) {
+							newtext += "H" + "=" + (int)this.guides.get(3).pos.y + "\n";
+						} else {
+							newtext += line + "\n";
+						}
+					}
+				}
+
+				else {
 					newtext += line + "\n";
 				}
 			}
@@ -311,7 +393,6 @@ public class MImage {
 				try {
 					reader.close();
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 		}
@@ -376,7 +457,14 @@ public class MImage {
 		image.imagePath = "/home/dudito/proyectos/book_scanner/Manucapture_Crop_Pages/dataSet/024/024_Page_Left_1.cr2";
 		image.pathMock = "/home/dudito/proyectos/book_scanner/Manucapture_Crop_Pages/dataSet/024/024_Page_Left_1.cr2";
 
-//		image.saveMetadata();
-		image.loadMetadata();
+		image.rotation = 90;
+
+		image.guides.add(new Guide(new PVector(0, 0), null, 0, "0"));
+		image.guides.add(new Guide(new PVector(1, 1), null, 0, "1"));
+		image.guides.add(new Guide(new PVector(2, 2), null, 0, "2"));
+		image.guides.add(new Guide(new PVector(3, 3), null, 0, "3"));
+
+		image.saveMetadata();
+		 image.loadMetadata();
 	}
 }
