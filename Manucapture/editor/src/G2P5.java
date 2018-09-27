@@ -33,7 +33,7 @@ public class G2P5 {
 
 	// G2P5TetheredCaptureThread t;
 
-	Runnable captureRunnable;
+	RunnableTetheredInterface captureRunnable;
 	Thread thread;
 
 	G2P5Listener listener;
@@ -42,7 +42,7 @@ public class G2P5 {
 
 	List<G2P5Event> events = new ArrayList<>();
 
-	boolean mock = false;
+	boolean mock = true;
 	boolean ignoreEventProperty = true;
 	String shutterSpeedNormal = "1/30";
 	String shutterSpeedLiveview = "1";
@@ -257,7 +257,7 @@ public class G2P5 {
 			} else {
 				// aquí los no reconocidos
 			}
-		} else if (line.contains(id + ".cr2")) {
+		} else if (line.contains(".cr2") && line.contains(id)) {
 			// something about the file
 			if (!line.contains("LANG=C")) {
 				try {
@@ -378,6 +378,10 @@ public class G2P5 {
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
 		}
+	}
+
+	public void doTriggerEvent() {
+		captureRunnable.doTriggerEvent(true);
 	}
 
 }

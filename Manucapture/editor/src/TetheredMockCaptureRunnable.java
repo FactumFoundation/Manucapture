@@ -2,14 +2,12 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
 import processing.core.PApplet;
 
-public class TetheredMockCaptureRunnable implements Runnable {
+public class TetheredMockCaptureRunnable implements RunnableTetheredInterface {
 
 	G2P5 g2p5;
 
@@ -19,7 +17,12 @@ public class TetheredMockCaptureRunnable implements Runnable {
 
 	private List<String> dataset = new ArrayList<>();
 	private int indexDataSet = 0;
-	public String pathDataSet = "/home/factum/Escritorio/024/";
+	 public String pathDataSet = "/home/factum/Escritorio/024/";
+//	public String pathDataSet = "/home/dudito/proyectos/book_scanner/Manucapture_Crop_Pages/dataSet/024/";
+
+	boolean waitTriggerEvent = true;
+
+	boolean processTriggerEvent = false;
 
 	public String[] readLines(String filename) throws IOException {
 
@@ -75,8 +78,23 @@ public class TetheredMockCaptureRunnable implements Runnable {
 
 		String line = null;
 		while (true) {
+
+			// if need trigger event, we wait until received
+			if (waitTriggerEvent && !processTriggerEvent) {
+				PApplet.println("tethered mock Start waiting " + g2p5.id);
+				while (!processTriggerEvent) {
+					try {
+
+						Thread.sleep(5);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				}
+
+			}
+
 			line = logs[indexLogs];
-			
+
 			// first modify the id with id of this thread, normally two A and B
 			line = line.replaceAll("/A.cr2", "/" + g2p5.id + ".cr2");
 
@@ -87,17 +105,18 @@ public class TetheredMockCaptureRunnable implements Runnable {
 
 				int index = line.indexOf("/home");
 				String temp = line.substring(0, index);
-				line = temp + pathDataSet+dataset.get(indexDataSet);
+				line = temp + pathDataSet + dataset.get(indexDataSet);
 				indexDataSet++;
 
 				// rewind
 				if (indexDataSet >= dataset.size()) {
 					indexDataSet = 0;
 				}
-
+				// when new photo, waiting for next trigger
+				processTriggerEvent = false;
 			}
-			
-			 PApplet.println(g2p5.id + " Tethered message : " + line);
+
+			PApplet.println(g2p5.id + " Tethered message : " + line);
 
 			g2p5.processLogLine(line);
 			indexLogs++;
@@ -105,9 +124,13 @@ public class TetheredMockCaptureRunnable implements Runnable {
 				indexLogs = 0;
 			}
 			try {
-				Thread.sleep(50);
-				if (logs[indexLogs].trim().equals("")) {
-					Thread.sleep(2000);
+				if (waitTriggerEvent) {
+
+				} else {
+					Thread.sleep(50);
+					if (logs[indexLogs].trim().equals("")) {
+						Thread.sleep(2000);
+					}
 				}
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
@@ -115,8 +138,6 @@ public class TetheredMockCaptureRunnable implements Runnable {
 				return;
 			}
 		}
-
-
 		// return true;
 
 	}
@@ -129,4 +150,7 @@ public class TetheredMockCaptureRunnable implements Runnable {
 		thread.start();
 	}
 
+	public synchronized void doTriggerEvent(boolean process) {
+		processTriggerEvent = process;
+	}
 }

@@ -208,6 +208,10 @@ public class ManuCapture_v1_1 extends PApplet {
 			gphotoPageLeft.listener = gphotoPageLeftAdapter;
 			gphotoPageRightAdapter.setTargetFile(project.projectDirectory + "/raw", project.projectCode);
 			gphotoPageLeftAdapter.setTargetFile(project.projectDirectory + "/raw", project.projectCode);
+			
+			if(gphotoPageLeftAdapter.g2p5.mock ) {
+				MAX_TIME_CAPTURE_MACHINE_STATE = 15000;
+			}
 		}
 
 		// Init GUI
@@ -986,11 +990,11 @@ public class ManuCapture_v1_1 extends PApplet {
 				setCaptureState(CAMERAS_IDLE);
 			} else if(millis() > lastCaptureMillis + MAX_TIME_CAPTURE_MACHINE_STATE) {
 				if(gphotoPageRightAdapter.mirrorUp) {
-					clickCameraA();
+					clickCameraPageRight();
 					ignoreNextPageRight = true;
 				}
 				if(gphotoPageLeftAdapter.mirrorUp) {
-					clickCameraB();
+					clickCameraPageLeft();
 					ignoreNextPageLeft = true;
 				}
 				setCaptureState(CAMERAS_IDLE);
@@ -1024,11 +1028,11 @@ public class ManuCapture_v1_1 extends PApplet {
 			releaseCameras();		
 			G4P.showMessage(this, messageContainer.getText("sw.fails"), "", G4P.WARNING);
 		} else if (!gphotoPageRightAdapter.mirrorUp && gphotoPageLeftAdapter.mirrorUp) {
-			clickCameraB();
+			clickCameraPageLeft();
 			ignoreNextPageLeft = true;
 			G4P.showMessage(this, messageContainer.getText("sw.failsA"), "", G4P.WARNING);
 		} else if (gphotoPageRightAdapter.mirrorUp && !gphotoPageLeftAdapter.mirrorUp) {
-			clickCameraA();
+			clickCameraPageRight();
 			ignoreNextPageRight = true;
 			G4P.showMessage(this, messageContainer.getText("sw.failsB"), "", G4P.WARNING);
 		}
@@ -1039,6 +1043,8 @@ public class ManuCapture_v1_1 extends PApplet {
 		OscMessage myMessage = new OscMessage("/shutterAction");
 		myMessage.add('P');
 		oscP5.send(myMessage, arduinoDriverLocation);
+		gphotoPageLeft.doTriggerEvent();
+		gphotoPageRight.doTriggerEvent();
 	}
 
 	public void releaseCameras() {
@@ -1046,6 +1052,8 @@ public class ManuCapture_v1_1 extends PApplet {
 		OscMessage myMessage = new OscMessage("/shutterAction");
 		myMessage.add('R');
 		oscP5.send(myMessage, arduinoDriverLocation);
+		gphotoPageLeft.doTriggerEvent();
+		gphotoPageRight.doTriggerEvent();
 	}
 
 	public void releaseAndShutterCameras() {
@@ -1054,6 +1062,8 @@ public class ManuCapture_v1_1 extends PApplet {
 		myMessage.add('W');
 		oscP5.send(myMessage, arduinoDriverLocation);
 		println("Release And Shutters Cameras by OSC");
+		gphotoPageLeft.doTriggerEvent();
+		gphotoPageRight.doTriggerEvent();
 	}
 
 	public void clickCamera() {
@@ -1061,20 +1071,25 @@ public class ManuCapture_v1_1 extends PApplet {
 		myMessage.add('S');
 		oscP5.send(myMessage, arduinoDriverLocation);
 		println("Shutter Cameras by OSC");
+		gphotoPageLeft.doTriggerEvent();
+		gphotoPageRight.doTriggerEvent();
 	}
 
-	public void clickCameraB() {
+	public void clickCameraPageLeft() {
+		
 		OscMessage myMessage = new OscMessage("/shutterAction");
 		myMessage.add('Y');
 		oscP5.send(myMessage, arduinoDriverLocation);
 		println("Reset Camera A failing by OSC");
+		gphotoPageLeft.doTriggerEvent();
 	}
 
-	public void clickCameraA() {
+	public void clickCameraPageRight() {
 		OscMessage myMessage = new OscMessage("/shutterAction");
 		myMessage.add('Z');
 		oscP5.send(myMessage, arduinoDriverLocation);
 		println("Reset Camera B failing by OSC");
+		gphotoPageRight.doTriggerEvent();
 	}
 
 	public void handleMessageDialog(String title, String message, int type) {
