@@ -19,7 +19,7 @@ import processing.data.XML;
 
 public class MImage {
 
-	private static final String SIDECAR_EXTENSION = ".pp3";
+	private static final String SIDECAR_EXTENSION = ".cr2.pp3";
 
 	String imagePath;
 	String thumbPath;
@@ -35,7 +35,7 @@ public class MImage {
 	long timestamp = -1;
 	G2P5ManucaptureAdapter g2p5Adapter;
 
-	String templatePath = "/home/dudito/git/bookScanner/Manucapture/editor/src/data/template.pp3";
+	String templatePath = "template.pp3";
 
 	String pathMock = null;
 
@@ -218,7 +218,55 @@ public class MImage {
 		return img;
 	}
 
+	public void loadMetadata() {
+		if (imagePath == null || imagePath.equals("")) {
+			return;
+		}
+
+		String sideCarFilePath = getSidecarPath();
+		File file = new File(sideCarFilePath);
+		if (file.exists()) {
+
+			String line;
+			String newtext = "";
+
+			BufferedReader reader = null;
+			try {
+				reader = new BufferedReader(new FileReader(file));
+				while ((line = reader.readLine()) != null) {
+					if (line.trim().equals("[Coarse Transformation]")) {
+
+						// move inside rotation
+						while ((!line.trim().equals(""))) {
+							line = reader.readLine();
+							if (line.startsWith("Rotate")) {
+								String rotateCad = line.substring(7, line.length());
+								float rotationF = Float.parseFloat(rotateCad);
+								rotation = (int) rotationF;
+							}
+						}
+					} else {
+						newtext += line + "\n";
+					}
+				}
+
+				FileUtils.writeStringToFile(new File(getSidecarPath()), newtext, Charset.defaultCharset());
+
+			} catch (IOException e) {
+				e.printStackTrace();
+			} finally {
+				if (reader != null)
+					try {
+						reader.close();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+			}
+		}
+	}
+
 	public void saveMetadata() {
+
 		if (imagePath == null || imagePath.equals("")) {
 			return;
 		}
@@ -227,7 +275,7 @@ public class MImage {
 		File file = new File(sideCarFilePath);
 		if (!file.exists()) {
 			// load the template
-			sideCarFilePath = templatePath;
+			sideCarFilePath = context.dataPath("") + templatePath;
 			file = new File(sideCarFilePath);
 		}
 
@@ -239,17 +287,17 @@ public class MImage {
 			reader = new BufferedReader(new FileReader(file));
 			while ((line = reader.readLine()) != null) {
 				if (line.trim().equals("[Coarse Transformation]")) {
-					
+
 					// move inside rotation
 					while ((!line.trim().equals(""))) {
 						line = reader.readLine();
 						if (line.startsWith("Rotate")) {
-							newtext += "Rotate" + "=" + rotation+"\n";
+							newtext += "Rotate" + "=" + rotation + "\n";
 						} else {
 							newtext += line + "\n";
 						}
 					}
-				}else {
+				} else {
 					newtext += line + "\n";
 				}
 			}
@@ -304,22 +352,22 @@ public class MImage {
 		return (imagePath.replace("raw/", ""));
 	}
 
-	public void loadMetadata() {
+	public void loadMetadataXML() {
 		if (new File(getSidecarPath()).exists()) {
-//			XML projectDataXML = context.loadXML(getSidecarPath());
-//			XML crop = projectDataXML.getChild("crop");
-//			float left = crop.getFloat("left") * context.contentGUI.wImageViewerSize;
-//			float top = crop.getFloat("top") * context.contentGUI.hImageViewerSize;
-//			float right = crop.getFloat("right") * context.contentGUI.wImageViewerSize;
-//			float bottom = crop.getFloat("bottom") * context.contentGUI.hImageViewerSize;
-//			this.guides.get(0).pos.x = left;
-//			this.guides.get(0).pos.y = 0;
-//			this.guides.get(1).pos.x = 0;
-//			this.guides.get(1).pos.y = top;
-//			this.guides.get(2).pos.x = right;
-//			this.guides.get(2).pos.y = 0;
-//			this.guides.get(3).pos.x = 0;
-//			this.guides.get(3).pos.y = bottom;
+			XML projectDataXML = context.loadXML(getSidecarPath());
+			XML crop = projectDataXML.getChild("crop");
+			float left = crop.getFloat("left") * context.contentGUI.wImageViewerSize;
+			float top = crop.getFloat("top") * context.contentGUI.hImageViewerSize;
+			float right = crop.getFloat("right") * context.contentGUI.wImageViewerSize;
+			float bottom = crop.getFloat("bottom") * context.contentGUI.hImageViewerSize;
+			this.guides.get(0).pos.x = left;
+			this.guides.get(0).pos.y = 0;
+			this.guides.get(1).pos.x = 0;
+			this.guides.get(1).pos.y = top;
+			this.guides.get(2).pos.x = right;
+			this.guides.get(2).pos.y = 0;
+			this.guides.get(3).pos.x = 0;
+			this.guides.get(3).pos.y = bottom;
 		}
 	}
 
@@ -328,6 +376,7 @@ public class MImage {
 		image.imagePath = "/home/dudito/proyectos/book_scanner/Manucapture_Crop_Pages/dataSet/024/024_Page_Left_1.cr2";
 		image.pathMock = "/home/dudito/proyectos/book_scanner/Manucapture_Crop_Pages/dataSet/024/024_Page_Left_1.cr2";
 
-		image.saveMetadata();
+//		image.saveMetadata();
+		image.loadMetadata();
 	}
 }
