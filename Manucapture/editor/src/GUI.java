@@ -102,7 +102,7 @@ public class GUI {
 		btnOpenSOViewer2.addEventHandler(guiController, "openViewer_2");
 		grpAll.addControls(btnOpenSOViewer2);
 				
-		files = new String[] { "btn_edit.png", "btn_edit.png", "btn_edit.png" };
+		files = new String[] { "btn_info.png", "btn_info.png", "btn_info.png" };
 		btnEdit = new GImageButton(context, 148 +30,40, files);
 		btnEdit.addEventHandler(guiController,"edit_click");
 		grpAll.addControls(btnEdit);

@@ -340,6 +340,7 @@ public class ManuCapture_v1_1 extends PApplet {
 			fill(155, 255);
 			rect(0, 0, width, height);
 			fill(255, 0, 0);
+			gui.project_info.setText("PROJECT INFO " + proyectsRepositoryFolder + project.projectCode);
 		}
 		if (loading) {
 			fill(0, 200);
@@ -698,7 +699,7 @@ public class ManuCapture_v1_1 extends PApplet {
 			G4P.showMessage(this, messageContainer.getText("sw.failsrepository") + tempProjectPath, "", G4P.WARNING);
 
 		}
-		
+
 		projectFolderPath = tempProjectPath;
 
 		if (ret) {
@@ -754,6 +755,7 @@ public class ManuCapture_v1_1 extends PApplet {
 			setCaptureState(CAMERAS_IDLE);
 
 			saveLastSessionData();
+
 			gui.project_info.setText("PROJECT INFO " + project.projectFilePath);
 		}
 		return ret;
