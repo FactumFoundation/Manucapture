@@ -27,7 +27,7 @@ public class TetheredCaptureRunnable implements RunnableTetheredInterface{
 			BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream), 1);
 			String line;
 			while ((line = bufferedReader.readLine()) != null) {
-				// PApplet.println(port + " Tethered message : " + line);
+				PApplet.println(g2p5.port + " Tethered message : " + line);
 				g2p5.processLogLine(line);
 			}
 

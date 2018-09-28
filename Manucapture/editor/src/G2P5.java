@@ -36,7 +36,7 @@ public class G2P5 {
 	G2P5Listener listener;
 	String homeDirectory;
 	List<G2P5Event> events = new ArrayList<>();
-	boolean mock = true;
+	boolean mock = false;
 	boolean ignoreEventProperty = true;
 	String shutterSpeedNormal = "1/30";
 	String shutterSpeedLiveview = "1";
@@ -79,6 +79,7 @@ public class G2P5 {
 				captureRunnable.thread = thread;
 				thread.start();
 				this.thread = thread;
+				this.captureRunnable = captureRunnable;
 			} else {
 				setAction(CAMERA_INACTIVE);
 				killAllProcessByName(id + ".cr2");
@@ -92,15 +93,13 @@ public class G2P5 {
 				setAction(CAMERA_INACTIVE);
 				killAllProcessByName(id + ".cr2");
 				actionCode = CAMERA_INACTIVE;
-
-			} else if (true) {
+			} else {
 				if (!mock) {
-					captureRunnable = new TetheredCaptureRunnable();
+					//captureRunnable = new TetheredCaptureRunnable();
 					this.active = false;
 				}
 			}
 		}
-
 		if (mock && active) {
 			TetheredMockCaptureRunnable captureRunnable = new TetheredMockCaptureRunnable();
 			Thread thread = new Thread(captureRunnable);
@@ -375,6 +374,7 @@ public class G2P5 {
 	}
 
 	public void doTriggerEvent() {
+		if(captureRunnable != null)
 		captureRunnable.doTriggerEvent(true);
 	}
 

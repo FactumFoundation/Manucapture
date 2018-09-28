@@ -222,7 +222,6 @@ public class ManuCapture_v1_1 extends PApplet {
 				MAX_TIME_CAPTURE_MACHINE_STATE = 15000;
 			}
 		}
-
 		// Init GUI
 		// Main window position
 		surface.setTitle("ManuCapture v1");
@@ -255,7 +254,6 @@ public class ManuCapture_v1_1 extends PApplet {
 	public void newPhotoEvent(G2P5Event event, String ic) {
 
 		println("New photo Event!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!", event.content);
-
 		if (event.g2p5 == gphotoPageRight) {
 			if (ignoreNextPageRight) {
 				println("Ignoring incoming right page");
@@ -277,7 +275,6 @@ public class ManuCapture_v1_1 extends PApplet {
 				newPageLeftPath = gphotoPageLeftAdapter.getFullTargetPath();
 			}
 		}
-
 		// Adding new Item!! Here
 		if ((gphotoPageRight.isConnected() && gphotoPageLeft.isConnected()
 				&& (!newPageRightPath.equals("") && !newPageLeftPath.equals("")))
@@ -470,6 +467,7 @@ public class ManuCapture_v1_1 extends PApplet {
 				liveViewActive = -1;
 				gui.btnLiveView.setEnabled(true);
 				gui.btnLiveView.setVisible(true);
+				gui.btnLiveView.setState(0);
 			}
 		}
 
