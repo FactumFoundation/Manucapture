@@ -35,7 +35,7 @@ public class MImage {
 	long timestamp = -1;
 	G2P5ManucaptureAdapter g2p5Adapter;
 
-	String templatePath = "/home/dudito/git/bookScanner/Manucapture/editor/src/data/template.pp3";
+	String templatePath = "/template.pp3";
 
 	String pathMock = null;
 
@@ -231,6 +231,8 @@ public class MImage {
 			String line;
 			String newtext = "";
 
+			int leftBase = 0;
+			
 			BufferedReader reader = null;
 			try {
 				reader = new BufferedReader(new FileReader(file));
@@ -267,30 +269,36 @@ public class MImage {
 							} else if (line.startsWith("X")) {
 								String XCad = line.substring(2, line.length());
 								int left = Integer.parseInt(XCad);
+								float norm = left / (float)context.rawW;
 
-								this.guides.get(0).pos.x = left;
+								this.guides.get(0).pos.x = norm * context.contentGUI.hImageViewerSize;
 								this.guides.get(0).pos.y = 0;
 
 							} else if (line.startsWith("Y")) {
 								String XCad = line.substring(2, line.length());
 								int top = Integer.parseInt(XCad);
-
+								float norm = top / (float)context.rawH;
 								this.guides.get(1).pos.x = 0;
-								this.guides.get(1).pos.y = top;
+								this.guides.get(1).pos.y = norm * context.contentGUI.wImageViewerSize;
 
 							} else if (line.startsWith("W")) {
 								String XCad = line.substring(2, line.length());
 								int right = Integer.parseInt(XCad);
-
-								this.guides.get(2).pos.x = right;
+								float norm = right / (float)context.rawW;
+								float temp = norm * context.contentGUI.hImageViewerSize;
+								float top = this.guides.get(0).pos.x;
+								temp+=top;
+								
+								this.guides.get(2).pos.x =    temp ;
 								this.guides.get(2).pos.y = 0;
 
 							} else if (line.startsWith("H")) {
 								String XCad = line.substring(2, line.length());
 								int bottom = Integer.parseInt(XCad);
+								float norm = bottom / (float)context.rawH;
 
 								this.guides.get(3).pos.x = 0;
-								this.guides.get(3).pos.y = bottom;
+								this.guides.get(3).pos.y = norm * context.contentGUI.wImageViewerSize + this.guides.get(1).pos.y;
 							} else {
 								newtext += line + "\n";
 							}
@@ -323,8 +331,8 @@ public class MImage {
 		File file = new File(sideCarFilePath);
 		if (!file.exists()) {
 			// load the template
-			// sideCarFilePath = context.dataPath("") + templatePath;
-			sideCarFilePath = templatePath;
+			sideCarFilePath = context.dataPath("") + templatePath;
+			//sideCarFilePath = templatePath;
 			file = new File(sideCarFilePath);
 		}
 
@@ -360,26 +368,31 @@ public class MImage {
 
 					newtext += line + "\n";
 					// move inside crop
+					int topLeft = 0;
+					int topTop = 0;
+					
 					while ((!line.trim().equals(""))) {
 						line = reader.readLine();
 						if (line.startsWith("Enabled")) {
 							newtext += "Enabled" + "=true" + "\n";
 						} else if (line.startsWith("X")) {
 						
-							float tempNormalized = this.guides.get(0).pos.x / context.contentGUI.wImageViewerSize;
-							newtext += "X" + "=" + (int) (tempNormalized * context.rawW) + "\n";
+							float tempNormalized = this.guides.get(0).pos.x / context.contentGUI.hImageViewerSize;
+							topLeft = (int) (tempNormalized * context.rawW);
+							newtext += "X" + "=" + topLeft + "\n";
 						} else if (line.startsWith("Y")) {
 							
-							float tempNormalized = this.guides.get(1).pos.y / context.contentGUI.hImageViewerSize;
-							newtext += "Y" + "=" + (int) (tempNormalized * context.rawH) + "\n";
+							float tempNormalized = this.guides.get(1).pos.y / context.contentGUI.wImageViewerSize;
+							topTop = (int) (tempNormalized * context.rawH);
+							newtext += "Y" + "=" + topTop + "\n";
 						} else if (line.startsWith("W")) {
 							
-							float tempNormalized = this.guides.get(2).pos.x / context.contentGUI.wImageViewerSize;
-							newtext += "W" + "=" + (int) (tempNormalized * context.rawW) + "\n";
+							float tempNormalized = this.guides.get(2).pos.x / context.contentGUI.hImageViewerSize;
+							newtext += "W" + "=" + (int) (tempNormalized * context.rawW - topLeft) + "\n";
 						} else if (line.startsWith("H")) {
 							
-							float tempNormalized = this.guides.get(3).pos.y / context.contentGUI.hImageViewerSize;
-							newtext += "H" + "=" + (int) (tempNormalized * context.rawH) + "\n";
+							float tempNormalized = this.guides.get(3).pos.y / context.contentGUI.wImageViewerSize;
+							newtext += "H" + "=" + (int) (tempNormalized * context.rawH - topTop) + "\n";
 						} else {
 							newtext += line + "\n";
 						}

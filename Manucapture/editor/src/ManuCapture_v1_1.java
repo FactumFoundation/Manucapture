@@ -217,7 +217,6 @@ public class ManuCapture_v1_1 extends PApplet {
 			gphotoPageLeft.listener = gphotoPageLeftAdapter;
 			gphotoPageRightAdapter.setTargetFile(project.projectDirectory + "/raw", project.projectCode);
 			gphotoPageLeftAdapter.setTargetFile(project.projectDirectory + "/raw", project.projectCode);
-
 			if (gphotoPageLeftAdapter.g2p5.mock) {
 				MAX_TIME_CAPTURE_MACHINE_STATE = 15000;
 			}
