@@ -152,10 +152,12 @@ public class ContentGUI {
 		// TODO: Draw guides				
 		if (lastPressedR == null) {
 			for (Guide guide : guidesRight) {
+				context.pushStyle();
+				context.strokeWeight(3);
 				if (context.cropMode) {
-					context.stroke(255,150,0);
-				} else {
 					context.stroke(255,0,0);
+				} else {
+					context.stroke(93,183,255);
 				}
 				PVector screenPos = guide.getScreenPosition();
 				if(guide.isHorizontal()) {
@@ -163,6 +165,7 @@ public class ContentGUI {
 				} else {
 					context.line(screenPos.x, screenPos.y,screenPos.x,screenPos.y+hImageViewerSize);
 				}
+				context.popStyle();
 			}
 		} else {
 			float imgScale = imgPreviewRight.width / (float) wImageViewerSize;
@@ -203,10 +206,12 @@ public class ContentGUI {
 		}
 		if (lastPressedL == null) {
 			for (Guide guide : guidesLeft) {
+				context.pushStyle();
+				context.strokeWeight(3);
 				if (context.cropMode) {
-					context.stroke(255,150,0);
-				} else {
 					context.stroke(255,0,0);
+				} else {
+					context.stroke(93,183,255);
 				}
 				PVector screenPos = guide.getScreenPosition();
 				if(guide.isHorizontal()) {
@@ -214,6 +219,7 @@ public class ContentGUI {
 				} else {
 					context.line(screenPos.x, screenPos.y,screenPos.x,screenPos.y+hImageViewerSize);
 				}
+				context.popStyle();
 			}
 		} else {
 			float imgScale = imgPreviewLeft.width / (float) wImageViewerSize;
