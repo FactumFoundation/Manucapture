@@ -9,7 +9,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Formatter;
 import java.util.List;
-
+import java.util.concurrent.TimeUnit;
 
 import g4p_controls.G4P;
 import g4p_controls.GButton;
@@ -271,10 +271,12 @@ public class ManuCapture_v1_1 extends PApplet {
 				Formatter fmt = new Formatter();
 				fmt.format("%04d",ic);
 				if(chartStateMachine == 1) {
-					gphotoPageRightAdapter.setFullTargetPath(fmt.toString()+"_cc");
+					gphotoPageRightAdapter.setFullTargetPath(fmt.toString());
 				} else {
 					gphotoPageRightAdapter.setFullTargetPath(fmt.toString());
 				}
+				
+				fmt.close();
 				moveFile(event.content, gphotoPageRightAdapter.getFullTargetPath());
 				newPageRightPath = gphotoPageRightAdapter.getFullTargetPath();
 			}
@@ -288,10 +290,11 @@ public class ManuCapture_v1_1 extends PApplet {
 				Formatter fmt = new Formatter();
 				fmt.format("%04d",ic);
 				if(chartStateMachine == 2) {
-					gphotoPageLeftAdapter.setFullTargetPath(fmt.toString()+"_cc");
+					gphotoPageLeftAdapter.setFullTargetPath(fmt.toString());
 				} else {
 					gphotoPageLeftAdapter.setFullTargetPath(fmt.toString());
 				}
+				fmt.close();
 				moveFile(event.content, gphotoPageLeftAdapter.getFullTargetPath());
 				newPageLeftPath = gphotoPageLeftAdapter.getFullTargetPath();
 			}
@@ -329,15 +332,16 @@ public class ManuCapture_v1_1 extends PApplet {
 					gui.btnColorChart.setEnabled(false);
 					gui.btnRepeat.setEnabled(false);
 					chartStateMachine++;
+					G2P5Manager.addImageCount();
 				} else if (chartStateMachine == 2) {
 					float newPageNum = project.selectedItem.pagNum;
 					Item newItem = initNewItem(Item.TYPE_CHART, newPageNum);
 					contentGUI.imgPreviewLeft = newItem.loadLeftPreview(project.projectDirectory,
 							project.projectDirectory + newItem.mImageLeft.imagePath);
 					contentGUI.lastLeftPreview = contentGUI.imgPreviewLeft;
-					// newItem.mImageLeft.remove();
+//					 newItem.mImageLeft.remove();
 					newItem.mImageRight.imagePath = "";
-					newItem.loadThumbnails();
+//					newItem.loadThumbnails();
 					project.replaceItem(project.selectedItemIndex, newItem);
 					project.selectItem(project.selectedItemIndex);
 					gui.btnTrigger.setEnabled(false);
@@ -608,6 +612,7 @@ public class ManuCapture_v1_1 extends PApplet {
 
 	private void doNormalShutter(String type) {
 		float newPageNum;
+		project.cleanTempImages();
 		if (project.selectedItemIndex < 0) {
 			newPageNum = 1;
 		} else {
@@ -831,6 +836,7 @@ public class ManuCapture_v1_1 extends PApplet {
 		saveLastSessionData();
 		project.removeUnusedImages();
 		setStateApp(STATE_APP_PROJECT);
+		project.cleanTempImages();
 		
 	}
 
@@ -918,10 +924,15 @@ public class ManuCapture_v1_1 extends PApplet {
 			while ((moveline = bReader.readLine()) != null) {
 				PApplet.println("MV message : " + moveline);
 			}
-			// Thread.sleep(500);
+			
+			p.waitFor(1000,TimeUnit.MILLISECONDS);
+//			 Thread.sleep(500);
 			return true;
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
+			return false;
+		} catch (InterruptedException e) {
+			e.printStackTrace();
 			return false;
 		} finally {
 			if (iStream != null)

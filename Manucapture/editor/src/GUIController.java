@@ -152,6 +152,7 @@ public class GUIController {
 	public void trigger_button_click(GImageButton source, GEvent event) {
 		PApplet.println("SHUTTER TRIGGERED");
 		if (context.isAllMirrorsReady()) {
+			context.project.cleanTempImages();
 			context.capture();
 			context.clearPaths();
 		} else {

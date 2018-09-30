@@ -1,5 +1,6 @@
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -10,6 +11,9 @@ import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.filechooser.FileNameExtensionFilter;
+
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import static java.nio.file.StandardCopyOption.*;
 
@@ -116,6 +120,7 @@ public class Project {
 		createFolder(projectDirectory + "/previews");
 		createFolder(projectDirectory + "/preview_left");
 		createFolder(projectDirectory + "/preview_right");
+		createFolder(projectDirectory + "/raw");
 	}
 
 	private void createFolder(String previewsFolderPath) {
@@ -348,7 +353,12 @@ public class Project {
 	private void verify() {
 
 		File folder = new File(projectDirectory + "/raw");
-		String[] files = folder.list();
+		String[] files = folder.list(new FilenameFilter() {
+			public boolean accept(File dir, String name) {
+				return name.toLowerCase().endsWith(MImage.RAW_EXTENSION)
+						|| name.toLowerCase().endsWith(MImage.SIDECAR_EXTENSION_FORMAT);
+			}
+		});
 
 		List<String> filesNotInXML = getFilesNotInXML(files);
 		List<String> filesNotInPath = getFilesInXMLNoInPath(files);
@@ -366,12 +376,9 @@ public class Project {
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
-				// if (file.delete()) {
-				// PApplet.println("deleted file not in xml " + fileToDelete);
-				// } else {
-				// PApplet.println("ERROR, can't delete file not in xml " + fileToDelete);
-				// }
 			}
+			
+			cleanImageCaches();
 		}
 
 		if (filesNotInPath.size() > 0) {
@@ -533,6 +540,7 @@ public class Project {
 		if (context.project.items.isEmpty()) {
 			context.contentGUI.imgPreviewRight = null;
 			context.contentGUI.imgPreviewLeft = null;
+			cleanImageCaches();
 		}
 	}
 
@@ -652,6 +660,38 @@ public class Project {
 			items.remove(index);
 			items.add(index, newItem);
 			saveProjectXML();
+		}
+	}
+	
+	
+	public void cleanTempImages() {
+		try {
+			FileUtils.cleanDirectory(new File(projectDirectory + "/preview_right"));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		try {
+			FileUtils.cleanDirectory(new File(projectDirectory + "/preview_left"));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		
+	}
+	
+	public void cleanImageCaches() {
+		
+		try {
+			FileUtils.cleanDirectory(new File(projectDirectory + "/previews"));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		try {
+			FileUtils.cleanDirectory(new File(projectDirectory + "/thumbnails"));
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 	}
 
