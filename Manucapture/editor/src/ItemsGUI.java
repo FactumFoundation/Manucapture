@@ -37,31 +37,30 @@ public class ItemsGUI {
 	int itemListViewPortHeight = 900;
 
 	ManuCapture_v1_1 context;
-	
+
 	int ADDING_ITEM_TRANSITION = 1;
 	int REMOVING_ITEM_TRANSITION = 2;
 	int NO_TRANSITION = 0;
 	int itemsViewTransition = NO_TRANSITION;
 	float transitionPhase = 0.0f;
 	float itemBaseY = 0;
-	
+
 	PImage bookIcon;
-	
+
 	ItemsGUI(ManuCapture_v1_1 context) {
 		this.context = context;
 
-		itemsViewPort = context.createGraphics(itemListViewPortWidth, itemListViewPortHeight,
-				context.P2D);
+		itemsViewPort = context.createGraphics(itemListViewPortWidth, itemListViewPortHeight, context.P2D);
 		scrollHandleState = SCROLL_HANDLE_IDLE;
 
 		removeItemIcon = context.loadImage("cross_inv_20x20.jpeg");
 		chartItemIcon = context.loadImage("chart-item.png");
-		
+
 		bookIcon = context.loadImage("bookIcon.png");
 		bookIcon.resize(bookIcon.width / 6, bookIcon.height / 6);
 
 	}
-	
+
 	public void drawItemsViewPort() {
 
 		// ITEM LIST VIEW PORT SECTION
@@ -105,7 +104,7 @@ public class ItemsGUI {
 		itemsViewPort.beginDraw();
 		itemsViewPort.background(0);
 		itemsViewPort.noStroke();
-		//Barra de desplazamiento
+		// Barra de desplazamiento
 		itemsViewPort.fill(scrollBarColor);
 		itemsViewPort.rect(itemsViewPort.width - scrollBarWidth, 0, scrollBarWidth, itemsViewPort.height);
 		if (scrollHandleState == SCROLL_HANDLE_IDLE) {
@@ -189,11 +188,43 @@ public class ItemsGUI {
 							}
 						}
 
-						if ((i != context.project.selectedItemIndex) || (itemsViewTransition != ADDING_ITEM_TRANSITION)) {
-							if (item.mImageLeft.imgThumb != null && item.mImageRight.imgThumb != null) {
-								itemsViewPort.image(item.mImageLeft.imgThumb, marginX,
-										viewPortRelativeHeight);
-								itemsViewPort.image(item.mImageRight.imgThumb, marginX + item.mImageLeft.imgThumb.width, viewPortRelativeHeight);
+						if ((i != context.project.selectedItemIndex)
+								|| (itemsViewTransition != ADDING_ITEM_TRANSITION)) {
+
+							if (item.mImageLeft.imgThumb != null || item.mImageRight.imgThumb != null) {
+								// check if one image was crash
+
+								int w = 0;
+								if (item.mImageLeft.imgThumb != null)
+									w = item.mImageLeft.imgThumb.width;
+
+								if (w < 1 && item.mImageRight.imgThumb != null) {
+									w = item.mImageRight.imgThumb.width;
+								}
+								// draw ? if any problem rendering
+								itemsViewPort.pushStyle();
+								itemsViewPort.textAlign(PApplet.CENTER);
+								itemsViewPort.fill(205, 00, 20);
+
+								itemsViewPort.textSize(90);
+
+								if (item.mImageLeft.imgThumb != null && item.mImageLeft.imgThumb.width > 1) {
+									itemsViewPort.image(item.mImageLeft.imgThumb, marginX, viewPortRelativeHeight);
+								} else {
+									itemsViewPort.text("?", marginX + w / 2, viewPortRelativeHeight + 110);
+
+								}
+
+								if (item.mImageRight.imgThumb != null && item.mImageRight.imgThumb.width > 1) {
+									itemsViewPort.image(item.mImageRight.imgThumb, marginX + w, viewPortRelativeHeight);
+								} else {
+									itemsViewPort.text("?", marginX + w + w / 2, viewPortRelativeHeight + 110);
+								}
+								
+								// itemsViewPort.text("" + w, marginX + w, viewPortRelativeHeight + 100);
+								itemsViewPort.popStyle();
+							} else {
+
 							}
 							itemsViewPort.noFill();
 							itemsViewPort.stroke(255);
@@ -258,10 +289,8 @@ public class ItemsGUI {
 			}
 		}
 
-		if ((context.mouseX > itemListViewPortX)
-				&& (context.mouseX < (itemsViewPort.width + itemListViewPortX))) {
-			if ((context.mouseY > itemListViewPortY)
-					&& (context.mouseY < (itemListViewPortY + itemsViewPort.height))) {
+		if ((context.mouseX > itemListViewPortX) && (context.mouseX < (itemsViewPort.width + itemListViewPortX))) {
+			if ((context.mouseY > itemListViewPortY) && (context.mouseY < (itemListViewPortY + itemsViewPort.height))) {
 				int itemHeight = itemThumbHeight + marginY;
 				int fullListHeight = itemHeight * context.project.items.size();
 				float itemBaseY = context.map(scrollHandleY, 0, itemsViewPort.height, 0, fullListHeight);
@@ -270,8 +299,7 @@ public class ItemsGUI {
 					if (viewPortRelativeHeight > -itemHeight && viewPortRelativeHeight < itemsViewPort.height) {
 						// check item overed
 						if ((context.mouseY > (viewPortRelativeHeight + itemListViewPortY))
-								&& (context.mouseY < (viewPortRelativeHeight + itemHeight
-										+ itemListViewPortY))) {
+								&& (context.mouseY < (viewPortRelativeHeight + itemHeight + itemListViewPortY))) {
 							overedItemIndex = i;
 							// check over remove button
 							float cancelButtonX = itemsViewPort.width - scrollBarWidth - marginInfo - removeIconSize
@@ -345,13 +373,15 @@ public class ItemsGUI {
 						// check item overed
 						if ((context.mouseY > (viewPortRelativeHeight + itemListViewPortY))
 								&& (context.mouseY < (viewPortRelativeHeight + itemHeight + itemListViewPortY))) {
-							context.	project.selectedItemIndex = i;
+							context.project.selectedItemIndex = i;
 							// check over remove button
 							float cancelButtonX = itemsViewPort.width - scrollBarWidth - marginInfo - removeIconSize
 									+ itemListViewPortX;
 							float cancelButtonY = viewPortRelativeHeight + marginY + itemListViewPortY;
-							if ((context.mouseX > cancelButtonX) && (context.mouseX < (cancelButtonX + removeIconSize))) {
-								if ((context.mouseY > cancelButtonY) && (context.mouseY < (cancelButtonY + removeIconSize))) {
+							if ((context.mouseX > cancelButtonX)
+									&& (context.mouseX < (cancelButtonX + removeIconSize))) {
+								if ((context.mouseY > cancelButtonY)
+										&& (context.mouseY < (cancelButtonY + removeIconSize))) {
 									// if (shutterMode != REPEAT_SHUTTER) {
 									context.project.removeItem(i);
 									forceSelectedItem(i, true);
@@ -371,7 +401,7 @@ public class ItemsGUI {
 		}
 		scrollHandleState = SCROLL_HANDLE_IDLE;
 	}
-	
+
 	public void mouseDragged() {
 		if (scrollHandleState == SCROLL_HANDLE_PRESSED) {
 			if (scrollHandleHeight < itemsViewPort.height) {

@@ -19,7 +19,7 @@ import processing.core.PVector;
 import processing.data.XML;
 
 public class MImage {
-	
+
 	public static final String SIDECAR_EXTENSION = ".pp3";
 	public static final String RAW_EXTENSION = ".cr2";
 	public static final String SIDECAR_EXTENSION_FORMAT = RAW_EXTENSION + SIDECAR_EXTENSION;
@@ -141,8 +141,12 @@ public class MImage {
 		}
 		parent.delay(100);
 		PImage thumbImg = parent.loadImage(thumbnailPath);
-		thumbImg = thumbImg.get(0, 0, thumbImg.width - thumbMargin, thumbImg.height);
+		if (thumbImg != null && thumbImg.width>0) {
+			thumbImg = thumbImg.get(0, 0, thumbImg.width - thumbMargin, thumbImg.height);
 		context.println("Thumbnail Generated : " + thumbnailPath);
+		}else {
+			context.println("ERROR Thumbnail not Generated : " + thumbnailPath);
+		}
 		return thumbImg;
 	}
 
