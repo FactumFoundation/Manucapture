@@ -20,10 +20,10 @@ public class Project {
 	String projectFilePath = "";
 	String projectDirectory = "";
 	// metadata
-	//String projectName = "";
-	//String projectComment = "";
+	// String projectName = "";
+	// String projectComment = "";
 	String projectCode = "";
-	//String projectAuthor = "";
+	// String projectAuthor = "";
 
 	// new metadata
 	String timestamp = "";
@@ -142,16 +142,19 @@ public class Project {
 
 	public void loadProjectMetadata(XML projectDataXML) {
 
-	//	projectName = projectDataXML.getChild("metadata").getChild("name").getContent();
-	//	context.gui.name_text.setText(projectName);
+		// projectName =
+		// projectDataXML.getChild("metadata").getChild("name").getContent();
+		// context.gui.name_text.setText(projectName);
 		context.gui.project_info.setText("PROJECT INFO " + context.project.projectFilePath);
 
-	//	projectComment = projectDataXML.getChild("metadata").getChild("comment").getContent();
-	//	context.gui.project_comments_text.setText(projectComment);
+		// projectComment =
+		// projectDataXML.getChild("metadata").getChild("comment").getContent();
+		// context.gui.project_comments_text.setText(projectComment);
 		projectCode = projectDataXML.getChild("metadata").getChild("code").getContent();
 		context.gui.code_text.setText(projectCode);
-	//	projectAuthor = projectDataXML.getChild("metadata").getChild("author").getContent();
-	//	context.gui.author_text.setText(projectAuthor);
+		// projectAuthor =
+		// projectDataXML.getChild("metadata").getChild("author").getContent();
+		// context.gui.author_text.setText(projectAuthor);
 		context.println(projectDataXML.getChild("image_counter"));
 		G2P5Manager.setImageCount(new Integer(projectDataXML.getChild("image_counter").getContent()));
 
@@ -278,8 +281,8 @@ public class Project {
 
 			context.saveXML(projectXML, projectFilePath);
 			context.println("Saved project to ", projectFilePath);
-			
-			//VERIFY INTEGRITY XML -> FILES
+
+			// VERIFY INTEGRITY XML -> FILES
 			verify();
 		} else {
 			context.println("ERROR: No project info, no data is saved. Please write the project name and code");
@@ -309,38 +312,52 @@ public class Project {
 		File folder = new File(projectDirectory + "/raw");
 		String[] files = folder.list();
 
-		List<String> unusedFiles = getUnusedFiles(files);
-		List<String> unusedImages = getImagesXmlNoFile(files);
-		
-		if(unusedFiles.size()>0) {
-			//TENEMOS MAS FICHEROS QUE ELEMENTOS EN XML
-			PApplet.println("ERROR , more files than xml elements " +unusedFiles);
-		}
-		
-		if(unusedImages.size()>0) {
-			//TENEMOS MAS ELEMENTOS EN XML QUE FICHEROS
-			PApplet.println("ERROR, more xml elements than files "+unusedImages);
+		List<String> filesNotInXML = getFilesNotInXML(files);
+		List<String> filesNotInPath = getFilesInXMLNoInPath(files);
+
+		if (filesNotInXML.size() > 0) {
+			// TENEMOS MAS FICHEROS QUE ELEMENTOS EN XML
+			PApplet.println("ERROR , filesNotInXML " + filesNotInXML);
+			for (int i = 0; i < filesNotInXML.size(); i++) {
+				String fileToDelete = filesNotInXML.get(i);
+				File file = new File(projectDirectory + "/raw/"+fileToDelete);
+				if (file.delete()) {
+					PApplet.println("deleted file not in xml " + fileToDelete); 
+				}else {
+					PApplet.println("ERROR, can't delete file not in xml " + fileToDelete);
+				}
+			}
 		}
 
+		if (filesNotInPath.size() > 0) {
+			// TENEMOS MAS ELEMENTOS EN XML QUE FICHEROS
+			PApplet.println("ERROR, filesNotInPath " + filesNotInPath.size());
+		}
 	}
 
 	/*
 	 * Garbage Image Collector
 	 */
 
-	public List<String> getUnusedFiles(String[] files) {
+	public List<String> getFilesNotInXML(String[] files) {
 		// File folder = new File(projectDirectory + "/raw");
-		ArrayList<String> usedImgsAndXMPS = getAllFileNames();
+		ArrayList<String> usedImgsAndXMPS = getAllFileNamesSidecarAndRaw();
 
 		if (files != null) {
 			ArrayList<String> unusedFiles = new ArrayList<>();
 			for (int index = 0; index < files.length; index++) {
 				boolean found = false;
+				String cad = files[index];
+				
 				for (int index2 = 0; index2 < usedImgsAndXMPS.size(); index2++) {
 					// println(usedImg.getName(),files[index]);
-					if (usedImgsAndXMPS.get(index2).equals(files[index])) {
+					String cad2 = usedImgsAndXMPS.get(index2);
+					if (cad2.equals(cad)) {
 						found = true;
+//						context.println(cad+"=="+cad2);
 						break;
+					}else {
+//						context.println(cad+"!="+cad2);
 					}
 				}
 				if (!found) {
@@ -355,22 +372,32 @@ public class Project {
 
 	}
 
-	private ArrayList<String> getAllFileNames() {
+	/**
+	 * return all files, Sidecars and raws on a list
+	 * 
+	 * @return
+	 */
+
+	private ArrayList<String> getAllFileNamesSidecarAndRaw() {
 		ArrayList<String> usedImgsAndXMPS = new ArrayList<String>();
 		for (int index = 0; index < items.size(); index++) {
 			Item item = items.get(index);
 			if (!item.mImageLeft.imagePath.equals("")) {
-			//	usedImgsAndXMPS.add(item.mImageLeft);
+				// usedImgsAndXMPS.add(item.mImageLeft);
 				String nameTemp = item.mImageLeft.getName().substring(1);
-				String nameTempXMP = nameTemp.replace(".cr2", ".xmp");
+				String nameTempXMP = nameTemp.replace(MImage.RAW_EXTENSION, MImage.SIDECAR_EXTENSION_FORMAT);
 				usedImgsAndXMPS.add(nameTemp);
 				usedImgsAndXMPS.add(nameTempXMP);
+			} else {
+				context._println("checking items in project mImageLeft, index " + index + " is empty path");
 			}
 			if (!item.mImageRight.imagePath.equals("")) {
 				String nameTemp = item.mImageRight.getName().substring(1);
-				String nameTempXMP = nameTemp.replace(".cr2", ".xmp");
+				String nameTempXMP = nameTemp.replace(MImage.RAW_EXTENSION, MImage.SIDECAR_EXTENSION_FORMAT);
 				usedImgsAndXMPS.add(nameTemp);
 				usedImgsAndXMPS.add(nameTempXMP);
+			} else {
+				context._println("checking items in project mImageRight, index " + index + " is empty path");
 			}
 
 		}
@@ -381,9 +408,9 @@ public class Project {
 	 * Garbage Image Collector
 	 */
 
-	public List<String> getImagesXmlNoFile(String[] files) {
+	public List<String> getFilesInXMLNoInPath(String[] files) {
 		// File folder = new File(projectDirectory + "/raw");
-		ArrayList<String> usedImgsAndXMPS = getAllFileNames();
+		ArrayList<String> usedImgsAndXMPS = getAllFileNamesSidecarAndRaw();
 
 		if (files != null) {
 			ArrayList<String> unusedFiles = new ArrayList<>();
@@ -391,7 +418,6 @@ public class Project {
 
 				boolean found = false;
 
-				
 				for (int index = 0; index < files.length; index++) {
 					if (usedImgsAndXMPS.get(index2).equals(files[index])) {
 						found = true;
@@ -445,14 +471,14 @@ public class Project {
 				leftImagePath = projectDirectory + "" + selectedItem.mImageLeft.imagePath;
 			}
 			// Now we do the preview on app
-			context.contentGUI.imgPreviewRight = selectedItem.loadRightPreview(projectDirectory,rightImagePath);
-			context.contentGUI.imgPreviewLeft = selectedItem.loadLeftPreview(projectDirectory,leftImagePath);
-			//selectedItem.loadMetadata();
+			context.contentGUI.imgPreviewRight = selectedItem.loadRightPreview(projectDirectory, rightImagePath);
+			context.contentGUI.imgPreviewLeft = selectedItem.loadLeftPreview(projectDirectory, leftImagePath);
+			// selectedItem.loadMetadata();
 			context.contentGUI.guidesLeft = selectedItem.mImageLeft.copyGuides(context.contentGUI.guidesLeft);
 			context.contentGUI.guidesRight = selectedItem.mImageRight.copyGuides(context.contentGUI.guidesRight);
 		}
-		
-		if(context.project.items.isEmpty()) {
+
+		if (context.project.items.isEmpty()) {
 			context.contentGUI.imgPreviewRight = null;
 			context.contentGUI.imgPreviewLeft = null;
 		}
@@ -483,9 +509,10 @@ public class Project {
 		if (selectedItemIndex >= 0 && items.size() > 0) {
 			selectItem(selectedItemIndex);
 		}
+		itemToRemove.remove();
 		// forceSelectedItem(selectedItemIndex, true);
 		saveProjectXML();
-		itemToRemove.remove();
+		
 		// removeUnusedImages();
 	}
 
@@ -551,7 +578,6 @@ public class Project {
 		}
 	}
 
-	
 	public void replaceItem(int index, Item newItem) {
 		if (index >= 0 && index < items.size()) {
 			// si viene vacío rellenenamos con el item anterior
@@ -576,5 +602,5 @@ public class Project {
 			saveProjectXML();
 		}
 	}
-	
+
 }

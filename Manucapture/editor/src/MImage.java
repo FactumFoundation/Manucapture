@@ -8,6 +8,7 @@ import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -18,8 +19,10 @@ import processing.core.PVector;
 import processing.data.XML;
 
 public class MImage {
-
-	private static final String SIDECAR_EXTENSION = ".cr2.pp3";
+	
+	public static final String SIDECAR_EXTENSION = ".pp3";
+	public static final String RAW_EXTENSION = ".cr2";
+	public static final String SIDECAR_EXTENSION_FORMAT = RAW_EXTENSION + SIDECAR_EXTENSION;
 
 	String imagePath;
 	String thumbPath;
@@ -38,7 +41,6 @@ public class MImage {
 	String templatePath = "/template.pp3";
 
 	String pathMock = null;
-
 
 	void remove() {
 		imgThumb = null;
@@ -157,12 +159,13 @@ public class MImage {
 		PImage img = null;
 		if (!rawImagePath.equals("")) {
 			// Clear preview folder
-			context.deleteAllFiles(previewFolder, ".jpg");
-			String previewFile = rawImagePath.replace(".cr2", ".jpg").replace("/raw/", "/previews/");
+
+			String previewFile = rawImagePath.replace(RAW_EXTENSION, ".jpg").replace("/raw/", "/previews/");
 			imagePreview = previewFile;
 			if (new File(previewFile).exists()) {
 				img = context.loadImage(previewFile);
 			} else {
+				context.deleteAllFiles(previewFolder, ".jpg");
 				File itemImgRight = new File(rawImagePath);
 				String fileName = FilenameUtils.removeExtension(itemImgRight.getName());
 				String previewName = fileName + "-preview3.jpg";
@@ -172,7 +175,7 @@ public class MImage {
 				System.out.println("comando " + command);
 				try {
 					Process process = Runtime.getRuntime().exec(command);
-					process.waitFor();
+					process.waitFor(3000, TimeUnit.MILLISECONDS);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -182,7 +185,7 @@ public class MImage {
 				try {
 					Process process = Runtime.getRuntime().exec(command);
 					InputStream error = process.getErrorStream();
-					process.waitFor();
+					process.waitFor(3000, TimeUnit.MILLISECONDS);
 					String err = "Error:";
 					for (int i = 0; i < error.available(); i++) {
 						err += (char) error.read();
@@ -195,7 +198,7 @@ public class MImage {
 					System.out.println("comando " + command);
 					try {
 						process = Runtime.getRuntime().exec(command);
-						process.waitFor();
+						process.waitFor(3000, TimeUnit.MILLISECONDS);
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
@@ -203,7 +206,7 @@ public class MImage {
 					System.out.println("comando " + command);
 					try {
 						process = Runtime.getRuntime().exec(command);
-						process.waitFor();
+						process.waitFor(3000, TimeUnit.MILLISECONDS);
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
@@ -233,7 +236,7 @@ public class MImage {
 			String newtext = "";
 
 			int leftBase = 0;
-			
+
 			BufferedReader reader = null;
 			try {
 				reader = new BufferedReader(new FileReader(file));
@@ -270,7 +273,7 @@ public class MImage {
 							} else if (line.startsWith("X")) {
 								String XCad = line.substring(2, line.length());
 								int left = Integer.parseInt(XCad);
-								float norm = left / (float)context.rawW;
+								float norm = left / (float) context.rawW;
 
 								this.guides.get(0).pos.x = norm * context.contentGUI.hImageViewerSize;
 								this.guides.get(0).pos.y = 0;
@@ -278,28 +281,29 @@ public class MImage {
 							} else if (line.startsWith("Y")) {
 								String XCad = line.substring(2, line.length());
 								int top = Integer.parseInt(XCad);
-								float norm = top / (float)context.rawH;
+								float norm = top / (float) context.rawH;
 								this.guides.get(1).pos.x = 0;
 								this.guides.get(1).pos.y = norm * context.contentGUI.wImageViewerSize;
 
 							} else if (line.startsWith("W")) {
 								String XCad = line.substring(2, line.length());
 								int right = Integer.parseInt(XCad);
-								float norm = right / (float)context.rawW;
+								float norm = right / (float) context.rawW;
 								float temp = norm * context.contentGUI.hImageViewerSize;
 								float top = this.guides.get(0).pos.x;
-								temp+=top;
-								
-								this.guides.get(2).pos.x =    temp ;
+								temp += top;
+
+								this.guides.get(2).pos.x = temp;
 								this.guides.get(2).pos.y = 0;
 
 							} else if (line.startsWith("H")) {
 								String XCad = line.substring(2, line.length());
 								int bottom = Integer.parseInt(XCad);
-								float norm = bottom / (float)context.rawH;
+								float norm = bottom / (float) context.rawH;
 
 								this.guides.get(3).pos.x = 0;
-								this.guides.get(3).pos.y = norm * context.contentGUI.wImageViewerSize + this.guides.get(1).pos.y;
+								this.guides.get(3).pos.y = norm * context.contentGUI.wImageViewerSize
+										+ this.guides.get(1).pos.y;
 							} else {
 								newtext += line + "\n";
 							}
@@ -333,7 +337,7 @@ public class MImage {
 		if (!file.exists()) {
 			// load the template
 			sideCarFilePath = context.dataPath("") + templatePath;
-			//sideCarFilePath = templatePath;
+			// sideCarFilePath = templatePath;
 			file = new File(sideCarFilePath);
 		}
 
@@ -371,7 +375,7 @@ public class MImage {
 					// move inside crop
 					int topLeft = 0;
 					int topTop = 0;
-					
+
 					while ((!line.trim().equals(""))) {
 						line = reader.readLine();
 						if (line.startsWith("Enabled")) {
@@ -381,16 +385,16 @@ public class MImage {
 							topLeft = (int) (tempNormalized * context.rawW);
 							newtext += "X" + "=" + topLeft + "\n";
 						} else if (line.startsWith("Y")) {
-							
+
 							float tempNormalized = this.guides.get(1).pos.y / context.contentGUI.wImageViewerSize;
 							topTop = (int) (tempNormalized * context.rawH);
 							newtext += "Y" + "=" + topTop + "\n";
 						} else if (line.startsWith("W")) {
-							
+
 							float tempNormalized = this.guides.get(2).pos.x / context.contentGUI.hImageViewerSize;
 							newtext += "W" + "=" + (int) (tempNormalized * context.rawW - topLeft) + "\n";
 						} else if (line.startsWith("H")) {
-							
+
 							float tempNormalized = this.guides.get(3).pos.y / context.contentGUI.wImageViewerSize;
 							newtext += "H" + "=" + (int) (tempNormalized * context.rawH - topTop) + "\n";
 						} else {
@@ -439,9 +443,9 @@ public class MImage {
 	private String getSidecarPath() {
 		if (pathMock != null) {
 			// return pathMock;
-			return pathMock.replace(".cr2", SIDECAR_EXTENSION);
+			return pathMock.replace(RAW_EXTENSION, SIDECAR_EXTENSION_FORMAT);
 		} else {
-			return context.project.projectDirectory + (imagePath).replace(".cr2", SIDECAR_EXTENSION);
+			return context.project.projectDirectory + (imagePath).replace(RAW_EXTENSION, SIDECAR_EXTENSION_FORMAT);
 		}
 	}
 

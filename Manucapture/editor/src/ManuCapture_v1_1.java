@@ -987,7 +987,7 @@ public class ManuCapture_v1_1 extends PApplet {
 		InputStream in = null;
 		String md5 = "";
 		try {
-			pr = Runtime.getRuntime().exec("md5sum " + project.projectDirectory + id + "_" + side + ".cr2");
+			pr = Runtime.getRuntime().exec("md5sum " + project.projectDirectory + id + "_" + side + MImage.RAW_EXTENSION);
 			in = pr.getInputStream();
 			int data = in.read();
 			while (data != -1) {
@@ -1018,7 +1018,7 @@ public class ManuCapture_v1_1 extends PApplet {
 
 	public String generateTimeStamp(String id, String side) {
 		String timeStamp = "";
-		File file = new File(project.projectDirectory + id + "_" + side + ".cr2");
+		File file = new File(project.projectDirectory + id + "_" + side + MImage.RAW_EXTENSION);
 		SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
 		timeStamp = sdf.format(file.lastModified());
 		return timeStamp;

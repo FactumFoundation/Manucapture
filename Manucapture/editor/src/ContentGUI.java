@@ -145,6 +145,9 @@ public class ContentGUI {
 			context.image(imgPreview, 0, 0, wImageViewerSize, hImageViewerSize, portviewStartX,
 					portviewStartY, portviewStartX + portviewSizeX, portviewStartY + portviewSizeY);
 		} else {
+			
+			context.rect(0,0,100,100);
+			
 			context.image(imgPreview, 0, 0, wImageViewerSize, hImageViewerSize, 0, 0, imgPreview.width,
 					imgPreview.height);
 		}
