@@ -165,6 +165,7 @@ public class ManuCapture_v1_1 extends PApplet {
 	String proyectsRepositoryFolder = null;
 	boolean creatingProyect = false;
 	boolean insertCalibItemPrevious = false;
+	public String source;
 
 	public void setup() {
 
@@ -194,6 +195,10 @@ public class ManuCapture_v1_1 extends PApplet {
 
 		rawW = serialXML.getInt("raw_width");
 		rawH = serialXML.getInt("raw_height");
+		
+		source = serialXML.getString("source");
+		
+		
 
 		proyectsRepositoryFolder = serialXML.getString("repository");
 

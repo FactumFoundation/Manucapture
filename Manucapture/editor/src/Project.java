@@ -1,7 +1,9 @@
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.file.CopyOption;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
@@ -9,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.io.FilenameUtils;
+import static java.nio.file.StandardCopyOption.*;
 
 import g4p_controls.G4P;
 import processing.core.PApplet;
@@ -28,6 +31,7 @@ public class Project {
 	// new metadata
 	String timestamp = "";
 	String targetDirectory = "";
+	String targetSubDirectory = "";
 	String uploaded = "";
 	String source;
 
@@ -159,7 +163,8 @@ public class Project {
 		G2P5Manager.setImageCount(new Integer(projectDataXML.getChild("image_counter").getContent()));
 
 		XML timestampXML = projectDataXML.getChild("metadata").getChild("timestamp");
-		XML targetDirectoryXML = projectDataXML.getChild("metadata").getChild("targetDirectory");
+		XML targetDirectoryXML = projectDataXML.getChild("metadata").getChild("target_directory");
+		XML targetSubDirectoryXML = projectDataXML.getChild("metadata").getChild("target_subdirectory");
 		XML uploadedXML = projectDataXML.getChild("metadata").getChild("uploaded");
 
 		if (timestampXML != null)
@@ -171,6 +176,11 @@ public class Project {
 			targetDirectory = targetDirectoryXML.getContent("");
 		else
 			targetDirectory = "";
+
+		if (targetSubDirectoryXML != null)
+			targetSubDirectory = targetSubDirectoryXML.getContent("");
+		else
+			targetSubDirectory = "";
 
 		if (uploadedXML != null)
 			uploaded = uploadedXML.getContent("");
@@ -194,16 +204,24 @@ public class Project {
 			metadataXML.addChild(authorXML);
 			// timestamp
 			XML timestampXML = new XML("timestamp");
-			timestampXML.setContent(targetDirectory);
+			timestampXML.setContent(timestamp);
 			metadataXML.addChild(timestampXML);
 			// target directory
-			XML targetDirectoryXML = new XML("targetDirectory");
+			XML targetDirectoryXML = new XML("target_directory");
 			targetDirectoryXML.setContent(targetDirectory);
 			metadataXML.addChild(targetDirectoryXML);
+
+			XML targetSubDirectoryXML = new XML("target_subdirectory");
+			targetSubDirectoryXML.setContent(targetSubDirectory);
+			metadataXML.addChild(targetSubDirectoryXML);
 			// uploaded
 			XML uploadedXML = new XML("uploaded");
 			uploadedXML.setContent(uploaded);
 			metadataXML.addChild(uploadedXML);
+
+			XML sourceXML = new XML("source");
+			sourceXML.setContent(context.source);
+			metadataXML.addChild(sourceXML);
 
 			projectXML.addChild(metadataXML);
 
@@ -247,9 +265,29 @@ public class Project {
 					XML pageCommentXML = new XML("comment");
 					pageCommentXML.setContent(item.comment);
 					itemXML.addChild(pageCommentXML);
+
 					XML typeXML = new XML("type");
 					typeXML.setContent(item.type);
 					itemXML.addChild(typeXML);
+
+					XML process_exposure_factor_rightXML = new XML("process_exposure_factor_right");
+					process_exposure_factor_rightXML.setContent("");
+					itemXML.addChild(process_exposure_factor_rightXML);
+
+					XML process_exposure_factor_leftXML = new XML("process_exposure_factor_left");
+					process_exposure_factor_leftXML.setContent("");
+					itemXML.addChild(process_exposure_factor_leftXML);
+
+					XML icc_profile_rightXML = new XML("icc_profile_right");
+					icc_profile_rightXML.setContent("");
+					itemXML.addChild(icc_profile_rightXML);
+
+					XML icc_profile_leftXML = new XML("icc_profile_left");
+					icc_profile_leftXML.setContent("");
+					itemXML.addChild(icc_profile_leftXML);
+
+					itemXML.setInt("id", i);
+
 					itemsXML.addChild(itemXML);
 				}
 			}
@@ -320,12 +358,19 @@ public class Project {
 			PApplet.println("ERROR , filesNotInXML " + filesNotInXML);
 			for (int i = 0; i < filesNotInXML.size(); i++) {
 				String fileToDelete = filesNotInXML.get(i);
-				File file = new File(projectDirectory + "/raw/"+fileToDelete);
-				if (file.delete()) {
-					PApplet.println("deleted file not in xml " + fileToDelete); 
-				}else {
-					PApplet.println("ERROR, can't delete file not in xml " + fileToDelete);
+				File file = new File(projectDirectory + "/raw/" + fileToDelete);
+				File target = new File(projectDirectory + "/raw/"
+						+ fileToDelete.replace(MImage.RAW_EXTENSION, MImage.RAW_EXTENSION + ".autodeleted"));
+				try {
+					Files.move(file.toPath(), target.toPath(), REPLACE_EXISTING);
+				} catch (IOException e) {
+					e.printStackTrace();
 				}
+				// if (file.delete()) {
+				// PApplet.println("deleted file not in xml " + fileToDelete);
+				// } else {
+				// PApplet.println("ERROR, can't delete file not in xml " + fileToDelete);
+				// }
 			}
 		}
 
@@ -348,16 +393,16 @@ public class Project {
 			for (int index = 0; index < files.length; index++) {
 				boolean found = false;
 				String cad = files[index];
-				
+
 				for (int index2 = 0; index2 < usedImgsAndXMPS.size(); index2++) {
 					// println(usedImg.getName(),files[index]);
 					String cad2 = usedImgsAndXMPS.get(index2);
 					if (cad2.equals(cad)) {
 						found = true;
-//						context.println(cad+"=="+cad2);
+						// context.println(cad+"=="+cad2);
 						break;
-					}else {
-//						context.println(cad+"!="+cad2);
+					} else {
+						// context.println(cad+"!="+cad2);
 					}
 				}
 				if (!found) {
@@ -473,6 +518,13 @@ public class Project {
 			// Now we do the preview on app
 			context.contentGUI.imgPreviewRight = selectedItem.loadRightPreview(projectDirectory, rightImagePath);
 			context.contentGUI.imgPreviewLeft = selectedItem.loadLeftPreview(projectDirectory, leftImagePath);
+
+			// si falta alguna de las imnágenes cambiamos el tipo a TYPE_ITEM_NO_PAGE
+			if (context.contentGUI.imgPreviewRight == null || context.contentGUI.imgPreviewLeft == null
+					|| context.contentGUI.imgPreviewLeft.width < 1 || context.contentGUI.imgPreviewRight.width < 1) {
+				selectedItem.type = Item.TYPE_ITEM_NO_PAGE;
+			}
+
 			// selectedItem.loadMetadata();
 			context.contentGUI.guidesLeft = selectedItem.mImageLeft.copyGuides(context.contentGUI.guidesLeft);
 			context.contentGUI.guidesRight = selectedItem.mImageRight.copyGuides(context.contentGUI.guidesRight);
@@ -512,7 +564,7 @@ public class Project {
 		itemToRemove.remove();
 		// forceSelectedItem(selectedItemIndex, true);
 		saveProjectXML();
-		
+
 		// removeUnusedImages();
 	}
 

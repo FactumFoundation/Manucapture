@@ -11,6 +11,7 @@ import processing.core.PImage;
 public class Item {
 
 	public static String TYPE_ITEM = "Item";
+	public static String TYPE_ITEM_NO_PAGE = "noPage";
 	public static String TYPE_CHART = "Chart";
 	public static String TYPE_BACKGROUND = "background";
 	MImage mImageLeft = new MImage();
