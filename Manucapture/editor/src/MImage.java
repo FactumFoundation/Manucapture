@@ -157,7 +157,7 @@ public class MImage {
 		PImage img = null;
 		if (!rawImagePath.equals("")) {
 			// Clear preview folder
-			//context.deleteAllFiles(previewFolder, ".jpg");
+			context.deleteAllFiles(previewFolder, ".jpg");
 			String previewFile = rawImagePath.replace(".cr2", ".jpg").replace("/raw/", "/previews/");
 			imagePreview = previewFile;
 			if (new File(previewFile).exists()) {

@@ -287,7 +287,6 @@ public class ManuCapture_v1_1 extends PApplet {
 				} else {
 					gphotoPageLeftAdapter.setFullTargetPath(fmt.toString());
 				}
-				gphotoPageLeftAdapter.setFullTargetPath(fmt.toString());
 				moveFile(event.content, gphotoPageLeftAdapter.getFullTargetPath());
 				newPageLeftPath = gphotoPageLeftAdapter.getFullTargetPath();
 			}
