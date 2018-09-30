@@ -3,6 +3,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import processing.core.PApplet;
@@ -65,9 +66,10 @@ public class TetheredMockCaptureRunnable implements RunnableTetheredInterface {
 		File file2 = new File(pathDataSet);
 		if (file2.exists()) {
 			String[] files = file2.list();
+			Arrays.sort(files);
 			for (int i = 0; i < files.length; i++) {
 				String fileName = files[i];
-				if (fileName.contains(g2p5.id)) {
+				if (fileName.contains(g2p5.id) && fileName.endsWith(".cr2")) {
 					// then is my file
 					dataset.add(fileName);
 				}

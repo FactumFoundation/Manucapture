@@ -447,6 +447,11 @@ public class Project {
 			context.contentGUI.guidesLeft = selectedItem.mImageLeft.copyGuides(context.contentGUI.guidesLeft);
 			context.contentGUI.guidesRight = selectedItem.mImageRight.copyGuides(context.contentGUI.guidesRight);
 		}
+		
+		if(context.project.items.isEmpty()) {
+			context.contentGUI.imgPreviewRight = null;
+			context.contentGUI.imgPreviewLeft = null;
+		}
 	}
 
 	// Image preview

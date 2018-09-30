@@ -168,7 +168,7 @@ public class MImage {
 				String previewName = fileName + "-preview3.jpg";
 				String previewFullPath = previewFolder + previewName;
 				String resizedImageFullPath = previewFolder + resizedImage;
-				String command = "exiv2 -ep3 -l " + previewFolder + " " + rawImagePath;
+				String command = "exiv2 -f -ep3 -l " + previewFolder + " " + rawImagePath;
 				System.out.println("comando " + command);
 				try {
 					Process process = Runtime.getRuntime().exec(command);
@@ -178,6 +178,7 @@ public class MImage {
 				}
 				command = context.appPath + "/epeg-master/src/bin/epeg -w " + context.contentGUI.viewerWidthResolution
 						+ " -p -q 100 " + previewFullPath + " " + resizedImageFullPath.replace(".jpg", "-rot.jpg");
+				System.out.println("comando " + command);
 				try {
 					Process process = Runtime.getRuntime().exec(command);
 					InputStream error = process.getErrorStream();
@@ -189,7 +190,7 @@ public class MImage {
 					if (!err.equals("Error:")) {
 						context.println(err + " " + command);
 					}
-					command = "convert " + resizedImageFullPath.replace(".jpg", "-rot.jpg") + " -rotate " + rotation
+					command = "convert -f " + resizedImageFullPath.replace(".jpg", "-rot.jpg") + " -rotate " + rotation
 							+ " " + resizedImageFullPath;
 					System.out.println("comando " + command);
 					try {

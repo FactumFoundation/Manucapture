@@ -355,6 +355,7 @@ public class ItemsGUI {
 									// if (shutterMode != REPEAT_SHUTTER) {
 									context.project.removeItem(i);
 									forceSelectedItem(i, true);
+									context.project.selectItem(context.project.selectedItemIndex);
 									// } else {
 									// removeItem(i);
 									// }
