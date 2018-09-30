@@ -93,6 +93,12 @@ public class ContentGUI {
 			context.stroke(255);
 			context.fill(50);
 			context.rect(leftImageMarginLeft, imageMarginTop, wImageViewerSize, hImageViewerSize);
+			context.fill(255);
+			context.textAlign(context.LEFT);
+			if (context.project.selectedItem != null && context.project.selectedItem.mImageLeft != null
+					&& context.project.selectedItem.mImageLeft.imagePath != null)
+				context.text(context.project.selectedItem.mImageLeft.imagePath, leftImageMarginLeft + 100,
+						imageMarginTop - 10);
 		}
 	}
 
@@ -119,6 +125,12 @@ public class ContentGUI {
 			context.stroke(255);
 			context.fill(50);
 			context.rect(rightImageMarginLeft, imageMarginTop, wImageViewerSize, hImageViewerSize);
+			context.fill(255);
+			context.textAlign(context.LEFT);
+			if (context.project.selectedItem != null && context.project.selectedItem.mImageRight != null
+					&& context.project.selectedItem.mImageRight.imagePath != null)
+				context.text(context.project.selectedItem.mImageRight.imagePath, rightImageMarginLeft + 100,
+						imageMarginTop - 10);
 		}
 	}
 
