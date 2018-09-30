@@ -96,10 +96,7 @@ public class Project {
 		File projectFile = new File(projectPath);
 		projectDirectory = projectFile.getParent();
 
-		createFolder(projectDirectory + "/thumbnails");
-		createFolder(projectDirectory + "/previews");
-		createFolder(projectDirectory + "/preview_left");
-		createFolder(projectDirectory + "/preview_right");
+		createFolderIfNotExist();
 
 		// File projectDirectoryFile = new File(projectDirectory);
 		for (int i = 0; i < items.size(); i++) {
@@ -108,6 +105,13 @@ public class Project {
 		}
 		thumbnailsLoaded = true;
 
+	}
+
+	public void createFolderIfNotExist() {
+		createFolder(projectDirectory + "/thumbnails");
+		createFolder(projectDirectory + "/previews");
+		createFolder(projectDirectory + "/preview_left");
+		createFolder(projectDirectory + "/preview_right");
 	}
 
 	private void createFolder(String previewsFolderPath) {

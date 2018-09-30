@@ -752,36 +752,38 @@ public class ManuCapture_v1_1 extends PApplet {
 			project.serialCameraPageLeft = serialCameraPageLeft;
 
 			saveXML(projectDataXML, projectFolderPath + "/project.xml");
-
-			File thumbnailsFolder = new File(projectFolderPath + "/thumbnails");
-			if (!thumbnailsFolder.exists()) {
-				if (thumbnailsFolder.mkdir()) {
-					try {
-						Runtime.getRuntime().exec("chmod -R ugo+rw " + thumbnailsFolder.getPath());
-					} catch (Exception e) {
-
-						_println("Couldn't create thumbnail directory permisions");
-					}
-				} else {
-					_println("Failed to create thumbnail directory!");
-				}
-			}
-			File rawFolder = new File(projectFolderPath + "/raw");
-			if (!rawFolder.exists()) {
-				if (rawFolder.mkdir()) {
-					try {
-						Runtime.getRuntime().exec("chmod -R ugo+rw " + rawFolder.getPath());
-					} catch (Exception e) {
-						_println("Couldn't create raw directory permisions");
-					}
-				} else {
-					_println("Failed to create thumbnail directory!");
-				}
-			}
+			
+//			File thumbnailsFolder = new File(projectFolderPath + "/thumbnails");
+//			if (!thumbnailsFolder.exists()) {
+//				if (thumbnailsFolder.mkdir()) {
+//					try {
+//						Runtime.getRuntime().exec("chmod -R ugo+rw " + thumbnailsFolder.getPath());
+//					} catch (Exception e) {
+//
+//						_println("Couldn't create thumbnail directory permisions");
+//					}
+//				} else {
+//					_println("Failed to create thumbnail directory!");
+//				}
+//			}
+//			File rawFolder = new File(projectFolderPath + "/raw");
+//			if (!rawFolder.exists()) {
+//				if (rawFolder.mkdir()) {
+//					try {
+//						Runtime.getRuntime().exec("chmod -R ugo+rw " + rawFolder.getPath());
+//					} catch (Exception e) {
+//						_println("Couldn't create raw directory permisions");
+//					}
+//				} else {
+//					_println("Failed to create thumbnail directory!");
+//				}
+//			}
 			project.projectDirectory = projectFolderPath;
 			project.projectFilePath = projectFolderPath + "/project.xml";
 			project.selectedItemIndex = -1;
 			project.thumbnailsLoaded = true;
+			
+			project.createFolderIfNotExist();
 
 			gphotoPageRightAdapter.setTargetFile(project.projectDirectory + "/raw", project.projectCode);
 			gphotoPageLeftAdapter.setTargetFile(project.projectDirectory + "/raw", project.projectCode);

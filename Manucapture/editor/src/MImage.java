@@ -190,7 +190,7 @@ public class MImage {
 					if (!err.equals("Error:")) {
 						context.println(err + " " + command);
 					}
-					command = "convert -f " + resizedImageFullPath.replace(".jpg", "-rot.jpg") + " -rotate " + rotation
+					command = "convert " + resizedImageFullPath.replace(".jpg", "-rot.jpg") + " -rotate " + rotation
 							+ " " + resizedImageFullPath;
 					System.out.println("comando " + command);
 					try {
