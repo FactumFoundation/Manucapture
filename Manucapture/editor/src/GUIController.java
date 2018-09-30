@@ -44,10 +44,14 @@ public class GUIController {
 
 	public void repeat_shutter_click(GImageToggleButton source, GEvent event) {
 		PApplet.println("SHUTTER CONTROL SET REPEAT MODE");
-		if (source.getState() == 1) {
-			context.shutterMode = ManuCapture_v1_1.REPEAT_SHUTTER;
+		if(context.shutterMode != ManuCapture_v1_1.CALIB_SHUTTER) {
+			if (source.getState() == 1) {
+				context.shutterMode = ManuCapture_v1_1.REPEAT_SHUTTER;
+			} else {
+				context.shutterMode = ManuCapture_v1_1.NORMAL_SHUTTER;
+			}
 		} else {
-			context.shutterMode = ManuCapture_v1_1.NORMAL_SHUTTER;
+			context.insertCalibItemPrevious = true;
 		}
 		context.contentGUI.noZoom();
 	}
@@ -132,12 +136,15 @@ public class GUIController {
 			context.shutterMode = ManuCapture_v1_1.CALIB_SHUTTER;
 			context.cameraState = ManuCapture_v1_1.STATE_CHART;
 			context.chartStateMachine = 1;
-
+			context.gui.btnLiveView.setEnabled(false);
+			context.gui.btnCrop.setEnabled(false);
 		} else {
 			context.shutterMode = context.NORMAL_SHUTTER;
 			context.chartStateMachine = 0;
 			context.contentGUI.noZoom();
 			context.setCaptureState(ManuCapture_v1_1.NORMAL_SHUTTER);
+			context.gui.btnLiveView.setEnabled(true);
+			context.gui.btnCrop.setEnabled(true);
 		}
 		context.contentGUI.noZoom();
 	}
@@ -250,12 +257,15 @@ public class GUIController {
 		context.gui.code_text.setEnabled(true);
 		context.creatingProyect = true;
 		context.contentGUI.initCropGuides();
+		context.contentGUI.resetPreviews();
 		context.gui.project_info.setText("PROJECT INFO " + context.proyectsRepositoryFolder);
 		context.project.thumbnailsLoaded = false;
 		context.project.selectedItem = null;
 		context.project.projectCode = "";
+		context.project.items.clear();
 		context.gui.code_text.setText(context.project.projectCode);
 		context.setStateApp(context.STATE_APP_EDITING_PROJECT);
+
 
 		// }
 	}
@@ -278,7 +288,7 @@ public class GUIController {
 	public void openViewer_1(GImageButton source, GEvent event) {
 		if (context.chartStateMachine != 3) {
 			try {
-				String cmd = "pix " + context.project.projectDirectory
+				String cmd = "rawtherapee " + context.project.projectDirectory
 						+ context.project.selectedItem.mImageRight.imagePath;
 				context.println(cmd);
 				Runtime.getRuntime().exec(cmd);
@@ -293,7 +303,7 @@ public class GUIController {
 		if (context.chartStateMachine != 3) {
 			try {
 				Runtime.getRuntime().exec(
-						"pix " + context.project.projectDirectory + context.project.selectedItem.mImageLeft.imagePath);
+						"rawtherapee " + context.project.projectDirectory + context.project.selectedItem.mImageLeft.imagePath);
 			} catch (Exception e) {
 				context._println("Couldn't create raw directory permisions");
 			}

@@ -83,7 +83,8 @@ public class ContentGUI {
 			context.image(zoomImg, wImageViewerSize - 70, 20, 50, 50);
 			context.fill(255);
 			context.textSize(18);
-			context.text(context.project.selectedItem.mImageLeft.imagePath, 210, -10);
+			context.textAlign(context.LEFT);
+			context.text(context.project.selectedItem.mImageLeft.imagePath, 100, -10);
 			context.popMatrix();			
 			context.popStyle();
 		} else {
@@ -108,7 +109,8 @@ public class ContentGUI {
 			context.image(zoomImg, wImageViewerSize - 70, 20, 50, 50);
 			context.fill(255);
 			context.textSize(18);
-			context.text(context.project.selectedItem.mImageRight.imagePath, 210, -10);
+			context.textAlign(context.LEFT);
+			context.text(context.project.selectedItem.mImageRight.imagePath, 100, -10);
 			context.popMatrix();				
 			context.popStyle();
 		} else {
@@ -398,13 +400,7 @@ public class ContentGUI {
 				}
 			}
 		}
-		else if(context.chartStateMachine==3){
-			context.shutterMode = context.NORMAL_SHUTTER;
-			context.setCaptureState(context.CAMERAS_IDLE);
-			context.chartStateMachine = 0;
-			context.gui.btnColorChart.setState(0);
-			noZoom();
-		} else if(context.chartStateMachine==0){
+		else if(context.chartStateMachine==0){
 			if ( context.project != null && context.project.selectedItem != null) {
 				if (context.mouseButton == context.LEFT) {
 					if (context.getStateApp()==context.STATE_APP_PROJECT && lastPressedL == null && context.project.selectedItem.mImageLeft != null
@@ -448,10 +444,26 @@ public class ContentGUI {
 	
 	public void mouseReleased() {
 		GuideSelected = null;
+		if(context.chartStateMachine==3){
+			context.shutterMode = context.NORMAL_SHUTTER;
+			context.setCaptureState(context.CAMERAS_IDLE);
+			context.chartStateMachine = 0;
+			context.insertCalibItemPrevious = false;
+			context.gui.btnRepeat.setState(0);
+			context.gui.btnColorChart.setState(0);
+			context.gui.btnRepeat.setEnabled(true);
+			context.gui.btnColorChart.setEnabled(true);
+			context.gui.btnLiveView.setEnabled(true);
+			context.gui.btnCrop.setEnabled(true);
+			context.gui.btnTrigger.setEnabled(true);
+			noZoom();
+		} 
+		/*
 		if(context.mouseX > leftImageMarginLeft && context.mouseX < rightImageMarginLeft + wImageViewerSize) {
-			if(context.project != null && context.project.selectedItem != null)
+			if(context.project != null && context.project.selectedItem != null )
 				context.project.selectedItem.saveMetadata();			
 		}
+		*/
 	}
 	
 	public void mouseWheel(float count) {
@@ -550,5 +562,11 @@ public class ContentGUI {
 	public void noZoom() {
 		lastPressedL = null;
 		lastPressedR = null;
+	}
+
+	public void resetPreviews() {
+		// TODO Auto-generated method stub
+		imgPreviewLeft = null;
+		imgPreviewRight = null;
 	}
 }

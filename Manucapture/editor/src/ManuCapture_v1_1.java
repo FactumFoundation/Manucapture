@@ -7,7 +7,9 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Formatter;
 import java.util.List;
+
 
 import g4p_controls.G4P;
 import g4p_controls.GButton;
@@ -60,8 +62,8 @@ public class ManuCapture_v1_1 extends PApplet {
 	 * Place, Suite 330, Boston, MA 02111-1307 USA
 	 */
 
-	public static final String PAGE_LEFT_NAME = "Page_Left";
-	public static final String PAGE_RIGHT_NAME = "Page_Right";
+	public static final String PAGE_LEFT_NAME = "Left";
+	public static final String PAGE_RIGHT_NAME = "Right";
 
 	GUI gui;
 	GUIController guiController;
@@ -162,6 +164,7 @@ public class ManuCapture_v1_1 extends PApplet {
 
 	String proyectsRepositoryFolder = null;
 	boolean creatingProyect = false;
+	boolean insertCalibItemPrevious = false;
 
 	public void setup() {
 
@@ -250,7 +253,7 @@ public class ManuCapture_v1_1 extends PApplet {
 		}
 	}
 
-	public void newPhotoEvent(G2P5Event event, String ic) {
+	public synchronized void newPhotoEvent(G2P5Event event) {
 
 		println("New photo Event!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!", event.content);
 		if (event.g2p5 == gphotoPageRight) {
@@ -258,8 +261,15 @@ public class ManuCapture_v1_1 extends PApplet {
 				println("Ignoring incoming right page");
 				ignoreNextPageRight = false;
 			} else {
+				int ic = G2P5Manager.getImageCount();
 				gphotoPageRightAdapter.setTargetFile(project.projectDirectory + "/raw", project.projectCode);
-				gphotoPageRightAdapter.setFullTargetPath(ic);
+				Formatter fmt = new Formatter();
+				fmt.format("%04d",ic);
+				if(chartStateMachine == 1) {
+					gphotoPageRightAdapter.setFullTargetPath(fmt.toString()+"_cc");
+				} else {
+					gphotoPageRightAdapter.setFullTargetPath(fmt.toString());
+				}
 				moveFile(event.content, gphotoPageRightAdapter.getFullTargetPath());
 				newPageRightPath = gphotoPageRightAdapter.getFullTargetPath();
 			}
@@ -268,8 +278,16 @@ public class ManuCapture_v1_1 extends PApplet {
 				println("Ignoring incoming left page");
 				ignoreNextPageLeft = false;
 			} else {
+				int ic = G2P5Manager.getImageCount();
 				gphotoPageLeftAdapter.setTargetFile(project.projectDirectory + "/raw", project.projectCode);
-				gphotoPageLeftAdapter.setFullTargetPath(ic);
+				Formatter fmt = new Formatter();
+				fmt.format("%04d",ic);
+				if(chartStateMachine == 2) {
+					gphotoPageLeftAdapter.setFullTargetPath(fmt.toString()+"_cc");
+				} else {
+					gphotoPageLeftAdapter.setFullTargetPath(fmt.toString());
+				}
+				gphotoPageLeftAdapter.setFullTargetPath(fmt.toString());
 				moveFile(event.content, gphotoPageLeftAdapter.getFullTargetPath());
 				newPageLeftPath = gphotoPageLeftAdapter.getFullTargetPath();
 			}
@@ -283,6 +301,7 @@ public class ManuCapture_v1_1 extends PApplet {
 				|| (!gphotoPageRight.isConnected() && gphotoPageLeft.isConnected() && !newPageLeftPath.equals(""))) {
 			if (shutterMode == NORMAL_SHUTTER) {
 				doNormalShutter(Item.TYPE_ITEM);
+				G2P5Manager.addImageCount();
 			} else if (shutterMode == REPEAT_SHUTTER) {
 				if (project.items.size() > 0) {
 					float newPageNum = project.selectedItem.pagNum;
@@ -290,9 +309,11 @@ public class ManuCapture_v1_1 extends PApplet {
 					newItem.loadThumbnails();
 					project.replaceItem(project.selectedItemIndex, newItem);
 					clearPaths();
+					project.selectItem(project.selectedItemIndex);
 					shutterMode = ManuCapture_v1_1.NORMAL_SHUTTER;
 					chartStateMachine = 0;
 					gui.btnRepeat.setState(0);
+					G2P5Manager.addImageCount();
 					// TODO Restore gui repeat button to off
 				}
 			} else if (shutterMode == CALIB_SHUTTER) {
@@ -301,6 +322,8 @@ public class ManuCapture_v1_1 extends PApplet {
 					// we do background and first photo normally
 					doNormalShutter(Item.TYPE_CHART);
 					contentGUI.updateLastPreviews();
+					gui.btnColorChart.setEnabled(false);
+					gui.btnRepeat.setEnabled(false);
 					chartStateMachine++;
 				} else if (chartStateMachine == 2) {
 					float newPageNum = project.selectedItem.pagNum;
@@ -309,13 +332,17 @@ public class ManuCapture_v1_1 extends PApplet {
 							project.projectDirectory + newItem.mImageLeft.imagePath);
 					contentGUI.lastLeftPreview = contentGUI.imgPreviewLeft;
 					// newItem.mImageLeft.remove();
-					newItem.mImageLeft.imagePath = "";
+					newItem.mImageRight.imagePath = "";
 					newItem.loadThumbnails();
 					project.replaceItem(project.selectedItemIndex, newItem);
+					project.selectItem(project.selectedItemIndex);
+					gui.btnTrigger.setEnabled(false);
 					clearPaths();
 					chartStateMachine++;
+					G2P5Manager.addImageCount();
 				}
 			}
+			saveLastSessionData();
 		}
 	}
 
@@ -411,6 +438,7 @@ public class ManuCapture_v1_1 extends PApplet {
 			}
 			if (dist2 < 100) {
 				guiController.new_button_click(null, null);
+				guiController.calibration_shutter_click(null, null);
 			}
 		}
 	}
@@ -579,7 +607,16 @@ public class ManuCapture_v1_1 extends PApplet {
 		if (project.selectedItemIndex < 0) {
 			newPageNum = 1;
 		} else {
-			newPageNum = (int) project.items.get(project.selectedItemIndex).pagNum + 1;
+			if(insertCalibItemPrevious) {
+				project.selectedItemIndex -= 1;
+				if(project.selectedItemIndex<0) {
+					newPageNum = 1;
+				} else {
+					newPageNum = (int) project.items.get(project.selectedItemIndex).pagNum + 1;
+				}
+			} else {
+				newPageNum = (int) project.items.get(project.selectedItemIndex).pagNum + 1;
+			}
 		}
 		Item newItem = initNewItem(type, newPageNum);
 		newItem.saveMetadata();
@@ -780,8 +817,7 @@ public class ManuCapture_v1_1 extends PApplet {
 		initSelectedItem = true;
 		gphotoPageRightAdapter.setTargetFile(project.projectDirectory + "/raw", project.projectCode);
 		gphotoPageLeftAdapter.setTargetFile(project.projectDirectory + "/raw", project.projectCode);
-		setCaptureState(CAMERAS_IDLE);
-		G2P5Manager.setImageCount(project.items.size());
+		setCaptureState(CAMERAS_IDLE);		
 		project.forceSelectedItem(project.items.size(), false);
 		if (project.items.isEmpty()) {
 			contentGUI.initCropGuides();
@@ -789,6 +825,7 @@ public class ManuCapture_v1_1 extends PApplet {
 		saveLastSessionData();
 		project.removeUnusedImages();
 		setStateApp(STATE_APP_PROJECT);
+		
 	}
 
 	public String homeDirectory() {

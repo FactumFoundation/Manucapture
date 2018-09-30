@@ -106,12 +106,6 @@ public class Project {
 			Item item = items.get(i);
 			item.loadThumbnails();
 		}
-		try {
-			G2P5Manager.setImageCount(new Integer(projectDataXML.getChild("image_counter").getContent()));
-		} catch (Exception e) {
-			context.println("ERROR loading image counter, seting to list size");
-			G2P5Manager.setImageCount(items.size());
-		}
 		thumbnailsLoaded = true;
 
 	}
@@ -437,40 +431,19 @@ public class Project {
 	public void selectItem(int index) {
 
 		if (index >= 0 && index < items.size()) {
-
 			selectedItem = items.get(index);
-			// OscMessage myMessage = new OscMessage("/load/item");
 			String leftImagePath = "";
 			String rightImagePath = "";
 			if (selectedItem.mImageRight.imagePath != null && selectedItem.mImageRight.imagePath.length() != 0) {
 				rightImagePath = projectDirectory + "" + selectedItem.mImageRight.imagePath;
-				// myMessage.add(rightImagePath);
 			}
-			// else {
-			// myMessage.add("");
-			// }
 			if (selectedItem.mImageLeft.imagePath != null && (selectedItem.mImageLeft.imagePath.length() != 0)) {
 				leftImagePath = projectDirectory + "" + selectedItem.mImageLeft.imagePath;
-				// myMessage.add(leftImagePath);
-				// } else {
-				// myMessage.add("");
 			}
-
-			context.println("send the message to viewer");
-
-			// View message for viewer
-			// context.oscP5.send(myMessage, context.viewerLocation);
 			// Now we do the preview on app
 			context.contentGUI.imgPreviewRight = selectedItem.loadRightPreview(projectDirectory,rightImagePath);
 			context.contentGUI.imgPreviewLeft = selectedItem.loadLeftPreview(projectDirectory,leftImagePath);
-			
-			// context.gui.page_comments_text.setText(selectedItem.comment);
-			// context.gui.page_num_text.setText(String.valueOf(selectedItem.pagNum));
-			context.gphotoPageRightAdapter.setTargetFile(projectDirectory + "raw", projectCode);
-			context.gphotoPageLeftAdapter.setTargetFile(projectDirectory + "raw", projectCode);
-
-			selectedItem.loadMetadata();
-
+			//selectedItem.loadMetadata();
 			context.contentGUI.guidesLeft = selectedItem.mImageLeft.copyGuides(context.contentGUI.guidesLeft);
 			context.contentGUI.guidesRight = selectedItem.mImageRight.copyGuides(context.contentGUI.guidesRight);
 		}
@@ -575,6 +548,7 @@ public class Project {
 			// si viene vacío rellenenamos con el item anterior
 			if (newItem.mImageLeft.imagePath.equals("")) {
 				newItem.mImageLeft.imagePath = items.get(index).mImageLeft.imagePath;
+				newItem.mImageLeft.guides = items.get(index).mImageLeft.guides;
 				newItem.loadThumbnails();
 			} else {
 				// sino borramos el anterior
@@ -582,13 +556,12 @@ public class Project {
 			}
 			if (newItem.mImageRight.imagePath.equals("")) {
 				newItem.mImageRight.imagePath = items.get(index).mImageRight.imagePath;
+				newItem.mImageRight.guides = items.get(index).mImageRight.guides;
 				newItem.loadThumbnails();
 			} else {
 				// sino borramos el anterior
 				items.get(index).mImageRight.remove();
 			}
-			newItem.mImageLeft.guides = items.get(index).mImageLeft.guides;
-			newItem.mImageRight.guides = items.get(index).mImageRight.guides;
 			items.remove(index);
 			items.add(index, newItem);
 			saveProjectXML();

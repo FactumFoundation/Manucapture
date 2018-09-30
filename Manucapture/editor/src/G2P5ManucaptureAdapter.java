@@ -45,14 +45,13 @@ public class G2P5ManucaptureAdapter implements G2P5Listener {
 	}
 
 	public void setFullTargetPath(String ic) {
-		fullTargetPath = folderPath + "/" + targetFileName + "_" + g2p5.id + "_" + ic + ".cr2";
+		fullTargetPath = folderPath + "/" + targetFileName + "_"+ ic +"_"+ g2p5.id + ".cr2";
 	}
 
 	public void newEvent(G2P5Event event) {
 		lastEventMillis = manuCapture.millis();
 		if (event.eventID == G2P5Event.NEW_PHOTO) {
-			int ic = G2P5Manager.addImageCount();
-			manuCapture.newPhotoEvent(event, "" + ic);
+			manuCapture.newPhotoEvent(event);
 			mirrorUp = false;
 		} else if (event.eventID == G2P5Event.EVENT_EXPOSURE) {
 			exposure = event.content;

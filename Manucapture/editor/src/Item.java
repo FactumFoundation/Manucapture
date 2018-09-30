@@ -51,6 +51,7 @@ public class Item {
 
 	public void loadMetadata() {
 		try {
+			
 			mImageLeft.loadMetadata();
 			mImageRight.loadMetadata();
 		} catch (Exception e) {
@@ -59,8 +60,9 @@ public class Item {
 	}
 
 	public void saveMetadata() {
-		mImageLeft.saveMetadata();
-		mImageRight.saveMetadata();
+	//	if(type != TYPE_CHART)
+			mImageLeft.saveMetadata();
+			mImageRight.saveMetadata();
 	}
 
 	public PImage loadRightPreview(String projectDirectory, String nextRightImagePath) {

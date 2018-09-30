@@ -31,7 +31,7 @@ public class GUI {
 	GImageButton btnFirstPage;
 	GImageButton btnLastPage;
 	
-	GImageToggleButton btnTriggerCrop;
+	GImageToggleButton btnCrop;
 	GImageToggleButton btnRepeat;
 	GImageToggleButton btnColorChart;
 	GImageToggleButton btnLiveView;
@@ -68,9 +68,9 @@ public class GUI {
 		btnColorChart.addEventHandler(guiController,"calibration_shutter_click");
 		grpAll.addControls(btnColorChart);
 		
-		btnTriggerCrop = new GImageToggleButton(context, context.width-168, context.height - 3*buttonsDeltaY, "btn_crop_toggle.png", 2, 1);
-		btnTriggerCrop.addEventHandler(guiController, "crop_click");
-		grpAll.addControls(btnTriggerCrop);
+		btnCrop = new GImageToggleButton(context, context.width-168, context.height - 3*buttonsDeltaY, "btn_crop_toggle.png", 2, 1);
+		btnCrop.addEventHandler(guiController, "crop_click");
+		grpAll.addControls(btnCrop);
 		
 		btnRepeat = new GImageToggleButton(context, context.width-168, context.height - 2*buttonsDeltaY, "btn_repeat_toggle.png", 2, 1);
 		btnRepeat.addEventHandler(guiController,"repeat_shutter_click");
@@ -123,7 +123,7 @@ public class GUI {
 		grpAll.addControls(btnLastPage);
 		
 		btnLiveView.setAlpha(200);
-		btnTriggerCrop.setAlpha(200);
+		btnCrop.setAlpha(200);
 		btnTrigger.setAlpha(220);
 		btnColorChart.setAlpha(180);
 		btnRepeat.setAlpha(180);

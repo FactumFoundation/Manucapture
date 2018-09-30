@@ -157,7 +157,7 @@ public class MImage {
 		PImage img = null;
 		if (!rawImagePath.equals("")) {
 			// Clear preview folder
-			context.deleteAllFiles(previewFolder, ".jpg");
+			//context.deleteAllFiles(previewFolder, ".jpg");
 			String previewFile = rawImagePath.replace(".cr2", ".jpg").replace("/raw/", "/previews/");
 			imagePreview = previewFile;
 			if (new File(previewFile).exists()) {
@@ -376,7 +376,6 @@ public class MImage {
 						if (line.startsWith("Enabled")) {
 							newtext += "Enabled" + "=true" + "\n";
 						} else if (line.startsWith("X")) {
-						
 							float tempNormalized = this.guides.get(0).pos.x / context.contentGUI.hImageViewerSize;
 							topLeft = (int) (tempNormalized * context.rawW);
 							newtext += "X" + "=" + topLeft + "\n";

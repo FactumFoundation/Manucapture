@@ -362,6 +362,7 @@ public class ItemsGUI {
 								}
 							}
 							context.project.selectItem(context.project.selectedItemIndex);
+							context.saveLastSessionData();
 						}
 					}
 				}
