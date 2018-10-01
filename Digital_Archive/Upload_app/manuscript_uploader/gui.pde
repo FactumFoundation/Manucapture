@@ -14,45 +14,57 @@
  * =========================================================
  */
 
-public void slider1_change1(GSlider source, GEvent event) { //_CODE_:slider1:624787:
+public void sldir_change(GSlider source, GEvent event) { //_CODE_:sldrProgress:624787:
   println("slider1 - GSlider >> GEvent." + event + " @ " + millis());
-} //_CODE_:slider1:624787:
+} //_CODE_:sldrProgress:624787:
 
-public void directoryList_click(GDropList source, GEvent event) { //_CODE_:dLDirectory:935160:
-  println("dLDirectory - GDropList >> GEvent." + event + " @ " + millis());
-} //_CODE_:dLDirectory:935160:
+public void dlFolder_click(GDropList source, GEvent event) { //_CODE_:dlFolder:935160:
+  selectedFolderIndex = source.getSelectedIndex();
+  selectedSubfolderIndex = 0;
+  subfolders=getSubfolders(selectedFolderIndex);
+  dlSubfolder.setItems(subfolders,selectedSubfolderIndex);
+} //_CODE_:dlFolder:935160:
 
-public void dropList2_click1(GDropList source, GEvent event) { //_CODE_:dropList2:687392:
-  println("dropList2 - GDropList >> GEvent." + event + " @ " + millis());
-} //_CODE_:dropList2:687392:
+public void dlSubfolder_click(GDropList source, GEvent event) { //_CODE_:dlSubfolder:687392:
+  selectedSubfolderIndex = source.getSelectedIndex();
+} //_CODE_:dlSubfolder:687392:
 
 public void selectScan_click(GButton source, GEvent event) { //_CODE_:btnSelectScan:945866:
-  println("btnSelectScan - GButton >> GEvent." + event + " @ " + millis());
+  selectFolder("Select the scan folder:", "scanSelected");
+
 } //_CODE_:btnSelectScan:945866:
 
 public void batchUpload_clicked(GCheckbox source, GEvent event) { //_CODE_:chbxBatchUpload:595794:
-  println("chbxBatchUpload - GCheckbox >> GEvent." + event + " @ " + millis());
+  setBatchUpload(source.isSelected());
 } //_CODE_:chbxBatchUpload:595794:
 
 public void txtLog_change(GTextArea source, GEvent event) { //_CODE_:txtLog:548988:
-  println("txtLog - GTextArea >> GEvent." + event + " @ " + millis());
+
 } //_CODE_:txtLog:548988:
 
 public void btnFolder_click(GButton source, GEvent event) { //_CODE_:btnFolder:261356:
-  println("btnFolder - GButton >> GEvent." + event + " @ " + millis());
+  selectFolder("Select a folder with several scans:", "folderSelected");
 } //_CODE_:btnFolder:261356:
 
 public void btnUpload_click(GButton source, GEvent event) { //_CODE_:btnUpload:463455:
-  println("btnUpload - GButton >> GEvent." + event + " @ " + millis());
+  doUpload = true;
 } //_CODE_:btnUpload:463455:
 
 public void txfdScan_change(GTextField source, GEvent event) { //_CODE_:txfdScan:581755:
-  println("txfdScan - GTextField >> GEvent." + event + " @ " + millis());
+
 } //_CODE_:txfdScan:581755:
 
 public void txfdFolder_change(GTextField source, GEvent event) { //_CODE_:txfdFolder:987414:
-  println("txfdFolder - GTextField >> GEvent." + event + " @ " + millis());
+
 } //_CODE_:txfdFolder:987414:
+
+public void btnStop_click(GImageButton source, GEvent event) { //_CODE_:btnStop:209469:
+    txtLog.appendText("Stopped\n");
+    OscMessage myMessage = new OscMessage("/stop");
+    oscP5.send(myMessage, uploaderLocation);  
+    String[] lines = {""};
+    saveStrings( sketchPath() +  "/../scripts/stopUpload.txt",lines);
+} //_CODE_:btnStop:209469:
 
 
 
@@ -64,28 +76,28 @@ public void createGUI(){
   G4P.setCursor(ARROW);
   surface.setTitle("Manuscript Uploader");
   lblFileUpload = new GLabel(this, 10, 10, 80, 20);
-  lblFileUpload.setText("File upload");
+  lblFileUpload.setText("Scan upload");
   lblFileUpload.setOpaque(false);
   lblProgress = new GLabel(this, 10, 220, 80, 20);
   lblProgress.setText("Progress:");
   lblProgress.setOpaque(false);
-  slider1 = new GSlider(this, 100, 220, 373, 24, 10.0);
-  slider1.setLimits(0.5, 0.0, 1.0);
-  slider1.setNumberFormat(G4P.DECIMAL, 2);
-  slider1.setOpaque(false);
-  slider1.addEventHandler(this, "slider1_change1");
-  dLDirectory = new GDropList(this, 10, 90, 461, 114, 5);
-  dLDirectory.setItems(loadStrings("list_935160"), 0);
-  dLDirectory.addEventHandler(this, "directoryList_click");
+  sldrProgress = new GSlider(this, 100, 220, 373, 24, 10.0);
+  sldrProgress.setLimits(0.0, 0.0, 1.0);
+  sldrProgress.setNumberFormat(G4P.DECIMAL, 2);
+  sldrProgress.setOpaque(false);
+  sldrProgress.addEventHandler(this, "sldir_change");
+  dlFolder = new GDropList(this, 10, 90, 461, 209, 10);
+  dlFolder.setItems(loadStrings("list_935160"), 0);
+  dlFolder.addEventHandler(this, "dlFolder_click");
   lblFolder = new GLabel(this, 10, 70, 80, 20);
   lblFolder.setText("Folder");
   lblFolder.setOpaque(false);
   lblSubfolder = new GLabel(this, 10, 120, 80, 20);
   lblSubfolder.setText("Subfolder");
   lblSubfolder.setOpaque(false);
-  dropList2 = new GDropList(this, 10, 140, 460, 80, 3);
-  dropList2.setItems(loadStrings("list_687392"), 0);
-  dropList2.addEventHandler(this, "dropList2_click1");
+  dlSubfolder = new GDropList(this, 10, 140, 460, 220, 10);
+  dlSubfolder.setItems(loadStrings("list_687392"), 0);
+  dlSubfolder.addEventHandler(this, "dlSubfolder_click");
   btnSelectScan = new GButton(this, 110, 10, 53, 23);
   btnSelectScan.setText("select");
   btnSelectScan.addEventHandler(this, "selectScan_click");
@@ -100,7 +112,7 @@ public void createGUI(){
   btnFolder = new GButton(this, 110, 40, 54, 22);
   btnFolder.setText("select");
   btnFolder.addEventHandler(this, "btnFolder_click");
-  btnUpload = new GButton(this, 350, 170, 120, 40);
+  btnUpload = new GButton(this, 10, 170, 120, 40);
   btnUpload.setText("Upload");
   btnUpload.addEventHandler(this, "btnUpload_click");
   txfdScan = new GTextField(this, 170, 10, 300, 20, G4P.SCROLLBARS_NONE);
@@ -114,17 +126,19 @@ public void createGUI(){
   lblProcessLog = new GLabel(this, 10, 250, 80, 20);
   lblProcessLog.setText("Process log:");
   lblProcessLog.setOpaque(false);
+  btnStop = new GImageButton(this, 430, 170, 40, 40, new String[] { "stop_2.png", "stop_1.png", "stop_0.png" } );
+  btnStop.addEventHandler(this, "btnStop_click");
 }
 
 // Variable declarations 
 // autogenerated do not edit
 GLabel lblFileUpload; 
 GLabel lblProgress; 
-GSlider slider1; 
-GDropList dLDirectory; 
+GSlider sldrProgress; 
+GDropList dlFolder; 
 GLabel lblFolder; 
 GLabel lblSubfolder; 
-GDropList dropList2; 
+GDropList dlSubfolder; 
 GButton btnSelectScan; 
 GCheckbox chbxBatchUpload; 
 GTextArea txtLog; 
@@ -133,3 +147,4 @@ GButton btnUpload;
 GTextField txfdScan; 
 GTextField txfdFolder; 
 GLabel lblProcessLog; 
+GImageButton btnStop; 

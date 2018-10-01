@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Session>
+<Folder ascii_name="1_Oriental_Manuscripts_Fund">
+    <Subfolder ascii_name="F14"/>
+    <Subfolder ascii_name="F15"/>
+    <Subfolder ascii_name="F16"/>
+  </Folder>
+  <Folder ascii_name="2_Archive_IIAE">
+    <Subfolder ascii_name="Fund_1_Op_1"/>
+    <Subfolder ascii_name="Fund_5_Op_1"/>
+  </Folder>
+  <Folder ascii_name="3_FMS">
+    <Subfolder ascii_name="Op_1"/>
+    <Subfolder ascii_name="Op_5"/>
+  </Folder>
+  <Folder ascii_name="4_Private_Collections">
+    <Subfolder ascii_name="Gazliev_Abu_Muslim"/>
+    <Subfolder ascii_name="Murtazali_Yakubov"/>
+    <Subfolder ascii_name="Orazaev_G_M_P"/>
+    <Subfolder ascii_name="Khamurzaev_I_I"/>
+    <Subfolder ascii_name="Khapizov_Shakhban"/>
+    <Subfolder ascii_name="Khosarov_Khozar_s_Gelli"/>
+    <Subfolder ascii_name="Shekhmagomedov_Magomed_s_Machada"/>
+    <Subfolder ascii_name="Shekhmagomedov_Machada"/>
+    <Subfolder ascii_name="Shikhaliev"/>
+  </Folder>
+  <Folder ascii_name="5_Muslim_Press">
+    <Subfolder ascii_name="Dzharidat_Dagistan"/>
+  </Folder>  
+</Session>

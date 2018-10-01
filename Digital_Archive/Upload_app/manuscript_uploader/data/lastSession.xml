@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Session>
+  <Input_Folder is_batch="False"> </Input_Folder> 
+  <Folder ascii_name="5_Muslim_Press">
+    <Subfolder ascii_name="Dzharidat_Dagistan"/>
+  </Folder>  
+  <Upload processing="False" is_paused="False">
+    <Current_File scan=""></Current_File>    
+  </Upload>
+</Session>
