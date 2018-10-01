@@ -56,16 +56,30 @@ public class G2P5ManucaptureAdapter implements G2P5Listener {
 		} else if (event.eventID == G2P5Event.EVENT_EXPOSURE) {
 			exposure = event.content;
 		} else if(event.eventID == G2P5Event.EVENT_PTP) {
-			if(event.content.contains("d102")) {
-				 System.out.println(g2p5.id + " Property related with Mirror up changed ");
-				 propertyMirrorUpChanged = true;
-			}	
+			if( g2p5 instanceof Canon700D_G2P5){
+				if(event.content.contains("d102")) {
+					 System.out.println(g2p5.id + " Property related with Mirror up changed ");
+					 propertyMirrorUpChanged = true;
+				}
+			} else if(g2p5 instanceof CanonEOS5DSR_G2P5){
+				if(event.content.contains("d1bf")) {
+					 System.out.println(g2p5.id + " Property related with Mirror up changed ");
+					 propertyMirrorUpChanged = true;
+				}
+			}
 		}
 		else if (event.eventID == G2P5Event.EVENT_MASK) {
-			if (propertyMirrorUpChanged && event.content.trim().endsWith("3")) {				
-				mirrorUp = true;
-				PApplet.println("MIRRORRRRRRR UP " + g2p5.id);
-			} 			
+			if( g2p5 instanceof Canon700D_G2P5){
+				if (propertyMirrorUpChanged && event.content.trim().endsWith("3")) {				
+					mirrorUp = true;
+					PApplet.println("MIRRORRRRRRR UP " + g2p5.id);
+				} 	
+			} else if(g2p5 instanceof CanonEOS5DSR_G2P5){
+				if (propertyMirrorUpChanged && event.content.trim().endsWith("2c1")) {				
+					mirrorUp = true;
+					PApplet.println("MIRRORRRRRRR UP " + g2p5.id);
+				} 	
+			}
 			propertyMirrorUpChanged = false;
 			lastMask = event.content.trim();
 		}

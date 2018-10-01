@@ -1241,6 +1241,7 @@ public class ManuCapture_v1_1 extends PApplet {
 			e.printStackTrace();
 			System.out.println("End of programmm");
 		}
+		
 		try {
 			String[] appletArgs = new String[] { "ManuCapture_v1_1", "--present" };
 			if (passedArgs != null) {
