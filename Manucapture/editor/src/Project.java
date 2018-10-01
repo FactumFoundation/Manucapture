@@ -245,8 +245,10 @@ public class Project {
 			projectXML.addChild(serialsXML);
 
 			XML itemsXML = new XML("items");
+			Item lastChartItem = null;
 			for (int i = 0; i < items.size(); i++) {
 				Item item = items.get(i);
+
 				if (!(item.mImageLeft.imagePath.equals("") && item.mImageRight.imagePath.equals(""))) {
 					XML itemXML = new XML("item");
 					XML imageLeftXML = new XML("image_left");
@@ -284,17 +286,29 @@ public class Project {
 					itemXML.addChild(process_exposure_factor_leftXML);
 
 					XML icc_profile_rightXML = new XML("icc_profile_right");
-					icc_profile_rightXML.setContent("");
+					if (lastChartItem != null) {
+						icc_profile_rightXML.setContent(lastChartItem.mImageRight.imagePath.replace(".cr2", ".icc")
+								.replace("/raw/", "/PROFILES/"));
+					} else
+						icc_profile_rightXML.setContent("");
 					itemXML.addChild(icc_profile_rightXML);
 
 					XML icc_profile_leftXML = new XML("icc_profile_left");
-					icc_profile_leftXML.setContent("");
+					if (lastChartItem != null) {
+						icc_profile_leftXML.setContent(lastChartItem.mImageLeft.imagePath.replace(".cr2", ".icc"));
+					} else
+						icc_profile_leftXML.setContent("");
 					itemXML.addChild(icc_profile_leftXML);
 
 					itemXML.setInt("id", i);
 
 					itemsXML.addChild(itemXML);
+
+					if (item.type.equals(Item.TYPE_CHART)) {
+						lastChartItem = item;
+					}
 				}
+
 			}
 			projectXML.addChild(itemsXML);
 
@@ -377,7 +391,7 @@ public class Project {
 					e.printStackTrace();
 				}
 			}
-			
+
 			cleanImageCaches();
 		}
 
@@ -662,32 +676,30 @@ public class Project {
 			saveProjectXML();
 		}
 	}
-	
-	
+
 	public void cleanTempImages() {
 		try {
 			FileUtils.cleanDirectory(new File(projectDirectory + "/preview_right"));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
+
 		try {
 			FileUtils.cleanDirectory(new File(projectDirectory + "/preview_left"));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
-		
+
 	}
-	
+
 	public void cleanImageCaches() {
-		
+
 		try {
 			FileUtils.cleanDirectory(new File(projectDirectory + "/previews"));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
+
 		try {
 			FileUtils.cleanDirectory(new File(projectDirectory + "/thumbnails"));
 		} catch (IOException e) {
