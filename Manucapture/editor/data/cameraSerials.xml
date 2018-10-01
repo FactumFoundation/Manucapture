@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Camera_Serials raw_width="5200" raw_height="3468" repository="/home/factum/Documents/Manucapture/repo/">
+<Camera_Serials raw_width="5200" raw_height="3468" source="dslr" cameraModel="canon_700D" repository="/home/factum/Documents/Manucapture/repo/">
   <Camera_Page_Right rotation="270">053031036352</Camera_Page_Right>
   <Camera_Page_Left rotation="90">033011008613</Camera_Page_Left>
 </Camera_Serials>

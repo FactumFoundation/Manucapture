@@ -166,6 +166,7 @@ public class ManuCapture_v1_1 extends PApplet {
 	boolean creatingProyect = false;
 	boolean insertCalibItemPrevious = false;
 	public String source;
+	public String cameraModel;
 
 	public void setup() {
 
@@ -195,10 +196,9 @@ public class ManuCapture_v1_1 extends PApplet {
 
 		rawW = serialXML.getInt("raw_width");
 		rawH = serialXML.getInt("raw_height");
-		
+
 		source = serialXML.getString("source");
-		
-		
+		cameraModel = serialXML.getString("cameraModel");
 
 		proyectsRepositoryFolder = serialXML.getString("repository");
 
@@ -210,25 +210,27 @@ public class ManuCapture_v1_1 extends PApplet {
 			rotationPageLeft = Integer.parseInt(rotPageLeft);
 		System.out.println("rotation of camera for page right " + rotPageRight);
 		System.out.println("rotation of camera for page left " + rotPageLeft);
-		if (mock) {
-			gphotoPageRight = G2P5MockDisk.create(this, serialCameraPageRight, PAGE_RIGHT_NAME);
-			gphotoPageRightAdapter.setTargetFile(homeDirectory(), "test");
-			gphotoPageLeft = G2P5MockDisk.create(this, serialCameraPageLeft, PAGE_LEFT_NAME);
-			gphotoPageLeftAdapter.setTargetFile(homeDirectory(), "test");
-		} else {
-			G2P5Manager.init(0);
-			gphotoPageRightAdapter = createG2P5(serialCameraPageRight, PAGE_RIGHT_NAME);
-			gphotoPageLeftAdapter = createG2P5(serialCameraPageLeft, PAGE_LEFT_NAME);
-			gphotoPageRight = gphotoPageRightAdapter.g2p5;
-			gphotoPageLeft = gphotoPageLeftAdapter.g2p5;
-			gphotoPageRight.listener = gphotoPageRightAdapter;
-			gphotoPageLeft.listener = gphotoPageLeftAdapter;
-			gphotoPageRightAdapter.setTargetFile(project.projectDirectory + "/raw", project.projectCode);
-			gphotoPageLeftAdapter.setTargetFile(project.projectDirectory + "/raw", project.projectCode);
-			if (gphotoPageLeftAdapter.g2p5.mock) {
-				MAX_TIME_CAPTURE_MACHINE_STATE = 15000;
-			}
+		// if (mock) {
+		// gphotoPageRight = G2P5MockDisk.create(this, serialCameraPageRight,
+		// PAGE_RIGHT_NAME);
+		// gphotoPageRightAdapter.setTargetFile(homeDirectory(), "test");
+		// gphotoPageLeft = G2P5MockDisk.create(this, serialCameraPageLeft,
+		// PAGE_LEFT_NAME);
+		// gphotoPageLeftAdapter.setTargetFile(homeDirectory(), "test");
+		// } else {
+		G2P5Manager.init(0);
+		gphotoPageRightAdapter = createG2P5(serialCameraPageRight, PAGE_RIGHT_NAME);
+		gphotoPageLeftAdapter = createG2P5(serialCameraPageLeft, PAGE_LEFT_NAME);
+		gphotoPageRight = gphotoPageRightAdapter.g2p5;
+		gphotoPageLeft = gphotoPageLeftAdapter.g2p5;
+		gphotoPageRight.listener = gphotoPageRightAdapter;
+		gphotoPageLeft.listener = gphotoPageLeftAdapter;
+		gphotoPageRightAdapter.setTargetFile(project.projectDirectory + "/raw", project.projectCode);
+		gphotoPageLeftAdapter.setTargetFile(project.projectDirectory + "/raw", project.projectCode);
+		if (gphotoPageLeftAdapter.g2p5.mock) {
+			MAX_TIME_CAPTURE_MACHINE_STATE = 15000;
 		}
+		// }
 		// Init GUI
 		// Main window position
 		surface.setTitle("ManuCapture v1");
@@ -269,13 +271,13 @@ public class ManuCapture_v1_1 extends PApplet {
 				int ic = G2P5Manager.getImageCount();
 				gphotoPageRightAdapter.setTargetFile(project.projectDirectory + "/raw", project.projectCode);
 				Formatter fmt = new Formatter();
-				fmt.format("%04d",ic);
-				if(chartStateMachine == 1) {
+				fmt.format("%04d", ic);
+				if (chartStateMachine == 1) {
 					gphotoPageRightAdapter.setFullTargetPath(fmt.toString());
 				} else {
 					gphotoPageRightAdapter.setFullTargetPath(fmt.toString());
 				}
-				
+
 				fmt.close();
 				moveFile(event.content, gphotoPageRightAdapter.getFullTargetPath());
 				newPageRightPath = gphotoPageRightAdapter.getFullTargetPath();
@@ -288,8 +290,8 @@ public class ManuCapture_v1_1 extends PApplet {
 				int ic = G2P5Manager.getImageCount();
 				gphotoPageLeftAdapter.setTargetFile(project.projectDirectory + "/raw", project.projectCode);
 				Formatter fmt = new Formatter();
-				fmt.format("%04d",ic);
-				if(chartStateMachine == 2) {
+				fmt.format("%04d", ic);
+				if (chartStateMachine == 2) {
 					gphotoPageLeftAdapter.setFullTargetPath(fmt.toString());
 				} else {
 					gphotoPageLeftAdapter.setFullTargetPath(fmt.toString());
@@ -339,9 +341,9 @@ public class ManuCapture_v1_1 extends PApplet {
 					contentGUI.imgPreviewLeft = newItem.loadLeftPreview(project.projectDirectory,
 							project.projectDirectory + newItem.mImageLeft.imagePath);
 					contentGUI.lastLeftPreview = contentGUI.imgPreviewLeft;
-//					 newItem.mImageLeft.remove();
+					// newItem.mImageLeft.remove();
 					newItem.mImageRight.imagePath = "";
-//					newItem.loadThumbnails();
+					// newItem.loadThumbnails();
 					project.replaceItem(project.selectedItemIndex, newItem);
 					project.selectItem(project.selectedItemIndex);
 					gui.btnTrigger.setEnabled(false);
@@ -616,9 +618,9 @@ public class ManuCapture_v1_1 extends PApplet {
 		if (project.selectedItemIndex < 0) {
 			newPageNum = 1;
 		} else {
-			if(insertCalibItemPrevious) {
+			if (insertCalibItemPrevious) {
 				project.selectedItemIndex -= 1;
-				if(project.selectedItemIndex<0) {
+				if (project.selectedItemIndex < 0) {
 					newPageNum = 1;
 				} else {
 					newPageNum = (int) project.items.get(project.selectedItemIndex).pagNum + 1;
@@ -762,37 +764,37 @@ public class ManuCapture_v1_1 extends PApplet {
 			project.serialCameraPageLeft = serialCameraPageLeft;
 
 			saveXML(projectDataXML, projectFolderPath + "/project.xml");
-			
-//			File thumbnailsFolder = new File(projectFolderPath + "/thumbnails");
-//			if (!thumbnailsFolder.exists()) {
-//				if (thumbnailsFolder.mkdir()) {
-//					try {
-//						Runtime.getRuntime().exec("chmod -R ugo+rw " + thumbnailsFolder.getPath());
-//					} catch (Exception e) {
-//
-//						_println("Couldn't create thumbnail directory permisions");
-//					}
-//				} else {
-//					_println("Failed to create thumbnail directory!");
-//				}
-//			}
-//			File rawFolder = new File(projectFolderPath + "/raw");
-//			if (!rawFolder.exists()) {
-//				if (rawFolder.mkdir()) {
-//					try {
-//						Runtime.getRuntime().exec("chmod -R ugo+rw " + rawFolder.getPath());
-//					} catch (Exception e) {
-//						_println("Couldn't create raw directory permisions");
-//					}
-//				} else {
-//					_println("Failed to create thumbnail directory!");
-//				}
-//			}
+
+			// File thumbnailsFolder = new File(projectFolderPath + "/thumbnails");
+			// if (!thumbnailsFolder.exists()) {
+			// if (thumbnailsFolder.mkdir()) {
+			// try {
+			// Runtime.getRuntime().exec("chmod -R ugo+rw " + thumbnailsFolder.getPath());
+			// } catch (Exception e) {
+			//
+			// _println("Couldn't create thumbnail directory permisions");
+			// }
+			// } else {
+			// _println("Failed to create thumbnail directory!");
+			// }
+			// }
+			// File rawFolder = new File(projectFolderPath + "/raw");
+			// if (!rawFolder.exists()) {
+			// if (rawFolder.mkdir()) {
+			// try {
+			// Runtime.getRuntime().exec("chmod -R ugo+rw " + rawFolder.getPath());
+			// } catch (Exception e) {
+			// _println("Couldn't create raw directory permisions");
+			// }
+			// } else {
+			// _println("Failed to create thumbnail directory!");
+			// }
+			// }
 			project.projectDirectory = projectFolderPath;
 			project.projectFilePath = projectFolderPath + "/project.xml";
 			project.selectedItemIndex = -1;
 			project.thumbnailsLoaded = true;
-			
+
 			project.createFolderIfNotExist();
 
 			gphotoPageRightAdapter.setTargetFile(project.projectDirectory + "/raw", project.projectCode);
@@ -828,7 +830,7 @@ public class ManuCapture_v1_1 extends PApplet {
 		initSelectedItem = true;
 		gphotoPageRightAdapter.setTargetFile(project.projectDirectory + "/raw", project.projectCode);
 		gphotoPageLeftAdapter.setTargetFile(project.projectDirectory + "/raw", project.projectCode);
-		setCaptureState(CAMERAS_IDLE);		
+		setCaptureState(CAMERAS_IDLE);
 		project.forceSelectedItem(project.items.size(), false);
 		if (project.items.isEmpty()) {
 			contentGUI.initCropGuides();
@@ -837,7 +839,7 @@ public class ManuCapture_v1_1 extends PApplet {
 		project.removeUnusedImages();
 		setStateApp(STATE_APP_PROJECT);
 		project.cleanTempImages();
-		
+
 	}
 
 	public String homeDirectory() {
@@ -862,7 +864,24 @@ public class ManuCapture_v1_1 extends PApplet {
 	}
 
 	public G2P5ManucaptureAdapter createG2P5(String serial, String name) {
-		G2P5 g2p5 = G2P5.create(homeDirectory(), serial, name);
+		G2P5 g2p5 = null;
+
+		if (cameraModel.equals("canon_700D")) {
+			g2p5 = Canon700D_G2P5.create(homeDirectory(), serial, name);
+		}
+
+		if (cameraModel.equals("canon_EOS_5DS_R")) {
+			g2p5 = CanonEOS5DSR_G2P5.create(homeDirectory(), serial, name);
+		}
+
+		if (g2p5 == null) {
+			println("ERROR, de cameraModel doesn't exist " + cameraModel + " .. creating default Canon 700D");
+
+			g2p5 = Canon700D_G2P5.create(homeDirectory(), serial, name);
+		}
+
+		// here is the place to be if you want to add more cameras with different msgs
+
 		G2P5ManucaptureAdapter adapter = new G2P5ManucaptureAdapter(this, g2p5);
 		adapter.setTargetFile(project.projectDirectory + "raw", project.projectCode);
 		return adapter;
@@ -924,9 +943,9 @@ public class ManuCapture_v1_1 extends PApplet {
 			while ((moveline = bReader.readLine()) != null) {
 				PApplet.println("MV message : " + moveline);
 			}
-			
-			p.waitFor(1000,TimeUnit.MILLISECONDS);
-//			 Thread.sleep(500);
+
+			p.waitFor(1000, TimeUnit.MILLISECONDS);
+			// Thread.sleep(500);
 			return true;
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
@@ -1003,7 +1022,8 @@ public class ManuCapture_v1_1 extends PApplet {
 		InputStream in = null;
 		String md5 = "";
 		try {
-			pr = Runtime.getRuntime().exec("md5sum " + project.projectDirectory + id + "_" + side + MImage.RAW_EXTENSION);
+			pr = Runtime.getRuntime()
+					.exec("md5sum " + project.projectDirectory + id + "_" + side + MImage.RAW_EXTENSION);
 			in = pr.getInputStream();
 			int data = in.read();
 			while (data != -1) {

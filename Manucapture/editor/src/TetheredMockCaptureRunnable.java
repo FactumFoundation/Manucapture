@@ -144,13 +144,13 @@ public class TetheredMockCaptureRunnable implements RunnableTetheredInterface {
 
 	}
 
-	public static void main(String[] args) {
-		TetheredMockCaptureRunnable captureRunnable = new TetheredMockCaptureRunnable();
-		captureRunnable.g2p5 = new G2P5();
-		captureRunnable.g2p5.id = ManuCapture_v1_1.PAGE_LEFT_NAME;
-		Thread thread = new Thread(captureRunnable);
-		thread.start();
-	}
+//	public static void main(String[] args) {
+//		TetheredMockCaptureRunnable captureRunnable = new TetheredMockCaptureRunnable();
+//		captureRunnable.g2p5 = new G2P5();
+//		captureRunnable.g2p5.id = ManuCapture_v1_1.PAGE_LEFT_NAME;
+//		Thread thread = new Thread(captureRunnable);
+//		thread.start();
+//	}
 
 	public synchronized void doTriggerEvent(boolean process) {
 		processTriggerEvent = process;

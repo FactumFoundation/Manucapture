@@ -17,7 +17,7 @@ import processing.core.*;
  *
  */
 
-public class G2P5 {
+public abstract class G2P5 {
 
 	private String eosSerial;
 	public String port;
@@ -40,7 +40,7 @@ public class G2P5 {
 	boolean ignoreEventProperty = true;
 	String shutterSpeedNormal = "1/30";
 	String shutterSpeedLiveview = "1";
-	
+
 	public G2P5() {
 
 	}
@@ -69,7 +69,7 @@ public class G2P5 {
 		this.active = active;
 
 		setNormalConfig();
-		
+
 		if (port != null) {
 			if (active) {
 				setAction(CAMERA_IDLE);
@@ -95,7 +95,7 @@ public class G2P5 {
 				actionCode = CAMERA_INACTIVE;
 			} else {
 				if (!mock) {
-					//captureRunnable = new TetheredCaptureRunnable();
+					// captureRunnable = new TetheredCaptureRunnable();
 					this.active = false;
 				}
 			}
@@ -138,27 +138,27 @@ public class G2P5 {
 		sendEvent(new G2P5Event(G2P5Event.NEW_PHOTO, "new_photo", path));
 	}
 
-	private void invokeEventMask(String cad) {
+	protected void invokeEventMask(String cad) {
 		sendEvent(new G2P5Event(G2P5Event.EVENT_MASK, "mask", cad));
 	}
 
-	private void invokeEventCode(String cad, String content) {
+	protected void invokeEventCode(String cad, String content) {
 		sendEvent(new G2P5Event(G2P5Event.EVENT_CODE, cad, content));
 	}
 
-	private void invokeEventPTP(String cad) {
+	protected void invokeEventPTP(String cad) {
 		sendEvent(new G2P5Event(G2P5Event.EVENT_PTP, "ptp", cad));
 	}
 
-	private void invokeEventCamera(String cad) {
+	protected void invokeEventCamera(String cad) {
 		sendEvent(new G2P5Event(G2P5Event.EVENT_CAMERA, "camera", cad));
 	}
 
-	private void invokeEventButton(String cad) {
+	protected void invokeEventButton(String cad) {
 		sendEvent(new G2P5Event(G2P5Event.EVENT_BUTTON, "button", cad));
 	}
 
-	private void invokeEventExposure(String cad) {
+	protected void invokeEventExposure(String cad) {
 		sendEvent(new G2P5Event(G2P5Event.EVENT_EXPOSURE, "exposure", cad));
 	}
 
@@ -211,69 +211,6 @@ public class G2P5 {
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
 		}
-	}
-
-	public void processLogLine(String line) {
-		if (line.contains("Camera")) {
-			int index = line.indexOf("Camera");
-			String cad = line.substring(index, line.length());
-			invokeEventCamera(cad);
-		} else if (line.contains("PTP")) {
-			// UNKNOWN PTP Property d1d3 changed
-			int index = line.indexOf("PTP");
-			String cad = line.substring(index, line.length());
-			invokeEventPTP(cad);
-		} else if (line.contains("Button")) {
-			// UNKNOWN Button 1032
-			int index = line.indexOf("Button");
-			String cad = line.substring(index + 6, line.length());
-			invokeEventButton(cad);
-		} else if (line.contains("OLCInfo")) {
-			// UNKNOWN OLCInfo event 0x0800 content 0000000000000000
-			// UNKNOWN OLCInfo event mask=900
-			if (line.contains("OLCInfo event")) {
-				if (line.contains("0x")) {
-					int index = line.indexOf("0x");
-					int indexContent = line.indexOf("content");
-					String cad = line.substring(index, indexContent - 1);
-					String content = line.substring(indexContent + 8, line.length());
-					invokeEventCode(cad, content);
-				} else if (line.contains("mask")) {
-					int index = line.indexOf("mask=");
-					String cad = line.substring(index + 5, line.length());
-					invokeEventMask(cad);
-				}
-			} else if (line.contains("OLCInfo exposure")) {
-				int index = line.indexOf("exposure indicator");
-				String cad = line.substring(index + 18, line.length());
-				invokeEventExposure(cad);
-			} else {
-				// aquí los no reconocidos
-			}
-		} else if (line.contains(".cr2") && line.contains(id)) {
-			// something about the file
-			if (!line.contains("LANG=C")) {
-				try {
-					if (active) {
-						Thread.sleep(600);
-						int index = line.lastIndexOf(" ");
-						String cad = line.substring(index + 1, line.length());
-						invokePhotoEvent(cad);
-					}
-				} catch (Throwable t) {
-					t.printStackTrace();
-				}
-			} else if (line.contains("LANG=C")) {
-				PApplet.println("Problem opening thethering on camera " + id);
-				setAction(CAMERA_INACTIVE);
-			}
-		}
-	}
-
-	public static G2P5 create(String homeDirectory, String eosSerial, String id) {
-		String port = getCameraPort(eosSerial);
-		G2P5 camera = new G2P5(homeDirectory, eosSerial, port, id);
-		return camera;
 	}
 
 	public static String getCameraPort(String eosSerial) {
@@ -333,7 +270,7 @@ public class G2P5 {
 		String fullPath = homeDirectory + "/" + id + ".cr2";
 		return fullPath;
 	}
-	
+
 	public void setLiveViewConfig() {
 		String commandToRun = "gphoto2 --port " + port + " --set-config-value /main/capturesettings/shutterspeed=0.3";
 		PApplet.println(commandToRun);
@@ -352,7 +289,7 @@ public class G2P5 {
 			ioe.printStackTrace();
 		}
 	}
-	
+
 	public void setNormalConfig() {
 		String commandToRun = "gphoto2 --port " + port + " --set-config-value /main/capturesettings/shutterspeed=1/30";
 		PApplet.println(commandToRun);
@@ -374,8 +311,10 @@ public class G2P5 {
 	}
 
 	public void doTriggerEvent() {
-		if(captureRunnable != null)
-		captureRunnable.doTriggerEvent(true);
+		if (captureRunnable != null)
+			captureRunnable.doTriggerEvent(true);
 	}
+
+	abstract public void processLogLine(String line);
 
 }
