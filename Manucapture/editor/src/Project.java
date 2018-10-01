@@ -8,8 +8,12 @@ import java.nio.file.CopyOption;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
+import java.util.Locale;
 
 import javax.swing.filechooser.FileNameExtensionFilter;
 
@@ -209,7 +213,11 @@ public class Project {
 			metadataXML.addChild(authorXML);
 			// timestamp
 			XML timestampXML = new XML("timestamp");
-			timestampXML.setContent(timestamp);
+			
+			LocalDateTime ldt = LocalDateTime.now();
+			DateTimeFormatter formmat1 = DateTimeFormatter .ofPattern("yyyyMMddHHmm", Locale.ENGLISH);
+			String formatter = formmat1.format(ldt);
+			timestampXML.setContent(formatter);
 			metadataXML.addChild(timestampXML);
 			// target directory
 			XML targetDirectoryXML = new XML("target_directory");

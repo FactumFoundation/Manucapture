@@ -336,6 +336,7 @@ public class ManuCapture_v1_1 extends PApplet {
 					chartStateMachine++;
 					G2P5Manager.addImageCount();
 				} else if (chartStateMachine == 2) {
+//					project.cleanImageCaches();
 					float newPageNum = project.selectedItem.pagNum;
 					Item newItem = initNewItem(Item.TYPE_CHART, newPageNum);
 					contentGUI.imgPreviewLeft = newItem.loadLeftPreview(project.projectDirectory,
