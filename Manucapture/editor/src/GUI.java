@@ -4,6 +4,8 @@ import g4p_controls.G4P;
 import g4p_controls.GAlign;
 import g4p_controls.GButton;
 import g4p_controls.GCScheme;
+import g4p_controls.GCheckbox;
+import g4p_controls.GDropList;
 import g4p_controls.GGroup;
 import g4p_controls.GImageButton;
 import g4p_controls.GImageToggleButton;
@@ -35,6 +37,7 @@ public class GUI {
 	GImageToggleButton btnRepeat;
 	GImageToggleButton btnColorChart;
 	GImageToggleButton btnLiveView;
+	GTextArea t;
 
 	GGroup grpProject;
 	GLabel project_info;
@@ -42,13 +45,12 @@ public class GUI {
 	GTextField code_text;
 	GButton btnOK;
 	GWindow window;
-
+	
 	public GUI() {
 	}
 
 	// Create all the GUI controls.
 	public void createGUI(ManuCapture_v1_1 context) {
-		
 		this.context = context;
 		this.guiController = context.guiController;
 		this.context = context;

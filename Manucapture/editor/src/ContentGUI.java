@@ -467,12 +467,11 @@ public class ContentGUI {
 			context.shutterMode = context.NORMAL_SHUTTER;
 			context.setCaptureState(context.CAMERAS_IDLE);
 			context.chartStateMachine = 0;
-			context.insertCalibItemPrevious = false;
+			//context.insertCalibItemPrevious = false;
 			context.gui.btnRepeat.setState(0);
 			context.gui.btnColorChart.setState(0);
 			context.gui.btnRepeat.setEnabled(true);
 			context.gui.btnColorChart.setEnabled(true);
-			context.gui.btnLiveView.setEnabled(true);
 			context.gui.btnCrop.setEnabled(true);
 			context.gui.btnTrigger.setEnabled(true);
 			noZoom();

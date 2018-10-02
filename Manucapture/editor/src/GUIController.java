@@ -51,9 +51,10 @@ public class GUIController {
 			} else {
 				context.shutterMode = ManuCapture_v1_1.NORMAL_SHUTTER;
 			}
-		} else {
+		} 
+		/*else {
 			context.insertCalibItemPrevious = true;
-		}
+		}*/
 		context.contentGUI.noZoom();
 	}
 
@@ -68,27 +69,6 @@ public class GUIController {
 	public void mouse_popUp(PApplet applet, GWinData windata, MouseEvent ouseevent) {
 		PApplet.println("holl1e" + ouseevent.getAction());
 	}
-
-	// public void close_popup_project(GButton source, GEvent event) {
-	// boolean someError = false;
-	// /*if (context.project.projectName == null ||
-	// context.project.projectName.trim().equals("")) {
-	// someError = true;
-	// }*/
-	// if (context.project.projectCode == null ||
-	// context.project.projectCode.trim().equals("")) {
-	// someError = true;
-	// }
-	// if (!someError) {
-	// context.setStateApp(ManuCapture_v1_1.STATE_APP_PROJECT);
-	// context.gui.grpAll.setVisible(1, true);
-	// context.gui.grpProject.setVisible(1, false);
-	// context.project.saveProjectXML();
-	// } else {
-	// G4P.showMessage(context, "Missing name or code", "", G4P.WARNING);
-	// }
-	// PApplet.println("close window edit project data");
-	// }
 
 	public void close_popup_project(GButton source, GEvent event) {
 		boolean someError = false;
@@ -137,22 +117,23 @@ public class GUIController {
 			context.shutterMode = ManuCapture_v1_1.CALIB_SHUTTER;
 			context.cameraState = ManuCapture_v1_1.STATE_CHART;
 			context.chartStateMachine = 1;
-			context.gui.btnLiveView.setEnabled(false);
 			context.gui.btnCrop.setEnabled(false);
+			context.gui.btnRepeat.setEnabled(false);
+			context.gui.btnRepeat.setState(0);
 		} else {
 			context.shutterMode = context.NORMAL_SHUTTER;
 			context.chartStateMachine = 0;
 			context.contentGUI.noZoom();
 			context.setCaptureState(ManuCapture_v1_1.NORMAL_SHUTTER);
-			context.gui.btnLiveView.setEnabled(true);
 			context.gui.btnCrop.setEnabled(true);
+			context.gui.btnRepeat.setEnabled(true);
 		}
 		context.contentGUI.noZoom();
 	}
 
 	public void trigger_button_click(GImageButton source, GEvent event) {
 		PApplet.println("SHUTTER TRIGGERED");
-		if (context.isAllMirrorsReady()) {
+		if (context.isAllMirrorsReady() && context.chartStateMachine != 3) {
 			context.project.cleanTempImages();
 			context.capture();
 			context.clearPaths();
@@ -240,19 +221,6 @@ public class GUIController {
 		}
 	}
 
-	// public void new_button_click(GButton source, GEvent event) {
-	// String projectFolderPath = G4P.selectFolder("Select the project folder for
-	// NEW PROJECT");
-	// if (projectFolderPath != null) {
-	// context.contentGUI.initCropGuides();
-	// context.project.thumbnailsLoaded = false;
-	// context.project.selectedItem = null;
-	// context.setStateApp(context.STATE_APP_EDITING_PROJECT);
-	// context.createProject(projectFolderPath);
-	// calibration_shutter_click(null, null);
-	// }
-	// }
-
 	public void new_button_click(GButton source, GEvent event) {
 		// String projectFolderPath = G4P.selectFolder("Select the project folder for
 		// NEW PROJECT");
@@ -269,8 +237,6 @@ public class GUIController {
 		context.project.items.clear();
 		context.gui.code_text.setText(context.project.projectCode);
 		context.setStateApp(context.STATE_APP_EDITING_PROJECT);
-
-
 		// }
 	}
 

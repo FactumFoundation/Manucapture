@@ -164,7 +164,7 @@ public class ManuCapture_v1_1 extends PApplet {
 
 	String proyectsRepositoryFolder = null;
 	boolean creatingProyect = false;
-	boolean insertCalibItemPrevious = false;
+	//boolean insertCalibItemPrevious = false;
 	public String source;
 	public String cameraModel;
 
@@ -451,6 +451,7 @@ public class ManuCapture_v1_1 extends PApplet {
 			if (dist2 < 100) {
 				guiController.new_button_click(null, null);
 				guiController.calibration_shutter_click(null, null);
+				gui.btnColorChart.setState(1);
 			}
 		}
 	}
@@ -620,6 +621,7 @@ public class ManuCapture_v1_1 extends PApplet {
 		if (project.selectedItemIndex < 0) {
 			newPageNum = 1;
 		} else {
+			/*
 			if (insertCalibItemPrevious) {
 				project.selectedItemIndex -= 1;
 				if (project.selectedItemIndex < 0) {
@@ -628,8 +630,9 @@ public class ManuCapture_v1_1 extends PApplet {
 					newPageNum = (int) project.items.get(project.selectedItemIndex).pagNum + 1;
 				}
 			} else {
+			*/
 				newPageNum = (int) project.items.get(project.selectedItemIndex).pagNum + 1;
-			}
+			//}
 		}
 		Item newItem = initNewItem(type, newPageNum);
 		newItem.saveMetadata();
@@ -863,7 +866,7 @@ public class ManuCapture_v1_1 extends PApplet {
 		if (theOscMessage.addrPattern().equals("/error")) {
 			arduinoConnected = false;
 			println("Problem opening Serial Port");
-		} else {
+		} else if (chartStateMachine != 3){
 			capture();
 		}
 	}
