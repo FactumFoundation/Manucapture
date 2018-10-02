@@ -41,6 +41,8 @@ public class MImage {
 	String templatePath = "/template.pp3";
 
 	String pathMock = null;
+	
+	boolean previewDirty = false;
 
 	void remove() {
 		imgThumb = null;
@@ -48,14 +50,22 @@ public class MImage {
 		String pathI = context.project.projectDirectory + "" + imagePath;
 		if (pathI != null && new File(pathI).exists())
 			new File(pathI).delete();
-		String pathT = thumbPath;
-		if (pathT != null && new File(pathT).exists())
-			new File(pathT).delete();
+		deleteThumbnail();
 		if (getSidecarPath() != null && new File(getSidecarPath()).exists())
 			new File(getSidecarPath()).delete();
+		deleteImagePreview();
+	}
+
+	private void deleteImagePreview() {
 		if (imagePreview != null && new File(imagePreview).exists()) {
 			boolean deleted = new File(imagePreview).delete();
 		}
+	}
+
+	private void deleteThumbnail() {
+		String pathT = thumbPath;
+		if (pathT != null && new File(pathT).exists())
+			new File(pathT).delete();
 	}
 
 	public List<Guide> copyGuides(List<Guide> defaultValue) {
@@ -141,10 +151,10 @@ public class MImage {
 		}
 		parent.delay(100);
 		PImage thumbImg = parent.loadImage(thumbnailPath);
-		if (thumbImg != null && thumbImg.width>0) {
+		if (thumbImg != null && thumbImg.width > 0) {
 			thumbImg = thumbImg.get(0, 0, thumbImg.width - thumbMargin, thumbImg.height);
-		context.println("Thumbnail Generated : " + thumbnailPath);
-		}else {
+			context.println("Thumbnail Generated : " + thumbnailPath);
+		} else {
 			context.println("ERROR Thumbnail not Generated : " + thumbnailPath);
 		}
 		return thumbImg;
@@ -166,9 +176,16 @@ public class MImage {
 
 			String previewFile = rawImagePath.replace(RAW_EXTENSION, ".jpg").replace("/raw/", "/previews/");
 			imagePreview = previewFile;
-			if (new File(previewFile).exists()) {
+			File imagePreviewFile = new File(previewFile);
+			if (imagePreviewFile.exists() && !previewDirty) {
 				img = context.loadImage(previewFile);
 			} else {
+				
+				if(previewDirty) {
+					imagePreviewFile.delete();
+					previewDirty = false;
+				}
+				
 				context.deleteAllFiles(previewFolder, ".jpg");
 				File itemImgRight = new File(rawImagePath);
 				String fileName = FilenameUtils.removeExtension(itemImgRight.getName());
@@ -494,5 +511,18 @@ public class MImage {
 
 		image.saveMetadata();
 		image.loadMetadata();
+	}
+
+	public void removeCache() {
+		if (thumbPath == null) {
+			if (imagePath != null && !imagePath.equals("")) {
+				File itemImg = new File(context.project.projectDirectory + "/" + imagePath);
+				thumbPath = getThumbnailPath(context.project.projectDirectory, itemImg);
+			}
+		}
+		deleteThumbnail();
+		
+		previewDirty = true;
+		
 	}
 }

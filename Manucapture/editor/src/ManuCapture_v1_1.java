@@ -336,7 +336,7 @@ public class ManuCapture_v1_1 extends PApplet {
 					chartStateMachine++;
 					G2P5Manager.addImageCount();
 				} else if (chartStateMachine == 2) {
-//					project.cleanImageCaches();
+					// project.cleanImageCaches();
 					float newPageNum = project.selectedItem.pagNum;
 					Item newItem = initNewItem(Item.TYPE_CHART, newPageNum);
 					contentGUI.imgPreviewLeft = newItem.loadLeftPreview(project.projectDirectory,
@@ -349,6 +349,7 @@ public class ManuCapture_v1_1 extends PApplet {
 					project.selectItem(project.selectedItemIndex);
 					gui.btnTrigger.setEnabled(false);
 					clearPaths();
+					newItem.saveMetadata();
 					chartStateMachine++;
 					G2P5Manager.addImageCount();
 				}
@@ -649,6 +650,9 @@ public class ManuCapture_v1_1 extends PApplet {
 		if (!newPageLeftPath.equals(""))
 			relNewPageLeftPath = newPageLeftPath.substring(project.projectDirectory.length());
 		Item newItem = new Item(this, relNewPageLeftPath, relNewPageRightPath, newPageNum, "", type);
+
+		newItem.removeCache();
+
 		return newItem;
 	}
 
@@ -1229,6 +1233,19 @@ public class ManuCapture_v1_1 extends PApplet {
 		}
 	}
 
+	@Override
+	public void keyReleased() {
+		// TODO Auto-generated method stub
+		if (key == BACKSPACE) {
+			String cad = gui.code_text.getText();
+			if (cad != null && cad.length() > 0 && guiController.editing) {
+				gui.code_text.setText(cad.substring(0, cad.length() - 1));
+				gui.code_text.setFocus(false);
+				gui.code_text.setFocus(true);
+			}
+		}
+	}
+
 	static public void main(String[] passedArgs) {
 		try {
 			String[] appletArgs = new String[] { "ArduinoDriver", "" };
@@ -1241,7 +1258,7 @@ public class ManuCapture_v1_1 extends PApplet {
 			e.printStackTrace();
 			System.out.println("End of programmm");
 		}
-		
+
 		try {
 			String[] appletArgs = new String[] { "ManuCapture_v1_1", "--present" };
 			if (passedArgs != null) {

@@ -1,29 +1,22 @@
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.nio.file.CopyOption;
 import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 
-import javax.swing.filechooser.FileNameExtensionFilter;
-
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
-import static java.nio.file.StandardCopyOption.*;
 
 import g4p_controls.G4P;
 import processing.core.PApplet;
-import processing.core.PImage;
 import processing.data.XML;
 
 public class Project {
@@ -400,7 +393,7 @@ public class Project {
 				}
 			}
 
-			cleanImageCaches();
+//			cleanImageCaches();
 		}
 
 		if (filesNotInPath.size() > 0) {

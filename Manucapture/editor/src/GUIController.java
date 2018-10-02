@@ -14,6 +14,7 @@ import processing.event.MouseEvent;
 public class GUIController {
 
 	ManuCapture_v1_1 context;
+	public boolean editing = false;
 
 	public GUIController(ManuCapture_v1_1 context) {
 		super();
@@ -126,7 +127,7 @@ public class GUIController {
 		} else {
 			G4P.showMessage(context, "Missing name or code", "", G4P.WARNING);
 		}
-
+		editing = false;
 		PApplet.println("close window edit project data");
 	}
 
@@ -229,6 +230,7 @@ public class GUIController {
 			context.setStateApp(context.STATE_APP_EDITING_PROJECT);
 			context.gui.code_text.setText(context.project.projectCode);
 			context.gui.code_text.setEnabled(false);
+			
 		}
 	}
 
@@ -256,6 +258,7 @@ public class GUIController {
 		// NEW PROJECT");
 		// if (projectFolderPath != null) {
 		context.gui.code_text.setEnabled(true);
+		editing = true;
 		context.creatingProyect = true;
 		context.contentGUI.initCropGuides();
 		context.contentGUI.resetPreviews();

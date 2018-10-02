@@ -74,4 +74,9 @@ public class Item {
 		return mImageLeft.loadPreview(projectDirectory + "/preview_left/", leftImagePath, "left_preview.jpg");
 	}
 
+	public void removeCache() {
+		mImageLeft.removeCache();
+		mImageRight.removeCache();
+	}
+
 }
