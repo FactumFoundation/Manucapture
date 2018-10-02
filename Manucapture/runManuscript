@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+_now=$(date +"%m_%d_%Y")
+_file="/home/factum/logsmanucapture/$_now.log"
+
+cd /home/factum/Documents/Manucapture/export
+java -jar manucapture.jar > "$_file"
+
