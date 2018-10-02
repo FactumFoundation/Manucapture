@@ -1,9 +1,11 @@
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 
 public class ExecCommand {
 	private Semaphore outputSem;
@@ -41,26 +43,26 @@ public class ExecCommand {
 				StringBuffer readBuffer = new StringBuffer();
 				BufferedReader isr = new BufferedReader(new InputStreamReader(p.getInputStream()));
 				String buff = new String();
-//				try {
-					while (true) {
-						// if (p.getInputStream().available() > 0) {
-						buff = isr.readLine();
-						if (buff != null) {
-							readBuffer.append(buff);
-							System.out.println(buff + " ::::::::::::::." + p.getInputStream().available());
-						} else {
-							break;
-						}
-						// } else {
-
-						// Thread.sleep(5);
-						//
-						// }
-
+				// try {
+				while (true) {
+					// if (p.getInputStream().available() > 0) {
+					buff = isr.readLine();
+					if (buff != null) {
+						readBuffer.append(buff);
+						System.out.println(buff + " ::::::::::::::." + p.getInputStream().available());
+					} else {
+						break;
 					}
-//				} catch (InterruptedException e) {
-//					e.printStackTrace();
-//				}
+					// } else {
+
+					// Thread.sleep(5);
+					//
+					// }
+
+				}
+				// } catch (InterruptedException e) {
+				// e.printStackTrace();
+				// }
 				output = readBuffer.toString();
 				outputSem.release();
 			} catch (IOException e) {
@@ -181,5 +183,40 @@ public class ExecCommand {
 		}
 
 		return array;
+	}
+
+	public static void main(String[] args) {
+		
+		String homeUSer = System.getProperty("user.home");
+		
+		Process process;
+		try {
+			
+			process = Runtime.getRuntime()
+					.exec(homeUSer+"/git/bookScanner/Manucapture/ArduinoDriver/application.linux64/ArduinoDriver");
+
+			Thread.sleep(6000);
+			
+			InputStream error = process.getErrorStream();
+			String err = "Error:";
+			for (int i = 0; i < error.available(); i++) {
+				err += (char) error.read();
+			}
+			System.out.println(err);
+
+			InputStream out = process.getInputStream();
+			
+			String info = "info:";
+			for (int i = 0; i < out.available(); i++) {
+				info += (char) out.read();
+			}
+			System.out.println(info);
+			
+			process.waitFor();
+
+		} catch (IOException | InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }
