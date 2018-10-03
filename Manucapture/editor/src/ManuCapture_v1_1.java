@@ -1250,7 +1250,7 @@ public class ManuCapture_v1_1 extends PApplet {
 	}
 
 	static public void main(String[] passedArgs) {
-		try {
+		/*try {
 			String[] appletArgs = new String[] { "ArduinoDriver", "" };
 			if (passedArgs != null) {
 				PApplet.main(concat(appletArgs, passedArgs));
@@ -1260,7 +1260,9 @@ public class ManuCapture_v1_1 extends PApplet {
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.out.println("End of programmm");
-		}
+		}*/
+		
+		
 
 		try {
 			String[] appletArgs = new String[] { "ManuCapture_v1_1", "--present" };
@@ -1273,5 +1275,8 @@ public class ManuCapture_v1_1 extends PApplet {
 			e.printStackTrace();
 			System.out.println("End of programmm");
 		}
+		
+		ArduinoDriverRunnerExportPDE pde = new ArduinoDriverRunnerExportPDE();
+		pde.main(passedArgs);
 	}
 }
