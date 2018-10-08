@@ -34,6 +34,8 @@ import boofcv.struct.image.*;
 import boofcv.alg.feature.detect.line.*;
 import boofcv.factory.feature.detect.line.*;
 import georegression.struct.line.*;
+import processing.video.*;
+
 
 public class ManuCapture_v1_1 extends PApplet {
 
@@ -168,6 +170,11 @@ public class ManuCapture_v1_1 extends PApplet {
 	public String source;
 	public String cameraModel;
 
+	// Liveview images
+	Movie liveViewLeft;
+	Movie liveViewRight;
+	
+	
 	public void setup() {
 
 		System.setOut(new TracingPrintStream(System.out));
@@ -460,6 +467,8 @@ public class ManuCapture_v1_1 extends PApplet {
 
 		camerasStateWatchDog();
 
+		// Old method: Using openframework 
+		/*
 		if (liveViewActive == 1) {
 			gphotoPageRight.setActive(false);
 			gphotoPageLeft.setActive(false);
@@ -480,8 +489,8 @@ public class ManuCapture_v1_1 extends PApplet {
 				if (gphotoPageRight.getPort() == null || gphotoPageLeft.getPort() == null) {
 					G4P.showMessage(this, msg("sw.nocamera"), "", G4P.WARNING);
 				} else {
-					myMessage.add(gphotoPageRight.getPort()); /* add an int to the osc message */
-					myMessage.add(gphotoPageLeft.getPort()); /* add an int to the osc message */
+					myMessage.add(gphotoPageRight.getPort()); 
+					myMessage.add(gphotoPageLeft.getPort()); 
 					oscP5.send(myMessage, viewerLocation);
 					process.waitFor();
 				}
@@ -509,7 +518,9 @@ public class ManuCapture_v1_1 extends PApplet {
 				gui.btnLiveView.setVisible(true);
 				gui.btnLiveView.setState(0);
 			}
+			
 		}
+		*/
 
 		fill(backgroundColor);
 
@@ -542,6 +553,8 @@ public class ManuCapture_v1_1 extends PApplet {
 		popStyle();
 		textSize(16);
 		fill(255, 0, 0);
+		
+		/* Old liveview
 		if (liveViewActive == 0) {
 			fill(0, 200);
 			rect(0, 0, width, height);
@@ -550,6 +563,7 @@ public class ManuCapture_v1_1 extends PApplet {
 			text(msg("sw.liveviewenable"), width / 2 - 100, height / 2);
 			liveViewActive++;
 		}
+		*/
 
 		// datos de cámara
 		if (!gphotoPageLeft.isConnected()) {
@@ -887,9 +901,7 @@ public class ManuCapture_v1_1 extends PApplet {
 
 			g2p5 = Canon700D_G2P5.create(homeDirectory(), serial, name);
 		}
-
 		// here is the place to be if you want to add more cameras with different msgs
-
 		G2P5ManucaptureAdapter adapter = new G2P5ManucaptureAdapter(this, g2p5);
 		adapter.setTargetFile(project.projectDirectory + "raw", project.projectCode);
 		return adapter;
@@ -1248,6 +1260,13 @@ public class ManuCapture_v1_1 extends PApplet {
 			}
 		}
 	}
+	
+	public void movieEvent(Movie m) {
+		  println("new liveview frame ");
+		  println(m);
+		  println();
+		  m.read();
+	}
 
 	static public void main(String[] passedArgs) {
 		/*try {
@@ -1262,8 +1281,6 @@ public class ManuCapture_v1_1 extends PApplet {
 			System.out.println("End of programmm");
 		}*/
 		
-		
-
 		try {
 			String[] appletArgs = new String[] { "ManuCapture_v1_1", "--present" };
 			if (passedArgs != null) {

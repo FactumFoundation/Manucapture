@@ -10,6 +10,7 @@ import g4p_controls.GWindow;
 import netP5.StringUtils;
 import processing.core.PApplet;
 import processing.event.MouseEvent;
+import processing.video.Movie;
 
 public class GUIController {
 
@@ -250,9 +251,60 @@ public class GUIController {
 	}
 
 	public void liveView_button_click(GImageToggleButton source, GEvent event) {
+		/*
 		context.liveViewActive = 0;
 		context.gui.btnLiveView.setEnabled(false);
 		context.gui.btnLiveView.setVisible(false);
+		*/
+		
+		if(source.getState()==1) {
+			G2P5.killAllGphotoProcess();
+			// SHUTTERSPEED
+			context.gphotoPageRight.setLiveViewConfig();
+			context.gphotoPageLeft.setLiveViewConfig();
+			context.gphotoPageRight.startLiveView();
+			context.gphotoPageLeft.startLiveView();
+			try {
+				Thread.sleep(500);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			if(context.liveViewLeft==null) {
+				context.liveViewLeft = new Movie(context, context.gphotoPageLeft.getLiveViewStreamPath());
+			}
+			  
+			if(context.liveViewRight==null) {
+				context.liveViewRight = new Movie(context, context.gphotoPageRight.getLiveViewStreamPath()); 
+			}
+			context.println(context.gphotoPageRight.getLiveViewStreamPath());
+			context.liveViewLeft.play();
+			context.liveViewRight.play();
+			
+		} else {
+			// set normal speed and reconnect tethered capture
+			context.liveViewLeft.stop();
+			context.liveViewRight.stop();
+			context.gphotoPageRight.stopLiveView();
+			context.gphotoPageLeft.stopLiveView();
+			context.gphotoPageRight.setNormalConfig();
+			context.gphotoPageLeft.setNormalConfig();
+			if (!context.gphotoPageRight.isConnected()) {
+				context.guiController.camera_page_right_active_button_click(null, null);
+			}
+			if (!context.gphotoPageLeft.isConnected()) {
+				context.guiController.camera_page_left_active_button_click(null, null);
+			}
+			context.gphotoPageRightAdapter.setTargetFile(context.project.projectDirectory + "/raw", context.project.projectCode);
+			context.gphotoPageLeftAdapter.setTargetFile(context.project.projectDirectory + "/raw", context.project.projectCode);
+			try {
+				Thread.sleep(500);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
 	}
 
 	public void openViewer_1(GImageButton source, GEvent event) {

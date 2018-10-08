@@ -70,7 +70,20 @@ public class ContentGUI {
 	}
 
 	private void drawLeftImage() {
-		if (context.project.selectedItem != null && imgPreviewLeft != null) {
+		if(context.gui.btnLiveView.getState()==1) {
+			if(context.liveViewLeft!=null) {
+				context.pushStyle();
+				context.pushMatrix();
+				context.translate(leftImageMarginLeft, imageMarginTop);
+				drawImagePreview(context.liveViewLeft,null,leftImageMarginLeft,leftImageScale);
+				context.popMatrix();
+				context.popStyle();
+			}
+			else {
+				context.println("Error: Liveview image is null");
+			}
+		}
+		else if (context.project.selectedItem != null && imgPreviewLeft != null) {
 			if (imgPreviewLeft.width > 0) {
 				context.pushStyle();
 				context.pushMatrix();
@@ -103,7 +116,21 @@ public class ContentGUI {
 	}
 
 	private void drawRightImage() {
-		if (context.project.selectedItem != null && imgPreviewRight != null) {
+		if(context.gui.btnLiveView.getState()==1) {
+			if(context.liveViewRight!=null) {
+				context.pushStyle();
+				context.pushMatrix();
+				context.translate(rightImageMarginLeft, imageMarginTop);
+				context.imageMode(context.CORNER);
+				drawImagePreview(context.liveViewRight,null,rightImageMarginLeft,rightImageScale);
+				context.popMatrix();
+				context.popStyle();
+			}
+			else {
+				context.println("Error: Liveview image is null");
+			}
+		}
+		else if (context.project.selectedItem != null && imgPreviewRight != null) {
 			context.pushStyle();
 			context.pushMatrix();
 			context.translate(rightImageMarginLeft, imageMarginTop);

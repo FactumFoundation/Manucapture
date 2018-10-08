@@ -51,6 +51,9 @@ public abstract class G2P5 {
 		this.port = port;
 		this.tethering = true;
 		this.homeDirectory = homeDirectory;
+		
+		setNormalConfig();
+		
 		setActive(true);
 	}
 
@@ -67,8 +70,6 @@ public abstract class G2P5 {
 			thread.interrupt();
 		}
 		this.active = active;
-
-		setNormalConfig();
 
 		if (port != null) {
 			if (active) {
@@ -270,6 +271,11 @@ public abstract class G2P5 {
 		String fullPath = homeDirectory + "/" + id + ".cr2";
 		return fullPath;
 	}
+	
+	public String getLiveViewStreamPath() {
+		String fullPath = homeDirectory + "/" + id + ".mjpg";
+		return fullPath;	
+	}
 
 	public void setLiveViewConfig() {
 		String commandToRun = "gphoto2 --port " + port + " --set-config-value /main/capturesettings/shutterspeed=0.3";
@@ -302,6 +308,74 @@ public abstract class G2P5 {
 			while ((line = bufferedReader.readLine()) != null) {
 				// wait for end of process
 				PApplet.println("Normal : " + line);
+			}
+			inputStream.close();
+			bufferedReader.close();
+		} catch (IOException ioe) {
+			ioe.printStackTrace();
+		}
+	}
+	
+	public void startLiveView() {
+		//gphoto2 --port usb:001,009 --capture-movie --stdout> fifo.mjpg
+		String fifoPath = getLiveViewStreamPath();
+		String commandToRun = "gphoto2 --port " + port + " --capture-movie --stdout> " + fifoPath ;
+		PApplet.println(commandToRun);
+		try {
+			String[] commands = new String[] { "/bin/sh", "-c", commandToRun };
+			Process process = new ProcessBuilder(commands).start();
+		} catch (IOException ioe) {
+			ioe.printStackTrace();
+		}
+	}
+	
+	public void stopLiveView() {
+		// Kill the background process
+		killAllGphotoProcess();
+		try {
+			Thread.sleep(100);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		//Turn off view finder
+		String commandToRun = "gphoto2 --port " + port + " --reset";
+		PApplet.println(commandToRun);
+		try {
+			String[] commands = new String[] { "/bin/sh", "-c", commandToRun };
+			Process process = new ProcessBuilder(commands).start();
+			InputStream inputStream = process.getInputStream();
+			BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream), 1);
+			String line;
+			while ((line = bufferedReader.readLine()) != null) {
+				// wait for end of process
+				PApplet.println("Stop liveview : " + line);
+			}
+			inputStream.close();
+			bufferedReader.close();
+		} catch (IOException ioe) {
+			ioe.printStackTrace();
+		}
+		
+		try {
+			Thread.sleep(100);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		//Turn off view finder
+		commandToRun = "gphoto2 --port " + port + " --set-config /main/actions/viewfinder=0";
+		PApplet.println(commandToRun);
+		try {
+			String[] commands = new String[] { "/bin/sh", "-c", commandToRun };
+			Process process = new ProcessBuilder(commands).start();
+			InputStream inputStream = process.getInputStream();
+			BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream), 1);
+			String line;
+			while ((line = bufferedReader.readLine()) != null) {
+				// wait for end of process
+				PApplet.println("Stop liveview : " + line);
 			}
 			inputStream.close();
 			bufferedReader.close();
