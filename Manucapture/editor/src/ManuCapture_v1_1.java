@@ -200,15 +200,11 @@ public class ManuCapture_v1_1 extends PApplet {
 		serialCameraPageLeft = serialXML.getChild("Camera_Page_Left").getContent();
 		serialXMLCameraPageRight = serialXML.getChild("Camera_Page_Right");
 		serialXMLCameraPageLeft = serialXML.getChild("Camera_Page_Left");
-
 		rawW = serialXML.getInt("raw_width");
 		rawH = serialXML.getInt("raw_height");
-
 		source = serialXML.getString("source");
 		cameraModel = serialXML.getString("cameraModel");
-
 		proyectsRepositoryFolder = serialXML.getString("repository");
-
 		String rotPageRight = serialXML.getChild("Camera_Page_Right").getString("rotation");
 		String rotPageLeft = serialXML.getChild("Camera_Page_Left").getString("rotation");
 		if (rotPageRight != null)

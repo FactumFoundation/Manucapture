@@ -75,7 +75,7 @@ public class ContentGUI {
 				context.pushStyle();
 				context.pushMatrix();
 				context.translate(leftImageMarginLeft, imageMarginTop);
-				drawImagePreview(context.liveViewLeft,null,leftImageMarginLeft,leftImageScale);
+				drawLiveView(context.liveViewLeft,leftImageMarginLeft,context.rotationPageLeft);
 				context.popMatrix();
 				context.popStyle();
 			}
@@ -121,8 +121,7 @@ public class ContentGUI {
 				context.pushStyle();
 				context.pushMatrix();
 				context.translate(rightImageMarginLeft, imageMarginTop);
-				context.imageMode(context.CORNER);
-				drawImagePreview(context.liveViewRight,null,rightImageMarginLeft,rightImageScale);
+				drawLiveView(context.liveViewRight,rightImageMarginLeft,context.rotationPageRight);
 				context.popMatrix();
 				context.popStyle();
 			}
@@ -160,6 +159,18 @@ public class ContentGUI {
 						imageMarginTop - 10);
 		}
 	}
+	
+	private void drawLiveView(PImage imgLiveview, int marginLeft, float angle) {
+		context.pushMatrix();
+		context.imageMode(context.CENTER);
+		context.translate(wImageViewerSize/2,hImageViewerSize/2);
+		context.rotate(context.radians(angle));
+		context.image(imgLiveview, 0, 0);
+//		context.image(imgLiveview, 0, 0, wImageViewerSize, hImageViewerSize, 0, 0, imgLiveview.width,
+//				imgLiveview.height);
+		context.popMatrix();
+		
+	}
 
 	private void drawImagePreview(PImage imgPreview, PVector lastPressed, int marginLeft, float scale) {
 		if (lastPressed != null) {
@@ -186,9 +197,6 @@ public class ContentGUI {
 			context.image(imgPreview, 0, 0, wImageViewerSize, hImageViewerSize, portviewStartX, portviewStartY,
 					portviewStartX + portviewSizeX, portviewStartY + portviewSizeY);
 		} else {
-
-			context.rect(0, 0, 100, 100);
-
 			context.image(imgPreview, 0, 0, wImageViewerSize, hImageViewerSize, 0, 0, imgPreview.width,
 					imgPreview.height);
 		}
