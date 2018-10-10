@@ -3,7 +3,6 @@ import java.util.List;
 
 import processing.core.PImage;
 import processing.core.PVector;
-import processing.event.MouseEvent;
 
 public class ContentGUI {
 

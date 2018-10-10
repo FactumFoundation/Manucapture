@@ -1,20 +1,15 @@
 import java.awt.Font;
 
 import g4p_controls.G4P;
-import g4p_controls.GAlign;
 import g4p_controls.GButton;
 import g4p_controls.GCScheme;
-import g4p_controls.GCheckbox;
-import g4p_controls.GDropList;
 import g4p_controls.GGroup;
 import g4p_controls.GImageButton;
 import g4p_controls.GImageToggleButton;
 import g4p_controls.GLabel;
-import g4p_controls.GPanel;
 import g4p_controls.GTextArea;
 import g4p_controls.GTextField;
 import g4p_controls.GWindow;
-import processing.core.PApplet;
 
 public class GUI {
 	

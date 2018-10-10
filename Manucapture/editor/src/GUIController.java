@@ -1,13 +1,11 @@
 import g4p_controls.G4P;
 import g4p_controls.GButton;
-import g4p_controls.GCScheme;
 import g4p_controls.GEvent;
 import g4p_controls.GImageButton;
 import g4p_controls.GImageToggleButton;
 import g4p_controls.GTextField;
 import g4p_controls.GWinData;
 import g4p_controls.GWindow;
-import netP5.StringUtils;
 import processing.core.PApplet;
 import processing.event.MouseEvent;
 import processing.video.Movie;

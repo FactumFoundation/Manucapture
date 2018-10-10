@@ -1,6 +1,4 @@
-import java.awt.event.KeyEvent;
 import processing.core.PApplet;
-import processing.core.PGraphics;
 import processing.core.PVector;
 
 public class Guide {
