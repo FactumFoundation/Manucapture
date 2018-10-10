@@ -1258,9 +1258,9 @@ public class ManuCapture_v1_1 extends PApplet {
 	}
 	
 	public void movieEvent(Movie m) {
-		  println("new liveview frame ");
-		  println(m);
-		  println();
+		  //println("new liveview frame ");
+		  //println(m);
+		  //println();
 		  m.read();
 	}
 

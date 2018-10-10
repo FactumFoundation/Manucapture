@@ -283,8 +283,11 @@ public class GUIController {
 			
 		} else {
 			// set normal speed and reconnect tethered capture
-			context.liveViewLeft.stop();
-			context.liveViewRight.stop();
+			if(context.liveViewRight!=null)
+				context.liveViewRight.stop();
+			if(context.liveViewLeft==null)
+				context.liveViewLeft.stop();
+			
 			context.gphotoPageRight.stopLiveView();
 			context.gphotoPageLeft.stopLiveView();
 			context.gphotoPageRight.setNormalConfig();

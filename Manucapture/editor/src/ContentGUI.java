@@ -80,7 +80,7 @@ public class ContentGUI {
 				context.popStyle();
 			}
 			else {
-				context.println("Error: Liveview image is null");
+				//context.println("Error: Liveview image is null");
 			}
 		}
 		else if (context.project.selectedItem != null && imgPreviewLeft != null) {
@@ -126,7 +126,7 @@ public class ContentGUI {
 				context.popStyle();
 			}
 			else {
-				context.println("Error: Liveview image is null");
+				//context.println("Error: Liveview image is null");
 			}
 		}
 		else if (context.project.selectedItem != null && imgPreviewRight != null) {
