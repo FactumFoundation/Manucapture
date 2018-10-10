@@ -1,10 +1,36 @@
 
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+
+import processing.core.PApplet;
 
 public class ArduinoDriverRunnerExportPDE {
 
+	ArduinoDriverRunnerExportPDE(){
+		killAllArduinoDrivers();
+	}
+
+	private void killAllArduinoDrivers() {
+		PApplet.println("Killing other existing instances of Arduino driver");
+		String commandToRun = "ps aux | grep -ie ArduinoDriver | awk '{print $2}' | xargs kill -9";
+		try {
+			String[] commands = new String[] { "/bin/sh", "-c", commandToRun };
+			Process process = new ProcessBuilder(commands).start();
+			InputStream inputStream = process.getInputStream();
+			BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream), 1);
+			String line;
+			while ((line = bufferedReader.readLine()) != null) {
+				PApplet.println("killAllArduinoDrivers process : " + line);
+			}
+			inputStream.close();
+			bufferedReader.close();
+		} catch (IOException ioe) {
+			ioe.printStackTrace();
+		}
+	}	
 	
 public static void main(String[] args) {
 		

@@ -1263,20 +1263,9 @@ public class ManuCapture_v1_1 extends PApplet {
 		  //println();
 		  m.read();
 	}
-
+	
+	
 	static public void main(String[] passedArgs) {
-		/*try {
-			String[] appletArgs = new String[] { "ArduinoDriver", "" };
-			if (passedArgs != null) {
-				PApplet.main(concat(appletArgs, passedArgs));
-			} else {
-				PApplet.main(appletArgs);
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-			System.out.println("End of programmm");
-		}*/
-		
 		try {
 			String[] appletArgs = new String[] { "ManuCapture_v1_1", "--present" };
 			if (passedArgs != null) {

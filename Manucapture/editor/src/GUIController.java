@@ -53,9 +53,6 @@ public class GUIController {
 				context.shutterMode = ManuCapture_v1_1.NORMAL_SHUTTER;
 			}
 		} 
-		/*else {
-			context.insertCalibItemPrevious = true;
-		}*/
 		context.contentGUI.noZoom();
 	}
 
@@ -64,19 +61,14 @@ public class GUIController {
 	}
 
 	public void mouse_popUp(PApplet applet, GWinData windata) {
-		PApplet.println("holle2" + windata);
 	}
 
 	public void mouse_popUp(PApplet applet, GWinData windata, MouseEvent ouseevent) {
-		PApplet.println("holl1e" + ouseevent.getAction());
 	}
 
 	public void close_popup_project(GButton source, GEvent event) {
 		boolean someError = false;
-		/*
-		 * if (context.project.projectName == null ||
-		 * context.project.projectName.trim().equals("")) { someError = true; }
-		 */
+
 		if (context.project.projectCode == null || context.project.projectCode.trim().equals("")) {
 			someError = true;
 		}
@@ -251,11 +243,6 @@ public class GUIController {
 	}
 
 	public void liveView_button_click(GImageToggleButton source, GEvent event) {
-		/*
-		context.liveViewActive = 0;
-		context.gui.btnLiveView.setEnabled(false);
-		context.gui.btnLiveView.setVisible(false);
-		*/
 		
 		if(source.getState()==1) {
 			G2P5.killAllGphotoProcess();
