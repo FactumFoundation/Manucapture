@@ -52,7 +52,7 @@ public class CanonEOS5DSR_G2P5 extends G2P5{
 			if (!line.contains("LANG=C")) {
 				try {
 					if (active) {
-						Thread.sleep(600);
+						Thread.sleep(900);
 						int index = line.lastIndexOf(" ");
 						String cad = line.substring(index + 1, line.length());
 						invokePhotoEvent(cad);

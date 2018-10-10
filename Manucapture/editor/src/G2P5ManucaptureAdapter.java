@@ -75,7 +75,7 @@ public class G2P5ManucaptureAdapter implements G2P5Listener {
 					PApplet.println("MIRRORRRRRRR UP " + g2p5.id);
 				} 	
 			} else if(g2p5 instanceof CanonEOS5DSR_G2P5){
-				if (propertyMirrorUpChanged && event.content.trim().endsWith("2c1")) {				
+				if (propertyMirrorUpChanged && event.content.trim().endsWith("1")) {				
 					mirrorUp = true;
 					PApplet.println("MIRRORRRRRRR UP " + g2p5.id);
 				} 	
