@@ -178,7 +178,7 @@ public class ManuCapture_v1_1 extends PApplet {
 	public void setup() {
 
 		System.setOut(new TracingPrintStream(System.out));
-
+		
 		// OSC comms to Arduino Driver
 		oscP5 = new OscP5(this, receivePort);
 		viewerLocation = new NetAddress("127.0.0.1", sendPort);
@@ -232,8 +232,11 @@ public class ManuCapture_v1_1 extends PApplet {
 		gphotoPageLeftAdapter.setTargetFile(project.projectDirectory + "/raw", project.projectCode);
 		if (gphotoPageLeftAdapter.g2p5.mock) {
 			MAX_TIME_CAPTURE_MACHINE_STATE = 15000;
-		}
-		// }
+		}		
+		
+		// Testing video
+		//liveViewRight = new Movie(this, gphotoPageRight.getLiveViewStreamPath());
+
 		// Init GUI
 		// Main window position
 		surface.setTitle("ManuCapture v1");
