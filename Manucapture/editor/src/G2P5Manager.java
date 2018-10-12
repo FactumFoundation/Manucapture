@@ -25,7 +25,6 @@ public class G2P5Manager {
 
 	public static void init(int initialImageCount) {
 		G2P5Manager.setImageCount(initialImageCount);
-		G2P5.killAllGphotoProcess();
 	}
 
 }

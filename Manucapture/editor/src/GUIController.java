@@ -36,9 +36,11 @@ public class GUIController {
 	}
 
 	public void code_text_change(GTextField source, GEvent event) {
-		context.project.projectCode = source.getText();
-		if (event.toString() == "ENTERED" && !context.project.projectDirectory.equals("")) {
-			context.project.saveProjectXML();
+		if(event!=null) {
+			context.project.projectCode = source.getText();
+			if (event.toString() == "ENTERED" && !context.project.projectDirectory.equals("")) {
+				context.project.saveProjectXML();
+			}
 		}
 	}
 

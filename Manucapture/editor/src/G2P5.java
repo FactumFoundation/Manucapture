@@ -48,11 +48,6 @@ public abstract class G2P5 {
 		this.port = port;
 		this.tethering = true;
 		this.homeDirectory = homeDirectory;
-		
-		stopLiveView(); // just in case the cameras are already in liveview mode
-		setNormalConfig();
-		
-		setActive(true);
 	}
 
 	public synchronized String getPort() {
@@ -328,14 +323,6 @@ public abstract class G2P5 {
 	}
 	
 	public void stopLiveView() {
-		// Kill the background process
-		killAllGphotoProcess();
-		try {
-			Thread.sleep(100);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 		
 		//Turn off view finder
 		String commandToRun = "gphoto2 --port " + port + " --reset";

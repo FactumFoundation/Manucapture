@@ -9,7 +9,6 @@ import java.text.SimpleDateFormat;
 import java.util.Formatter;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-
 import g4p_controls.G4P;
 import netP5.NetAddress;
 import oscP5.OscMessage;
@@ -24,6 +23,7 @@ import boofcv.alg.feature.detect.line.*;
 import boofcv.factory.feature.detect.line.*;
 import georegression.struct.line.*;
 import processing.video.*;
+import processing.event.KeyEvent;
 
 
 public class ManuCapture_v1_1 extends PApplet {
@@ -171,7 +171,7 @@ public class ManuCapture_v1_1 extends PApplet {
 	
 	
 	public void setup() {
-
+		
 		System.setOut(new TracingPrintStream(System.out));
 		
 		// OSC comms to Arduino Driver
@@ -209,11 +209,18 @@ public class ManuCapture_v1_1 extends PApplet {
 		System.out.println("rotation of camera for page right " + rotPageRight);
 		System.out.println("rotation of camera for page left " + rotPageLeft);
 
+		G2P5.killAllGphotoProcess();
 		G2P5Manager.init(0);
 		gphotoPageRightAdapter = createG2P5(serialCameraPageRight, PAGE_RIGHT_NAME);
 		gphotoPageLeftAdapter = createG2P5(serialCameraPageLeft, PAGE_LEFT_NAME);
 		gphotoPageRight = gphotoPageRightAdapter.g2p5;
 		gphotoPageLeft = gphotoPageLeftAdapter.g2p5;
+		gphotoPageRight.stopLiveView();
+		gphotoPageLeft.stopLiveView();
+		gphotoPageRight.setNormalConfig();
+		gphotoPageLeft.setNormalConfig();
+		gphotoPageRight.setActive(true);
+		gphotoPageLeft.setActive(true);
 		gphotoPageRight.listener = gphotoPageRightAdapter;
 		gphotoPageLeft.listener = gphotoPageLeftAdapter;
 		gphotoPageRightAdapter.setTargetFile(project.projectDirectory + "/raw", project.projectCode);
@@ -245,6 +252,10 @@ public class ManuCapture_v1_1 extends PApplet {
 		registerMethod("post", this);
 		background(backgroundColor);
 		frameRate(25);
+	}
+	
+	public void settings() {
+		  size(1920, 1080, "processing.opengl.PGraphics2D");
 	}
 
 	public void post() {
@@ -518,6 +529,14 @@ public class ManuCapture_v1_1 extends PApplet {
 			liveViewState = ON_LIVEVIEW;
 		} else if(liveViewState == STOP_LIVEVIEW) {
 			// set normal speed and reconnect tethered capture
+			// Kill the background process
+			G2P5.killAllGphotoProcess();
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			liveViewRight.stop();
 			liveViewLeft.stop();
 			gphotoPageRight.stopLiveView();
@@ -803,9 +822,7 @@ public class ManuCapture_v1_1 extends PApplet {
 		return pathApp;
 	}
 
-	public void settings() {
-		size(1920, 1080, P2D);
-	}
+
 
 	public void oscEvent(OscMessage theOscMessage) {
 		print("### received an osc message.");
@@ -821,7 +838,7 @@ public class ManuCapture_v1_1 extends PApplet {
 
 	public G2P5ManucaptureAdapter createG2P5(String serial, String name) {
 		G2P5 g2p5 = null;
-
+		
 		if (cameraModel.equals("canon_700D")) {
 			g2p5 = Canon700D_G2P5.create(homeDirectory(), serial, name);
 		}
@@ -1184,17 +1201,18 @@ public class ManuCapture_v1_1 extends PApplet {
 
 	@Override
 	public void keyReleased() {
-		// TODO Auto-generated method stub
 		if (key == BACKSPACE) {
 			String cad = gui.code_text.getText();
 			if (cad != null && cad.length() > 0 && guiController.editing) {
-				gui.code_text.setText(cad.substring(0, cad.length() - 1));
+				String newCode = cad.substring(0, cad.length() - 1);
+				gui.code_text.setText(newCode);
+				project.projectCode = newCode;
 				gui.code_text.setFocus(false);
-				gui.code_text.setFocus(true);
+				gui.code_text.setFocus(true);		
 			}
 		}
 	}
-	
+		
 	public void movieEvent(Movie m) {
 		  //println("new liveview frame ");
 		  //println(m);
@@ -1205,7 +1223,7 @@ public class ManuCapture_v1_1 extends PApplet {
 	
 	static public void main(String[] passedArgs) {
 		try {
-			String[] appletArgs = new String[] { "ManuCapture_v1_1", "--present" };
+			String[] appletArgs = new String[] { "ManuCapture_v1_1"};
 			if (passedArgs != null) {
 				PApplet.main(concat(appletArgs, passedArgs));
 			} else {

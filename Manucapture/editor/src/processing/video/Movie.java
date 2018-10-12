@@ -128,16 +128,19 @@ public class Movie extends PImage implements PConstants {
 //      }
 
       pixels = null;
+      if(rgbSink != null) {
+    	  rgbSink.disconnect(newSampleListener);
+    	  //      sink.disconnect(newPrerollListener);
+    	  rgbSink.dispose();
+      }
+      
+      if(playbin != null) {
+          playbin.setState(org.freedesktop.gstreamer.State.NULL);
+          playbin.getState();
+          playbin.getBus().dispose();
+          playbin.dispose();    	  
+      }
 
-      rgbSink.disconnect(newSampleListener);
-//      sink.disconnect(newPrerollListener);
-      rgbSink.dispose();
-      playbin.setState(org.freedesktop.gstreamer.State.NULL);
-      playbin.getState();
-      playbin.getBus().dispose();
-      playbin.dispose();
-      
-      
 //      copyPixels = null;
 //      if (rgbSink != null) {
 //        rgbSink.removeListener();

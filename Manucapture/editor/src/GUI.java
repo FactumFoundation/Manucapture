@@ -9,7 +9,6 @@ import g4p_controls.GImageToggleButton;
 import g4p_controls.GLabel;
 import g4p_controls.GTextArea;
 import g4p_controls.GTextField;
-import g4p_controls.GWindow;
 
 public class GUI {
 	
@@ -39,7 +38,6 @@ public class GUI {
 	GLabel code_label;
 	GTextField code_text;
 	GButton btnOK;
-	GWindow window;
 	
 	public GUI() {
 	}
@@ -127,11 +125,10 @@ public class GUI {
 		btnConnectedCameraPageLeft.setAlpha(180);
 		btnConnectedCameraPageRight.setAlpha(180);
 		
-		Font font = new Font("Verdana", Font.BOLD, 10);
 		createProjectControls();
 		G4P.messagesEnabled(false);
 		G4P.setGlobalColorScheme(GCScheme.YELLOW_SCHEME);
-		G4P.setCursor(context.ARROW);
+		G4P.setCursor(G4P.ARROW);
 	}
 
 	private void createProjectControls() {
@@ -139,7 +136,6 @@ public class GUI {
 		int fieldW = 500;
 		int fieldH = 40;
 		int labelX = context.width / 3 -90;
-		int labelY = 40;
 		int labelW = 200;
 		int labelH = 40;
 		int fieldX = labelX + labelW + 10;
