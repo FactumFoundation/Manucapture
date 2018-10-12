@@ -126,12 +126,18 @@ public class GUIController {
 
 	public void trigger_button_click(GImageButton source, GEvent event) {
 		PApplet.println("SHUTTER TRIGGERED");
-		if (context.isAllMirrorsReady() && context.chartStateMachine != 3) {
-			context.project.cleanTempImages();
-			context.capture();
-			context.clearPaths();
+		if ( context.chartStateMachine != 3 
+				&& context.arduinoConnected
+				&& context.liveViewState == ManuCapture_v1_1.NO_LIVEVIEW) {
+			if(context.isAllMirrorsReady()) {
+				context.project.cleanTempImages();
+				context.capture();
+				context.clearPaths();
+			}else {
+				G4P.showMessage(context, "Mirrors are not ready", "", G4P.WARNING);
+			}
 		} else {
-			G4P.showMessage(context, "Mirrors are not ready", "", G4P.WARNING);
+			
 		}
 	}
 
@@ -250,6 +256,7 @@ public class GUIController {
 			context.liveViewState = ManuCapture_v1_1.ENABLING_LIVEVIEW;	
 			
 		} else {
+			context.exitCropMode();
 			context.liveViewState = ManuCapture_v1_1.DISSABLING_LIVEVIEW;
 		}
 		

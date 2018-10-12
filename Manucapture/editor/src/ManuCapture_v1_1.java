@@ -168,6 +168,7 @@ public class ManuCapture_v1_1 extends PApplet {
 	// Liveview images
 	Movie liveViewLeft;
 	Movie liveViewRight;
+	private boolean showArduinoWaringWindow = false;
 	
 	
 	public void setup() {
@@ -366,7 +367,7 @@ public class ManuCapture_v1_1 extends PApplet {
 	public void draw() {
 		background(75);
 		if (getStateApp() == STATE_APP_NO_PROJECT) {
-			if (!arduinoConnected) {
+			if (showArduinoWaringWindow) {
 				drawErrorWindow();
 			} else {
 				drawInitWindow();
@@ -501,7 +502,7 @@ public class ManuCapture_v1_1 extends PApplet {
 		ellipse(width - 125, 69, 30, 30);
 
 		// trigger button color
-		if (isAllMirrorsReady()) {
+		if (isAllMirrorsReady() && arduinoConnected) {
 			fill(0, 255, 0);
 		} else {
 			fill(255, 0, 0);
@@ -557,7 +558,6 @@ public class ManuCapture_v1_1 extends PApplet {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			exitCropMode();
 			gui.btnCrop.setEnabled(true);
 			liveViewState = NO_LIVEVIEW;
 		} else if(liveViewState == ENABLING_LIVEVIEW) {
@@ -624,8 +624,12 @@ public class ManuCapture_v1_1 extends PApplet {
 	}
 
 	public void mouseReleased() {
+		if(showArduinoWaringWindow) {
+			showArduinoWaringWindow = false;	
+		}
 		itemsGUI.mouseReleased();
 		contentGUI.mouseReleased();
+		
 	}
 
 	private void doNormalShutter(String type) {
@@ -830,6 +834,7 @@ public class ManuCapture_v1_1 extends PApplet {
 		println(" typetag: " + theOscMessage.typetag());
 		if (theOscMessage.addrPattern().equals("/error")) {
 			arduinoConnected = false;
+			showArduinoWaringWindow = true;
 			println("Problem opening Serial Port");
 		} else if (chartStateMachine != 3){
 			capture();
@@ -1214,14 +1219,11 @@ public class ManuCapture_v1_1 extends PApplet {
 	}
 		
 	public void movieEvent(Movie m) {
-		  //println("new liveview frame ");
-		  //println(m);
-		  //println();
 		  m.read();
 	}
 	
-	
 	static public void main(String[] passedArgs) {
+		
 		try {
 			String[] appletArgs = new String[] { "ManuCapture_v1_1"};
 			if (passedArgs != null) {
@@ -1235,6 +1237,6 @@ public class ManuCapture_v1_1 extends PApplet {
 		}
 		
 		ArduinoDriverRunnerExportPDE pde = new ArduinoDriverRunnerExportPDE();
-		pde.main(passedArgs);
+		pde.main(passedArgs);		
 	}
 }

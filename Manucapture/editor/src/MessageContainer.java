@@ -17,9 +17,9 @@ public class MessageContainer {
 		content.put("sw.liveviewenable", "START LIVEVIEW MODE");
 		content.put("sw.liveviewdisable", "STOPPING LIVEVIEW MODE");
 
-		content.put("sw.calibration1", "CAPTURING CHART COLOR\n PLEASE OPEN THE MANUSCRIPT AT THE END,\n AND PUT THE CHART COLOR IN THIS SIDE");
+		content.put("sw.calibration1", "CAPTURING CHART COLOR\n PLEASE OPEN THE MANUSCRIPT AT THE BEGINNING,\n AND PUT THE CHART COLOR ON THIS SIDE");
 		content.put("sw.calibration2", "DRAG POINTS TO COVER ALL DE MANUSCRIPT, AND PRESS BUTTON NORMAL");
-		content.put("sw.calibration3", "CAPTURING CHART COLOR\n PLEASE OPEN THE MANUSCRIPT AT THE START,\n AND PUT THE CHART COLOR IN THIS SIDE");
+		content.put("sw.calibration3", "CAPTURING CHART COLOR\n PLEASE OPEN THE MANUSCRIPT AT THE END,\n AND PUT THE CHART COLOR ON THIS SIDE");
 
 		content.put("sw.errorloadingproject", "Can't load project");
 
@@ -39,7 +39,7 @@ public class MessageContainer {
 
 		content.put("sw.", "");
 		
-		content.put("sw.failsSerial", "Trigger board is not working. Please check if it's physically connected to the USB hub\nThen restart the app");
+		content.put("sw.failsSerial", "Trigger board is not working. Please check if it's physically connected to the USB hub and restart the app.\n Click the mouse to continue without shutter.");
 		content.put("sw.failsrepository", "Can't create proyect folder, verify repository folder ");
 		
 		content.put("sw.liveviewlefttitle", "Left Page live view");
