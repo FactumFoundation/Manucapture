@@ -243,54 +243,12 @@ public class GUIController {
 	public void liveView_button_click(GImageToggleButton source, GEvent event) {
 		
 		if(source.getState()==1) {
-			G2P5.killAllGphotoProcess();
-			// SHUTTERSPEED
-			context.gphotoPageRight.setLiveViewConfig();
-			context.gphotoPageLeft.setLiveViewConfig();
-			context.gphotoPageRight.startLiveView();
-			context.gphotoPageLeft.startLiveView();
-			try {
-				Thread.sleep(500);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			if(context.liveViewLeft==null) {
-				context.liveViewLeft = new Movie(context, context.gphotoPageLeft.getLiveViewStreamPath());
-			}
-			  
-			if(context.liveViewRight==null) {
-				context.liveViewRight = new Movie(context, context.gphotoPageRight.getLiveViewStreamPath()); 
-			}
-			context.println(context.gphotoPageRight.getLiveViewStreamPath());
-			context.liveViewLeft.play();
-			context.liveViewRight.play();
+			context.enterCropMode();
+			context.gui.btnCrop.setEnabled(false);
+			context.liveViewState = ManuCapture_v1_1.ENABLING_LIVEVIEW;	
 			
 		} else {
-			// set normal speed and reconnect tethered capture
-			if(context.liveViewRight!=null)
-				context.liveViewRight.stop();
-			if(context.liveViewLeft==null)
-				context.liveViewLeft.stop();
-			
-			context.gphotoPageRight.stopLiveView();
-			context.gphotoPageLeft.stopLiveView();
-			context.gphotoPageRight.setNormalConfig();
-			context.gphotoPageLeft.setNormalConfig();
-			if (!context.gphotoPageRight.isConnected()) {
-				context.guiController.camera_page_right_active_button_click(null, null);
-			}
-			if (!context.gphotoPageLeft.isConnected()) {
-				context.guiController.camera_page_left_active_button_click(null, null);
-			}
-			context.gphotoPageRightAdapter.setTargetFile(context.project.projectDirectory + "/raw", context.project.projectCode);
-			context.gphotoPageLeftAdapter.setTargetFile(context.project.projectDirectory + "/raw", context.project.projectCode);
-			try {
-				Thread.sleep(500);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			context.liveViewState = ManuCapture_v1_1.DISSABLING_LIVEVIEW;
 		}
 		
 	}

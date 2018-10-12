@@ -132,8 +132,14 @@ public class ManuCapture_v1_1 extends PApplet {
 
 	int backgroundColor = 0xff000C12;
 
-	int liveViewActive = -1;
-
+	static int NO_LIVEVIEW = -1;
+	static int STOP_LIVEVIEW = -2;
+	static int ENABLING_LIVEVIEW =-3;
+	static int START_LIVEVIEW = 2;
+	static int ON_LIVEVIEW = 1;
+	static int DISSABLING_LIVEVIEW = 3;
+	int liveViewState = NO_LIVEVIEW;
+		
 	boolean mock = false;
 
 	// *********************
@@ -202,14 +208,7 @@ public class ManuCapture_v1_1 extends PApplet {
 			rotationPageLeft = Integer.parseInt(rotPageLeft);
 		System.out.println("rotation of camera for page right " + rotPageRight);
 		System.out.println("rotation of camera for page left " + rotPageLeft);
-		// if (mock) {
-		// gphotoPageRight = G2P5MockDisk.create(this, serialCameraPageRight,
-		// PAGE_RIGHT_NAME);
-		// gphotoPageRightAdapter.setTargetFile(homeDirectory(), "test");
-		// gphotoPageLeft = G2P5MockDisk.create(this, serialCameraPageLeft,
-		// PAGE_LEFT_NAME);
-		// gphotoPageLeftAdapter.setTargetFile(homeDirectory(), "test");
-		// } else {
+
 		G2P5Manager.init(0);
 		gphotoPageRightAdapter = createG2P5(serialCameraPageRight, PAGE_RIGHT_NAME);
 		gphotoPageLeftAdapter = createG2P5(serialCameraPageLeft, PAGE_LEFT_NAME);
@@ -222,10 +221,10 @@ public class ManuCapture_v1_1 extends PApplet {
 		if (gphotoPageLeftAdapter.g2p5.mock) {
 			MAX_TIME_CAPTURE_MACHINE_STATE = 15000;
 		}		
+				
+		liveViewLeft = new Movie(this, gphotoPageLeft.getLiveViewStreamPath());
+		liveViewRight = new Movie(this, gphotoPageRight.getLiveViewStreamPath()); 
 		
-		// Testing video
-		//liveViewRight = new Movie(this, gphotoPageRight.getLiveViewStreamPath());
-
 		// Init GUI
 		// Main window position
 		surface.setTitle("ManuCapture v1");
@@ -455,82 +454,12 @@ public class ManuCapture_v1_1 extends PApplet {
 
 		camerasStateWatchDog();
 
-		// Old method: Using openframework 
-		/*
-		if (liveViewActive == 1) {
-			gphotoPageRight.setActive(false);
-			gphotoPageLeft.setActive(false);
-			G2P5.killAllGphotoProcess();
-			// SHUTTERSPEED
-			gphotoPageRight.setLiveViewConfig();
-			gphotoPageLeft.setLiveViewConfig();
-			String command = appPath + "/GPhotoLiveView/bin/GPhotoLiveViewer_debug";
-			try {
-				Process process = Runtime.getRuntime().exec(command);
-				try {
-					Thread.sleep(1000);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-				OscMessage myMessage = new OscMessage("/cameraPorts");
-				println(gphotoPageRight.getPort(), gphotoPageLeft.getPort());
-				if (gphotoPageRight.getPort() == null || gphotoPageLeft.getPort() == null) {
-					G4P.showMessage(this, msg("sw.nocamera"), "", G4P.WARNING);
-				} else {
-					myMessage.add(gphotoPageRight.getPort()); 
-					myMessage.add(gphotoPageLeft.getPort()); 
-					oscP5.send(myMessage, viewerLocation);
-					process.waitFor();
-				}
-
-			} catch (Exception e) {
-				e.printStackTrace();
-			} finally {
-				G2P5.killAllGphotoProcess();
-				try {
-					Thread.sleep(100);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				if (!gphotoPageRight.isConnected()) {
-					guiController.camera_page_right_active_button_click(null, null);
-				}
-				if (!gphotoPageLeft.isConnected()) {
-					guiController.camera_page_left_active_button_click(null, null);
-				}
-				gphotoPageRightAdapter.setTargetFile(project.projectDirectory + "/raw", project.projectCode);
-				gphotoPageLeftAdapter.setTargetFile(project.projectDirectory + "/raw", project.projectCode);
-				liveViewActive = -1;
-				gui.btnLiveView.setEnabled(true);
-				gui.btnLiveView.setVisible(true);
-				gui.btnLiveView.setState(0);
-			}
-			
-		}
-		*/
-
 		fill(backgroundColor);
-
-		// CAMERA STATE SECTION
-		// ///////////////////////////////////////////////////////
-
-		/*
-		 * if (gphotoA.isConnected()) {
-		 * gui.camera_A_connected_button.setText("CONNECTED");
-		 * gui.camera_A_connected_button.setLocalColorScheme(GCScheme.GREEN_SCHEME); }
-		 * else { gui.camera_A_connected_button.setText("DISCONNECTED");
-		 * gui.camera_A_connected_button.setLocalColorScheme(GCScheme.RED_SCHEME); }
-		 * 
-		 * if (gphotoB.isConnected()) {
-		 * gui.camera_B_connected_button.setText("CONNECTED");
-		 * gui.camera_B_connected_button.setLocalColorScheme(GCScheme.GREEN_SCHEME); }
-		 * else { gui.camera_B_connected_button.setText("DISCONNECTED");
-		 * gui.camera_B_connected_button.setLocalColorScheme(GCScheme.RED_SCHEME); }
-		 */
 
 		itemsGUI.drawItemsViewPort();
 		contentGUI.draw();
+		
+		//project labels 
 		stroke(255);
 		textAlign(LEFT);
 		pushStyle();
@@ -542,26 +471,17 @@ public class ManuCapture_v1_1 extends PApplet {
 		textSize(16);
 		fill(255, 0, 0);
 		
-		/* Old liveview
-		if (liveViewActive == 0) {
-			fill(0, 200);
-			rect(0, 0, width, height);
-			textSize(32);
-			fill(255, 0, 0);
-			text(msg("sw.liveviewenable"), width / 2 - 100, height / 2);
-			liveViewActive++;
-		}
-		*/
-
-		// datos de cámara
+		// Liveview
+		liveViewStateMachine();
+		
+		// Datos de cámara
 		if (!gphotoPageLeft.isConnected()) {
 			fill(255, 0, 0);
 		} else {
 			fill(0, 255, 0);
 		}
 		ellipse(width - 54, 69, 30, 30);
-
-		// datos de cámara
+		
 		if (!gphotoPageRight.isConnected()) {
 			fill(255, 0, 0);
 		} else {
@@ -578,6 +498,66 @@ public class ManuCapture_v1_1 extends PApplet {
 		ellipse(width - 88, 962, 50, 50);
 	}
 
+	private void liveViewStateMachine() {
+		
+		if (liveViewState == START_LIVEVIEW) {
+			G2P5.killAllGphotoProcess();
+			// SHUTTERSPEED
+			gphotoPageRight.setLiveViewConfig();
+			gphotoPageLeft.setLiveViewConfig();
+			gphotoPageRight.startLiveView();
+			gphotoPageLeft.startLiveView();
+			try {
+				Thread.sleep(500);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			liveViewLeft.play();
+			liveViewRight.play();
+			liveViewState = ON_LIVEVIEW;
+		} else if(liveViewState == STOP_LIVEVIEW) {
+			// set normal speed and reconnect tethered capture
+			liveViewRight.stop();
+			liveViewLeft.stop();
+			gphotoPageRight.stopLiveView();
+			gphotoPageLeft.stopLiveView();
+			gphotoPageRight.setNormalConfig();
+			gphotoPageLeft.setNormalConfig();
+			if (!gphotoPageRight.isConnected()) {
+				guiController.camera_page_right_active_button_click(null, null);
+			}
+			if (!gphotoPageLeft.isConnected()) {
+				guiController.camera_page_left_active_button_click(null, null);
+			}
+			gphotoPageRightAdapter.setTargetFile(project.projectDirectory + "/raw", project.projectCode);
+			gphotoPageLeftAdapter.setTargetFile(project.projectDirectory + "/raw", project.projectCode);
+			try {
+				Thread.sleep(500);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			exitCropMode();
+			gui.btnCrop.setEnabled(true);
+			liveViewState = NO_LIVEVIEW;
+		} else if(liveViewState == ENABLING_LIVEVIEW) {
+			fill(0, 200);
+			rect(0, 0, width, height);
+			textSize(32);
+			fill(255, 0, 0);
+			text(msg("sw.liveviewenable"), width / 2 - 100, height / 2);
+			liveViewState = START_LIVEVIEW;
+		} else if(liveViewState == DISSABLING_LIVEVIEW) {
+			fill(0, 200);
+			rect(0, 0, width, height);
+			textSize(32);
+			fill(255, 0, 0);
+			text(msg("sw.liveviewdisable"), width / 2 - 100, height / 2);
+			liveViewState = STOP_LIVEVIEW;
+		}
+	}
+
 	public void mouseMoved() {
 		itemsGUI.mouseMoved();
 		contentGUI.mouseMoved();
@@ -586,12 +566,24 @@ public class ManuCapture_v1_1 extends PApplet {
 	public void toggleCropMode() {
 		cropMode = !cropMode;
 		if (!cropMode) {
-			contentGUI.exitCropMode();
+			contentGUI.stopCropMode();
 		} else {
 			contentGUI.startCropMode();
 		}
 	}
-
+	
+	public void enterCropMode() {
+		gui.btnCrop.setState(1);
+		cropMode = true;
+		contentGUI.startCropMode();
+	}
+	
+	public void exitCropMode() {
+		gui.btnCrop.setState(0);
+		cropMode = false;
+		contentGUI.stopCropMode();
+	}
+	
 	public void mousePressed() {
 		contentGUI.mousePressed();
 		itemsGUI.mousePressed();
@@ -623,18 +615,7 @@ public class ManuCapture_v1_1 extends PApplet {
 		if (project.selectedItemIndex < 0) {
 			newPageNum = 1;
 		} else {
-			/*
-			if (insertCalibItemPrevious) {
-				project.selectedItemIndex -= 1;
-				if (project.selectedItemIndex < 0) {
-					newPageNum = 1;
-				} else {
-					newPageNum = (int) project.items.get(project.selectedItemIndex).pagNum + 1;
-				}
-			} else {
-			*/
-				newPageNum = (int) project.items.get(project.selectedItemIndex).pagNum + 1;
-			//}
+			newPageNum = (int) project.items.get(project.selectedItemIndex).pagNum + 1;
 		}
 		Item newItem = initNewItem(type, newPageNum);
 		newItem.saveMetadata();
@@ -655,9 +636,7 @@ public class ManuCapture_v1_1 extends PApplet {
 		if (!newPageLeftPath.equals(""))
 			relNewPageLeftPath = newPageLeftPath.substring(project.projectDirectory.length());
 		Item newItem = new Item(this, relNewPageLeftPath, relNewPageRightPath, newPageNum, "", type);
-
 		newItem.removeCache();
-
 		return newItem;
 	}
 
@@ -666,7 +645,6 @@ public class ManuCapture_v1_1 extends PApplet {
 	}
 
 	public void loadLastSessionData() {
-
 		String value;
 		try {
 			XML lastSessionData = loadXML("lastSession.xml");
@@ -738,7 +716,6 @@ public class ManuCapture_v1_1 extends PApplet {
 		boolean ret = true;
 
 		// We will check if is posible using this name
-
 		String tempProjectPath = proyectsRepositoryFolder + projectFolderPath;
 
 		File file = new File(tempProjectPath);
@@ -758,12 +735,6 @@ public class ManuCapture_v1_1 extends PApplet {
 		projectFolderPath = tempProjectPath;
 
 		if (ret) {
-			// project.projectFilePath = tempProjectPath;
-
-			// if (!project.projectFilePath.equals("")) {
-			// project.closeProject();
-			// }
-
 			XML projectDataXML = loadXML("project_template.xml");
 			project.loadProjectMetadata(projectDataXML);
 
@@ -775,31 +746,6 @@ public class ManuCapture_v1_1 extends PApplet {
 
 			saveXML(projectDataXML, projectFolderPath + "/project.xml");
 
-			// File thumbnailsFolder = new File(projectFolderPath + "/thumbnails");
-			// if (!thumbnailsFolder.exists()) {
-			// if (thumbnailsFolder.mkdir()) {
-			// try {
-			// Runtime.getRuntime().exec("chmod -R ugo+rw " + thumbnailsFolder.getPath());
-			// } catch (Exception e) {
-			//
-			// _println("Couldn't create thumbnail directory permisions");
-			// }
-			// } else {
-			// _println("Failed to create thumbnail directory!");
-			// }
-			// }
-			// File rawFolder = new File(projectFolderPath + "/raw");
-			// if (!rawFolder.exists()) {
-			// if (rawFolder.mkdir()) {
-			// try {
-			// Runtime.getRuntime().exec("chmod -R ugo+rw " + rawFolder.getPath());
-			// } catch (Exception e) {
-			// _println("Couldn't create raw directory permisions");
-			// }
-			// } else {
-			// _println("Failed to create thumbnail directory!");
-			// }
-			// }
 			project.projectDirectory = projectFolderPath;
 			project.projectFilePath = projectFolderPath + "/project.xml";
 			project.selectedItemIndex = -1;

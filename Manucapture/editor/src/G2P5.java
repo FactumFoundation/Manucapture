@@ -49,6 +49,7 @@ public abstract class G2P5 {
 		this.tethering = true;
 		this.homeDirectory = homeDirectory;
 		
+		stopLiveView(); // just in case the cameras are already in liveview mode
 		setNormalConfig();
 		
 		setActive(true);

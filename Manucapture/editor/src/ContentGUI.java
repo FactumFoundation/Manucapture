@@ -69,12 +69,17 @@ public class ContentGUI {
 	}
 
 	private void drawLeftImage() {
-		if(context.gui.btnLiveView.getState()==1) {
+		
+		if(context.liveViewState == ManuCapture_v1_1.ON_LIVEVIEW) {
 			if(context.liveViewLeft!=null) {
 				context.pushStyle();
 				context.pushMatrix();
 				context.translate(leftImageMarginLeft, imageMarginTop);
 				drawLiveView(context.liveViewLeft,leftImageMarginLeft,context.rotationPageLeft);
+				context.fill(255);
+				context.textSize(18);
+				context.textAlign(context.LEFT);
+				context.text(context.msg("sw.liveviewlefttitle"), 100, -10);
 				context.popMatrix();
 				context.popStyle();
 			}
@@ -82,13 +87,70 @@ public class ContentGUI {
 				//context.println("Error: Liveview image is null");
 			}
 		}
-		else if (context.project.selectedItem != null && imgPreviewLeft != null) {
-			if (imgPreviewLeft.width > 0) {
+		else if(context.liveViewState == ManuCapture_v1_1.NO_LIVEVIEW) {
+			if (context.project.selectedItem != null && imgPreviewLeft != null) {
+				if (imgPreviewLeft.width > 0) {
+					context.pushStyle();
+					context.pushMatrix();
+					context.translate(leftImageMarginLeft, imageMarginTop);
+					drawImagePreview(imgPreviewLeft, lastPressedL, leftImageMarginLeft, leftImageScale);
+					if (lastPressedL != null) {
+						context.tint(255, 200);
+					} else {
+						context.tint(255, 20);
+					}
+					context.image(zoomImg, wImageViewerSize - 70, 20, 50, 50);
+					context.fill(255);
+					context.textSize(18);
+					context.textAlign(context.LEFT);
+					context.text(context.project.selectedItem.mImageLeft.imagePath, 100, -10);
+					context.popMatrix();
+					context.popStyle();
+				}
+			} else {
+				context.stroke(255);
+				context.fill(50);
+				context.rect(leftImageMarginLeft, imageMarginTop, wImageViewerSize, hImageViewerSize);
+				context.fill(255);
+				context.textAlign(context.LEFT);
+				if (context.project.selectedItem != null && context.project.selectedItem.mImageLeft != null
+						&& context.project.selectedItem.mImageLeft.imagePath != null)
+					context.text(context.project.selectedItem.mImageLeft.imagePath, leftImageMarginLeft + 100,
+							imageMarginTop - 10);
+			}
+			
+		}
+			
+	}
+
+	private void drawRightImage() {
+		if(context.liveViewState == ManuCapture_v1_1.ON_LIVEVIEW) {
+			if(context.liveViewRight!=null) {
 				context.pushStyle();
 				context.pushMatrix();
-				context.translate(leftImageMarginLeft, imageMarginTop);
-				drawImagePreview(imgPreviewLeft, lastPressedL, leftImageMarginLeft, leftImageScale);
-				if (lastPressedL != null) {
+				context.translate(rightImageMarginLeft, imageMarginTop);
+				drawLiveView(context.liveViewRight,rightImageMarginLeft,context.rotationPageRight);
+				context.fill(255);
+				context.textSize(18);
+				context.textAlign(context.LEFT);
+				context.text(context.msg("sw.liveviewrighttitle"), 100, -10);
+				context.
+				popMatrix();
+				context.popStyle();
+			}
+			else {
+				//context.println("Error: Liveview image is null");
+			}
+		}
+		else if(context.liveViewState == ManuCapture_v1_1.NO_LIVEVIEW) { 
+			
+			if (context.project.selectedItem != null && imgPreviewRight != null) {
+				context.pushStyle();
+				context.pushMatrix();
+				context.translate(rightImageMarginLeft, imageMarginTop);
+				context.imageMode(context.CORNER);
+				drawImagePreview(imgPreviewRight, lastPressedR, rightImageMarginLeft, rightImageScale);
+				if (lastPressedR != null) {
 					context.tint(255, 200);
 				} else {
 					context.tint(255, 20);
@@ -97,65 +159,20 @@ public class ContentGUI {
 				context.fill(255);
 				context.textSize(18);
 				context.textAlign(context.LEFT);
-				context.text(context.project.selectedItem.mImageLeft.imagePath, 100, -10);
+				context.text(context.project.selectedItem.mImageRight.imagePath, 100, -10);
 				context.popMatrix();
 				context.popStyle();
-			}
-		} else {
-			context.stroke(255);
-			context.fill(50);
-			context.rect(leftImageMarginLeft, imageMarginTop, wImageViewerSize, hImageViewerSize);
-			context.fill(255);
-			context.textAlign(context.LEFT);
-			if (context.project.selectedItem != null && context.project.selectedItem.mImageLeft != null
-					&& context.project.selectedItem.mImageLeft.imagePath != null)
-				context.text(context.project.selectedItem.mImageLeft.imagePath, leftImageMarginLeft + 100,
-						imageMarginTop - 10);
-		}
-	}
-
-	private void drawRightImage() {
-		if(context.gui.btnLiveView.getState()==1) {
-			if(context.liveViewRight!=null) {
-				context.pushStyle();
-				context.pushMatrix();
-				context.translate(rightImageMarginLeft, imageMarginTop);
-				drawLiveView(context.liveViewRight,rightImageMarginLeft,context.rotationPageRight);
-				context.popMatrix();
-				context.popStyle();
-			}
-			else {
-				//context.println("Error: Liveview image is null");
-			}
-		}
-		else if (context.project.selectedItem != null && imgPreviewRight != null) {
-			context.pushStyle();
-			context.pushMatrix();
-			context.translate(rightImageMarginLeft, imageMarginTop);
-			context.imageMode(context.CORNER);
-			drawImagePreview(imgPreviewRight, lastPressedR, rightImageMarginLeft, rightImageScale);
-			if (lastPressedR != null) {
-				context.tint(255, 200);
 			} else {
-				context.tint(255, 20);
+				context.stroke(255);
+				context.fill(50);
+				context.rect(rightImageMarginLeft, imageMarginTop, wImageViewerSize, hImageViewerSize);
+				context.fill(255);
+				context.textAlign(context.LEFT);
+				if (context.project.selectedItem != null && context.project.selectedItem.mImageRight != null
+						&& context.project.selectedItem.mImageRight.imagePath != null)
+					context.text(context.project.selectedItem.mImageRight.imagePath, rightImageMarginLeft + 100,
+							imageMarginTop - 10);
 			}
-			context.image(zoomImg, wImageViewerSize - 70, 20, 50, 50);
-			context.fill(255);
-			context.textSize(18);
-			context.textAlign(context.LEFT);
-			context.text(context.project.selectedItem.mImageRight.imagePath, 100, -10);
-			context.popMatrix();
-			context.popStyle();
-		} else {
-			context.stroke(255);
-			context.fill(50);
-			context.rect(rightImageMarginLeft, imageMarginTop, wImageViewerSize, hImageViewerSize);
-			context.fill(255);
-			context.textAlign(context.LEFT);
-			if (context.project.selectedItem != null && context.project.selectedItem.mImageRight != null
-					&& context.project.selectedItem.mImageRight.imagePath != null)
-				context.text(context.project.selectedItem.mImageRight.imagePath, rightImageMarginLeft + 100,
-						imageMarginTop - 10);
 		}
 	}
 	
@@ -164,9 +181,7 @@ public class ContentGUI {
 		context.imageMode(context.CENTER);
 		context.translate(wImageViewerSize/2,hImageViewerSize/2);
 		context.rotate(context.radians(angle));
-		context.image(imgLiveview, 0, 0);
-//		context.image(imgLiveview, 0, 0, wImageViewerSize, hImageViewerSize, 0, 0, imgLiveview.width,
-//				imgLiveview.height);
+		context.image(imgLiveview, 0, 0,hImageViewerSize,wImageViewerSize);
 		context.popMatrix();
 		
 	}
@@ -427,11 +442,19 @@ public class ContentGUI {
 	}
 
 	public void startCropMode() {
+		context.gui.btnOpenSOViewer1.setEnabled(false);
+		context.gui.btnOpenSOViewer1.setVisible(false);
+		context.gui.btnOpenSOViewer2.setEnabled(false);
+		context.gui.btnOpenSOViewer2.setVisible(false);
 		noZoom();
 	}
 
-	public void exitCropMode() {
+	public void stopCropMode() {
 		GuideSelected = null;
+		context.gui.btnOpenSOViewer1.setEnabled(true);
+		context.gui.btnOpenSOViewer1.setVisible(true);
+		context.gui.btnOpenSOViewer2.setEnabled(true);
+		context.gui.btnOpenSOViewer2.setVisible(true);
 	}
 
 	public void mouseMoved() {
