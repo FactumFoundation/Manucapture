@@ -17,6 +17,12 @@ import processing.serial.*;
   boolean arduinoConnected = true;
   
   public void setup() {
+    
+     surface.setTitle("Trigger board driver");
+    if (surface != null) {
+      surface.setLocation(0, 0);
+    }
+    
     // Stage size
     noStroke(); // No border on the next thing drawn
 
