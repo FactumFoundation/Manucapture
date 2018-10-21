@@ -9,8 +9,8 @@ public class ContentGUI {
 	ManuCapture_v1_1 context;
 	boolean renderRightImage = true;
 	boolean renderLeftImage = true;
-	PVector lastPressedR = null;
-	PVector lastPressedL = null;
+	PVector rightZoomOffset = null;
+	PVector leftZoomOffset = null;
 	List<Guide> guidesLeft = new ArrayList<>();
 	List<Guide> guidesRight = new ArrayList<>();
 	int imageMarginTop = 40;
@@ -24,7 +24,8 @@ public class ContentGUI {
 	public int viewerWidthResolution = 2000;
 	PImage imgPreviewLeft;
 	PImage imgPreviewRight;
-	Guide GuideSelected = null;
+	Guide selectedGuide = null;
+	Guide overedGuide = null;
 	PImage lastLeftPreview = null;
 	PImage lastRightPreview = null;
 	PImage cameraIcon;
@@ -93,8 +94,8 @@ public class ContentGUI {
 					context.pushStyle();
 					context.pushMatrix();
 					context.translate(leftImageMarginLeft, imageMarginTop);
-					drawImagePreview(imgPreviewLeft, lastPressedL, leftImageMarginLeft, leftImageScale);
-					if (lastPressedL != null) {
+					drawImagePreview(imgPreviewLeft, leftZoomOffset, leftImageMarginLeft, leftImageScale);
+					if (leftZoomOffset != null) {
 						context.tint(255, 200);
 					} else {
 						context.tint(255, 20);
@@ -149,8 +150,8 @@ public class ContentGUI {
 				context.pushMatrix();
 				context.translate(rightImageMarginLeft, imageMarginTop);
 				context.imageMode(context.CORNER);
-				drawImagePreview(imgPreviewRight, lastPressedR, rightImageMarginLeft, rightImageScale);
-				if (lastPressedR != null) {
+				drawImagePreview(imgPreviewRight, rightZoomOffset, rightImageMarginLeft, rightImageScale);
+				if (rightZoomOffset != null) {
 					context.tint(255, 200);
 				} else {
 					context.tint(255, 20);
@@ -216,16 +217,23 @@ public class ContentGUI {
 		}
 	}
 
+	int guideColorIdle = 0xff0F99CE;
+	int guideColorOver = 0xffD1F0FC;
+	int guideColorPressed = 0xffFA8728;
+	
 	public void drawCropGuides() {
+		
+
+		
 		// TODO: Draw guides
-		if (lastPressedR == null) {
+		if (rightZoomOffset == null) {
 			for (Guide guide : guidesRight) {
 				context.pushStyle();
 				context.strokeWeight(3);
 				if (context.cropMode) {
-					context.stroke(255, 0, 0);
+					context.stroke(guideColorPressed);
 				} else {
-					context.stroke(93, 183, 255);
+					context.stroke(guideColorIdle);
 				}
 				PVector screenPos = guide.getScreenPosition();
 				if (guide.isHorizontal()) {
@@ -237,7 +245,7 @@ public class ContentGUI {
 			}
 		} else {
 			float imgScale = imgPreviewRight.width / (float) wImageViewerSize;
-			PVector virtualPos = PVector.sub(lastPressedR, new PVector(rightImageMarginLeft, imageMarginTop));
+			PVector virtualPos = PVector.sub(rightZoomOffset, new PVector(rightImageMarginLeft, imageMarginTop));
 			PVector virtualPosScaled = PVector.mult(virtualPos, imgScale);
 			float portviewSizeX = wImageViewerSize / rightImageScale;
 			float portviewSizeY = hImageViewerSize / rightImageScale;
@@ -256,10 +264,12 @@ public class ContentGUI {
 				portviewStartY = 0;
 			}
 			for (Guide guide : guidesRight) {
+				context.pushStyle();
+				context.strokeWeight(3);
 				if (context.cropMode) {
-					context.stroke(255, 150, 0);
+					context.stroke(guideColorPressed);
 				} else {
-					context.stroke(255, 0, 0);
+					context.stroke(guideColorIdle);
 				}
 				if (guide.isHorizontal()) {
 					float screenY = context.map(baseZoom * guide.pos.y, portviewStartY, portviewStartY + portviewSizeY,
@@ -273,16 +283,17 @@ public class ContentGUI {
 					if (screenX >= rightImageMarginLeft && screenX <= rightImageMarginLeft + wImageViewerSize)
 						context.line(screenX, imageMarginTop, screenX, imageMarginTop + hImageViewerSize);
 				}
+				context.popStyle();
 			}
 		}
-		if (lastPressedL == null) {
+		if (leftZoomOffset == null) {
 			for (Guide guide : guidesLeft) {
 				context.pushStyle();
 				context.strokeWeight(3);
 				if (context.cropMode) {
-					context.stroke(255, 0, 0);
+					context.stroke(guideColorPressed);
 				} else {
-					context.stroke(93, 183, 255);
+					context.stroke(guideColorIdle);
 				}
 				PVector screenPos = guide.getScreenPosition();
 				if (guide.isHorizontal()) {
@@ -294,7 +305,7 @@ public class ContentGUI {
 			}
 		} else {
 			float imgScale = imgPreviewLeft.width / (float) wImageViewerSize;
-			PVector virtualPos = PVector.sub(lastPressedL, new PVector(leftImageMarginLeft, imageMarginTop));
+			PVector virtualPos = PVector.sub(leftZoomOffset, new PVector(leftImageMarginLeft, imageMarginTop));
 			PVector virtualPosScaled = PVector.mult(virtualPos, imgScale);
 			int portviewSizeX = (int) ((wImageViewerSize) / leftImageScale);
 			int portviewSizeY = (int) ((hImageViewerSize) / leftImageScale);
@@ -313,10 +324,12 @@ public class ContentGUI {
 				portviewStartY = 0;
 			}
 			for (Guide guide : guidesLeft) {
+				context.pushStyle();
+				context.strokeWeight(3);
 				if (context.cropMode) {
-					context.stroke(255, 150, 0);
+					context.stroke(guideColorPressed);
 				} else {
-					context.stroke(255, 0, 0);
+					context.stroke(guideColorIdle);
 				}
 				if (guide.isHorizontal()) {
 					float screenY = context.map(baseZoom * guide.pos.y, portviewStartY, portviewStartY + portviewSizeY,
@@ -330,16 +343,32 @@ public class ContentGUI {
 					if (screenX >= leftImageMarginLeft && screenX <= leftImageMarginLeft + wImageViewerSize)
 						context.line(screenX, imageMarginTop, screenX, imageMarginTop + hImageViewerSize);
 				}
+				context.popStyle();
 			}
 		}
-		if (GuideSelected != null) {
-			context.stroke(255, 255, 0);
-			PVector screenPos = GuideSelected.getScreenPosition();
-			if (GuideSelected.isHorizontal()) {
+		if (selectedGuide != null) {
+			context.pushStyle();
+			context.strokeWeight(3);
+			context.stroke(guideColorPressed);
+			PVector screenPos = selectedGuide.getScreenPosition();
+			if (selectedGuide.isHorizontal()) {
 				context.line(screenPos.x, screenPos.y, screenPos.x + wImageViewerSize, screenPos.y);
 			} else {
 				context.line(screenPos.x, screenPos.y, screenPos.x, screenPos.y + hImageViewerSize);
 			}
+			context.popStyle();
+		}
+		if (overedGuide != null) {
+			context.pushStyle();
+			context.strokeWeight(3);
+			context.stroke(guideColorOver);
+			PVector screenPos = overedGuide.getScreenPosition();
+			if (overedGuide.isHorizontal()) {
+				context.line(screenPos.x, screenPos.y, screenPos.x + wImageViewerSize, screenPos.y);
+			} else {
+				context.line(screenPos.x, screenPos.y, screenPos.x, screenPos.y + hImageViewerSize);
+			}
+			context.popStyle();
 		}
 	}
 
@@ -442,50 +471,93 @@ public class ContentGUI {
 	}
 
 	public void startCropMode() {
-		context.gui.btnOpenSOViewer1.setEnabled(false);
-		context.gui.btnOpenSOViewer1.setVisible(false);
-		context.gui.btnOpenSOViewer2.setEnabled(false);
-		context.gui.btnOpenSOViewer2.setVisible(false);
+	/*
+		context.gui.btnOpenSOViewerLeft.setEnabled(false);
+		context.gui.btnOpenSOViewerLeft.setVisible(false);
+		context.gui.btnOpenSOViewerRight.setEnabled(false);
+		context.gui.btnOpenSOViewerRight.setVisible(false);
 		noZoom();
+	*/
 	}
 
 	public void stopCropMode() {
-		GuideSelected = null;
-		context.gui.btnOpenSOViewer1.setEnabled(true);
-		context.gui.btnOpenSOViewer1.setVisible(true);
-		context.gui.btnOpenSOViewer2.setEnabled(true);
-		context.gui.btnOpenSOViewer2.setVisible(true);
+		selectedGuide = null;
+		/*
+		context.gui.btnOpenSOViewerLeft.setEnabled(true);
+		context.gui.btnOpenSOViewerLeft.setVisible(true);
+		context.gui.btnOpenSOViewerRight.setEnabled(true);
+		context.gui.btnOpenSOViewerRight.setVisible(true);
+		*/
 	}
 
 	public void mouseMoved() {
-	}
-
-	public void mousePressed() {
-
-		if (context.cropMode) {
-			if (isMouseInsideLeftImage()) {
+	
+		overedGuide = null;
+	
+		if(context.gui.btnOpenSOViewerLeft.isOver(context.mouseX, context.mouseY))
+			return;
+		
+		if(context.gui.btnOpenSOViewerRight.isOver(context.mouseX, context.mouseY))
+			return;
+		
+		if (isMouseInsideLeftImage()) {
+			if(leftZoomOffset==null) {
 				for (Guide guide : guidesLeft) {
 					if (guide.isOver(context.mouseX, context.mouseY)) {
-						GuideSelected = guide;
-						break;
-					}
-				}
-			} else if (isMouseInsideRightImage()) {
-				for (Guide guide : guidesRight) {
-					if (guide.isOver(context.mouseX, context.mouseY)) {
-						GuideSelected = guide;
+						overedGuide = guide;
 						break;
 					}
 				}
 			}
-		} else if (context.chartStateMachine == 0) {
+		} else if (isMouseInsideRightImage()) {
+			if(rightZoomOffset==null) {
+				for (Guide guide : guidesRight) {
+					if (guide.isOver(context.mouseX, context.mouseY)) {
+						overedGuide = guide;
+						break;
+					}
+				}	
+			}
+		}
+		
+	}
+
+	public void mousePressed() {
+		overedGuide = null;
+		
+		if(context.gui.btnOpenSOViewerLeft.isOver(context.mouseX, context.mouseY))
+			return;
+		
+		if(context.gui.btnOpenSOViewerRight.isOver(context.mouseX, context.mouseY))
+			return;
+		
+		if (isMouseInsideLeftImage()) {
+			if(leftZoomOffset==null) {
+				for (Guide guide : guidesLeft) {
+					if (guide.isOver(context.mouseX, context.mouseY)) {
+						selectedGuide = guide;
+						break;
+					}
+				}
+			}
+		} else if (isMouseInsideRightImage()) {
+			if(rightZoomOffset==null) {
+				for (Guide guide : guidesRight) {
+					if (guide.isOver(context.mouseX, context.mouseY)) {
+						selectedGuide = guide;
+						break;
+					}
+				}
+			}
+		}
+		if (context.chartStateMachine == 0 && selectedGuide==null) {
 			if (context.project != null && context.project.selectedItem != null) {
 				if (context.mouseButton == context.LEFT) {
-					if (context.getStateApp() == context.STATE_APP_PROJECT && lastPressedL == null
+					if (context.getStateApp() == context.STATE_APP_PROJECT && leftZoomOffset == null
 							&& context.project.selectedItem.mImageLeft != null && imgPreviewLeft != null) {
 						initZoomLeft();
 					}
-					if (context.getStateApp() == context.STATE_APP_PROJECT && lastPressedR == null
+					if (context.getStateApp() == context.STATE_APP_PROJECT && rightZoomOffset == null
 							&& context.project.selectedItem.mImageRight != null && imgPreviewRight != null)
 						initZoomRight();
 				}
@@ -498,28 +570,34 @@ public class ContentGUI {
 	}
 
 	public void mouseDragged() {
-		if (GuideSelected != null) {
-			if (GuideSelected.name.startsWith("L")) {
+		if (selectedGuide != null) {
+			if (selectedGuide.name.startsWith("L")) {
 				if (isMouseInsideLeftImage())
-					GuideSelected.setImagePosition(context.mouseX, context.mouseY);
+					selectedGuide.setImagePosition(context.mouseX, context.mouseY);
 			}
-			if (GuideSelected.name.startsWith("R")) {
+			if (selectedGuide.name.startsWith("R")) {
 				if (isMouseInsideRightImage())
-					GuideSelected.setImagePosition(context.mouseX, context.mouseY);
+					selectedGuide.setImagePosition(context.mouseX, context.mouseY);
 			}
 			if (context.project != null && context.project.selectedItem != null) {
 				context.project.selectedItem.mImageLeft.guides = copyGuides(guidesLeft);
 				context.project.selectedItem.mImageRight.guides = copyGuides(guidesRight);
 			}
-		} else if (lastPressedR != null) {
+		} else if (rightZoomOffset != null) {
 			updateZoomRight();
-		} else if (lastPressedL != null) {
+		} else if (leftZoomOffset != null) {
 			updateZoomLeft();
 		}
 	}
 
 	public void mouseReleased() {
-		GuideSelected = null;
+
+		if(selectedGuide!=null) {
+			context.project.selectedItem.mImageLeft.saveMetadata();
+			context.project.selectedItem.mImageRight.saveMetadata();
+		}
+		
+		selectedGuide = null;
 		if (context.chartStateMachine == 3) {
 			context.shutterMode = context.NORMAL_SHUTTER;
 			context.setCaptureState(context.CAMERAS_IDLE);
@@ -531,28 +609,24 @@ public class ContentGUI {
 			context.gui.btnColorChart.setEnabled(true);
 			context.gui.btnCrop.setEnabled(true);
 			context.gui.btnTrigger.setEnabled(true);
+			context.gui.btnOpenSOViewerLeft.setVisible(true);
+			context.gui.btnOpenSOViewerLeft.setEnabled(true);
+			context.gui.btnOpenSOViewerRight.setVisible(true);
+			context.gui.btnOpenSOViewerRight.setEnabled(true);
 			noZoom();
 		}
-		/*
-		 * if(context.mouseX > leftImageMarginLeft && context.mouseX <
-		 * rightImageMarginLeft + wImageViewerSize) { if(context.project != null &&
-		 * context.project.selectedItem != null )
-		 * context.project.selectedItem.saveMetadata(); }
-		 */
 	}
 
 	public void mouseWheel(float count) {
-		if (!context.cropMode) {
-			if (isMouseInsideRightImage()) {
-				rightImageScale -= count / 10;
-				rightImageScale = context.max(rightImageScale, 1);
-				rightImageScale = context.min(rightImageScale, 4);
-			}
-			if (isMouseInsideLeftImage()) {
-				leftImageScale -= count / 10;
-				leftImageScale = context.max(leftImageScale, 1);
-				leftImageScale = context.min(leftImageScale, 4);
-			}
+		if (isMouseInsideRightImage()) {
+			rightImageScale -= count / 10;
+			rightImageScale = context.max(rightImageScale, 1);
+			rightImageScale = context.min(rightImageScale, 4);
+		}
+		if (isMouseInsideLeftImage()) {
+			leftImageScale -= count / 10;
+			leftImageScale = context.max(leftImageScale, 1);
+			leftImageScale = context.min(leftImageScale, 4);
 		}
 	}
 
@@ -576,51 +650,63 @@ public class ContentGUI {
 
 	private void initZoomLeft() {
 		if (isMouseInsideLeftImage()) {
-			if (lastPressedL == null)
-				lastPressedL = new PVector(context.mouseX, context.mouseY);
+			if (leftZoomOffset == null)
+				leftZoomOffset = new PVector(context.mouseX, context.mouseY);
 		}
 	}
 
 	private void updateZoomLeft() {
 		if (isMouseInsideLeftImage()) {
-			if (lastPressedL != null) {
-				lastPressedL.x += context.mouseX - context.pmouseX;
-				/*
-				 * if(lastPressedL.x>leftImageMarginLeft+wImageViewerSize) { lastPressedL.x =
-				 * leftImageMarginLeft+wImageViewerSize; } else
-				 * if(lastPressedL.x<leftImageMarginLeft) { lastPressedL.x=leftImageMarginLeft;
-				 * }
-				 */
-				lastPressedL.y += context.mouseY - context.pmouseY;
+			if (leftZoomOffset != null) {
+				leftZoomOffset.x += context.mouseX - context.pmouseX;
+				if(leftZoomOffset.x<leftImageMarginLeft)
+					leftZoomOffset.x = leftImageMarginLeft;
+				else if(leftZoomOffset.x>leftImageMarginLeft+wImageViewerSize)
+					leftZoomOffset.x=leftImageMarginLeft+wImageViewerSize;
+				
+				leftZoomOffset.y += context.mouseY - context.pmouseY;
+				if(leftZoomOffset.y<imageMarginTop)
+					leftZoomOffset.y = imageMarginTop;
+				else if(leftZoomOffset.y>imageMarginTop+hImageViewerSize)
+					leftZoomOffset.y=imageMarginTop+hImageViewerSize;
 			}
 		}
 	}
 
 	private void exitZoomLeft() {
 		if (isMouseInsideLeftImage()) {
-			lastPressedL = null;
+			leftZoomOffset = null;
 		}
 	}
 
 	private void initZoomRight() {
 		if (isMouseInsideRightImage()) {
-			if (lastPressedR == null)
-				lastPressedR = new PVector(context.mouseX, context.mouseY);
+			if (rightZoomOffset == null)
+				rightZoomOffset = new PVector(context.mouseX, context.mouseY);
 		}
 	}
 
 	private void updateZoomRight() {
 		if (isMouseInsideRightImage()) {
-			if (lastPressedR != null) {
-				lastPressedR.x += context.mouseX - context.pmouseX;
-				lastPressedR.y += context.mouseY - context.pmouseY;
+			if (rightZoomOffset != null) {
+				rightZoomOffset.x += context.mouseX - context.pmouseX;
+				if(rightZoomOffset.x<rightImageMarginLeft)
+					rightZoomOffset.x = rightImageMarginLeft;
+				else if(rightZoomOffset.x>rightImageMarginLeft+wImageViewerSize)
+					rightZoomOffset.x=rightImageMarginLeft+wImageViewerSize;
+				
+				rightZoomOffset.y += context.mouseY - context.pmouseY;
+				if(rightZoomOffset.y<imageMarginTop)
+					rightZoomOffset.y = imageMarginTop;
+				else if(rightZoomOffset.y>imageMarginTop+hImageViewerSize)
+					rightZoomOffset.y=imageMarginTop+hImageViewerSize;
 			}
 		}
 	}
 
 	private void exitZoomRight() {
 		if (isMouseInsideRightImage()) {
-			lastPressedR = null;
+			rightZoomOffset = null;
 		}
 	}
 
@@ -634,8 +720,8 @@ public class ContentGUI {
 	}
 
 	public void noZoom() {
-		lastPressedL = null;
-		lastPressedR = null;
+		leftZoomOffset = null;
+		rightZoomOffset = null;
 	}
 
 	public void resetPreviews() {

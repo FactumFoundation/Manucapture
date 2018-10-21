@@ -170,6 +170,9 @@ public class ManuCapture_v1_1 extends PApplet {
 	Movie liveViewRight;
 	private boolean showArduinoWaringWindow = false;
 	
+	//String rawTherapeePath = "rawtherapee";
+	String rawTherapeePath = "/home/factum/RawTherapee_5.4/RawTherapee-releases-5.4.AppImage -R";
+	
 	
 	public void setup() {
 		
@@ -604,31 +607,43 @@ public class ManuCapture_v1_1 extends PApplet {
 	}
 	
 	public void mousePressed() {
-		contentGUI.mousePressed();
-		itemsGUI.mousePressed();
+		if(getStateApp() == STATE_APP_PROJECT) {
+			contentGUI.mousePressed();
+			itemsGUI.mousePressed();
+		}
 	}
+	
+
 
 	public void mouseWheel(MouseEvent event) {
-		contentGUI.mouseWheel(event.getCount());
+		if(getStateApp() == STATE_APP_PROJECT) {
+			contentGUI.mouseWheel(event.getCount());
+		}
 	}
 
 	public void keyPressed() {
 		if (key == ' ') {
-			guiController.trigger_button_click(null, null);
+			if(getStateApp() == STATE_APP_PROJECT) {
+				guiController.trigger_button_click(null, null);
+			}
 		}
 	}
 
 	public void mouseDragged() {
-		itemsGUI.mouseDragged();
-		contentGUI.mouseDragged();
+		if(getStateApp() == STATE_APP_PROJECT) {
+			itemsGUI.mouseDragged();
+			contentGUI.mouseDragged();
+		}
 	}
 
 	public void mouseReleased() {
 		if(showArduinoWaringWindow) {
 			showArduinoWaringWindow = false;	
 		}
-		itemsGUI.mouseReleased();
-		contentGUI.mouseReleased();
+		if(getStateApp() == STATE_APP_PROJECT) {
+			itemsGUI.mouseReleased();
+			contentGUI.mouseReleased();
+		}
 		
 	}
 

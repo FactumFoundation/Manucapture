@@ -76,6 +76,8 @@ public class Project {
 		}
 
 		projectFilePath = projectPath;
+		File projectFile = new File(projectPath);
+		projectDirectory = projectFile.getParent();
 		XML projectDataXML = context.loadXML(projectPath);
 		loadProjectMetadata(projectDataXML);
 		loadProjectSerials(projectDataXML);
@@ -98,9 +100,6 @@ public class Project {
 				context.println("ERROR loading item", i);
 			}
 		}
-		File projectFile = new File(projectPath);
-		projectDirectory = projectFile.getParent();
-
 		createFolderIfNotExist();
 
 		// File projectDirectoryFile = new File(projectDirectory);

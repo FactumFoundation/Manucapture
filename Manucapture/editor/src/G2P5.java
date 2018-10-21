@@ -33,7 +33,7 @@ public abstract class G2P5 {
 	G2P5Listener listener;
 	String homeDirectory;
 	List<G2P5Event> events = new ArrayList<>();
-	boolean mock = false;
+	boolean mock = true;
 	boolean ignoreEventProperty = true;
 	String shutterSpeedNormal = "1/30";
 	String shutterSpeedLiveview = "1";

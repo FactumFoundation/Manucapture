@@ -251,12 +251,9 @@ public class MImage {
 		String sideCarFilePath = getSidecarPath();
 		File file = new File(sideCarFilePath);
 		if (file.exists()) {
-
 			String line;
 			String newtext = "";
-
 			int leftBase = 0;
-
 			BufferedReader reader = null;
 			try {
 				reader = new BufferedReader(new FileReader(file));

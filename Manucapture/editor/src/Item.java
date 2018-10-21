@@ -45,7 +45,6 @@ public class Item {
 
 	public void loadMetadata() {
 		try {
-			
 			mImageLeft.loadMetadata();
 			mImageRight.loadMetadata();
 		} catch (Exception e) {

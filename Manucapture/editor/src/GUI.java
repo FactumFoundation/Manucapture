@@ -18,8 +18,8 @@ public class GUI {
 
 	GGroup grpAll;
 	GImageButton btnTrigger;
-	GImageButton btnOpenSOViewer1;
-	GImageButton btnOpenSOViewer2;
+	GImageButton btnOpenSOViewerLeft;
+	GImageButton btnOpenSOViewerRight;
 	GImageButton btnConnectedCameraPageRight;
 	GImageButton btnConnectedCameraPageLeft;
 	GImageButton btnEdit;
@@ -88,14 +88,14 @@ public class GUI {
 		grpAll.addControls(btnConnectedCameraPageLeft);
 		
 		files = new String[] { "btn_viewer.png", "btn_viewer.png", "btn_viewer.png" };
-		btnOpenSOViewer1 = new GImageButton(context, context.contentGUI.leftImageMarginLeft, 5,90,90,files);
-		btnOpenSOViewer1.addEventHandler(guiController, "openViewer_1");
-		grpAll.addControls(btnOpenSOViewer1);
+		btnOpenSOViewerLeft = new GImageButton(context, context.contentGUI.leftImageMarginLeft, 5,90,90,files);
+		btnOpenSOViewerLeft.addEventHandler(guiController, "openViewer_Left");
+		grpAll.addControls(btnOpenSOViewerLeft);
 		
 		files = new String[] { "btn_viewer.png", "btn_viewer.png", "btn_viewer.png" };
-		btnOpenSOViewer2 = new GImageButton(context, context.contentGUI.rightImageMarginLeft, 5,90,90,files);
-		btnOpenSOViewer2.addEventHandler(guiController, "openViewer_2");
-		grpAll.addControls(btnOpenSOViewer2);
+		btnOpenSOViewerRight = new GImageButton(context, context.contentGUI.rightImageMarginLeft, 5,90,90,files);
+		btnOpenSOViewerRight.addEventHandler(guiController, "openViewer_Right");
+		grpAll.addControls(btnOpenSOViewerRight);
 				
 		files = new String[] { "btn_info.png", "btn_info.png", "btn_info.png" };
 		btnEdit = new GImageButton(context, 148 +30,40, files);

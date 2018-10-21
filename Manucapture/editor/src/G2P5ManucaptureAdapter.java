@@ -1,3 +1,5 @@
+import java.io.File;
+
 import processing.core.PApplet;
 
 /**
@@ -18,7 +20,7 @@ public class G2P5ManucaptureAdapter implements G2P5Listener {
 
 	String exposure = "unknown";
 
-	public ManuCapture_v1_1 manuCapture;
+	public ManuCapture_v1_1 context;
 
 	boolean propertyMirrorUpChanged = false;
 	boolean focus = false;
@@ -29,7 +31,7 @@ public class G2P5ManucaptureAdapter implements G2P5Listener {
 	String lastMask = null;
 
 	public G2P5ManucaptureAdapter(ManuCapture_v1_1 context, G2P5 g2p5) {
-		this.manuCapture = context;
+		this.context = context;
 		this.g2p5 = g2p5;
 	}
 	
@@ -43,9 +45,20 @@ public class G2P5ManucaptureAdapter implements G2P5Listener {
 	}
 
 	public void newEvent(G2P5Event event) {
-		lastEventMillis = manuCapture.millis();
+		lastEventMillis = context.millis();
 		if (event.eventID == G2P5Event.NEW_PHOTO) {
-			manuCapture.newPhotoEvent(event);
+			if(g2p5.mock && context.chartStateMachine==1) {	
+				File imagePath = new File(event.content);
+				String code = imagePath.getName().split("_")[0];
+				ManuCapture_v1_1.println("Here the event to change for calib images en fase 1: " + imagePath.getParent().concat("/calibration/") + code + "_" + g2p5.id + "_" + "1.cr2");	
+				event.content = imagePath.getParent().concat("/calibration/") + code + "_" + g2p5.id + "_" + "1.cr2";
+			} else if(g2p5.mock && context.chartStateMachine==2) {
+				File imagePath = new File(event.content);
+				String code = imagePath.getName().split("_")[0];
+				ManuCapture_v1_1.println("Here the event to change for calib images en fase 2: " + imagePath.getParent().concat("/calibration")+ " " + g2p5.id + " " + code);
+				event.content = imagePath.getParent().concat("/calibration/") + code + "_" + g2p5.id + "_" + "2.cr2";
+			}
+			context.newPhotoEvent(event);
 			mirrorUp = false;
 		} else if (event.eventID == G2P5Event.EVENT_EXPOSURE) {
 			exposure = event.content;

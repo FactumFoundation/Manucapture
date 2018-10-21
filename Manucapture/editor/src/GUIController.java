@@ -113,6 +113,10 @@ public class GUIController {
 			context.gui.btnCrop.setEnabled(false);
 			context.gui.btnRepeat.setEnabled(false);
 			context.gui.btnRepeat.setState(0);
+			context.gui.btnOpenSOViewerLeft.setVisible(false);
+			context.gui.btnOpenSOViewerLeft.setEnabled(false);
+			context.gui.btnOpenSOViewerRight.setVisible(false);
+			context.gui.btnOpenSOViewerRight.setEnabled(false);
 		} else {
 			context.shutterMode = context.NORMAL_SHUTTER;
 			context.chartStateMachine = 0;
@@ -120,6 +124,10 @@ public class GUIController {
 			context.setCaptureState(ManuCapture_v1_1.NORMAL_SHUTTER);
 			context.gui.btnCrop.setEnabled(true);
 			context.gui.btnRepeat.setEnabled(true);
+			context.gui.btnOpenSOViewerLeft.setVisible(true);
+			context.gui.btnOpenSOViewerLeft.setEnabled(true);
+			context.gui.btnOpenSOViewerRight.setVisible(true);
+			context.gui.btnOpenSOViewerRight.setEnabled(true);
 		}
 		context.contentGUI.noZoom();
 	}
@@ -127,7 +135,7 @@ public class GUIController {
 	public void trigger_button_click(GImageButton source, GEvent event) {
 		PApplet.println("SHUTTER TRIGGERED");
 		if ( context.chartStateMachine != 3 
-				&& context.arduinoConnected
+				&& (context.arduinoConnected || context.gphotoPageLeft.mock)
 				&& context.liveViewState == ManuCapture_v1_1.NO_LIVEVIEW) {
 			if(context.isAllMirrorsReady()) {
 				context.project.cleanTempImages();
@@ -262,25 +270,25 @@ public class GUIController {
 		
 	}
 
-	public void openViewer_1(GImageButton source, GEvent event) {
+	public void openViewer_Right(GImageButton source, GEvent event) {
 		if (context.chartStateMachine != 3) {
 			try {
-				String cmd = "rawtherapee " + context.project.projectDirectory
+				String cmd = context.rawTherapeePath + " " +  context.project.projectDirectory
 						+ context.project.selectedItem.mImageRight.imagePath;
-				context.println(cmd);
 				Runtime.getRuntime().exec(cmd);
 			} catch (Exception e) {
-				context._println("Couldn't create raw directory permisions");
+				context._println("Couldn't launch lefs");
 			}
 			context.contentGUI.noZoom();
 		}
 	}
 
-	public void openViewer_2(GImageButton source, GEvent event) {
+	public void openViewer_Left(GImageButton source, GEvent event) {
 		if (context.chartStateMachine != 3) {
 			try {
-				Runtime.getRuntime().exec(
-						"rawtherapee " + context.project.projectDirectory + context.project.selectedItem.mImageLeft.imagePath);
+				String cmd = context.rawTherapeePath + " " +  context.project.projectDirectory
+						+ context.project.selectedItem.mImageLeft.imagePath;
+				Runtime.getRuntime().exec(cmd);
 			} catch (Exception e) {
 				context._println("Couldn't create raw directory permisions");
 			}

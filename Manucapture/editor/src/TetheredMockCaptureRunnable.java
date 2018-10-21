@@ -19,7 +19,7 @@ public class TetheredMockCaptureRunnable implements RunnableTetheredInterface {
 	private List<String> dataset = new ArrayList<>();
 	private int indexDataSet = 0;
 //	 public String pathDataSet = "/home/factum/Escritorio/024/";
-	public String pathDataSet = "/home/factum/Documentos/Test_Book2/raw/";
+	public String pathDataSet = "/home/factum/samples_from_dagestan/raw_backup/";
 
 	boolean waitTriggerEvent = true;
 
