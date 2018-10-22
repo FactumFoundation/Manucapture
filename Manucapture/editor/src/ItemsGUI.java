@@ -394,6 +394,9 @@ public class ItemsGUI {
 							}
 							context.project.selectItem(context.project.selectedItemIndex);
 							context.saveLastSessionData();
+							// Init page cropper with new selected item
+							context.pageCropper.initGuides(context.contentGUI.guidesLeft, context.contentGUI.guidesRight);
+							
 						}
 					}
 				}

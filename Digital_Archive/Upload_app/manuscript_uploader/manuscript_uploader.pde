@@ -19,6 +19,8 @@ String ftpHost = "192.168.2.201";
 String ftpUser = "factum";
 String ftpPass = "1234asdf$";
 
+String rawTherapeeCommand = "/home/factum/RawTherapee_5.4/RawTherapee-releases-5.4.AppImage -R /home/factum/0_Book_Scans/1001/raw/";
+
 boolean doUpload = false;
 
 int APP_IDLE_STATE = 0; 
@@ -46,7 +48,7 @@ public void setup(){
 }
 
 public void draw(){
-  background(230); 
+  background(0xC6C4C4); 
   if(appState==APP_IDLE_STATE){
     if(doUpload){
         appState=APP_UPLOADING_STATE;
@@ -57,7 +59,6 @@ public void draw(){
     if(!doUpload){
       appState=APP_IDLE_STATE;
       enableUploadControlButtons(false);
-      
     }
   }
 }
@@ -72,6 +73,8 @@ public void customGUI(){
   btnPlayPause.addEventHandler(this, "btnPlayPause_click");
   btnStop = new GImageButton(this, 430, 170, 40, 40, new String[] { "stop_2.png", "stop_1.png", "stop_0.png" } );
   btnStop.addEventHandler(this, "btnStop_click");
+    btnStop = new GImageButton(this, 430, 170, 40, 40, new String[] { "stop_2.png", "stop_1.png", "stop_0.png" } );
+
   */
   setBatchUpload(false);
   enableUploadControlButtons(false);

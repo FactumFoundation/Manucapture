@@ -1,6 +1,7 @@
 import java.util.ArrayList;
 import java.util.List;
 
+import boofcv.alg.sfm.d3.VisOdomDualTrackPnP.LeftTrackInfo;
 import processing.core.PImage;
 import processing.core.PVector;
 
@@ -64,6 +65,8 @@ public class ContentGUI {
 		if (renderLeftImage) {
 			drawLeftImage();
 		}
+		if(context.cropMode)
+			context.pageCropper.draw(leftImageMarginLeft, imageMarginTop, rightImageMarginLeft, imageMarginTop, wImageViewerSize, hImageViewerSize);
 		drawCropGuides();
 		drawCalibrationInfo();
 		drawCameraStatusOverlay();
@@ -222,8 +225,6 @@ public class ContentGUI {
 	int guideColorPressed = 0xffFA8728;
 	
 	public void drawCropGuides() {
-		
-
 		
 		// TODO: Draw guides
 		if (rightZoomOffset == null) {

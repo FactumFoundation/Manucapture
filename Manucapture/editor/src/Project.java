@@ -539,13 +539,11 @@ public class Project {
 			// Now we do the preview on app
 			context.contentGUI.imgPreviewRight = selectedItem.loadRightPreview(projectDirectory, rightImagePath);
 			context.contentGUI.imgPreviewLeft = selectedItem.loadLeftPreview(projectDirectory, leftImagePath);
-
 			// si falta alguna de las imnágenes cambiamos el tipo a TYPE_ITEM_NO_PAGE
 			if (context.contentGUI.imgPreviewRight == null || context.contentGUI.imgPreviewLeft == null
 					|| context.contentGUI.imgPreviewLeft.width < 1 || context.contentGUI.imgPreviewRight.width < 1) {
 				selectedItem.type = Item.TYPE_ITEM_NO_PAGE;
 			}
-
 			// selectedItem.loadMetadata();
 			context.contentGUI.guidesLeft = selectedItem.mImageLeft.copyGuides(context.contentGUI.guidesLeft);
 			context.contentGUI.guidesRight = selectedItem.mImageRight.copyGuides(context.contentGUI.guidesRight);
@@ -556,6 +554,7 @@ public class Project {
 			context.contentGUI.imgPreviewLeft = null;
 			cleanImageCaches();
 		}
+		
 	}
 
 	// Image preview

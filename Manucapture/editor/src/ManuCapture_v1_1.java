@@ -153,9 +153,6 @@ public class ManuCapture_v1_1 extends PApplet {
 	int chartStateMachine = 0;
 	boolean cropMode = false;
 
-	List<LineParametric2D_F32> leftLinesFootSub;
-	List<LineParametric2D_F32> rightLinesFootSub;
-
 	int rawW = 5200;
 	int rawH = 3468;
 
@@ -172,6 +169,8 @@ public class ManuCapture_v1_1 extends PApplet {
 	
 	//String rawTherapeePath = "rawtherapee";
 	String rawTherapeePath = "/home/factum/RawTherapee_5.4/RawTherapee-releases-5.4.AppImage -R";
+	
+	PageCropper pageCropper;
 	
 	
 	public void setup() {
@@ -256,10 +255,12 @@ public class ManuCapture_v1_1 extends PApplet {
 		registerMethod("post", this);
 		background(backgroundColor);
 		frameRate(25);
+		
+		pageCropper = new PageCropper(this);
 	}
 	
 	public void settings() {
-		  size(1920, 1080, "processing.opengl.PGraphics2D");
+		  size(1919, 1080, "processing.opengl.PGraphics2D");
 	}
 
 	public void post() {
@@ -320,6 +321,7 @@ public class ManuCapture_v1_1 extends PApplet {
 			if (shutterMode == NORMAL_SHUTTER) {
 				doNormalShutter(Item.TYPE_ITEM);
 				G2P5Manager.addImageCount();
+				automatedPageCrop();
 			} else if (shutterMode == REPEAT_SHUTTER) {
 				if (project.items.size() > 0) {
 					float newPageNum = project.selectedItem.pagNum;
@@ -331,8 +333,7 @@ public class ManuCapture_v1_1 extends PApplet {
 					shutterMode = ManuCapture_v1_1.NORMAL_SHUTTER;
 					chartStateMachine = 0;
 					gui.btnRepeat.setState(0);
-					G2P5Manager.addImageCount();
-					// TODO Restore gui repeat button to off
+					automatedPageCrop();		
 				}
 			} else if (shutterMode == CALIB_SHUTTER) {
 				println("Calib shutter");
@@ -361,10 +362,23 @@ public class ManuCapture_v1_1 extends PApplet {
 					newItem.saveMetadata();
 					chartStateMachine++;
 					G2P5Manager.addImageCount();
+					/*if(cropMode) {
+						pageCropper.estimateGuides(contentGUI.imgPreviewLeft, contentGUI.imgPreviewRight);
+					}*/
 				}
 			}
 			saveLastSessionData();
 		}
+	}
+	
+	public void automatedPageCrop() {
+		if(cropMode) {
+			List<Guide>[] newGuides = pageCropper.estimateGuides(project.selectedItem.mImageLeft.imgThumb, project.selectedItem.mImageRight.imgThumb);
+			contentGUI.guidesLeft = contentGUI.copyGuides(newGuides[0]);
+			contentGUI.guidesRight = contentGUI.copyGuides(newGuides[1]);
+			project.selectedItem.mImageLeft.guides = contentGUI.copyGuides(newGuides[0]);
+			project.selectedItem.mImageRight.guides = contentGUI.copyGuides(newGuides[1]);
+		}	
 	}
 
 	public void draw() {
@@ -613,8 +627,6 @@ public class ManuCapture_v1_1 extends PApplet {
 		}
 	}
 	
-
-
 	public void mouseWheel(MouseEvent event) {
 		if(getStateApp() == STATE_APP_PROJECT) {
 			contentGUI.mouseWheel(event.getCount());
@@ -718,7 +730,6 @@ public class ManuCapture_v1_1 extends PApplet {
 	}
 
 	public void saveLastSessionData() {
-
 		String value;
 		XML lastSessionData = new XML("Session");
 		XML lastdocumentFileName = new XML("Project");
@@ -829,6 +840,9 @@ public class ManuCapture_v1_1 extends PApplet {
 		if (project.items.isEmpty()) {
 			contentGUI.initCropGuides();
 		}
+		pageCropper.initGuides(contentGUI.guidesLeft, contentGUI.guidesRight);
+		
+		
 		saveLastSessionData();
 		project.removeUnusedImages();
 		setStateApp(STATE_APP_PROJECT);
@@ -840,8 +854,6 @@ public class ManuCapture_v1_1 extends PApplet {
 		String pathApp = System.getProperty("user.home") + "/.manucapture";
 		return pathApp;
 	}
-
-
 
 	public void oscEvent(OscMessage theOscMessage) {
 		print("### received an osc message.");
@@ -934,7 +946,6 @@ public class ManuCapture_v1_1 extends PApplet {
 			while ((moveline = bReader.readLine()) != null) {
 				PApplet.println("MV message : " + moveline);
 			}
-
 			p.waitFor(1000, TimeUnit.MILLISECONDS);
 			// Thread.sleep(500);
 			return true;
@@ -1066,7 +1077,6 @@ public class ManuCapture_v1_1 extends PApplet {
 	}
 
 	public void camerasStateWatchDog() {
-
 		// Check general timing in Capture State to solve the triggering
 		if (getCaptureState() == CAMERAS_INACTIVE && gphotoPageRight.active && gphotoPageLeft.active) {
 			setCaptureState(CAMERAS_IDLE);
@@ -1170,7 +1180,6 @@ public class ManuCapture_v1_1 extends PApplet {
 	}
 
 	public void clickCameraPageLeft() {
-
 		OscMessage myMessage = new OscMessage("/shutterAction");
 		myMessage.add('Y');
 		oscP5.send(myMessage, arduinoDriverLocation);
@@ -1237,8 +1246,7 @@ public class ManuCapture_v1_1 extends PApplet {
 		  m.read();
 	}
 	
-	static public void main(String[] passedArgs) {
-		
+	static public void main(String[] passedArgs) {	
 		try {
 			String[] appletArgs = new String[] { "ManuCapture_v1_1"};
 			if (passedArgs != null) {

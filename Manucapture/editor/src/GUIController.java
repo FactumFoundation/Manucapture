@@ -215,10 +215,14 @@ public class GUIController {
 
 	public void edit_click(GImageButton source, GEvent event) {
 		if (context.chartStateMachine != 3) {
+			/*
 			context.setStateApp(context.STATE_APP_EDITING_PROJECT);
 			context.gui.code_text.setText(context.project.projectCode);
 			context.gui.code_text.setEnabled(false);
-			
+			*/
+			UploaderRunnerExportPDE pde = new UploaderRunnerExportPDE();
+			String[] appletArgs = new String[] {};
+			pde.main(appletArgs);	
 		}
 	}
 
@@ -244,6 +248,8 @@ public class GUIController {
 		context.project.items.clear();
 		context.gui.code_text.setText(context.project.projectCode);
 		context.setStateApp(context.STATE_APP_EDITING_PROJECT);
+		context.pageCropper.initGuides(context.contentGUI.guidesLeft, context.contentGUI.guidesRight);
+			
 		// }
 	}
 
