@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Settings>
+  <Connection host="192.168.2.201" port="50022" user="user" pass="1234asdf$"/> 
+  <Local_Folder path="/home/factum/0_Book_Scans"/>
+</Settings>

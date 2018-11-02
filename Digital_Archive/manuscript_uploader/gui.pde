@@ -34,20 +34,20 @@ public void selectScan_click(GButton source, GEvent event) { //_CODE_:btnSelectS
 
 } //_CODE_:btnSelectScan:945866:
 
-public void batchUpload_clicked(GCheckbox source, GEvent event) { //_CODE_:chbxBatchUpload:595794:
-  setBatchUpload(source.isSelected());
-} //_CODE_:chbxBatchUpload:595794:
-
 public void txtLog_change(GTextArea source, GEvent event) { //_CODE_:txtLog:548988:
 
 } //_CODE_:txtLog:548988:
 
-public void btnFolder_click(GButton source, GEvent event) { //_CODE_:btnFolder:261356:
-  selectFolder("Select a folder with several scans:", "folderSelected");
-} //_CODE_:btnFolder:261356:
-
 public void btnUpload_click(GButton source, GEvent event) { //_CODE_:btnUpload:463455:
   doUpload = true;
+  
+  try {
+     String cmd = rawTherapeeCommand;
+        Runtime.getRuntime().exec(cmd);
+      } catch (Exception e) {
+        println("Couldn't launch lefs");
+  }
+  
 } //_CODE_:btnUpload:463455:
 
 public void txfdScan_change(GTextField source, GEvent event) { //_CODE_:txfdScan:581755:
@@ -65,6 +65,14 @@ public void btnStop_click(GImageButton source, GEvent event) { //_CODE_:btnStop:
     String[] lines = {""};
     saveStrings( sketchPath() +  "/../scripts/stopUpload.txt",lines);
 } //_CODE_:btnStop:209469:
+
+public void btnReloadThumbnail_click(GButton source, GEvent event) { //_CODE_:btnReloadThumbnail:997964:
+  println("btnReloadThumbnail - GButton >> GEvent." + event + " @ " + millis());
+} //_CODE_:btnReloadThumbnail:997964:
+
+public void btnSelectFolder_click1(GButton source, GEvent event) { //_CODE_:btnSelectFolder:583545:
+  println("btnSelectFolder - GButton >> GEvent." + event + " @ " + millis());
+} //_CODE_:btnSelectFolder:583545:
 
 
 
@@ -101,17 +109,9 @@ public void createGUI(){
   btnSelectScan = new GButton(this, 110, 10, 53, 23);
   btnSelectScan.setText("select");
   btnSelectScan.addEventHandler(this, "selectScan_click");
-  chbxBatchUpload = new GCheckbox(this, 10, 40, 120, 20);
-  chbxBatchUpload.setIconAlign(GAlign.LEFT, GAlign.MIDDLE);
-  chbxBatchUpload.setText("Batch upload");
-  chbxBatchUpload.setOpaque(false);
-  chbxBatchUpload.addEventHandler(this, "batchUpload_clicked");
   txtLog = new GTextArea(this, 10, 270, 461, 190, G4P.SCROLLBARS_VERTICAL_ONLY);
   txtLog.setOpaque(true);
   txtLog.addEventHandler(this, "txtLog_change");
-  btnFolder = new GButton(this, 110, 40, 54, 22);
-  btnFolder.setText("select");
-  btnFolder.addEventHandler(this, "btnFolder_click");
   btnUpload = new GButton(this, 10, 170, 120, 40);
   btnUpload.setText("Upload");
   btnUpload.addEventHandler(this, "btnUpload_click");
@@ -120,14 +120,23 @@ public void createGUI(){
   txfdScan.setOpaque(true);
   txfdScan.addEventHandler(this, "txfdScan_change");
   txfdFolder = new GTextField(this, 170, 40, 300, 20, G4P.SCROLLBARS_NONE);
-  txfdFolder.setPromptText("folder with several scans");
+  txfdFolder.setPromptText("Target output folder");
   txfdFolder.setOpaque(true);
   txfdFolder.addEventHandler(this, "txfdFolder_change");
   lblProcessLog = new GLabel(this, 10, 250, 80, 20);
   lblProcessLog.setText("Process log:");
   lblProcessLog.setOpaque(false);
-  btnStop = new GImageButton(this, 430, 170, 40, 40, new String[] { "stop_2.png", "stop_1.png", "stop_0.png" } );
+    btnStop = new GImageButton(this, 430, 170, 40, 40, new String[] { "stop_2.png", "stop_1.png", "stop_0.png" } );
   btnStop.addEventHandler(this, "btnStop_click");
+  btnReloadThumbnail = new GButton(this, 580, 10, 120, 20);
+  btnReloadThumbnail.setText("reload thumbnail");
+  btnReloadThumbnail.addEventHandler(this, "btnReloadThumbnail_click");
+  btnSelectFolder = new GButton(this, 110, 40, 53, 23);
+  btnSelectFolder.setText("select");
+  btnSelectFolder.addEventHandler(this, "btnSelectFolder_click1");
+  label1 = new GLabel(this, 10, 40, 100, 20);
+  label1.setText("Target folder");
+  label1.setOpaque(false);
 }
 
 // Variable declarations 
@@ -140,11 +149,12 @@ GLabel lblFolder;
 GLabel lblSubfolder; 
 GDropList dlSubfolder; 
 GButton btnSelectScan; 
-GCheckbox chbxBatchUpload; 
 GTextArea txtLog; 
-GButton btnFolder; 
 GButton btnUpload; 
 GTextField txfdScan; 
 GTextField txfdFolder; 
 GLabel lblProcessLog; 
 GImageButton btnStop; 
+GButton btnReloadThumbnail; 
+GButton btnSelectFolder; 
+GLabel label1; 

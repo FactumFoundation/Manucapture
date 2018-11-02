@@ -8,23 +8,25 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
-
 XML archiveXML;
 String[] folders;
 String[] subfolders;
 int selectedFolderIndex = 0;
 int selectedSubfolderIndex = 0;
 
-String ftpHost = "192.168.2.201";
-String ftpUser = "factum";
-String ftpPass = "1234asdf$";
+// Settings:
+String sshHost = "192.168.2.201";
+String sshPort = "50022";
+String sshUser = "user";
+String sshPass = "1234asdf$";
+String localPath = "/home/factum/0_Book_Scans";
 
 String rawTherapeeCommand = "/home/factum/RawTherapee_5.4/RawTherapee-releases-5.4.AppImage -R /home/factum/0_Book_Scans/1001/raw/";
 
-boolean doUpload = false;
+boolean doDownload = false;
 
 int APP_IDLE_STATE = 0; 
-int APP_UPLOADING_STATE = 1;
+int APP_DOWNLOADING_STATE = 1;
 int appState = APP_IDLE_STATE;
 
 OscP5 oscP5;
@@ -33,12 +35,14 @@ Process uProcess;
 
 public void setup(){
   
-  size(480, 480, JAVA2D);
+  size(800, 480, JAVA2D);
   createGUI();
   customGUI();
-  // Place your setup code here
+
+  // Interprocess communication via OSC (Python server, manucapture clients)
   oscP5 = new OscP5(this,5005);
   uploaderLocation = new NetAddress("127.0.0.1",5008);
+
   loadSettings();
   loadLastSessionState();
   initFolders();
@@ -50,15 +54,13 @@ public void setup(){
 public void draw(){
   background(0xC6C4C4); 
   if(appState==APP_IDLE_STATE){
-    if(doUpload){
-        appState=APP_UPLOADING_STATE;
-        enableUploadControlButtons(true);
-        thread("uploadProcess");
+    if(doDownload){
+        appState=APP_DOWNLOADING_STATE;
+        thread("downloadProcess");
     }    
-  } else if(appState==APP_UPLOADING_STATE) {
-    if(!doUpload){
+  } else if(appState==APP_DOWNLOADING_STATE) {
+    if(!doDownload){
       appState=APP_IDLE_STATE;
-      enableUploadControlButtons(false);
     }
   }
 }
@@ -76,8 +78,6 @@ public void customGUI(){
     btnStop = new GImageButton(this, 430, 170, 40, 40, new String[] { "stop_2.png", "stop_1.png", "stop_0.png" } );
 
   */
-  setBatchUpload(false);
-  enableUploadControlButtons(false);
 
 }
 
@@ -104,63 +104,39 @@ String[] getSubfolders(int folderIndex){
     return null;
 }
 
-void setBatchUpload(boolean batch){
-  if(!batch){
-     btnSelectScan.setEnabled(true);
-     btnSelectScan.setAlpha(255);
-     txfdScan.setEnabled(true);
-     txfdScan.setAlpha(255);
-     btnFolder.setEnabled(false);
-     btnFolder.setAlpha(100);
-     txfdFolder.setEnabled(false);
-     txfdFolder.setAlpha(100);
-  } else {
-     btnSelectScan.setEnabled(false);
-     btnSelectScan.setAlpha(100);
-     txfdScan.setEnabled(false);
-     txfdScan.setAlpha(100);
-     btnFolder.setEnabled(true);
-     btnFolder.setAlpha(255);
-     txfdFolder.setEnabled(true);
-     txfdFolder.setAlpha(255);
-  }
-}
-
-void enableUploadControlButtons(boolean enable){
- if(enable){
-  btnUpload.setEnabled(false);
-  btnUpload.setAlpha(100);
-  btnStop.setAlpha(255);
-  btnStop.setEnabled(true);
- } else {
-  btnUpload.setEnabled(true);
-  btnUpload.setAlpha(255);
-  btnStop.setAlpha(100);
-  btnStop.setEnabled(false);
- }
-}
-
 void scanSelected(File selection){
   txfdScan.setText(selection.getAbsolutePath());
 }
 
-void folderSelected(File selection){
-  txfdFolder.setText(selection.getAbsolutePath());
-}
-
 void loadLastSessionState(){
-  XML sessionState = loadXML("lastSession.xml");
-  
+  XML sessionState = loadXML("lastSession.xml");  
 }
 
+// Required settings: 
+// Base download folder
 void loadSettings(){
-  XML settings = loadXML("lastSession.xml");
   
+  XML settings = loadXML("settings.xml");  
+  XML connectionXML = settings.getChild("Connection");
+  sshHost = connectionXML.getString("host");
+  sshPort = connectionXML.getString("port");
+  sshUser = connectionXML.getString("user");
+  sshPass = connectionXML.getString("pass");
+  XML localFolderXML = settings.getChild("Local_Folder");
+  localPath = localFolderXML.getString("path");
+  println("-- Settings loaded ------------");
+  println("host:",sshHost);
+  println("port:",sshPort);
+  println("user:",sshUser);
+  println("pass:",sshPass);
+  println("local path:",localPath);
+  println("------------------------------");
+
 }
 
-void uploadProcess() {
-  println("Start Upload!!!");
-  String commandToRun = "python3.6 " + sketchPath() +  "/../scripts/upload_to_server.py 213 131 13";
+void downloadProcess() {
+  println("Start Download process!!!");
+  String commandToRun = "python " + sketchPath() +  "scripts/download_project_info.py 213 131 13";
   PApplet.println(commandToRun);
   try {
     String[] commands = new String[] { "/bin/sh", "-c", commandToRun };
@@ -168,8 +144,7 @@ void uploadProcess() {
     uProcess.waitFor();
   } catch (Exception ioe) {
     ioe.printStackTrace();
-  }
-  doUpload = false;
+  }  
 }
 
 /* incoming osc message are forwarded to the oscEvent method. */
