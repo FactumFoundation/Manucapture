@@ -85,7 +85,6 @@ public class MImage {
 			File itemImg = new File(context.project.projectDirectory + "/" + imagePath);
 			if (itemImg.exists()) {
 				String thumbnailPath = getThumbnailPath(context.project.projectDirectory, itemImg);
-				context.println("itemImage " + thumbnailPath);
 				File thumbFile = new File(thumbnailPath);
 				thumbPath = thumbnailPath;
 				if (!thumbFile.exists()) {
@@ -152,7 +151,6 @@ public class MImage {
 		PImage thumbImg = parent.loadImage(thumbnailPath);
 		if (thumbImg != null && thumbImg.width > 0) {
 			thumbImg = thumbImg.get(0, 0, thumbImg.width - thumbMargin, thumbImg.height);
-			context.println("Thumbnail Generated : " + thumbnailPath);
 		} else {
 			context.println("ERROR Thumbnail not Generated : " + thumbnailPath);
 		}

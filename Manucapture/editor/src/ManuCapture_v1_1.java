@@ -84,7 +84,7 @@ public class ManuCapture_v1_1 extends PApplet {
 	// max time waitting from send action to camera and receive event
 	// static public int MAX_TIME_TO_EVENT = 3000;
 	// max time waitting from send action to camera and receive event
-	static public int MAX_TIME_CAPTURE_MACHINE_STATE = 5000;
+	static public int MAX_TIME_CAPTURE_MACHINE_STATE = 6000;
 
 	G2P5 gphotoPageRight;
 	G2P5 gphotoPageLeft;
@@ -175,6 +175,8 @@ public class ManuCapture_v1_1 extends PApplet {
 		
 		System.setOut(new TracingPrintStream(System.out));
 		
+		println("Starting Manucapture, update timestap: 08/11/2018 ");
+		
 		// OSC comms to Arduino Driver
 		oscP5 = new OscP5(this, receivePort);
 		viewerLocation = new NetAddress("127.0.0.1", sendPort);
@@ -256,7 +258,7 @@ public class ManuCapture_v1_1 extends PApplet {
 	}
 	
 	public void settings() {
-		  size(1920, 1080, "processing.opengl.PGraphics2D");
+		  size(1918, 1080, "processing.opengl.PGraphics2D");
 	}
 
 	public void post() {
@@ -911,17 +913,18 @@ public class ManuCapture_v1_1 extends PApplet {
 		InputStream iStream = null;
 		BufferedReader bReader = null;
 		try {
+			Thread.sleep(500);
 			String[] cmds = new String[] { "/bin/sh", "-c", commandToRun };
 			Process p = new ProcessBuilder(cmds).start();
-			iStream = p.getInputStream();
+			/*iStream = p.getInputStream();
 			bReader = new BufferedReader(new InputStreamReader(iStream), 1);
 			String moveline;
 			while ((moveline = bReader.readLine()) != null) {
 				PApplet.println("MV message : " + moveline);
-			}
-
-			p.waitFor(1000, TimeUnit.MILLISECONDS);
-			// Thread.sleep(500);
+			}*/
+			//p.waitFor(1000, TimeUnit.MILLISECONDS);
+			int retValue = p.waitFor();
+			PApplet.println("copy process result: " + retValue); // the value 0 indicates normal termination.
 			return true;
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
@@ -1053,22 +1056,28 @@ public class ManuCapture_v1_1 extends PApplet {
 	public void camerasStateWatchDog() {
 
 		// Check general timing in Capture State to solve the triggering
+		long now = millis();
 		if (getCaptureState() == CAMERAS_INACTIVE && gphotoPageRight.active && gphotoPageLeft.active) {
 			setCaptureState(CAMERAS_IDLE);
 		} else if (getCaptureState() == CAMERAS_FOCUSSING) {
 			if (gphotoPageRightAdapter.mirrorUp && gphotoPageLeftAdapter.mirrorUp) {
 				setCaptureState(CAMERAS_MIRROR_UP);
-			} else if (millis() > lastCaptureMillis + MAX_TIME_CAPTURE_MACHINE_STATE) {
+			} else if (now > lastCaptureMillis + MAX_TIME_CAPTURE_MACHINE_STATE) {
 				setCaptureState(CAMERAS_RECOVERING);
 			}
 		} else if (getCaptureState() == CAMERAS_MIRROR_UP) {
 			if (!gphotoPageRightAdapter.mirrorUp && !gphotoPageLeftAdapter.mirrorUp) {
+				println("Process complete succesfully. ellapsed time: "  + (now - lastCaptureMillis));
+				println("");
 				setCaptureState(CAMERAS_IDLE);
+			} else if (now > lastCaptureMillis + 2*MAX_TIME_CAPTURE_MACHINE_STATE) {
+				println("ellapsed time: "  + (now - lastCaptureMillis));
+				setCaptureState(CAMERAS_RECOVERING);
 			}
 		} else if (getCaptureState() == CAMERAS_RECOVERING) {
 			if (!gphotoPageRightAdapter.mirrorUp && !gphotoPageLeftAdapter.mirrorUp) {
 				setCaptureState(CAMERAS_IDLE);
-			} else if (millis() > lastCaptureMillis + MAX_TIME_CAPTURE_MACHINE_STATE) {
+			} else if (now > lastCaptureMillis + MAX_TIME_CAPTURE_MACHINE_STATE) {
 				if (gphotoPageRightAdapter.mirrorUp) {
 					clickCameraPageRight();
 					ignoreNextPageRight = true;
@@ -1136,7 +1145,6 @@ public class ManuCapture_v1_1 extends PApplet {
 	}
 
 	public void releaseAndShutterCameras() {
-		println("shutter cameras");
 		OscMessage myMessage = new OscMessage("/shutterAction");
 		myMessage.add('W');
 		oscP5.send(myMessage, arduinoDriverLocation);

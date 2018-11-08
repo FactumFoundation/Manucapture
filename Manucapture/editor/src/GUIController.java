@@ -265,7 +265,7 @@ public class GUIController {
 	public void openViewer_1(GImageButton source, GEvent event) {
 		if (context.chartStateMachine != 3) {
 			try {
-				String cmd = "rawtherapee " + context.project.projectDirectory
+				String cmd = "rawtherapee -R " + context.project.projectDirectory
 						+ context.project.selectedItem.mImageRight.imagePath;
 				context.println(cmd);
 				Runtime.getRuntime().exec(cmd);
@@ -279,8 +279,9 @@ public class GUIController {
 	public void openViewer_2(GImageButton source, GEvent event) {
 		if (context.chartStateMachine != 3) {
 			try {
-				Runtime.getRuntime().exec(
-						"rawtherapee " + context.project.projectDirectory + context.project.selectedItem.mImageLeft.imagePath);
+				String cmd = "rawtherapee -R " + context.project.projectDirectory + context.project.selectedItem.mImageLeft.imagePath;  
+				context.println(cmd);
+				Runtime.getRuntime().exec(cmd);
 			} catch (Exception e) {
 				context._println("Couldn't create raw directory permisions");
 			}

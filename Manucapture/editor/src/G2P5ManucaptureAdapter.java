@@ -18,7 +18,7 @@ public class G2P5ManucaptureAdapter implements G2P5Listener {
 
 	String exposure = "unknown";
 
-	public ManuCapture_v1_1 manuCapture;
+	public ManuCapture_v1_1 context;
 
 	boolean propertyMirrorUpChanged = false;
 	boolean focus = false;
@@ -29,7 +29,7 @@ public class G2P5ManucaptureAdapter implements G2P5Listener {
 	String lastMask = null;
 
 	public G2P5ManucaptureAdapter(ManuCapture_v1_1 context, G2P5 g2p5) {
-		this.manuCapture = context;
+		this.context = context;
 		this.g2p5 = g2p5;
 	}
 	
@@ -43,21 +43,21 @@ public class G2P5ManucaptureAdapter implements G2P5Listener {
 	}
 
 	public void newEvent(G2P5Event event) {
-		lastEventMillis = manuCapture.millis();
+		lastEventMillis = context.millis();
 		if (event.eventID == G2P5Event.NEW_PHOTO) {
-			manuCapture.newPhotoEvent(event);
+			context.newPhotoEvent(event);
 			mirrorUp = false;
 		} else if (event.eventID == G2P5Event.EVENT_EXPOSURE) {
 			exposure = event.content;
 		} else if(event.eventID == G2P5Event.EVENT_PTP) {
 			if( g2p5 instanceof Canon700D_G2P5){
 				if(event.content.contains("d102")) {
-					 System.out.println(g2p5.id + " Property related with Mirror up changed ");
+					 //System.out.println(g2p5.id + " Property related with Mirror up changed ");
 					 propertyMirrorUpChanged = true;
 				}
 			} else if(g2p5 instanceof CanonEOS5DSR_G2P5){
 				if(event.content.contains("d1bf")) {
-					 System.out.println(g2p5.id + " Property related with Mirror up changed ");
+					 //System.out.println(g2p5.id + " Property related with Mirror up changed ");
 					 propertyMirrorUpChanged = true;
 				}
 			}
@@ -65,13 +65,17 @@ public class G2P5ManucaptureAdapter implements G2P5Listener {
 		else if (event.eventID == G2P5Event.EVENT_MASK) {
 			if( g2p5 instanceof Canon700D_G2P5){
 				if (propertyMirrorUpChanged && event.content.trim().endsWith("3")) {				
-					mirrorUp = true;
-					PApplet.println("MIRRORRRRRRR UP " + g2p5.id);
+					if(context.getCaptureState()==context.CAMERAS_FOCUSSING) {
+						mirrorUp = true;
+						PApplet.println("MIRROR UP " + g2p5.id);
+					}
 				} 	
 			} else if(g2p5 instanceof CanonEOS5DSR_G2P5){
-				if (propertyMirrorUpChanged && event.content.trim().endsWith("1")) {				
-					mirrorUp = true;
-					PApplet.println("MIRRORRRRRRR UP " + g2p5.id);
+				if (propertyMirrorUpChanged && event.content.trim().endsWith("1")) {	
+					if(context.getCaptureState()==context.CAMERAS_FOCUSSING) {
+						mirrorUp = true;
+						PApplet.println("MIRROR UP " + g2p5.id);
+					}
 				} 	
 			}
 			propertyMirrorUpChanged = false;

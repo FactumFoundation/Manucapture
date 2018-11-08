@@ -338,7 +338,7 @@ public class Project {
 			}
 
 			context.saveXML(projectXML, projectFilePath);
-			context.println("Saved project to ", projectFilePath);
+			context.println("project saved: " + projectFilePath);
 
 			// VERIFY INTEGRITY XML -> FILES
 			verify();
