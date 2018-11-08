@@ -79,7 +79,7 @@ void serialEvent() {
         shutter(); 
       } else if (message == 'W') {
         releaseCameraButton();
-        delay(400);
+        delay(100);
         shutter(); 
       } else if (message == 'Y') {
         releaseCamera_2();
@@ -135,9 +135,3 @@ void shutter_2(){
   delay(300);
   digitalWrite(camPin_2,HIGH);
 }
-
-
-
-
-
-
