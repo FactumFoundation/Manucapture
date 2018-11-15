@@ -26,7 +26,7 @@ public class PageCropper {
 	
 	int maxLines = 5;
 	int leftImgWidth, leftImgHeight, rightImgWidth, rightImgHeight;
-	int margin = 10;
+	int margin = 20;
 	
 	PageCropper(ManuCapture_v1_1 context){
 		this.context=context;

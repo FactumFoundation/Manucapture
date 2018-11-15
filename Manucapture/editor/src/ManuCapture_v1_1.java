@@ -430,9 +430,9 @@ public class ManuCapture_v1_1 extends PApplet {
 
 		fill(255);
 		textSize(32);
-		text(msg("sw.name"), width / 2, 250);
+		text(msg("sw.name") + " " + msg("sw.version"), width / 2, 250);
 		textSize(18);
-		text(msg("factum.name") + " " + msg("sw.version"), width / 2, height - 30);
+		text(msg("factum.name"), width / 2, height - 90);
 		textSize(20);
 
 		if (dist2 < 100)

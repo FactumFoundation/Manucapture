@@ -6,9 +6,11 @@ public class MessageContainer {
 	Map<String, String> content = new HashMap<>();
 
 	public void init() {
-		content.put("factum.name", "Factum Foundation");
+		content.put("factum.name", "An open source project initiated by Enrique Esteban, Eduardo Moriana and Jorge Cano, supported by Factum Foundation and other programmers like you\n © Factum Foundation, Madrid, Spain 2018");
+		
 		content.put("sw.version", "Version 2.0");
 		content.put("sw.name", "MANUCAPTURE");
+		
 		content.put("sw.newproject", "NEW PROJECT");
 		content.put("sw.openproject", "LOAD PROJECT");
 		content.put("sw.lastproject", "LOAD PREVIOUS");
