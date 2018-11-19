@@ -593,7 +593,7 @@ public class ContentGUI {
 
 	public void mouseReleased() {
 
-		if(selectedGuide!=null) {
+		if(selectedGuide!=null && context.project.selectedItem!=null) {
 			context.project.selectedItem.mImageLeft.saveMetadata();
 			context.project.selectedItem.mImageRight.saveMetadata();
 		}
