@@ -818,17 +818,40 @@ public class ManuCapture_v1_1 extends PApplet {
 		project.loadProjectMethod(projectPath);
 		String errors = "";
 		if (project.rotationPageRight != rotationPageRight) {
-			errors += msg("sw.rotationAChanged") + project.rotationPageRight + "->" + rotationPageRight + "\n";
+			errors += msg("sw.rotationRightChanged") + project.rotationPageRight + "->" + rotationPageRight + "\n";
+			rotationPageRight = project.rotationPageRight;
 		}
 		if (project.rotationPageLeft != rotationPageLeft) {
-			errors += msg("sw.rotationBChanged") + project.rotationPageLeft + "->" + rotationPageLeft + "\n";
+			errors += msg("sw.rotationLeftChanged") + project.rotationPageLeft + "->" + rotationPageLeft + "\n";
+			rotationPageLeft = project.rotationPageLeft;
 		}
 		if (!project.serialCameraPageRight.equals(serialCameraPageRight)) {
-			errors += msg("sw.serialAChanged") + project.serialCameraPageRight + "->" + serialCameraPageRight + "\n";
+			errors += msg("sw.serialRightChanged") + project.serialCameraPageRight + "->" + serialCameraPageRight + "\n";
+			serialCameraPageRight = project.serialCameraPageRight;
 		}
 		if (!project.serialCameraPageLeft.equals(serialCameraPageLeft)) {
-			errors += msg("sw.serialBChanged") + project.serialCameraPageLeft + "->" + serialCameraPageLeft + "\n";
+			errors += msg("sw.serialLeftChanged") + project.serialCameraPageLeft + "->" + serialCameraPageLeft + "\n";
+			serialCameraPageLeft = project.serialCameraPageLeft;
 		}
+		if (project.rawWidth != rawW) {
+			errors += msg("sw.rawWidthChanged") + project.serialCameraPageLeft + "->" + serialCameraPageLeft + "\n";
+			rawW = project.rawWidth;
+		}
+		if (project.rawHeight != rawH) {
+			errors += msg("sw.rawHeightChanged") + project.serialCameraPageLeft + "->" + serialCameraPageLeft + "\n";
+			rawH = project.rawHeight;
+		}
+		if (!project.source.equals(source)) {
+			errors += msg("sw.sourceChanged") + project.serialCameraPageLeft + "->" + serialCameraPageLeft + "\n";
+			source = project.source;
+		}
+		if (!project.cameraModel.equals(cameraModel)) {
+			errors += msg("sw.cameraModelChanged") + project.serialCameraPageLeft + "->" + serialCameraPageLeft + "\n";
+			cameraModel = project.cameraModel;
+		}
+		
+		
+		
 		if (!errors.equals("")) {
 			G4P.showMessage(this, errors, "", G4P.WARNING);
 		}

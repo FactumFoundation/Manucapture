@@ -25,11 +25,16 @@ public class MessageContainer {
 
 		content.put("sw.errorloadingproject", "Can't load project");
 
-		content.put("sw.rotationAChanged", "Rotation A in serials has changed ");
-		content.put("sw.rotationBChanged", "Rotation B in serials has changed ");
-		content.put("sw.serialAChanged", "Serial A in serials has changed ");
-		content.put("sw.serialBChanged", "Serial B in serials has changed ");
-
+		content.put("sw.rotationRightChanged", "Page right camera rotation has changed ");
+		content.put("sw.rotationLeftChanged", "Page left camera rotation has changed ");
+		content.put("sw.serialRightChanged", "Page right camera serial has changed ");
+		content.put("sw.serialLeftChanged", "Page left camera serial has changed ");
+		
+		content.put("sw.rawWidthChanged", "Raw image width has changed ");
+		content.put("sw.rawHeightChanged", "Raw image height has changed ");
+		content.put("sw.sourceChanged", "Source scanner has changed ");
+		content.put("sw.cameraModelChanged", "Camera model has changed ");
+		
 		content.put("sw.notconnected", "Can't capture, cameras are not connected, check connection and camera state");
 		content.put("sw.notready", "Can't Trigger, cameras are not ready");
 		content.put("sw.noeventA", "Camera A Fails, no event after action");

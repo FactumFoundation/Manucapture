@@ -41,6 +41,10 @@ public class Project {
 
 	int rotationPageRight;
 	int rotationPageLeft;
+	
+	int rawWidth;
+	int rawHeight;
+	String cameraModel;
 
 	ArrayList<Item> items = new ArrayList<Item>();
 
@@ -136,17 +140,20 @@ public class Project {
 	}
 
 	public void loadProjectSerials(XML projectDataXML) {
-		XML serialsXML = projectDataXML.getChild("serials");
-		XML a = serialsXML.getChild("A");
-		serialCameraPageRight = a.getContent();
-		serialCameraPageLeft = serialsXML.getChild("B").getContent();
 
-		rotationPageRight = serialsXML.getChild("A").getInt("rotation");
-		rotationPageLeft = serialsXML.getChild("B").getInt("rotation");
+		XML cameraPropsXML = projectDataXML.getChild("camera_properties");
+		rawWidth = cameraPropsXML.getInt("raw_width");
+		rawHeight = cameraPropsXML.getInt("raw_height"); 
+		cameraModel = cameraPropsXML.getString("cameraModel");
+		XML leftPageCameraXML = cameraPropsXML.getChild("camera_page_left");
+		XML rightPageCameraXML = cameraPropsXML.getChild("camera_page_right");
+		serialCameraPageRight = rightPageCameraXML.getContent();
+		serialCameraPageLeft = leftPageCameraXML.getContent();
+		rotationPageRight = rightPageCameraXML.getInt("rotation");
+		rotationPageLeft = leftPageCameraXML.getInt("rotation");
 	}
 
 	public void loadProjectMetadata(XML projectDataXML) {
-
 		// projectName =
 		// projectDataXML.getChild("metadata").getChild("name").getContent();
 		// context.gui.name_text.setText(projectName);
@@ -167,6 +174,7 @@ public class Project {
 		XML targetDirectoryXML = projectDataXML.getChild("metadata").getChild("target_directory");
 		XML targetSubDirectoryXML = projectDataXML.getChild("metadata").getChild("target_subdirectory");
 		XML uploadedXML = projectDataXML.getChild("metadata").getChild("uploaded");
+		source = projectDataXML.getChild("metadata").getChild("source").getContent();
 
 		if (timestampXML != null)
 			timestamp = timestampXML.getContent("");
@@ -230,19 +238,24 @@ public class Project {
 
 			projectXML.addChild(metadataXML);
 
-			XML serialsXML = new XML("serials");
+			XML cameraPropsXML = new XML("camera_properties");
+			cameraPropsXML.setInt("raw_width", context.rawW);
+			cameraPropsXML.setInt("raw_height", context.rawH);
+			cameraPropsXML.setString("source", context.source);
+			cameraPropsXML.setString("cameraModel", context.cameraModel);
+			cameraPropsXML.setString("repository", context.proyectsRepositoryFolder);
 
-			XML AXML = new XML("A");
-			AXML.setContent(serialCameraPageRight);
-			AXML.setInt("rotation", rotationPageRight);
-			serialsXML.addChild(AXML);
+			XML rightPageXML = new XML("camera_page_right");
+			rightPageXML.setContent(serialCameraPageRight);
+			rightPageXML.setInt("rotation", rotationPageRight);
+			cameraPropsXML.addChild(rightPageXML);
 
-			XML BXML = new XML("B");
-			BXML.setContent(serialCameraPageLeft);
-			BXML.setInt("rotation", rotationPageLeft);
-			serialsXML.addChild(BXML);
+			XML leftPageXML = new XML("camera_page_left");
+			leftPageXML.setContent(serialCameraPageLeft);
+			leftPageXML.setInt("rotation", rotationPageLeft);
+			cameraPropsXML.addChild(leftPageXML);
 
-			projectXML.addChild(serialsXML);
+			projectXML.addChild(cameraPropsXML);
 
 			XML itemsXML = new XML("items");
 			Item lastChartItem = null;

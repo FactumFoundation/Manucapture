@@ -5,11 +5,16 @@
     <code/>
     <comment/>
     <author/>
+    <timestamp/>
+    <target_directory/>
+    <target_subdirectory/>
+    <uploaded/>
+    <source>dslr</source>
   </metadata>
-  <serials>
-  	<a serial="" rotation=""></a>
-  	<b serial="" rotation=""></b>
-  </serials>
+  <camera_properties>
+    <camera_page_right/>
+    <camera_page_left/>
+  </camera_properties>
   <items/>
   <image_counter>0</image_counter>
 </project>
