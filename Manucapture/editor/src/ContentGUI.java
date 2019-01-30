@@ -596,6 +596,8 @@ public class ContentGUI {
 		if(selectedGuide!=null && context.project.selectedItem!=null) {
 			context.project.selectedItem.mImageLeft.saveMetadata();
 			context.project.selectedItem.mImageRight.saveMetadata();
+			context.pageCropper.initGuides(context.project.selectedItem.mImageLeft.guides, 
+											context.project.selectedItem.mImageRight.guides);
 		}
 		
 		selectedGuide = null;

@@ -12,5 +12,9 @@
 	<classpathentry kind="lib" path="processing_3_libs/oscP5.jar"/>
 	<classpathentry kind="lib" path="processing_3_libs/serial.jar"/>
 	<classpathentry kind="lib" path="processing_3_libs/jssc.jar"/>
+	<classpathentry kind="lib" path="processing_3_libs/boofcv_dependencies.jar"/>
+	<classpathentry kind="lib" path="processing_3_libs/boofcv_processing.jar"/>
+	<classpathentry kind="lib" path="processing_3_libs/jna.jar"/>
+	<classpathentry kind="lib" path="processing_3_libs/gst1-java-core-0.9.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

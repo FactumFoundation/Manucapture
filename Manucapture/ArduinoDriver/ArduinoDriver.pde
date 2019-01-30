@@ -39,7 +39,23 @@ import processing.serial.*;
     // is always my FTDI adaptor, so I open Serial.list()[0].
     // On Windows machines, this generally opens COM1.
     // Open whatever port is the one you're using.
-    String portName = Serial.list()[0];
+    
+    
+    
+    
+    String portName = ""; 
+    String[] portList = Serial.list();
+    for(int i = 0; i < portList.length; i++){
+      if(portList[i].contains("ttyUSB")){
+         portName = portList[i];
+         break;
+      }
+    }
+    
+    if(portName.equals("")){
+      portName = portList[0];
+    }
+    
     try {
     myPort = new Serial(this, portName, 9600);
     } catch(Exception e) {

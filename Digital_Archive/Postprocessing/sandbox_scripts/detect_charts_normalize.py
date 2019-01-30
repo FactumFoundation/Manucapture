@@ -21,18 +21,14 @@ CIE = "RESOURCES/ColorChecker.cie"
 
 
 def kmeansClusters(filename):
-    
     NUM_CLUSTERS = 5
-    
     im = Image.open(filename) 
     im = im.resize((150, 150))
     ar = np.asarray(im)
     shape = ar.shape
     ar = ar.reshape(scipy.product(shape[:2]), shape[2]).astype(float)
-    
     #print 'localiza clusters'
     codes, dist = scipy.cluster.vq.kmeans(ar, NUM_CLUSTERS)
-
     #calculo la desviación entre los colores de cada cluster y los clusteres en si para cuanto
     # menos variación más probable que sea un fondo negro.
     devClus = []
@@ -40,7 +36,6 @@ def kmeansClusters(filename):
     for c in codes:
         devClus.append(np.std(c) )
         i = i+1
-        
     desv =  np.std( devClus )
     """
     #para sacar el color medio por si hace falta
@@ -58,21 +53,17 @@ def kmeansClusters(filename):
     return desv
 
 def call_dcraw(rawname):
-
     dcraw = "dcraw -T -v -o 0 -W -w -g 2.2 0 -h {0}".format(rawname)
     subprocess.check_call(shlex.split(dcraw) )
     
 def backup(PATH):
     projectXML = os.path.join(PATH,"project.xml")
     projectXMLBackUp = os.path.join(PATH,"project.xml.backup")
-            
     copyfile(projectXML, projectXMLBackUp )
-    
     if os.path.isfile(projectXMLBackUp): 
         s = True
     else:
         s = False
-        
     return s
     
     
@@ -161,8 +152,7 @@ def recuentaCartas(lst):
     imgs = {}
     imgs[1] = 0
     imgs[0] = 0
- 
-    
+
     for i in range(len(lst)):  
         if lst[i][1] == "chart" and lst[i][2] == "image":
             imgs[0] = imgs[0] + 1
@@ -209,16 +199,13 @@ def recuentaCartas(lst):
 
 
 def duplicaArchivos(PATH, arch):
-    
     orig = os.path.join(PATH,"raw", arch)
     new = os.path.join(PATH,"raw", "duplicate_"+arch )
     copyfile(orig, new )
-    
     if os.path.isfile(new): 
         s = True
     else:
         s = False
-        
     return s
 
 def editarXML(PATH, lst):
@@ -438,10 +425,8 @@ def uptate_all_xml(PATH):
                 j = j + 1
             else:
                 elt.text = "0.0"
-
     indent(root)    
     #ET.dump(root)
-
     tree.write(  os.path.join(PATH, "project.xml" ), encoding="utf-8", xml_declaration=True )
 
 def removeValidPages(lst):
