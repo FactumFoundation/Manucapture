@@ -1,2 +1,0 @@
-[19/11/2018-16:28:57] lastSession.xml not found
-[19/11/2018-16:29:3] lastSession.xml not found

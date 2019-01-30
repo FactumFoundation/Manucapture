@@ -1029,9 +1029,9 @@ public class ManuCapture_v1_1 extends PApplet {
 		int d = day(); // Values from 1 - 31
 		int m = month(); // Values from 1 - 12
 		int y = year(); // 2003, 2004, 2005, etc.
-		String date = d + "/" + m + "/" + y + "-" + h + ":" + min + ":" + s;
+		String date = d + "-" + m + "-" + y + "_" + h + ":" + min + ":" + s;
 		if (logOutput == null) {
-			logOutput = createWriter("log_" + date + ".txt");
+			logOutput = createWriter(System.getProperty("user.home") + "/.manucapture/logs/"+"log_" + date + ".txt");
 		}
 		logOutput.println("[" + date + "] " + message);
 		logOutput.flush(); // Writes the remaining data to the file
