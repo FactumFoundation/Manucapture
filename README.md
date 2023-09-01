@@ -1,4 +1,4 @@
-# Book Scanner
+# Manucapture
 
 Integrated system for recording and archiving manuscripts in the Insititue of History, Archaeology and Ethnography (IHAE) in Makhachkala
 
